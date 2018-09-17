@@ -1,0 +1,12 @@
+bidrag:
+  dokument:
+    url:
+      base: https://bidrag-dokument
+      journalpost: journalpost
+  joark:
+    url:
+      base: https://joark
+      journalforing: journalforing
+server:
+  servlet:
+    context-path: /bidrag-dokument
