@@ -15,7 +15,7 @@
 
     <modules>
         <module>bidrag-dokument-ear</module>
-        <module>bidrag-dokument-nais</module>
+        <module>bidrag-dokument-microservice</module>
     </modules>
 
 </project>
