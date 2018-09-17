@@ -9,12 +9,12 @@
     <version>1.0-SNAPSHOT</version>
 
     <name>bidrag-dokument</name>
-    <description>bygg pom for bygging av bidrag-dokument-nais og bidrag-dokument-ear</description>
+    <description>bygg pom for bygging av bidrag-dokument-nais og bidrag-dokument-model</description>
     <url>http://stash.devillo.no/users/j104364/repos/bidrag-dokument/browse</url>
     <packaging>pom</packaging>
 
     <modules>
-        <module>bidrag-dokument-ear</module>
+        <module>bidrag-dokument-model</module>
         <module>bidrag-dokument-microservice</module>
     </modules>
 
