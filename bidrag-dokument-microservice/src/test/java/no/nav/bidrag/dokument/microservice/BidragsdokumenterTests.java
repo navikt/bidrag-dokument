@@ -1,4 +1,4 @@
-package no.nav.bidrag.dokument.consumer;
+package no.nav.bidrag.dokument.microservice;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

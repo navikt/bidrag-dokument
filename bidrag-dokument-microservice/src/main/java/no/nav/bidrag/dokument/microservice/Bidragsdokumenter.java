@@ -1,5 +1,6 @@
-package no.nav.bidrag.dokument.consumer;
+package no.nav.bidrag.dokument.microservice;
 
+import no.nav.bidrag.dokument.consumer.JournalforingConsumer;
 import no.nav.bidrag.dokument.service.JournalpostService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;

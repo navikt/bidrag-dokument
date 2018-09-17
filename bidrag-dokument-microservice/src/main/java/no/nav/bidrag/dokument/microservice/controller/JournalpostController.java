@@ -1,4 +1,4 @@
-package no.nav.bidrag.dokument.consumer.controller;
+package no.nav.bidrag.dokument.microservice.controller;
 
 import io.swagger.annotations.ApiOperation;
 import no.nav.bidrag.dokument.domain.Journalpost;
