@@ -1,7 +1,7 @@
 package no.nav.bidrag.dokument.consumer;
 
-import no.nav.bidrag.dokument.domain.dto.DtoManager;
-import no.nav.bidrag.dokument.domain.dto.JournalforingDto;
+import no.nav.bidrag.dokument.domain.joark.DtoManager;
+import no.nav.bidrag.dokument.domain.joark.JournalforingDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriTemplateHandler;

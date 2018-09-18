@@ -13,7 +13,7 @@ Tjenesten består av 2 elementer:
 
 `bidrag-dokument-microservice` vil tilby et REST grensesnitt som brukes av BISYS for å
 bruke tjenester tilbudt av JOARK men som må tilpasses BISYS sin domenemodell. For å 
-tilpasse tjenestene brukes `bidrag-dokument-model` som består av:
+tilpasse til `bisys` brukes `bidrag-dokument-model` som består av:
 * `bidrag-dokument-consumer` som er konsumenten av tjenestene til JOARK
 * `bidrag-dokument-service` som er tjenestene som blir direkte kallet av
 `bidrag-dokument-microservice`

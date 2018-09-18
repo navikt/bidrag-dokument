@@ -2,9 +2,8 @@ package no.nav.bidrag.dokument.microservice.controller;
 
 import no.nav.bidrag.dokument.consumer.RestTemplateFactory;
 import no.nav.bidrag.dokument.domain.JournalTilstand;
-import no.nav.bidrag.dokument.domain.Journalpost;
-import no.nav.bidrag.dokument.domain.dto.JournalforingDto;
-import org.assertj.core.api.Condition;
+import no.nav.bidrag.dokument.domain.bisys.JournalpostDto;
+import no.nav.bidrag.dokument.domain.joark.JournalforingDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,8 +35,8 @@ class JournalpostControllerTest {
 
     @LocalServerPort private int port;
     @Mock private RestTemplate joarkRestTemplateMock;
-    @Value("${bidrag.dokument.url.journalpost}") private String journalpostEndpoint;
-    @Value("${bidrag.joark.url.journalforing}") private String journalforingEndpoint;
+    @Value("${bidrag-dokument.bisys.url.journalpost}") private String journalpostEndpoint;
+    @Value("${bidrag-dokument.joark.url.journalforing}") private String journalforingEndpoint;
     @Value("${server.servlet.context-path}") private String contextPath;
     @Autowired private TestRestTemplate testRestTemplate;
 
@@ -51,7 +50,7 @@ class JournalpostControllerTest {
         when(joarkRestTemplateMock.getForEntity(eq(journalforingEndpoint), eq(JournalforingDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
 
         String url = String.format("http://localhost:%d%s/%s/hent/1", port, contextPath, journalpostEndpoint);
-        ResponseEntity<Journalpost> journalpostResponseEntity = testRestTemplate.getForEntity(url, Journalpost.class);
+        ResponseEntity<JournalpostDto> journalpostResponseEntity = testRestTemplate.getForEntity(url, JournalpostDto.class);
 
         assertThat(Optional.of(journalpostResponseEntity)).hasValueSatisfying(response -> assertAll(
                 () -> assertThat(response.getBody()).isNull(),
@@ -66,15 +65,12 @@ class JournalpostControllerTest {
         ));
 
         String url = String.format("http://localhost:%d%s/%s/hent/1", port, contextPath, journalpostEndpoint);
-        ResponseEntity<Journalpost> responseEntity = testRestTemplate.getForEntity(url, Journalpost.class);
-
-        Condition<Journalpost> equalToJournalforing = new Condition<>(
-                j -> j != null && JournalTilstand.MIDLERTIDIG.equals(j.getJournalTilstand()), "Journalpost med midlertidig journalforing"
-        );
+        ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.getForEntity(url, JournalpostDto.class);
 
         assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
-                () -> assertThat(response.getBody()).is(equalToJournalforing),
-                () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK)
+                () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
+                () -> assertThat(response.getBody()).extracting(JournalpostDto::getHello).containsExactly("hello from bidrag-dokument"),
+                () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournalTilstand).containsExactly(JournalTilstand.MIDLERTIDIG)
         ));
     }
 

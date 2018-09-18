@@ -21,7 +21,7 @@ public class SwaggerConfig {
     private static final Contact CONTACT = new Contact("Team Bidrag", "www.nav.no", "nav.ikt.prosjekt.og.forvaltning.bidrag@nav.no");
 
     private static final ApiInfo API_INFO = new ApiInfo(
-            "Journalpost BISYS", "Journalforing for BISYS", "1.0", null, CONTACT, null, null
+            "JournalpostDto BISYS", "Journalforing for BISYS", "1.0", null, CONTACT, null, null
     );
 
     private static final Set<String> PRODUCES_AND_CONSUMES = unmodifiableSet(Stream.of("application/json", "application/xml").collect(Collectors.toSet()));

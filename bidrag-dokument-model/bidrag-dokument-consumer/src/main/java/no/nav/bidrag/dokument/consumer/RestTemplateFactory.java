@@ -35,7 +35,7 @@ public final class RestTemplateFactory {
     }
 
     public static void reset() {
-        restTemplateFactory = new RestTemplateFactory(defaultInitRestTemplate());
+        defaultRestTemplateFactory();
     }
 
     static {

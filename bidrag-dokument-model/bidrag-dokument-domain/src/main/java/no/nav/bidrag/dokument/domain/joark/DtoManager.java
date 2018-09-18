@@ -1,4 +1,4 @@
-package no.nav.bidrag.dokument.domain.dto;
+package no.nav.bidrag.dokument.domain.joark;
 
 import java.util.Optional;
 
@@ -19,7 +19,15 @@ public class DtoManager<T> {
         return (E) status;
     }
 
+    public boolean harStatus() {
+        return status != null;
+    }
+
     public <E extends Enum<?>> boolean harStatus(Class<E> clazz) {
-        return status != null && status.getDeclaringClass().equals(clazz);
+        return harStatus() && status.getDeclaringClass().equals(clazz);
+    }
+
+    public Enum<?> getStatus() {
+        return status;
     }
 }

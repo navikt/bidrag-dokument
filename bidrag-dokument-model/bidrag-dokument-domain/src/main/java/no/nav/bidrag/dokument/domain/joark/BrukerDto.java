@@ -1,4 +1,4 @@
-package no.nav.bidrag.dokument.domain.dto;
+package no.nav.bidrag.dokument.domain.joark;
 
 import no.nav.bidrag.dokument.domain.Part;
 

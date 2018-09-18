@@ -1,5 +1,6 @@
 package no.nav.bidrag.dokument.domain.dto;
 
+import no.nav.bidrag.dokument.domain.joark.DtoManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

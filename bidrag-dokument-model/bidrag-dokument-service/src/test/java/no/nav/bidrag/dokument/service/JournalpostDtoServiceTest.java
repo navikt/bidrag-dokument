@@ -1,8 +1,8 @@
 package no.nav.bidrag.dokument.service;
 
 import no.nav.bidrag.dokument.consumer.JournalforingConsumer;
-import no.nav.bidrag.dokument.domain.dto.DtoManager;
-import no.nav.bidrag.dokument.domain.dto.JournalforingDto;
+import no.nav.bidrag.dokument.domain.joark.DtoManager;
+import no.nav.bidrag.dokument.domain.joark.JournalforingDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @DisplayName("JournalpostService")
-class JournalpostServiceTest {
+class JournalpostDtoServiceTest {
 
     private @Mock JournalforingConsumer journalforingConsumerMock;
     private @InjectMocks JournalpostService journalpostService;

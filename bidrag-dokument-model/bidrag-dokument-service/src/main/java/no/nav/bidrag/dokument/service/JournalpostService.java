@@ -1,9 +1,9 @@
 package no.nav.bidrag.dokument.service;
 
 import no.nav.bidrag.dokument.consumer.JournalforingConsumer;
-import no.nav.bidrag.dokument.domain.Journalpost;
-import no.nav.bidrag.dokument.domain.dto.DtoManager;
-import no.nav.bidrag.dokument.domain.dto.JournalforingDto;
+import no.nav.bidrag.dokument.domain.bisys.JournalpostDto;
+import no.nav.bidrag.dokument.domain.joark.DtoManager;
+import no.nav.bidrag.dokument.domain.joark.JournalforingDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -20,15 +20,26 @@ public class JournalpostService {
         this.journalforingConsumer = journalforingConsumer;
     }
 
-    public Optional<Journalpost> hentJournalpost(Object id) {
+    public Optional<JournalpostDto> hentJournalpost(Object id) {
         DtoManager<JournalforingDto> journalforingDtoManager = journalforingConsumer.hentJournalforing(id);
 
-        if (LOGGER.isDebugEnabled() && journalforingDtoManager.harStatus(HttpStatus.class)) {
-            HttpStatus httpStatus = journalforingDtoManager.hentStatus(null);
-            LOGGER.debug(String.format("Journalpost med id=%s har status %s - %s", id, httpStatus, httpStatus.getReasonPhrase()));
+        if (LOGGER.isDebugEnabled()) {
+            if (journalforingDtoManager.harStatus(HttpStatus.class)) {
+                loggHttpStatus(id, journalforingDtoManager.hentStatus(HttpStatus.class));
+            } else if (journalforingDtoManager.harStatus()) {
+                loggGenerellStatus(id, journalforingDtoManager.getStatus());
+            }
         }
 
         return journalforingDtoManager.hent()
-                .map(Journalpost::new);
+                .map(JournalpostDto::populate);
+    }
+
+    private void loggHttpStatus(Object id, HttpStatus httpStatus) {
+        LOGGER.debug(String.format("JournalpostDto med id=%s har http status %s - %s", id, httpStatus, httpStatus.getReasonPhrase()));
+    }
+
+    private void loggGenerellStatus(Object id, Enum<?> status) {
+        LOGGER.debug(String.format("JournalpostDto med id=%s har generell status %s", id, status));
     }
 }

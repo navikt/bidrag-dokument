@@ -1,4 +1,4 @@
-package no.nav.bidrag.dokument.domain.dto;
+package no.nav.bidrag.dokument.domain.joark;
 
 import java.util.Collections;
 import java.util.List;

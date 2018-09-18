@@ -18,12 +18,12 @@ public class Bidragsdokumenter extends WebMvcConfigurationSupport {
     }
 
     @Bean public JournalforingConsumer journalforingConsumer(
-            UriTemplateHandler joarkUriTemplateHandler, @Value("${bidrag.joark.url.journalforing}") String journalforingEndpoint
+            UriTemplateHandler joarkUriTemplateHandler, @Value("${bidrag-dokument.joark.url.journalforing}") String journalforingEndpoint
     ) {
         return new JournalforingConsumer(joarkUriTemplateHandler, journalforingEndpoint);
     }
 
-    @Bean public UriTemplateHandler joarkUriTemplateHandler(@Value("${bidrag.joark.url.base}") String base) {
+    @Bean public UriTemplateHandler joarkUriTemplateHandler(@Value("${bidrag-dokument.joark.url.base}") String base) {
         return new DefaultUriBuilderFactory(base);
     }
 
