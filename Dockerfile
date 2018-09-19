@@ -2,9 +2,10 @@ FROM navikt/java:10
 LABEL maintainer="Team Bidrag" \
       email="nav.ikt.prosjekt.og.forvaltning.bidrag@nav.no"
 
-ARG version
-COPY bidrag-dokument-microservice/target/bidrag-dokument-microservice-$version.jar app.jar
+ADD ./bidrag-dokument-microservice/target/*.jar /.
+WORKDIR /
 
+ARG version
 EXPOSE 8080
 
-CMD ["mvn", "spring-boot:run"]
+CMD ["java", "-jar", " bidrag-dokument-microservice-$version.jar"]
