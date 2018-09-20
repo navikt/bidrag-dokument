@@ -11,7 +11,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriTemplateHandler;
 
 @SpringBootApplication
-public class Bidragsdokumenter extends WebMvcConfigurationSupport {
+public class Bidragsdokument extends WebMvcConfigurationSupport {
 
     @Bean public JournalpostService journalpostService(JournalforingConsumer journalpostConsumer) {
         return new JournalpostService(journalpostConsumer);
@@ -28,6 +28,6 @@ public class Bidragsdokumenter extends WebMvcConfigurationSupport {
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(Bidragsdokumenter.class, args);
+        SpringApplication.run(Bidragsdokument.class, args);
     }
 }
