@@ -1,0 +1,14 @@
+name: bidrag-dokument
+image: navikt/bidrag-dokument
+team: bidrag
+fasitResources:
+  used:
+  - alias: journalpost-bidragssak-api
+    resourcetype: restservice
+  exposed:
+  - alias: bidrag-dokument-journalforing-api
+    resourceType: restservice
+    path: /bidrag-dokument/journalpost/finn/for/{bidragssaksnummer}
+  - alias: bidrag-dokument-journalpost-api
+    resourceType: restservice
+    path: /bidrag-dokument/journalpost/hent/{jId}
