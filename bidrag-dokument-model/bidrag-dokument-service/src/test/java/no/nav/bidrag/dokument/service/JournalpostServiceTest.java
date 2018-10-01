@@ -33,7 +33,20 @@ class JournalpostServiceTest {
 
     @DisplayName("skal hente journalforing gitt id")
     @Test void skalHenteJournalforingGittId() {
-        when(journalforingConsumerMock.hentJournalforing(2)).thenReturn(Optional.of(JournalforingDto.build().get()));
+        when(journalforingConsumerMock.hentJournalforing(2)).thenReturn(Optional.of(new JournalforingDtoBygger().get()));
         assertThat(journalpostService.hentJournalpost(2)).isPresent();
+    }
+
+    private class JournalforingDtoBygger {
+        private JournalforingDto journalforingDto = new JournalforingDto();
+
+        JournalforingDtoBygger medTilstand(String journalTilstand) {
+            journalforingDto.setJournalTilstand(journalTilstand);
+            return this;
+        }
+
+        JournalforingDto get() {
+            return journalforingDto;
+        }
     }
 }
