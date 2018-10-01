@@ -1,12 +1,11 @@
 bidrag-dokument:
-  bisys:
-    url:
-      base: https://bidrag-dokument
-      journalpost: journalpost
-  joark:
-    url:
-      base: https://joark
-      journalforing: journalforing
+  restservice:
+    finn: https://bidrag-dokument/journalpost/finn/for/
+    hent: https://bidrag-dokument/journalpost/hent/
+joark:
+  restservice: https://joark/journalforing/hent/
+journalpost:
+  restservice: https://bidrag-journalpost/journalpost/finn/for/
 server:
   servlet:
     context-path: /bidrag-dokument

@@ -1,7 +1,6 @@
 package no.nav.bidrag.dokument.service;
 
 import no.nav.bidrag.dokument.consumer.JournalforingConsumer;
-import no.nav.bidrag.dokument.domain.joark.DtoManager;
 import no.nav.bidrag.dokument.domain.joark.JournalforingDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,11 +9,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 @DisplayName("JournalpostService")
-class JournalpostDtoServiceTest {
+class JournalpostServiceTest {
 
     private @Mock JournalforingConsumer journalforingConsumerMock;
     private @InjectMocks JournalpostService journalpostService;
@@ -23,9 +25,15 @@ class JournalpostDtoServiceTest {
         MockitoAnnotations.initMocks(this);
     }
 
+    @DisplayName("skal ikke hente journalforing")
+    @Test void skalIkkeHenteJournalforingGittId() {
+        when(journalforingConsumerMock.hentJournalforing(anyInt())).thenReturn(Optional.empty());
+        assertThat(journalpostService.hentJournalpost(2)).isNotPresent();
+    }
+
     @DisplayName("skal hente journalforing gitt id")
     @Test void skalHenteJournalforingGittId() {
-        when(journalforingConsumerMock.hentJournalforing("id")).thenReturn(new DtoManager<>(JournalforingDto.build().get(), null));
-        assertThat(journalpostService.hentJournalpost("id")).isNotNull();
+        when(journalforingConsumerMock.hentJournalforing(2)).thenReturn(Optional.of(JournalforingDto.build().get()));
+        assertThat(journalpostService.hentJournalpost(2)).isPresent();
     }
 }
