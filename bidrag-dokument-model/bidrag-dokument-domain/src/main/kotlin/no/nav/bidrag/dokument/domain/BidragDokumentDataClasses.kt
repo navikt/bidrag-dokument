@@ -3,6 +3,7 @@ package no.nav.bidrag.dokument.domain
 import java.time.LocalDate
 
 data class JournalpostDto(
+        var journalpostId: Int? = null,
         var journaltilstand: String? = null,
         var journalfortDato: LocalDate? = null,
         var dokumentDato: LocalDate? = null,
