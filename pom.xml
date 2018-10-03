@@ -13,6 +13,7 @@
     <url>https://github.com/navikt/bidrag-dokument</url>
     <packaging>pom</packaging>
 
+
     <modules>
         <module>bidrag-dokument-model</module>
         <module>bidrag-dokument-microservice</module>
