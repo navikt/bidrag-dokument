@@ -48,6 +48,7 @@ node {
        }
 
        stage("#4: test backend") {
+            sh "mkdir -p /tmp/${application}"
            if (isSnapshot) {
                sh "${mvn} clean install -Djava.io.tmpdir=/tmp/${application} -B -e"
            } else {
@@ -59,7 +60,6 @@ node {
        stage("#5: release version") {
            if (isSnapshot) {
                sh "${mvn} versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
-               sh "mkdir /tmp/${application}"
                sh "${mvn} clean install -Djava.io.tmpdir=/tmp/${application} -Dhendelse.environments=${environment} -B -e"
                sh "docker build --build-arg version=${releaseVersion} -t ${dockerRepo}/${application}:${imageVersion} ."
                sh "git commit -am \"set version to ${releaseVersion} (from Jenkins pipeline)\""
