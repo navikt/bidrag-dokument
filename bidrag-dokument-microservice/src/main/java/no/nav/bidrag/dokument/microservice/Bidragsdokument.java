@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
 @SpringBootApplication
-public class Bidragsdokumenter extends WebMvcConfigurationSupport {
+public class Bidragsdokument extends WebMvcConfigurationSupport {
 
     @Bean public JournalpostService journalpostService(BidragJournalpostConsumer bidragJournalpostConsumer, JournalforingConsumer journalpostConsumer) {
         return new JournalpostService(bidragJournalpostConsumer, journalpostConsumer);
@@ -29,6 +29,6 @@ public class Bidragsdokumenter extends WebMvcConfigurationSupport {
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(Bidragsdokumenter.class, args);
+        SpringApplication.run(Bidragsdokument.class, args);
     }
 }
