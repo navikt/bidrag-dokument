@@ -1,45 +1,37 @@
 package no.nav.bidrag.dokument.service;
 
+import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.consumer.JournalforingConsumer;
-import no.nav.bidrag.dokument.domain.bisys.JournalpostDto;
-import no.nav.bidrag.dokument.domain.joark.DtoManager;
+import no.nav.bidrag.dokument.domain.JournalpostDto;
+import no.nav.bidrag.dokument.domain.bisys.BidragJournalpostDto;
 import no.nav.bidrag.dokument.domain.joark.JournalforingDto;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 
+import java.util.List;
 import java.util.Optional;
+
+import static java.util.stream.Collectors.toList;
 
 public class JournalpostService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JournalpostService.class);
-
+    private final BidragJournalpostConsumer bidragJournalpostConsumer;
     private final JournalforingConsumer journalforingConsumer;
 
-    public JournalpostService(JournalforingConsumer journalforingConsumer) {
+    public JournalpostService(BidragJournalpostConsumer bidragJournalpostConsumer, JournalforingConsumer journalforingConsumer) {
+        this.bidragJournalpostConsumer = bidragJournalpostConsumer;
         this.journalforingConsumer = journalforingConsumer;
     }
 
-    public Optional<JournalpostDto> hentJournalpost(Object id) {
-        DtoManager<JournalforingDto> journalforingDtoManager = journalforingConsumer.hentJournalforing(id);
+    public Optional<JournalpostDto> hentJournalpost(Integer id) {
+        Optional<JournalforingDto> journalforingDtoRequest = journalforingConsumer.hentJournalforing(id);
 
-        if (LOGGER.isDebugEnabled()) {
-            if (journalforingDtoManager.harStatus(HttpStatus.class)) {
-                loggHttpStatus(id, journalforingDtoManager.hentStatus(HttpStatus.class));
-            } else if (journalforingDtoManager.harStatus()) {
-                loggGenerellStatus(id, journalforingDtoManager.getStatus());
-            }
-        }
-
-        return journalforingDtoManager.hent()
-                .map(JournalpostDto::populate);
+        return journalforingDtoRequest.map(new JournalpostDto()::fraJournalforing);
     }
 
-    private void loggHttpStatus(Object id, HttpStatus httpStatus) {
-        LOGGER.debug(String.format("JournalpostDto med id=%s har http status %s - %s", id, httpStatus, httpStatus.getReasonPhrase()));
-    }
+    public List<JournalpostDto> finnJournalposter(String bidragssaksnummer) {
+        List<BidragJournalpostDto> bidragJournalpostDtoRequest = bidragJournalpostConsumer.finnJournalposter(bidragssaksnummer);
 
-    private void loggGenerellStatus(Object id, Enum<?> status) {
-        LOGGER.debug(String.format("JournalpostDto med id=%s har generell status %s", id, status));
+        return bidragJournalpostDtoRequest.stream()
+                .map(new JournalpostDto()::fraBidragJournalpost)
+                .collect(toList());
     }
 }
