@@ -4,8 +4,7 @@ node {
    def color
    def application = "bidrag-dokument"
    def committer, committerEmail, pom, changelog, releaseVersion, isSnapshot, nextVersion, amount // metadata
-   def mvnHome = tool "maven-3.5.2"
-   def mvn = "${mvnHome}/bin/mvn"
+   def mvn = "/usr/bin/mvn"
    def appConfig = "nais.yaml"
    def dockerRepo = "repo.adeo.no:5443"
    def groupId = "nais"
