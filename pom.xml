@@ -13,6 +13,16 @@
     <url>https://github.com/navikt/bidrag-dokument</url>
     <packaging>pom</packaging>
 
+    <repositories>
+        <repository>
+            <id>local-releases</id>
+            <name>Local stuff</name>
+            <url>https://repo.adeo.no/repository/maven-releases</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
     <distributionManagement>
         <repository>
             <id>m2internal</id>
@@ -26,7 +36,6 @@
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
-    
     <modules>
         <module>bidrag-dokument-model</module>
         <module>bidrag-dokument-microservice</module>
