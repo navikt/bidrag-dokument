@@ -1,23 +1,25 @@
-package no.nav.bidrag.dokument.domain.bisys;
+package no.nav.bidrag.dokument.domain;
 
-import no.nav.bidrag.dokument.domain.JournalTilstand;
+import no.nav.bidrag.dokument.domain.bisys.BidragJournalpostDto;
 import no.nav.bidrag.dokument.domain.joark.JournalforingDto;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.time.LocalDate;
 
+@SuppressWarnings("unused") /* properties brukes av json-mapping */
 public class JournalpostDto {
-
     private JournalTilstand journalTilstand;
+    private LocalDate dokumentDato;
     private LocalDate journalfortDato;
 
-    @SuppressWarnings("WeakerAccess") /* brukes også av jackson */ public JournalpostDto() {
-    }
-
-    private JournalpostDto with(JournalforingDto journalforingDto) {
+    public JournalpostDto fraJournalforing(JournalforingDto journalforingDto) {
         journalTilstand = journalforingDto.getJournalTilstand();
 
+        return this;
+    }
+
+    public JournalpostDto fraBidragJournalpost(BidragJournalpostDto bidragJournalpostDtoDto) {
         return this;
     }
 
@@ -27,17 +29,25 @@ public class JournalpostDto {
                 .toString();
     }
 
-    // gettere og settere
+    // getters & setters
 
     public String getHello() {
         return "hello from bidrag-dokument";
     }
 
-    @SuppressWarnings("unused") /* brukes av json */ public LocalDate getJournalfortDato() {
+    public LocalDate getDokumentDato() {
+        return dokumentDato;
+    }
+
+    public void setDokumentDato(LocalDate dokumentDato) {
+        this.dokumentDato = dokumentDato;
+    }
+
+    public LocalDate getJournalfortDato() {
         return journalfortDato;
     }
 
-    @SuppressWarnings("unused") /* brukes av json */ public void setJournalfortDato(LocalDate journalfortDato) {
+    public void setJournalfortDato(LocalDate journalfortDato) {
         this.journalfortDato = journalfortDato;
     }
 
@@ -45,13 +55,7 @@ public class JournalpostDto {
         return journalTilstand;
     }
 
-    @SuppressWarnings("unused")/* brukes av json */ public void setJournalTilstand(JournalTilstand journalTilstand) {
+    public void setJournalTilstand(JournalTilstand journalTilstand) {
         this.journalTilstand = journalTilstand;
-    }
-
-    // static methods
-
-    public static JournalpostDto populate(JournalforingDto journalforingDto) {
-        return new JournalpostDto().with(journalforingDto);
     }
 }

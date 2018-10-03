@@ -1,5 +1,6 @@
 package no.nav.bidrag.dokument.microservice;
 
+import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.consumer.JournalforingConsumer;
 import no.nav.bidrag.dokument.service.JournalpostService;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,24 +8,24 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
-import org.springframework.web.util.DefaultUriBuilderFactory;
-import org.springframework.web.util.UriTemplateHandler;
 
 @SpringBootApplication
 public class Bidragsdokument extends WebMvcConfigurationSupport {
 
-    @Bean public JournalpostService journalpostService(JournalforingConsumer journalpostConsumer) {
-        return new JournalpostService(journalpostConsumer);
+    @Bean public JournalpostService journalpostService(BidragJournalpostConsumer bidragJournalpostConsumer, JournalforingConsumer journalpostConsumer) {
+        return new JournalpostService(bidragJournalpostConsumer, journalpostConsumer);
+    }
+
+    @Bean public BidragJournalpostConsumer bidragJournalpostConsumer(
+            @Value("${journalpost.restservice}") String bidragRestServiceUrl
+    ) {
+        return new BidragJournalpostConsumer(bidragRestServiceUrl);
     }
 
     @Bean public JournalforingConsumer journalforingConsumer(
-            UriTemplateHandler joarkUriTemplateHandler, @Value("${bidrag-dokument.joark.url.journalforing}") String journalforingEndpoint
+            @Value("${joark.restservice}") String joarkRestServiceUrl
     ) {
-        return new JournalforingConsumer(joarkUriTemplateHandler, journalforingEndpoint);
-    }
-
-    @Bean public UriTemplateHandler joarkUriTemplateHandler(@Value("${bidrag-dokument.joark.url.base}") String base) {
-        return new DefaultUriBuilderFactory(base);
+        return new JournalforingConsumer(joarkRestServiceUrl);
     }
 
     public static void main(String[] args) {
