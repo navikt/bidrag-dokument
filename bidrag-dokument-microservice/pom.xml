@@ -19,8 +19,6 @@
     </parent>
 
     <properties>
-        <bidrag-dokument.version>1.0-SNAPSHOT</bidrag-dokument.version>
-
         <maven.surefire.version>2.22.0</maven.surefire.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -32,17 +30,17 @@
         <dependency>
             <groupId>no.nav.bidrag.dokument</groupId>
             <artifactId>bidrag-dokument-consumer</artifactId>
-            <version>${bidrag-dokument.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>no.nav.bidrag.dokument</groupId>
             <artifactId>bidrag-dokument-domain</artifactId>
-            <version>${bidrag-dokument.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>no.nav.bidrag.dokument</groupId>
             <artifactId>bidrag-dokument-service</artifactId>
-            <version>${bidrag-dokument.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
