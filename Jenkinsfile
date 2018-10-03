@@ -59,6 +59,7 @@ node {
        stage("#5: release version") {
            if (isSnapshot) {
                sh "${mvn} versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
+               sh "mkdir /tmp/${application}"
                sh "${mvn} clean install -Djava.io.tmpdir=/tmp/${application} -Dhendelse.environments=${environment} -B -e"
                sh "docker build --build-arg version=${releaseVersion} -t ${dockerRepo}/${application}:${imageVersion} ."
                sh "git commit -am \"set version to ${releaseVersion} (from Jenkins pipeline)\""
