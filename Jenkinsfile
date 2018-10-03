@@ -6,7 +6,7 @@ node {
    def committer, committerEmail, pom, changelog, releaseVersion, isSnapshot, nextVersion, amount // metadata
    def mvn = "/usr/bin/mvn"
    def appConfig = "nais.yaml"
-   def dockerRepo = "repo.adeo.no:5443"
+   def dockerRepo = "repo.adeo.no:5000"
    def groupId = "nais"
    def environment = "${EnvironmentOut}"
    def zone = 'fss'
