@@ -15,23 +15,25 @@ public class JournalpostService {
 
     private final BidragJournalpostConsumer bidragJournalpostConsumer;
     private final JournalforingConsumer journalforingConsumer;
+    private final JournalpostMapper journalpostMapper;
 
-    public JournalpostService(BidragJournalpostConsumer bidragJournalpostConsumer, JournalforingConsumer journalforingConsumer) {
+    public JournalpostService(BidragJournalpostConsumer bidragJournalpostConsumer, JournalforingConsumer journalforingConsumer, JournalpostMapper journalpostMapper) {
         this.bidragJournalpostConsumer = bidragJournalpostConsumer;
         this.journalforingConsumer = journalforingConsumer;
+        this.journalpostMapper = journalpostMapper;
     }
 
     public Optional<JournalpostDto> hentJournalpost(Integer id) {
         Optional<JournalforingDto> journalforingDtoRequest = journalforingConsumer.hentJournalforing(id);
 
-        return journalforingDtoRequest.map(JournalpostMapper::fraJournalforing);
+        return journalforingDtoRequest.map(journalpostMapper::fraJournalforing);
     }
 
     public List<JournalpostDto> finnJournalposter(String bidragssaksnummer) {
         List<BidragJournalpostDto> bidragJournalpostDtoRequest = bidragJournalpostConsumer.finnJournalposter(bidragssaksnummer);
 
         return bidragJournalpostDtoRequest.stream()
-                .map(JournalpostMapper::fraBidragJournalpost)
+                .map(journalpostMapper::fraBidragJournalpost)
                 .collect(toList());
     }
 }

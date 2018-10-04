@@ -2,6 +2,7 @@ package no.nav.bidrag.dokument.microservice;
 
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.consumer.JournalforingConsumer;
+import no.nav.bidrag.dokument.service.JournalpostMapper;
 import no.nav.bidrag.dokument.service.JournalpostService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -13,7 +14,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 public class Bidragsdokument extends WebMvcConfigurationSupport {
 
     @Bean public JournalpostService journalpostService(BidragJournalpostConsumer bidragJournalpostConsumer, JournalforingConsumer journalpostConsumer) {
-        return new JournalpostService(bidragJournalpostConsumer, journalpostConsumer);
+        return new JournalpostService(bidragJournalpostConsumer, journalpostConsumer, new JournalpostMapper());
     }
 
     @Bean public BidragJournalpostConsumer bidragJournalpostConsumer(
