@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>bidrag-dokument-consumer</artifactId>
-    <name>bidrag-dokument::bidrag-dokument-consumer</name>
+    <name>bidrag-dokument-model::consumer</name>
 
     <dependencies>
         <dependency>

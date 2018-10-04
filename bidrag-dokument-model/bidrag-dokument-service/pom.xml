@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>bidrag-dokument-service</artifactId>
-    <name>bidrag-dokument::bidrag-dokument-service</name>
+    <name>bidrag-dokument-model::service</name>
 
     <dependencies>
         <dependency>
