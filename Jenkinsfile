@@ -10,6 +10,7 @@ node {
    def dockerRepo = "repo.adeo.no:5443"
    def groupId = "nais"
    def environment = "${EnvironmentOut}"
+   def cluster = "${naisCluster}"
    def zone = 'fss'
    def namespace = "${EnvironmentOut}"
  
