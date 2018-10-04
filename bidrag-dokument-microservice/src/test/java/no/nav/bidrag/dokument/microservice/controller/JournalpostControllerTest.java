@@ -1,7 +1,6 @@
 package no.nav.bidrag.dokument.microservice.controller;
 
 import no.nav.bidrag.dokument.consumer.RestTemplateFactory;
-import no.nav.bidrag.dokument.domain.JournalTilstand;
 import no.nav.bidrag.dokument.domain.JournalpostDto;
 import no.nav.bidrag.dokument.domain.bisys.BidragJournalpostDto;
 import no.nav.bidrag.dokument.domain.joark.JournalforingDto;
@@ -66,7 +65,7 @@ class JournalpostControllerTest {
     @DisplayName("skal finne Journalpost når journalforing finnes")
     @Test void skalGiJournalpostNarJournalforingFinnes() {
         when(joarkRestTemplateMock.getForEntity(eq(journalforingRestservice), eq(JournalforingDto.class))).thenReturn(new ResponseEntity<>(
-                JournalforingDto.build().with(JournalTilstand.MIDLERTIDIG).get(), HttpStatus.I_AM_A_TEAPOT
+                new JournalforingDtoBygger().medTilstand("MIDLERTIDIG").get(), HttpStatus.I_AM_A_TEAPOT
         ));
 
         String url = initBaseUrl() + "/journalpost/hent/1";
@@ -75,7 +74,7 @@ class JournalpostControllerTest {
         assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
                 () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
                 () -> assertThat(response.getBody()).extracting(JournalpostDto::getHello).contains("hello from bidrag-dokument"),
-                () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournalTilstand).contains(JournalTilstand.MIDLERTIDIG)
+                () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournaltilstand).contains("MIDLERTIDIG")
         ));
     }
 
@@ -100,5 +99,18 @@ class JournalpostControllerTest {
 
     @AfterEach void resetFactory() {
         RestTemplateFactory.reset();
+    }
+
+    private class JournalforingDtoBygger {
+        private JournalforingDto journalforingDto = new JournalforingDto();
+
+        JournalforingDtoBygger medTilstand(String journalTilstand) {
+            journalforingDto.setJournalTilstand(journalTilstand);
+            return this;
+        }
+
+        JournalforingDto get() {
+            return journalforingDto;
+        }
     }
 }

@@ -1,6 +1,5 @@
 package no.nav.bidrag.dokument.consumer;
 
-import no.nav.bidrag.dokument.domain.JournalTilstand;
 import no.nav.bidrag.dokument.domain.joark.JournalforingDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,15 +31,28 @@ class JournalforingConsumerTest {
     @DisplayName("skal hente en journalforing med spring sin RestTemplate")
     @Test void skalHenteJournalforingMedRestTemplate() {
         when(restTemplateMock.getForEntity("/journalforing", JournalforingDto.class))
-                .thenReturn(new ResponseEntity<>(JournalforingDto.build().with(JournalTilstand.ENDELIG).get(), HttpStatus.OK));
+                .thenReturn(new ResponseEntity<>(new JournalforingDtoBygger().medTilstand("ENDELIG").get(), HttpStatus.OK));
 
         Optional<JournalforingDto> journalpostOptional = journalforingConsumer.hentJournalforing(null);
         JournalforingDto journalforingDto = journalpostOptional.orElseThrow(() -> new AssertionError("Ingen Dto fra manager!"));
 
-        assertThat(journalforingDto.getJournalTilstand()).isEqualTo(JournalTilstand.ENDELIG);
+        assertThat(journalforingDto.getJournalTilstand()).isEqualTo("ENDELIG");
     }
 
     @AfterEach void resetFactory() {
         RestTemplateFactory.reset();
+    }
+
+    private class JournalforingDtoBygger {
+        private JournalforingDto journalforingDto = new JournalforingDto();
+
+        JournalforingDtoBygger medTilstand(String journalTilstand) {
+            journalforingDto.setJournalTilstand(journalTilstand);
+            return this;
+        }
+
+        JournalforingDto get() {
+            return journalforingDto;
+        }
     }
 }
