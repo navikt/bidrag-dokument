@@ -78,7 +78,7 @@ node {
                    sh "curl --user ${env.NEXUS_USERNAME}:${env.NEXUS_PASSWORD} --upload-file ${appConfig} https://repo.adeo.no/repository/raw/nais/${application}/${imageVersion}/nais.yaml"
                    //sh "curl -s -F r=m2internal -F hasPom=false -F e=yaml -F g=${groupId} -F a=${application} -F " + "v=${releaseVersion} -F p=yaml -F file=@${appConfig} -u ${env.USERNAME}:${env.PASSWORD} http://maven.adeo.no/nexus/service/local/artifact/maven/content"
 
-                   sh "docker login -u ${env.NEXUS_USERNAME} -p ${env.NEXUS_PASSWORD} ${dockerRepo}"
+                   sh "docker login -u ${USERNAME} -p ${PASSWORD} ${dockerRepo}"
                    sh "docker push ${dockerRepo}/${application}:${imageVersion}"
                  }
            } else {
