@@ -1,5 +1,5 @@
 name: bidrag-dokument
-image: repo.adeo.no:5443/bidrag-dokument:latest
+image: repo.adeo.no:5443/bidrag-dokument
 team: bidrag
 replicas: # set min = max to disable autoscaling
   min: 2 # minimum number of replicas.
