@@ -5,7 +5,9 @@ import java.time.LocalDate
 data class BidragJournalpostDto(
         var avsender: String? = null,
         var beskrivelse: String? = null,
+        var fagomrade: String? = null,
         var dokumentdato: LocalDate? = null,
+        var dokumentreferanse: String? = null,
         var dokumentType: String? = null,
         var gjelder: String? = null,
         var journaldato: LocalDate? = null,
@@ -13,6 +15,6 @@ data class BidragJournalpostDto(
         var journalfortAv: String? = null,
         var journalpostId: Int? = null,
         var mottattDato: LocalDate? = null,
-        var saksnummer: String? = null,
-        val fagomrade: String = "BID"
+        var saksnummer: String? = null
 )
+
