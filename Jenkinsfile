@@ -105,7 +105,7 @@ node {
 
            println("[INFO] Run 'nais upload' ... to Nexus!")
            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'naisUploader', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-               sh "${nais} upload -f ${appConfig} -a ${application} --version ${releaseVersion} --username ${USERNAME} --password ${PASSWORD} "
+               sh "${nais} upload -f ${appConfig} -a ${application} --version ${releaseVersion} --username ${USERNAME} --password '${PASSWORD}' "
            }
 
        }
