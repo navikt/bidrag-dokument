@@ -5,6 +5,7 @@ node {
    def application = "bidrag-dokument"
    def committer, committerEmail, pom, changelog, releaseVersion, isSnapshot, nextVersion, amount // metadata
    def mvn = "/usr/bin/mvn"
+   def nais = "/usr/bin/nais"
    def appConfig = "nais.yaml"
    def dockerRepo = "repo.adeo.no:5443"
    def groupId = "nais"
@@ -95,16 +96,16 @@ node {
 
        // --- Deploy using NAIS-cli ---
        stage("#8: validate & upload nais.yaml using NAIS-cli") {
-           println("[INFO] display NAIS_HOME: ${NAIS_HOME}...")
+           println("[INFO] display nais: ${nais}...")
            println("[INFO] display 'nais version'")
-           sh "${NAIS_HOME} version"
+           sh "${nais} version"
 
            println("[INFO] Run 'nais validate'")
-           sh "${NAIS_HOME} validate -f ${naisConfig}"
+           sh "${nais} validate -f ${appConfig}"
 
            println("[INFO] Run 'nais upload' ... to Nexus!")
            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nais-uploader', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD']]) {
-               sh "${NAIS_HOME} upload -f ${naisConfig} -a ${application} -v ${releaseVersion} -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD}"
+               sh "${nais} upload -f ${appConfig} -a ${application} -v ${releaseVersion} -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD}"
            }
 
        }
@@ -113,7 +114,7 @@ node {
 
            println("[INFO] Run 'nais deploy' ... to NAIS!")
            timeout(time: 8, unit: 'MINUTES') {
-               sh "${NAIS_HOME} deploy -a ${application} -v ${releaseVersion} -c ${cluster} --skip-fasit --wait "
+               sh "${nais} deploy -a ${application} -v ${releaseVersion} -c ${cluster} --skip-fasit --wait "
            }
 
        }
