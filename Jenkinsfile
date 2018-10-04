@@ -78,7 +78,7 @@ node {
                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexusCredentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                    sh "curl --user ${USERNAME}:${PASSWORD} --upload-file ${appConfig} https://repo.adeo.no/repository/raw/nais/${application}/${imageVersion}/nais.yaml"
                    sh "docker login -u ${USERNAME} -p ${PASSWORD} ${dockerRepo}"
-                   sh "docker push ${dockerRepo}/${application}"
+                   sh "docker push ${dockerRepo}/${application}:${imageVersion}"
                  }
            } else {
                println("POM version is not a SNAPSHOT, it is ${pom.version}. Skipping publishing!")
