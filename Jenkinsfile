@@ -48,7 +48,7 @@ node {
            sh 'while read line;do if [ "$line" != "" ];then if [ `grep SNAPSHOT $line/pom.xml | wc -l` -gt 1 ];then echo "SNAPSHOT-dependencies found. See file $line/pom.xml.";exit 1;fi;fi;done < snapshots.txt'
        }
 
-       stage("#4: test backend") {
+       stage("#4: Test & Build") {
             sh "mkdir -p /tmp/${application}"
            if (isSnapshot) {
                sh "${mvn} clean install -Djava.io.tmpdir=/tmp/${application} -B -e"
@@ -58,7 +58,7 @@ node {
 
        }
 
-       stage("#5: release version") {
+       stage("#5: release artifact") {
            if (isSnapshot) {
                sh "${mvn} versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
                sh "${mvn} clean install -Djava.io.tmpdir=/tmp/${application} -Dhendelse.environments=${environment} -B -e"
@@ -71,7 +71,7 @@ node {
                println("POM version is not a SNAPSHOT, it is ${pom.version}. Skipping releasing")
            }
        }
-       stage("#6: publish artifact") {
+       stage("#6: publish docker image") {
            if (isSnapshot) {
                //sh ~/setenv.sh
                sh "${mvn} clean deploy -DskipTests -B -e"
@@ -105,18 +105,17 @@ node {
 
            println("[INFO] Run 'nais upload' ... to Nexus!")
            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nais-uploader', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD']]) {
-               sh "${nais} upload -f ${appConfig} -a ${application} -v ${releaseVersion} -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD}"
+               sh "${nais} upload -f ${appConfig} -a ${application} --version ${releaseVersion} --username ${NEXUS_USERNAME} --password ${NEXUS_PASSWORD} "
            }
 
        }
 
        stage("#9: Deploy using NAIS-cli") {
-
            println("[INFO] Run 'nais deploy' ... to NAIS!")
            timeout(time: 8, unit: 'MINUTES') {
                sh "${nais} deploy -a ${application} -v ${releaseVersion} -c ${cluster} --skip-fasit --wait "
            }
-
+           println("[INFO] Ferdig :)")
        }
 
    }
