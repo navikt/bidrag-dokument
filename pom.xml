@@ -6,7 +6,7 @@
 
     <groupId>no.nav.bidrag</groupId>
     <artifactId>bidrag-dokument</artifactId>
-    <version>1.0.48-SNAPSHOT</version>
+    <version>1.0.50-SNAPSHOT</version>
 
     <name>bidrag-dokument</name>
     <description>bygg pom for bygging av bidrag-dokument-microservice og bidrag-dokument-model</description>
