@@ -1,11 +1,11 @@
 package no.nav.bidrag.dokument.service;
 
 import no.nav.bidrag.dokument.consumer.JournalforingConsumer;
+import no.nav.bidrag.dokument.domain.JournalpostDto;
 import no.nav.bidrag.dokument.domain.joark.JournalforingDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -19,10 +19,11 @@ import static org.mockito.Mockito.when;
 class JournalpostServiceTest {
 
     private @Mock JournalforingConsumer journalforingConsumerMock;
-    private @InjectMocks JournalpostService journalpostService;
+    private JournalpostService journalpostService;
 
-    @BeforeEach void initMocks() {
+    @BeforeEach void initMocksAndService() {
         MockitoAnnotations.initMocks(this);
+        journalpostService = new JournalpostService(null, journalforingConsumerMock, new JournalpostMapper());
     }
 
     @DisplayName("skal ikke hente journalforing")
@@ -33,20 +34,7 @@ class JournalpostServiceTest {
 
     @DisplayName("skal hente journalforing gitt id")
     @Test void skalHenteJournalforingGittId() {
-        when(journalforingConsumerMock.hentJournalforing(2)).thenReturn(Optional.of(new JournalforingDtoBygger().get()));
+        when(journalforingConsumerMock.hentJournalforing(2)).thenReturn(Optional.of(new JournalforingDto()));
         assertThat(journalpostService.hentJournalpost(2)).isPresent();
-    }
-
-    private class JournalforingDtoBygger {
-        private JournalforingDto journalforingDto = new JournalforingDto();
-
-        JournalforingDtoBygger medTilstand(String journalTilstand) {
-            journalforingDto.setJournalTilstand(journalTilstand);
-            return this;
-        }
-
-        JournalforingDto get() {
-            return journalforingDto;
-        }
     }
 }

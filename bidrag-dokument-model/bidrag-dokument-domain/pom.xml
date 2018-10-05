@@ -11,7 +11,7 @@
     </parent>
 
     <artifactId>bidrag-dokument-domain</artifactId>
-    <name>bidrag-dokument::bidrag-dokument-domain::kotlin</name>
+    <name>bidrag-dokument-model::domain::kotlin</name>
 
     <dependencies>
         <dependency>
