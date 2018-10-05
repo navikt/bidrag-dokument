@@ -1,11 +1,11 @@
 package no.nav.bidrag.dokument.service;
 
 import no.nav.bidrag.dokument.consumer.JournalforingConsumer;
+import no.nav.bidrag.dokument.domain.JournalpostDto;
 import no.nav.bidrag.dokument.domain.joark.JournalforingDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 

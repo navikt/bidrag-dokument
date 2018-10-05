@@ -12,7 +12,6 @@ import java.util.Optional;
 import static java.util.stream.Collectors.toList;
 
 public class JournalpostService {
-
     private final BidragJournalpostConsumer bidragJournalpostConsumer;
     private final JournalforingConsumer journalforingConsumer;
     private final JournalpostMapper journalpostMapper;

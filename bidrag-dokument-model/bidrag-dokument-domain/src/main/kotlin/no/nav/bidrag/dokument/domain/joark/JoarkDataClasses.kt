@@ -19,35 +19,30 @@ data class BrukerDto(
 )
 
 data class JournalforingDto(
-        var journalTilstand: String? = null,
+        var arkivSak: ArkivSakDto? = null,
         var avsenderDto: AvsenderDto? = null,
         var brukere: List<BrukerDto> = emptyList(),
-        var arkivSak: ArkivSakDto? = null,
+        var datoDokument: LocalDate? = null,
+        var datoJournal: LocalDate? = null,
+        var datoMottatt: LocalDate? = null,
+        var dokumenter: List<DokumentDto> = emptyList(),
         var fagomrade: String? = null,
-        var tittel: String? = null,
-        var kanalReferanseId: String? = null,
         var forsendelseMottatt: LocalDate? = null,
-        var mottakskanal: String? = null,
+        var innhold: String? = null,
         var journalforendeEnhet: String? = null,
-        var dokumenter: List<DokumentDto> = emptyList()
+        var journalfortAvNavn: String? = null,
+        var journalpostId: Int? = null,
+        var journalpostType: String? = null,
+        var journalTilstand: String? = null,
+        var kanalReferanseId: String? = null,
+        var mottakskanal: String? = null,
+        var tittel: String? = null
 )
 
 data class DokumentDto(
         var dokumentId: String? = null,
+        var dokumentkategori: String? = null,
         var dokumentTypeId: String? = null,
         var navSkjemaId: String? = null,
-        var tittel: String? = null,
-        var dokumentkategori: String? = null,
-        var varianter: List<VariantDto> = emptyList(),
-        var vedlegg: List<VedleggDto> = emptyList()
-)
-
-data class VariantDto(
-        var filtype: String? = null,
-        var format: String? = null
-)
-
-data class VedleggDto(
-        var filtype: String? = null,
-        var format: String? = null
+        var tittel: String? = null
 )
