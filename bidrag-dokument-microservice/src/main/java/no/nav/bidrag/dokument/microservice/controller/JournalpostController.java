@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -20,6 +21,12 @@ public class JournalpostController {
     @Autowired
     public JournalpostController(JournalpostService journalpostService) {
         this.journalpostService = journalpostService;
+    }
+
+    @GetMapping("/status")
+    public @ResponseBody
+    String get() {
+        return "OK";
     }
 
     @GetMapping("/journalpost/hent/{jid}")
