@@ -106,7 +106,7 @@ node {
 
            println("[INFO] Run 'nais upload' ... to Nexus!")
            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'naisUploader', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-               sh "${nais} upload -f ${appConfig} -a ${application} --version ${releaseVersion} --username ${USERNAME} --password '${PASSWORD}' "
+               sh "${nais} upload -f ${appConfig} -a ${application} --version '${releaseVersion}-${environment}' --username ${USERNAME} --password '${PASSWORD}' "
            }
 
        }
@@ -114,7 +114,7 @@ node {
        stage("#9: Deploy using NAIS-cli") {
            println("[INFO] Run 'nais deploy' ... to NAIS!")
            timeout(time: 8, unit: 'MINUTES') {
-               sh "${nais} deploy -a ${application} -v ${releaseVersion} -c ${cluster} --skip-fasit --wait "
+               sh "${nais} deploy -a ${application} -v '${releaseVersion}-${environment}' -c ${cluster} --skip-fasit --wait "
            }
            println("[INFO] Ferdig :)")
        }
