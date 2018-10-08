@@ -39,7 +39,7 @@ node {
            commitUrl = "https://github.com/${repo}/${application}/commit/${commitHash}"
            amount = env.BUILD_NUMBER.toString().padLeft(4,'0')
            releaseVersion = "${devVersion}.${amount}-SNAPSHOT"
-           imageVersion = "${releaseVersion}-${environment}"
+           imageVersion = "${releaseVersion}"
            newReleaseVersion = amount
        }
 
