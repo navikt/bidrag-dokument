@@ -43,13 +43,13 @@ node {
            newReleaseVersion = amount
        }
 
-       stage("#3: verify maven versions") {
+       stage("#3: Verify maven dependency versions") {
            sh 'echo "Verifying that no snapshot dependencies is being used."'
            sh 'grep module pom.xml | cut -d">" -f2 | cut -d"<" -f1 > snapshots.txt'
            sh 'while read line;do if [ "$line" != "" ];then if [ `grep SNAPSHOT $line/pom.xml | wc -l` -gt 1 ];then echo "SNAPSHOT-dependencies found. See file $line/pom.xml.";exit 1;fi;fi;done < snapshots.txt'
        }
 
-       stage("#4: Test & Build") {
+       stage("#4: Build & Test Project") {
             sh "mkdir -p /tmp/${application}"
            if (isSnapshot) {
                sh "${mvn} clean install -Djava.io.tmpdir=/tmp/${application} -B -e"
@@ -94,8 +94,7 @@ node {
            sh "git push origin master"
        }
 
-       // --- Deploy using NAIS-cli ---
-       stage("#8: validate & upload nais.yaml using NAIS-cli") {
+       stage("#8: validate & upload" {
            println("[INFO] display nais: ${nais}...")
            println("[INFO] display 'nais version'")
            sh "${nais} version"
@@ -110,7 +109,7 @@ node {
 
        }
 
-       stage("#9: Deploy using NAIS-cli") {
+       stage("#9: Deploy til NAIS") {
            println("[INFO] Run 'nais deploy' ... to NAIS!")
            timeout(time: 8, unit: 'MINUTES') {
                sh "${nais} deploy -a ${application} -v '${imageVersion}' -c ${cluster} --skip-fasit --wait "
