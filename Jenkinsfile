@@ -94,7 +94,7 @@ node {
            sh "git push origin master"
        }
 
-       stage("#8: validate & upload" {
+       stage("#8: validate & upload") {
            println("[INFO] display nais: ${nais}...")
            println("[INFO] display 'nais version'")
            sh "${nais} version"
