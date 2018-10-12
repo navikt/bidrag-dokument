@@ -1,3 +1,4 @@
+
 bidrag-dokument:
   restservice:
     finn: https://bidrag-dokument/journalpost/finn/for/
@@ -9,3 +10,8 @@ journalpost:
 server:
   servlet:
     context-path: /bidrag-dokument
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

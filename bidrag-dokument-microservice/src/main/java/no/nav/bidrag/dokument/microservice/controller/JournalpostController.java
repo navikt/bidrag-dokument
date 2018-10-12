@@ -23,12 +23,6 @@ public class JournalpostController {
         this.journalpostService = journalpostService;
     }
 
-    @GetMapping("/status")
-    public @ResponseBody
-    String get() {
-        return "OK";
-    }
-
     @GetMapping("/journalpost/hent/{jid}")
     @ApiOperation("Finn journalpost for en journalført id")
     public ResponseEntity<JournalpostDto> get(@PathVariable Integer jid) {
