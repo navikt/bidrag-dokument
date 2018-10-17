@@ -23,7 +23,13 @@ public class JournalpostController {
         this.journalpostService = journalpostService;
     }
 
-    @GetMapping("/journalpost/hent/{jid}")
+    @GetMapping("/status")
+    public @ResponseBody
+    String get() {
+        return "OK";
+    }
+
+    @GetMapping("/journalforing/{jid}")
     @ApiOperation("Finn journalpost for en journalført id")
     public ResponseEntity<JournalpostDto> get(@PathVariable Integer jid) {
         return journalpostService.hentJournalpost(jid)
@@ -31,10 +37,10 @@ public class JournalpostController {
                 .orElse(new ResponseEntity<>(HttpStatus.NO_CONTENT));
     }
 
-    @GetMapping("/journalpost/finn/for/{bidragssaksnummer}")
+    @GetMapping("/journalpost/{saksnummer}")
     @ApiOperation("Finn journalposter for et saksnummer på en bidragssak")
-    public ResponseEntity<List<JournalpostDto>> get(@PathVariable String bidragssaksnummer) {
-        List<JournalpostDto> journalposter = journalpostService.finnJournalposter(bidragssaksnummer);
+    public ResponseEntity<List<JournalpostDto>> get(@PathVariable String saksnummer) {
+        List<JournalpostDto> journalposter = journalpostService.finnJournalposter(saksnummer);
 
         if (journalposter.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

@@ -18,7 +18,7 @@ public class BidragJournalpostConsumer {
         this.restServiceUrl = restServiceUrl;
     }
 
-    public List<BidragJournalpostDto> finnJournalposter(String bidragssaksnummer) {
+    public List<BidragJournalpostDto> finnJournalposter(String saksnummer) {
         RestTemplate restTemplate = RestTemplateFactory.create();
         ResponseEntity<List> journalposterForBidragRequest = restTemplate.getForEntity(restServiceUrl, List.class);
 
@@ -26,9 +26,9 @@ public class BidragJournalpostConsumer {
             HttpStatus httpStatus = journalposterForBidragRequest.getStatusCode();
 
             if (httpStatus.is2xxSuccessful()) {
-                LOGGER.trace(String.format("Journalposter for bidrag for saksnummer %s har http status %s - %s", bidragssaksnummer, httpStatus, httpStatus.getReasonPhrase()));
+                LOGGER.trace(String.format("Journalposter for bidrag for saksnummer %s har http status %s - %s", saksnummer, httpStatus, httpStatus.getReasonPhrase()));
             } else {
-                LOGGER.debug(String.format("Journalposter for bidrag for saksnummer %s har http status %s - %s", bidragssaksnummer, httpStatus, httpStatus.getReasonPhrase()));
+                LOGGER.debug(String.format("Journalposter for bidrag for saksnummer %s har http status %s - %s", saksnummer, httpStatus, httpStatus.getReasonPhrase()));
             }
         }
 

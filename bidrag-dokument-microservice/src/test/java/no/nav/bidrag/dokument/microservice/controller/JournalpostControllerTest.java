@@ -53,7 +53,7 @@ class JournalpostControllerTest {
     @Test void skalGiBodySomNullNarJournalforingIkkeFinnes() {
         when(joarkRestTemplateMock.getForEntity(eq(journalforingRestservice), eq(JournalforingDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
 
-        String url = initBaseUrl() + "/journalpost/hent/1";
+        String url = initBaseUrl() + "/journalforing/1";
         ResponseEntity<JournalpostDto> journalpostResponseEntity = testRestTemplate.getForEntity(url, JournalpostDto.class);
 
         assertThat(Optional.of(journalpostResponseEntity)).hasValueSatisfying(response -> assertAll(
@@ -68,7 +68,7 @@ class JournalpostControllerTest {
                 new JournalforingDtoBygger().medTilstand("MIDLERTIDIG").get(), HttpStatus.I_AM_A_TEAPOT
         ));
 
-        String url = initBaseUrl() + "/journalpost/hent/1";
+        String url = initBaseUrl() + "/journalforing/1";
         ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.getForEntity(url, JournalpostDto.class);
 
         assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
@@ -84,7 +84,7 @@ class JournalpostControllerTest {
                 asList(new BidragJournalpostDto(), new BidragJournalpostDto()), HttpStatus.I_AM_A_TEAPOT
         ));
 
-        String url = initBaseUrl() + "/journalpost/finn/for/1001";
+        String url = initBaseUrl() + "/journalpost/1001";
         ResponseEntity<List> responseEntity = testRestTemplate.getForEntity(url, List.class);
 
         assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(

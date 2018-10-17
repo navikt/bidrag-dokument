@@ -28,8 +28,8 @@ public class JournalpostService {
         return journalforingDtoRequest.map(journalpostMapper::fraJournalforing);
     }
 
-    public List<JournalpostDto> finnJournalposter(String bidragssaksnummer) {
-        List<BidragJournalpostDto> bidragJournalpostDtoRequest = bidragJournalpostConsumer.finnJournalposter(bidragssaksnummer);
+    public List<JournalpostDto> finnJournalposter(String saksnummer) {
+        List<BidragJournalpostDto> bidragJournalpostDtoRequest = bidragJournalpostConsumer.finnJournalposter(saksnummer);
 
         return bidragJournalpostDtoRequest.stream()
                 .map(journalpostMapper::fraBidragJournalpost)
