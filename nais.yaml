@@ -37,6 +37,15 @@ resources: # Optional. See: http://kubernetes.io/docs/user-guide/compute-resourc
     memory: 256Mi
 ingress:
   disabled: false # if true, no ingress will be created and application can only be reached from inside cluster
+fasitResources: # resources fetched from Fasit
+  used: # this will be injected into the application as environment variables
+  - alias: bidragJournalpost
+    resourceType: restservice
+  exposed: # Will be registered as exposed services on an application instane in Fasit
+  - alias: bidragDokument
+    resourceType: restservice
+    path: /bidrag-dokument
+
 logformat: accesslog # Optional. The format of the logs from the container if the logs should be handled differently than plain text or json
 logtransform: dns_loglevel # Optional. The transformation of the logs, if they should be handled differently than plain text or json
 webproxy: false # Optional. Expose web proxy configuration to the application using the HTTP_PROXY, HTTPS_PROXY and NO_PROXY environment variables.
