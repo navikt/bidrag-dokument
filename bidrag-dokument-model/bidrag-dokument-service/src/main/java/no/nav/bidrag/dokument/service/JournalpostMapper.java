@@ -31,21 +31,21 @@ public class JournalpostMapper {
         return journalpostDto;
     }
 
-    JournalpostDto fraBidragJournalpost(BidragJournalpostDto bidragJournalpostDtoDto) {
+    JournalpostDto fraBidragJournalpost(BidragJournalpostDto bidragJournalpostDto) {
         JournalpostDto journalpostDto = new JournalpostDto();
-        journalpostDto.setAvsenderNavn(bidragJournalpostDtoDto.getAvsender());
-        journalpostDto.setDokumentDato(bidragJournalpostDtoDto.getDokumentdato());
-        journalpostDto.setDokumentreferanse(Collections.singletonList(bidragJournalpostDtoDto.getDokumentreferanse()));
-        journalpostDto.setDokumentType(bidragJournalpostDtoDto.getDokumentType());
-        journalpostDto.setFagomrade(bidragJournalpostDtoDto.getFagomrade());
-        journalpostDto.setGjelderBrukerId(Collections.singletonList(bidragJournalpostDtoDto.getGjelder()));
-        journalpostDto.setInnhold(bidragJournalpostDtoDto.getBeskrivelse());
-        journalpostDto.setJournalforendeEnhet(bidragJournalpostDtoDto.getJournalforendeEnhet());
-        journalpostDto.setJournalfortAv(bidragJournalpostDtoDto.getJournalfortAv());
-        journalpostDto.setJournalfortDato(bidragJournalpostDtoDto.getJournaldato());
-        journalpostDto.setJournalpostIdBisys(bidragJournalpostDtoDto.getJournalpostId());
-        journalpostDto.setMottattDato(bidragJournalpostDtoDto.getMottattDato());
-        journalpostDto.setSaksnummerBidrag(bidragJournalpostDtoDto.getSaksnummer());
+        journalpostDto.setAvsenderNavn(bidragJournalpostDto.getAvsender());
+        journalpostDto.setDokumentDato(bidragJournalpostDto.getDokumentdato());
+        journalpostDto.setDokumentreferanse(Collections.singletonList(bidragJournalpostDto.getDokumentreferanse()));
+        journalpostDto.setDokumentType(bidragJournalpostDto.getDokumentType());
+        journalpostDto.setFagomrade(bidragJournalpostDto.getFagomrade());
+        journalpostDto.setGjelderBrukerId(Collections.singletonList(bidragJournalpostDto.getGjelder()));
+        journalpostDto.setInnhold(bidragJournalpostDto.getBeskrivelse());
+        journalpostDto.setJournalforendeEnhet(bidragJournalpostDto.getJournalforendeEnhet());
+        journalpostDto.setJournalfortAv(bidragJournalpostDto.getJournalfortAv());
+        journalpostDto.setJournalfortDato(bidragJournalpostDto.getJournaldato());
+        journalpostDto.setJournalpostIdBisys(bidragJournalpostDto.getJournalpostId());
+        journalpostDto.setMottattDato(bidragJournalpostDto.getMottattDato());
+        journalpostDto.setSaksnummerBidrag(bidragJournalpostDto.getSaksnummer());
 
         return journalpostDto;
     }
