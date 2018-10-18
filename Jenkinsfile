@@ -112,7 +112,9 @@ node {
        stage("#9: Deploy til NAIS") {
            println("[INFO] Run 'nais deploy' ... to NAIS!")
            timeout(time: 8, unit: 'MINUTES') {
-               sh "${nais} deploy -a ${application} -v '${imageVersion}' -c ${cluster} --skip-fasit --wait "
+              withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'naisUploader', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                  sh "${nais} deploy -a ${application} -v '${imageVersion}' -c ${cluster} -u ${USERNAME} -p '${PASSWORD}' --wait "
+              }
            }
            println("[INFO] Ferdig :)")
        }
