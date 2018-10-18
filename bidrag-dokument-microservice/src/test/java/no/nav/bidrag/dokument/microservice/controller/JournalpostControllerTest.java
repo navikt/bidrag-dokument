@@ -39,8 +39,8 @@ class JournalpostControllerTest {
 
     @LocalServerPort private int port;
     @Mock private RestTemplate joarkRestTemplateMock;
-    @Value("${journalpostURL}") private String journalpostRestservice;
-    @Value("${joarkURL}") private String journalforingRestservice;
+    @Value("${JOURNALPOST_URL}") private String journalpostRestservice;
+    @Value("${JOARK_URL}") private String journalforingRestservice;
     @Value("${server.servlet.context-path}") private String contextPath;
     @Autowired private TestRestTemplate testRestTemplate;
 

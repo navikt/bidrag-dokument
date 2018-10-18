@@ -1,5 +1,3 @@
-joarkURL: https://joark/journalforing/hent/
-journalpostURL: https://bidrag-journalpost/aaaa
 server:
   servlet:
     context-path: /bidrag-dokument
