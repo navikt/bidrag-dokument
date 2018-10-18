@@ -1,12 +1,5 @@
-
-bidrag-dokument:
-  restservice:
-    finn: https://bidrag-dokument/journalpost/finn/for/
-    hent: https://bidrag-dokument/journalpost/hent/
-joark:
-  url: https://joark/journalforing/hent/
-journalpost:
- url: https://bidrag-journalpost/sak/
+joarkURL: https://joark/journalforing/hent/
+journalpostURL: https://bidrag-journalpost/aaaa
 server:
   servlet:
     context-path: /bidrag-dokument
