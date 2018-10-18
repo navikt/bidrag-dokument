@@ -6,7 +6,7 @@ bidrag-dokument:
 joark:
   restservice: https://joark/journalforing/hent/
 journalpost:
-  restservice: https://bidrag-journalpost/journalpost/finn/for/
+  restservice: https://bidrag-journalpost/sak/
 server:
   servlet:
     context-path: /bidrag-dokument
