@@ -78,7 +78,7 @@ class JournalpostControllerTest {
 
     @DisplayName("skal finne Journalposter for en bidragssak")
     @Test void skalFinneJournalposterForEnBidragssak() {
-        when(restTemplateMock.getForEntity(eq(journalpostBaseUrl + "/sak/1001"), eq(List.class))).thenReturn(new ResponseEntity<>(
+        when(restTemplateMock.getForEntity(eq(journalpostBaseUrl + "/bidrag-journalpost/sak/1001"), eq(List.class))).thenReturn(new ResponseEntity<>(
                 asList(new BidragJournalpostDto(), new BidragJournalpostDto()), HttpStatus.I_AM_A_TEAPOT
         ));
 
