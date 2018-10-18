@@ -39,15 +39,15 @@ ingress:
   disabled: false # if true, no ingress will be created and application can only be reached from inside cluster
 fasitResources: # resources fetched from Fasit
   used: # this will be injected into the application as environment variables
-  - alias: bidrag-journalpost
-    resourceType: RestService
+  - alias: bidragJournalpost
+    resourceType: restservice
     # use propertyMap to map properties to custom environment variables
     # env vars should be UPPERCASED_AND_UNDERSCORED
     propertyMap:
-      url: JOURNALPOST_URL
+      url: JOURNALPOST_URL # map the "url" property of restservice to JOURNALPOST_URL
   exposed: # Will be registered as exposed services on an application instane in Fasit
   - alias: bidragDokument
-    resourceType: RestService
+    resourceType: restservice
     path: /bidrag-dokument
 
 logformat: accesslog # Optional. The format of the logs from the container if the logs should be handled differently than plain text or json
