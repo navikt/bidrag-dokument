@@ -8,9 +8,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
 @SpringBootApplication
+@PropertySource("classpath:url.properties")
 public class Bidragsdokument extends WebMvcConfigurationSupport {
 
     @Bean public JournalpostService journalpostService(BidragJournalpostConsumer bidragJournalpostConsumer, JournalforingConsumer journalpostConsumer) {
@@ -18,13 +20,13 @@ public class Bidragsdokument extends WebMvcConfigurationSupport {
     }
 
     @Bean public BidragJournalpostConsumer bidragJournalpostConsumer(
-            @Value("${journalpostURL}") String bidragRestServiceUrl
+            @Value("${JOURNALPOST_URL}") String bidragRestServiceUrl
     ) {
         return new BidragJournalpostConsumer(bidragRestServiceUrl);
     }
 
     @Bean public JournalforingConsumer journalforingConsumer(
-            @Value("${joarkURL}") String joarkRestServiceUrl
+            @Value("${JOARK_URL}") String joarkRestServiceUrl
     ) {
         return new JournalforingConsumer(joarkRestServiceUrl);
     }

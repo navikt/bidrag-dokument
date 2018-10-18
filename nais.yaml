@@ -44,7 +44,7 @@ fasitResources: # resources fetched from Fasit
     # use propertyMap to map properties to custom environment variables
     # env vars should be UPPERCASED_AND_UNDERSCORED
     propertyMap:
-      url: journalpostURL
+      url: journalpost.url
   exposed: # Will be registered as exposed services on an application instane in Fasit
   - alias: bidragDokument
     resourceType: restservice
