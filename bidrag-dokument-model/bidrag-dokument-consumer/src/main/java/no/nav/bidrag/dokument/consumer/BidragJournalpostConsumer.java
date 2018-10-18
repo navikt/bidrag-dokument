@@ -20,7 +20,7 @@ public class BidragJournalpostConsumer {
 
     public List<BidragJournalpostDto> finnJournalposter(String saksnummer) {
         RestTemplate restTemplate = RestTemplateFactory.create();
-        ResponseEntity<List> journalposterForBidragRequest = restTemplate.getForEntity(restServiceUrl, List.class);
+        ResponseEntity<List> journalposterForBidragRequest = restTemplate.getForEntity(restServiceUrl + saksnummer, List.class);
 
         if (LOGGER.isDebugEnabled()) {
             HttpStatus httpStatus = journalposterForBidragRequest.getStatusCode();
