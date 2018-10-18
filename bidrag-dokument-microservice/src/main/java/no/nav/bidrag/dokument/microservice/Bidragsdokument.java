@@ -22,7 +22,7 @@ public class Bidragsdokument extends WebMvcConfigurationSupport {
     @Bean public BidragJournalpostConsumer bidragJournalpostConsumer(
             @Value("${JOURNALPOST_URL}") String bidragBaseUrl
     ) {
-        return new BidragJournalpostConsumer(bidragBaseUrl + "/bidrag-journalpost/sak/");
+        return new BidragJournalpostConsumer(bidragBaseUrl + "/sak/");
     }
 
     @Bean public JournalforingConsumer journalforingConsumer(
