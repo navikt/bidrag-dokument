@@ -39,7 +39,7 @@ class JournalpostControllerTest {
 
     @LocalServerPort private int port;
     @Mock private RestTemplate joarkRestTemplateMock;
-    @Value("${JOURNALPOST_URL}") private String journalpostRestservice;
+    @Value("${JOURNALPOST_URL}") private String journalpostBaseUrl;
     @Value("${JOARK_URL}") private String journalforingRestservice;
     @Value("${server.servlet.context-path}") private String contextPath;
     @Autowired private TestRestTemplate testRestTemplate;
@@ -80,7 +80,7 @@ class JournalpostControllerTest {
 
     @DisplayName("skal finne Journalposter for en bidragssak")
     @Test void skalFinneJournalposterForEnBidragssak() {
-        when(joarkRestTemplateMock.getForEntity(eq(journalpostRestservice), eq(List.class))).thenReturn(new ResponseEntity<>(
+        when(joarkRestTemplateMock.getForEntity(eq(journalpostBaseUrl + "/sak/"), eq(List.class))).thenReturn(new ResponseEntity<>(
                 asList(new BidragJournalpostDto(), new BidragJournalpostDto()), HttpStatus.I_AM_A_TEAPOT
         ));
 
