@@ -3,6 +3,8 @@ package no.nav.bidrag.dokument.microservice.controller;
 import io.swagger.annotations.ApiOperation;
 import no.nav.bidrag.dokument.domain.JournalpostDto;
 import no.nav.bidrag.dokument.service.JournalpostService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,8 @@ import java.util.List;
 
 @RestController
 public class JournalpostController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JournalpostController.class);
 
     private final JournalpostService journalpostService;
 
@@ -40,6 +44,7 @@ public class JournalpostController {
     @GetMapping("/journalpost/{saksnummer}")
     @ApiOperation("Finn journalposter for et saksnummer på en bidragssak")
     public ResponseEntity<List<JournalpostDto>> get(@PathVariable String saksnummer) {
+        LOGGER.debug("request: bidrag-dokument/journalpost/" + saksnummer);
         List<JournalpostDto> journalposter = journalpostService.finnJournalposter(saksnummer);
 
         if (journalposter.isEmpty()) {

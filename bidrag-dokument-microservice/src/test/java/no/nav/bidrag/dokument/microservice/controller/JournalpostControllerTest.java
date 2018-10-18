@@ -35,23 +35,21 @@ import static org.mockito.Mockito.when;
 @DisplayName("JournalpostController")
 class JournalpostControllerTest {
 
-    // todo: how to read services and inject from fasit...
-
     @LocalServerPort private int port;
-    @Mock private RestTemplate joarkRestTemplateMock;
+    @Mock private RestTemplate restTemplateMock;
     @Value("${JOURNALPOST_URL}") private String journalpostBaseUrl;
-    @Value("${JOARK_URL}") private String journalforingRestservice;
+    @Value("${JOARK_URL}") private String joarkBaseUrl;
     @Value("${server.servlet.context-path}") private String contextPath;
     @Autowired private TestRestTemplate testRestTemplate;
 
     @BeforeEach void mockRestTemplateFactory() {
         MockitoAnnotations.initMocks(this);
-        RestTemplateFactory.use(() -> joarkRestTemplateMock);
+        RestTemplateFactory.use(() -> restTemplateMock);
     }
 
     @DisplayName("skal ha body som null når journalforing ikke finnes")
     @Test void skalGiBodySomNullNarJournalforingIkkeFinnes() {
-        when(joarkRestTemplateMock.getForEntity(eq(journalforingRestservice), eq(JournalforingDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
+        when(restTemplateMock.getForEntity(eq(joarkBaseUrl), eq(JournalforingDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
 
         String url = initBaseUrl() + "/journalforing/1";
         ResponseEntity<JournalpostDto> journalpostResponseEntity = testRestTemplate.getForEntity(url, JournalpostDto.class);
@@ -64,7 +62,7 @@ class JournalpostControllerTest {
 
     @DisplayName("skal finne Journalpost når journalforing finnes")
     @Test void skalGiJournalpostNarJournalforingFinnes() {
-        when(joarkRestTemplateMock.getForEntity(eq(journalforingRestservice), eq(JournalforingDto.class))).thenReturn(new ResponseEntity<>(
+        when(restTemplateMock.getForEntity(eq(joarkBaseUrl), eq(JournalforingDto.class))).thenReturn(new ResponseEntity<>(
                 new JournalforingDtoBygger().medTilstand("MIDLERTIDIG").get(), HttpStatus.I_AM_A_TEAPOT
         ));
 
@@ -80,7 +78,7 @@ class JournalpostControllerTest {
 
     @DisplayName("skal finne Journalposter for en bidragssak")
     @Test void skalFinneJournalposterForEnBidragssak() {
-        when(joarkRestTemplateMock.getForEntity(eq(journalpostBaseUrl + "/sak/1001"), eq(List.class))).thenReturn(new ResponseEntity<>(
+        when(restTemplateMock.getForEntity(eq(journalpostBaseUrl + "/sak/1001"), eq(List.class))).thenReturn(new ResponseEntity<>(
                 asList(new BidragJournalpostDto(), new BidragJournalpostDto()), HttpStatus.I_AM_A_TEAPOT
         ));
 
@@ -104,7 +102,7 @@ class JournalpostControllerTest {
     private class JournalforingDtoBygger {
         private JournalforingDto journalforingDto = new JournalforingDto();
 
-        JournalforingDtoBygger medTilstand(String journalTilstand) {
+        @SuppressWarnings("SameParameterValue") JournalforingDtoBygger medTilstand(String journalTilstand) {
             journalforingDto.setJournalTilstand(journalTilstand);
             return this;
         }
