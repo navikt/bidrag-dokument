@@ -80,7 +80,7 @@ class JournalpostControllerTest {
 
     @DisplayName("skal finne Journalposter for en bidragssak")
     @Test void skalFinneJournalposterForEnBidragssak() {
-        when(joarkRestTemplateMock.getForEntity(eq(journalpostBaseUrl + "/sak/"), eq(List.class))).thenReturn(new ResponseEntity<>(
+        when(joarkRestTemplateMock.getForEntity(eq(journalpostBaseUrl + "/sak/1001"), eq(List.class))).thenReturn(new ResponseEntity<>(
                 asList(new BidragJournalpostDto(), new BidragJournalpostDto()), HttpStatus.I_AM_A_TEAPOT
         ));
 
