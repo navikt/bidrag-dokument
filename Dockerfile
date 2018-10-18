@@ -5,5 +5,3 @@ LABEL maintainer="Team Bidrag" \
 ADD ./bidrag-dokument-microservice/target/bidrag-dokument-microservice-*.jar app.jar
 
 EXPOSE 8080
-
-CMD ["java", "-jar", "app.jar"]
