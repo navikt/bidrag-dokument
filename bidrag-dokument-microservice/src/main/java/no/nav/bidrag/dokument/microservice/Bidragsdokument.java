@@ -18,13 +18,13 @@ public class Bidragsdokument extends WebMvcConfigurationSupport {
     }
 
     @Bean public BidragJournalpostConsumer bidragJournalpostConsumer(
-            @Value("${journalpost.restservice}") String bidragRestServiceUrl
+            @Value("${journalpost.url}") String bidragRestServiceUrl
     ) {
         return new BidragJournalpostConsumer(bidragRestServiceUrl);
     }
 
     @Bean public JournalforingConsumer journalforingConsumer(
-            @Value("${joark.restservice}") String joarkRestServiceUrl
+            @Value("${joark.url}") String joarkRestServiceUrl
     ) {
         return new JournalforingConsumer(joarkRestServiceUrl);
     }
