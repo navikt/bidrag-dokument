@@ -35,7 +35,7 @@ public class BidragJournalpostConsumer {
         );
 
         HttpStatus httpStatus = journalposterForBidragRequest.getStatusCode();
-        myLogger.getLogger().info(String.format("Fikk http status %s fra journalposter i bidragssak med saksnummer %s - %s", httpStatus, saksnummer, httpStatus.getReasonPhrase()));
+        myLogger.getLogger().info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} - {}", httpStatus, saksnummer, httpStatus.getReasonPhrase());
 
         return journalposterForBidragRequest.getBody();
     }

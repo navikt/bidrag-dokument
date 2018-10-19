@@ -70,6 +70,6 @@ import static org.mockito.Mockito.when;
 
         bidragJournalpostConsumer.finnJournalposter("101");
 
-        verify(loggerMock).info("Fikk http status 500 fra journalposter i bidragssak med saksnummer 101 - Internal Server Error");
+        verify(loggerMock).info(eq("Fikk http status {} fra journalposter i bidragssak med saksnummer {} - {}"), (Object[]) any());
     }
 }
