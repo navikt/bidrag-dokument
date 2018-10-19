@@ -1,18 +1,19 @@
 package no.nav.bidrag.dokument.service;
 
+import no.nav.bidrag.dokument.domain.DokumentDto;
 import no.nav.bidrag.dokument.domain.JournalpostDto;
 import no.nav.bidrag.dokument.domain.bisys.BidragJournalpostDto;
 import no.nav.bidrag.dokument.domain.joark.ArkivSakDto;
 import no.nav.bidrag.dokument.domain.joark.AvsenderDto;
 import no.nav.bidrag.dokument.domain.joark.BrukerDto;
-import no.nav.bidrag.dokument.domain.joark.DokumentDto;
+import no.nav.bidrag.dokument.domain.joark.JoarkDokumentDto;
 import no.nav.bidrag.dokument.domain.joark.JournalforingDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.util.Collections;
 
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -47,8 +48,8 @@ class JournalpostMapperTest {
                 () -> assertThat(journalpostDto.getInnhold()).as("beskrivelse -> innhold").isEqualTo("...and know, something completely different..."),
                 () -> assertThat(journalpostDto.getFagomrade()).as("fagomrade").isEqualTo("BID"),
                 () -> assertThat(journalpostDto.getDokumentDato()).as("dokumentdato -> dokumentDato").isEqualTo(LocalDate.now().minusDays(3)),
-                () -> assertThat(journalpostDto.getDokumentreferanse()).as("dokumentreferanse").contains("101010101"),
-                () -> assertThat(journalpostDto.getDokumentType()).as("dokumentType").isEqualTo("N"),
+                () -> assertThat(journalpostDto.getDokumenter()).extracting(DokumentDto::getDokumentreferanse).as("dokumentreferanse").contains("101010101"),
+                () -> assertThat(journalpostDto.getDokumenter()).extracting(DokumentDto::getDokumentType).as("dokumentType").isEqualTo(singletonList("N")),
                 () -> assertThat(journalpostDto.getGjelderBrukerId()).as("gjelder -> gjelderBrukerId").contains("06127412345"),
                 () -> assertThat(journalpostDto.getJournalforendeEnhet()).as("journalforendeEnhet").isEqualTo("JUnit"),
                 () -> assertThat(journalpostDto.getJournalfortAv()).as("journalfortAv").isEqualTo("Dr. A. Cula"),
@@ -74,7 +75,7 @@ class JournalpostMapperTest {
                 .withJournalforendeEnhet("JUnit")
                 .withJournalfortAvNavn("Dr. A. Cula")
                 .withJournalpostId(101)
-                .withJournalpostType("N")
+                .withDokumentTypeId("N")
                 .get();
 
         JournalpostDto journalpostDto = journalpostMapper.fraJournalforing(journalforingDto);
@@ -84,9 +85,10 @@ class JournalpostMapperTest {
                 () -> assertThat(journalpostDto.getAvsenderNavn()).as("avsenderNavn").isEqualTo(journalforingDto.getAvsenderDto().getAvsender()),
                 () -> assertThat(journalpostDto.getFagomrade()).as("fagomrade").isEqualTo(journalforingDto.getFagomrade()),
                 () -> assertThat(journalpostDto.getDokumentDato()).as("dokumentdato").isEqualTo(journalforingDto.getDatoDokument()),
-                () -> assertThat(journalpostDto.getDokumentreferanse()).as("dokumentreferanse")
-                        .isEqualTo(journalforingDto.getDokumenter().stream().map(DokumentDto::getDokumentId).collect(toList())),
-                () -> assertThat(journalpostDto.getDokumentType()).as("dokumentType").isEqualTo(journalforingDto.getJournalpostType()),
+                () -> assertThat(journalpostDto.getDokumenter()).extracting(DokumentDto::getDokumentreferanse).as("dokumentreferanse")
+                        .isEqualTo(singletonList(journalforingDto.getDokumenter().get(0).getDokumentId())),
+                () -> assertThat(journalpostDto.getDokumenter()).extracting(DokumentDto::getDokumentType).as("dokumentType")
+                        .isEqualTo(singletonList(journalforingDto.getDokumenter().get(0).getDokumentTypeId())),
                 () -> assertThat(journalpostDto.getGjelderBrukerId()).as("gjelderBrukerId")
                         .isEqualTo(journalforingDto.getBrukere().stream().map(BrukerDto::getBrukerId).collect(toList())),
                 () -> assertThat(journalpostDto.getInnhold()).as("innhold").isEqualTo(journalforingDto.getInnhold()),
@@ -116,7 +118,7 @@ class JournalpostMapperTest {
         }
 
         JournalforingBuilder withBruker(String brukerIdent) {
-            journalforingDto.setBrukere(Collections.singletonList(initBrukerDto(brukerIdent)));
+            journalforingDto.setBrukere(singletonList(initBrukerDto(brukerIdent)));
             return this;
         }
 
@@ -145,14 +147,16 @@ class JournalpostMapperTest {
         }
 
         JournalforingBuilder withDokumentId(String dokumentId) {
-            journalforingDto.setDokumenter(Collections.singletonList(initDokumentDto(dokumentId)));
+            initJoarkDokumentDto().setDokumentId(dokumentId);
             return this;
         }
 
-        private DokumentDto initDokumentDto(String dokumentId) {
-            DokumentDto dokumentDto = new DokumentDto();
-            dokumentDto.setDokumentId(dokumentId);
-            return dokumentDto;
+        private JoarkDokumentDto initJoarkDokumentDto() {
+            if (journalforingDto.getDokumenter().isEmpty()) {
+                journalforingDto.setDokumenter(singletonList(new JoarkDokumentDto()));
+            }
+
+            return journalforingDto.getDokumenter().get(0);
         }
 
         JournalforingBuilder withInnhold(String innhold) {
@@ -175,8 +179,8 @@ class JournalpostMapperTest {
             return this;
         }
 
-        JournalforingBuilder withJournalpostType(String journalpostType) {
-            journalforingDto.setJournalpostType(journalpostType);
+        JournalforingBuilder withDokumentTypeId(String dokumentTypeId) {
+            initJoarkDokumentDto().setDokumentTypeId(dokumentTypeId);
             return this;
         }
 

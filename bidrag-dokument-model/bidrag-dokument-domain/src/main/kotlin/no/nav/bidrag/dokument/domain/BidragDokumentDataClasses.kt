@@ -5,9 +5,8 @@ import java.time.LocalDate
 data class JournalpostDto(
         var avsenderId: String? = null,
         var avsenderNavn: String? = null,
-        var dokumentreferanse: List<String> = emptyList(),
+        var dokumenter: List<DokumentDto> = emptyList(),
         var dokumentDato: LocalDate? = null,
-        var dokumentType: String? = null,
         var fagomrade: String? = null,
         var gjelderBrukerId: List<String> = emptyList(),
         var innhold: String? = null,
@@ -22,4 +21,10 @@ data class JournalpostDto(
         var saksnummerBidrag: String? = null,
         var saksnummerGsak: String? = null,
         val hello: String = "hello from bidrag-dokument"
+)
+
+data class DokumentDto(
+    var dokumentreferanse: String? = null,
+    var dokumentType: String? = null,
+    var tittel: String? = null
 )
