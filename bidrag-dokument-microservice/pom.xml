@@ -51,6 +51,7 @@
         <logback.encoder.version>5.1</logback.encoder.version>
         <slf4j.version>1.7.25</slf4j.version>
         <springfox-swagger.version>2.9.2</springfox-swagger.version>
+        <micrometer.version>1.0.7</micrometer.version>
     </properties>
 
     <dependencies>
@@ -69,10 +70,19 @@
             <artifactId>bidrag-dokument-service</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+            <version>${micrometer.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+            <version>${micrometer.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

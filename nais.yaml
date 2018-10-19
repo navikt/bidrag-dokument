@@ -24,8 +24,8 @@ leaderElection: false # if true, a http endpoint will be available at $ELECTOR_P
 #See https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
 preStopHookPath: "" # A HTTP GET will be issued to this endpoint at least once before the pod is terminated.
 prometheus: #Optional
-  enabled: false # if true the pod will be scraped for metrics by prometheus
-  path: /metrics # Path to prometheus-metrics
+  enabled: true # if true the pod will be scraped for metrics by prometheus
+  path: /bidrag-dokument/actuator/prometheus # Path to prometheus-metrics
 istio:
   enabled: false # when true, envoy-proxy sidecar will be injected into pod and https urls envvars will be rewritten
 resources: # Optional. See: http://kubernetes.io/docs/user-guide/compute-resources/
