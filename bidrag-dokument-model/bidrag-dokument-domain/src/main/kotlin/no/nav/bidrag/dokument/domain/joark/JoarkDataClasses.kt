@@ -25,21 +25,19 @@ data class JournalforingDto(
         var datoDokument: LocalDate? = null,
         var datoJournal: LocalDate? = null,
         var datoMottatt: LocalDate? = null,
-        var dokumenter: List<DokumentDto> = emptyList(),
+        var dokumenter: List<JoarkDokumentDto> = emptyList(),
         var fagomrade: String? = null,
         var forsendelseMottatt: LocalDate? = null,
         var innhold: String? = null,
         var journalforendeEnhet: String? = null,
         var journalfortAvNavn: String? = null,
         var journalpostId: Int? = null,
-        var journalpostType: String? = null,
         var journalTilstand: String? = null,
         var kanalReferanseId: String? = null,
-        var mottakskanal: String? = null,
-        var tittel: String? = null
+        var mottakskanal: String? = null
 )
 
-data class DokumentDto(
+data class JoarkDokumentDto(
         var dokumentId: String? = null,
         var dokumentkategori: String? = null,
         var dokumentTypeId: String? = null,

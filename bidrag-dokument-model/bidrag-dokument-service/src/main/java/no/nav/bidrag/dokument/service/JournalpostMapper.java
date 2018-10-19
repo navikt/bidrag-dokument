@@ -1,9 +1,10 @@
 package no.nav.bidrag.dokument.service;
 
+import no.nav.bidrag.dokument.domain.DokumentDto;
 import no.nav.bidrag.dokument.domain.JournalpostDto;
 import no.nav.bidrag.dokument.domain.bisys.BidragJournalpostDto;
 import no.nav.bidrag.dokument.domain.joark.BrukerDto;
-import no.nav.bidrag.dokument.domain.joark.DokumentDto;
+import no.nav.bidrag.dokument.domain.joark.JoarkDokumentDto;
 import no.nav.bidrag.dokument.domain.joark.JournalforingDto;
 
 import java.util.Collections;
@@ -17,8 +18,7 @@ public class JournalpostMapper {
         journalpostDto.setFagomrade(journalforingDto.getFagomrade());
         journalpostDto.setDokumentDato(journalforingDto.getDatoDokument());
         journalpostDto.setJournaltilstand(journalforingDto.getJournalTilstand());
-        journalpostDto.setDokumentreferanse(journalforingDto.getDokumenter().stream().map(DokumentDto::getDokumentId).collect(Collectors.toList()));
-        journalpostDto.setDokumentType(journalforingDto.getJournalpostType());
+        journalpostDto.setDokumenter(journalforingDto.getDokumenter().stream().map(this::tilDokumentDto).collect(Collectors.toList()));
         journalpostDto.setGjelderBrukerId(journalforingDto.getBrukere().stream().map(BrukerDto::getBrukerId).collect(Collectors.toList()));
         journalpostDto.setInnhold(journalforingDto.getInnhold());
         journalpostDto.setJournalforendeEnhet(journalforingDto.getJournalforendeEnhet());
@@ -31,12 +31,20 @@ public class JournalpostMapper {
         return journalpostDto;
     }
 
+    private DokumentDto tilDokumentDto(JoarkDokumentDto joarkDokumentDto) {
+        DokumentDto dokumentDto = new DokumentDto();
+        dokumentDto.setDokumentreferanse(joarkDokumentDto.getDokumentId());
+        dokumentDto.setTittel(joarkDokumentDto.getTittel());
+        dokumentDto.setDokumentType(joarkDokumentDto.getDokumentTypeId());
+
+        return dokumentDto;
+    }
+
     JournalpostDto fraBidragJournalpost(BidragJournalpostDto bidragJournalpostDto) {
         JournalpostDto journalpostDto = new JournalpostDto();
         journalpostDto.setAvsenderNavn(bidragJournalpostDto.getAvsender());
         journalpostDto.setDokumentDato(bidragJournalpostDto.getDokumentdato());
-        journalpostDto.setDokumentreferanse(Collections.singletonList(bidragJournalpostDto.getDokumentreferanse()));
-        journalpostDto.setDokumentType(bidragJournalpostDto.getDokumentType());
+        journalpostDto.setDokumenter(Collections.singletonList(tilDokumentDto(bidragJournalpostDto)));
         journalpostDto.setFagomrade(bidragJournalpostDto.getFagomrade());
         journalpostDto.setGjelderBrukerId(Collections.singletonList(bidragJournalpostDto.getGjelder()));
         journalpostDto.setInnhold(bidragJournalpostDto.getBeskrivelse());
@@ -48,5 +56,14 @@ public class JournalpostMapper {
         journalpostDto.setSaksnummerBidrag(bidragJournalpostDto.getSaksnummer());
 
         return journalpostDto;
+    }
+
+    private DokumentDto tilDokumentDto(BidragJournalpostDto bidragJournalpostDto) {
+        DokumentDto dokumentDto = new DokumentDto();
+        dokumentDto.setDokumentreferanse(bidragJournalpostDto.getDokumentreferanse());
+        dokumentDto.setTittel(bidragJournalpostDto.getBeskrivelse());
+        dokumentDto.setDokumentType(bidragJournalpostDto.getDokumentType());
+
+        return dokumentDto;
     }
 }
