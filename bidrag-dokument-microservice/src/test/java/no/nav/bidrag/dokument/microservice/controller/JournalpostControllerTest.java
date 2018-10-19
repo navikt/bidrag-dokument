@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -27,6 +29,8 @@ import java.util.Optional;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -76,14 +80,16 @@ class JournalpostControllerTest {
         ));
     }
 
-    @DisplayName("skal finne Journalposter for en bidragssak")
+    @DisplayName("skal finne Journalposter for en bidragssak") @SuppressWarnings("unchecked")
     @Test void skalFinneJournalposterForEnBidragssak() {
-        when(restTemplateMock.getForEntity(eq(journalpostBaseUrl + "/sak/1001"), eq(List.class))).thenReturn(new ResponseEntity<>(
-                asList(new BidragJournalpostDto(), new BidragJournalpostDto()), HttpStatus.I_AM_A_TEAPOT
-        ));
+        when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any()))
+                .thenReturn(new ResponseEntity<>(asList(new BidragJournalpostDto(), new BidragJournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
 
         String url = initBaseUrl() + "/journalpost/1001";
-        ResponseEntity<List> responseEntity = testRestTemplate.getForEntity(url, List.class);
+        ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url, HttpMethod.GET, null,
+                new ParameterizedTypeReference<List<JournalpostDto>>() {
+                }
+        );
 
         assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
                 () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
