@@ -16,7 +16,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -39,7 +41,7 @@ import static org.mockito.Mockito.when;
     }
 
     private void initTestClass() {
-        bidragJournalpostConsumer = new BidragJournalpostConsumer("baseUrl", () -> loggerMock);
+        bidragJournalpostConsumer = new BidragJournalpostConsumer("journalpost/sak/", () -> loggerMock);
     }
 
     private void mockRestTemplateFactory() {
@@ -57,17 +59,17 @@ import static org.mockito.Mockito.when;
         );
 
         bidragJournalpostConsumer.finnJournalposter("101");
-        verify(restTemplateMock).exchange(eq("baseUrl/sak/101"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any());
+        verify(restTemplateMock).exchange(eq("journalpost/sak/101"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any());
     }
 
-    @DisplayName("should log not successful invocations")
-    @Test void shouldLogNotSuccessfulInvocations() {
+    @DisplayName("should log not invocations")
+    @Test void shouldLogInvocations() {
         when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any())).thenReturn(
                 new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)
         );
 
         bidragJournalpostConsumer.finnJournalposter("101");
 
-        verify(loggerMock).warn("Fikk http status 500 fra journalposter i bidragssak med saksnummer 101 - Internal Server Error");
+        verify(loggerMock).info(eq("Fikk http status {} fra journalposter i bidragssak med saksnummer {} - {}"), (Object[]) any());
     }
 }
