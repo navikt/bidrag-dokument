@@ -1,0 +1,73 @@
+package no.nav.bidrag.dokument.consumer;
+
+import no.nav.bidrag.dokument.domain.bisys.BidragJournalpostDto;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@DisplayName("BidragJournalpostConsumer")
+@SuppressWarnings("unchecked") class BidragJournalpostConsumerTest {
+
+    private BidragJournalpostConsumer bidragJournalpostConsumer;
+
+    private @Mock Logger loggerMock;
+    private @Mock RestTemplate restTemplateMock;
+
+    @BeforeEach void setup() {
+        initMocks();
+        initTestClass();
+        mockRestTemplateFactory();
+    }
+
+    private void initMocks() {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    private void initTestClass() {
+        bidragJournalpostConsumer = new BidragJournalpostConsumer("baseUrl", () -> loggerMock);
+    }
+
+    private void mockRestTemplateFactory() {
+        RestTemplateFactory.use(() -> restTemplateMock);
+    }
+
+    @AfterEach void shouldResetRestTemplateFactory() {
+        RestTemplateFactory.reset();
+    }
+
+    @DisplayName("skal bruke bidragssakens saksnummer i sti til tjeneste")
+    @Test void shouldUseValueFromPath() {
+        when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any())).thenReturn(
+                new ResponseEntity<>(HttpStatus.NO_CONTENT)
+        );
+
+        bidragJournalpostConsumer.finnJournalposter("101");
+        verify(restTemplateMock).exchange(eq("baseUrl/sak/101"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any());
+    }
+
+    @DisplayName("should log not successful invocations")
+    @Test void shouldLogNotSuccessfulInvocations() {
+        when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any())).thenReturn(
+                new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)
+        );
+
+        bidragJournalpostConsumer.finnJournalposter("101");
+
+        verify(loggerMock).warn("Fikk http status 500 fra journalposter i bidragssak med saksnummer 101 - Internal Server Error");
+    }
+}
