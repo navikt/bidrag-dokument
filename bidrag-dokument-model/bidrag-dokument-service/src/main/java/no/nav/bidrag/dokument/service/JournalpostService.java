@@ -2,9 +2,9 @@ package no.nav.bidrag.dokument.service;
 
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.consumer.JournalforingConsumer;
-import no.nav.bidrag.dokument.domain.bisys.BidragJournalpostDto;
-import no.nav.bidrag.dokument.domain.joark.JournalforingDto;
-import no.nav.bidrag.dokument.domain.JournalpostDto;
+import no.nav.bidrag.dokument.consumer.dto.bisys.BidragJournalpostDto;
+import no.nav.bidrag.dokument.consumer.dto.joark.JournalforingDto;
+import no.nav.bidrag.dokument.consumer.dto.JournalpostDto;
 
 import java.util.List;
 import java.util.Optional;

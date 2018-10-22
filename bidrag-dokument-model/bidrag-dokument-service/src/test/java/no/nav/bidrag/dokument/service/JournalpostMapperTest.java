@@ -1,13 +1,13 @@
 package no.nav.bidrag.dokument.service;
 
-import no.nav.bidrag.dokument.domain.DokumentDto;
-import no.nav.bidrag.dokument.domain.JournalpostDto;
-import no.nav.bidrag.dokument.domain.bisys.BidragJournalpostDto;
-import no.nav.bidrag.dokument.domain.joark.ArkivSakDto;
-import no.nav.bidrag.dokument.domain.joark.AvsenderDto;
-import no.nav.bidrag.dokument.domain.joark.BrukerDto;
-import no.nav.bidrag.dokument.domain.joark.JoarkDokumentDto;
-import no.nav.bidrag.dokument.domain.joark.JournalforingDto;
+import no.nav.bidrag.dokument.consumer.dto.DokumentDto;
+import no.nav.bidrag.dokument.consumer.dto.JournalpostDto;
+import no.nav.bidrag.dokument.consumer.dto.bisys.BidragJournalpostDto;
+import no.nav.bidrag.dokument.consumer.dto.joark.ArkivSakDto;
+import no.nav.bidrag.dokument.consumer.dto.joark.AvsenderDto;
+import no.nav.bidrag.dokument.consumer.dto.joark.BrukerDto;
+import no.nav.bidrag.dokument.consumer.dto.joark.JoarkDokumentDto;
+import no.nav.bidrag.dokument.consumer.dto.joark.JournalforingDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

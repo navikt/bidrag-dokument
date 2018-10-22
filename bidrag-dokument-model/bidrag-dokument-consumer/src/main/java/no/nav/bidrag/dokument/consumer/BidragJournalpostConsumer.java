@@ -1,6 +1,6 @@
 package no.nav.bidrag.dokument.consumer;
 
-import no.nav.bidrag.dokument.domain.bisys.BidragJournalpostDto;
+import no.nav.bidrag.dokument.consumer.dto.bisys.BidragJournalpostDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;

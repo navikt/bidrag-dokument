@@ -1,4 +1,4 @@
-package no.nav.bidrag.dokument.domain
+package no.nav.bidrag.dokument.consumer.dto
 
 import java.time.LocalDate
 

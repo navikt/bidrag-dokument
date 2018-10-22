@@ -1,6 +1,6 @@
 package no.nav.bidrag.dokument.consumer;
 
-import no.nav.bidrag.dokument.domain.joark.JournalforingDto;
+import no.nav.bidrag.dokument.consumer.dto.joark.JournalforingDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
