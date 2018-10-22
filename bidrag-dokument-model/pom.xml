@@ -21,8 +21,8 @@
         <maven.compiler.version>3.8.0</maven.compiler.version>
         <maven.surefire.version>2.22.0</maven.surefire.version>
 
-        <mockito.version>2.22.0</mockito.version>
-        <spring-boot.version>2.0.5.RELEASE</spring-boot.version>
+        <mockito.version>2.23.0</mockito.version>
+        <spring-boot.version>2.0.6.RELEASE</spring-boot.version>
     </properties>
 
     <modules>
@@ -97,6 +97,11 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger2</artifactId>
+                <version>${springfox-swagger.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
