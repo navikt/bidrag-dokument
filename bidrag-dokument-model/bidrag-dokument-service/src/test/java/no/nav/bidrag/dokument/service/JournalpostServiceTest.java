@@ -1,7 +1,7 @@
 package no.nav.bidrag.dokument.service;
 
 import no.nav.bidrag.dokument.consumer.JournalforingConsumer;
-import no.nav.bidrag.dokument.consumer.dto.joark.JournalforingDto;
+import no.nav.bidrag.dokument.dto.joark.JournalforingDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

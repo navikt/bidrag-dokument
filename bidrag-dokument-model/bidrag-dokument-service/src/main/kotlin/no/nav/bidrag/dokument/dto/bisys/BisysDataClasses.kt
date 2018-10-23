@@ -1,4 +1,4 @@
-package no.nav.bidrag.dokument.consumer.dto.bisys
+package no.nav.bidrag.dokument.dto.bisys
 
 import java.time.LocalDate
 

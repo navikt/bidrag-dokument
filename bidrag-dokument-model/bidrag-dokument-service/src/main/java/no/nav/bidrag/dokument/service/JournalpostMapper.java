@@ -1,11 +1,11 @@
 package no.nav.bidrag.dokument.service;
 
-import no.nav.bidrag.dokument.consumer.dto.DokumentDto;
-import no.nav.bidrag.dokument.consumer.dto.JournalpostDto;
-import no.nav.bidrag.dokument.consumer.dto.bisys.BidragJournalpostDto;
-import no.nav.bidrag.dokument.consumer.dto.joark.BrukerDto;
-import no.nav.bidrag.dokument.consumer.dto.joark.JoarkDokumentDto;
-import no.nav.bidrag.dokument.consumer.dto.joark.JournalforingDto;
+import no.nav.bidrag.dokument.dto.DokumentDto;
+import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.bisys.BidragJournalpostDto;
+import no.nav.bidrag.dokument.dto.joark.BrukerDto;
+import no.nav.bidrag.dokument.dto.joark.JoarkDokumentDto;
+import no.nav.bidrag.dokument.dto.joark.JournalforingDto;
 
 import java.util.Collections;
 import java.util.stream.Collectors;

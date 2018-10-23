@@ -1,7 +1,7 @@
 package no.nav.bidrag.dokument.microservice.controller;
 
 import io.swagger.annotations.ApiOperation;
-import no.nav.bidrag.dokument.consumer.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.service.JournalpostService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

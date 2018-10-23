@@ -30,7 +30,6 @@
 
     <modules>
         <module>bidrag-dokument-service</module>
-        <module>bidrag-dokument-consumer</module>
     </modules>
 
     <repositories>

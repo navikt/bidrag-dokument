@@ -1,9 +1,9 @@
 package no.nav.bidrag.dokument.microservice.controller;
 
 import no.nav.bidrag.dokument.consumer.RestTemplateFactory;
-import no.nav.bidrag.dokument.consumer.dto.JournalpostDto;
-import no.nav.bidrag.dokument.consumer.dto.bisys.BidragJournalpostDto;
-import no.nav.bidrag.dokument.consumer.dto.joark.JournalforingDto;
+import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.bisys.BidragJournalpostDto;
+import no.nav.bidrag.dokument.dto.joark.JournalforingDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

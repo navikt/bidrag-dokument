@@ -1,4 +1,4 @@
-package no.nav.bidrag.dokument.consumer.dto.joark
+package no.nav.bidrag.dokument.dto.joark
 
 import java.time.LocalDate
 
