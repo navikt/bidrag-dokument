@@ -1,4 +1,4 @@
-package no.nav.bidrag.dokument.microservice;
+package no.nav.bidrag.dokument;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package no.nav.bidrag.dokument.microservice;
+package no.nav.bidrag.dokument;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

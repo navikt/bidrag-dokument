@@ -1,4 +1,4 @@
-package no.nav.bidrag.dokument.microservice.controller;
+package no.nav.bidrag.dokument.controller;
 
 import no.nav.bidrag.dokument.consumer.RestTemplateFactory;
 import no.nav.bidrag.dokument.dto.JournalpostDto;

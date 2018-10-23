@@ -1,4 +1,4 @@
-package no.nav.bidrag.dokument.microservice;
+package no.nav.bidrag.dokument;
 
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.consumer.JournalforingConsumer;
