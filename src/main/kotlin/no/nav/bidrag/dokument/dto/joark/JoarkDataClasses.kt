@@ -1,12 +1,16 @@
 package no.nav.bidrag.dokument.dto.joark
 
+import io.swagger.annotations.ApiModel
+import io.swagger.annotations.ApiModelProperty
 import java.time.LocalDate
 
+@ApiModel(value = "Metadata om en sak fra joark")
 data class ArkivSakDto(
         var id: String? = null,
         var system: String? = null
 )
 
+@ApiModel(value = "Metadata for journalføringens avsender")
 data class AvsenderDto(
         var avsenderType: String? = null,
         var avsenderId: String? = null,
@@ -18,6 +22,7 @@ data class BrukerDto(
         var brukerId: String? = null
 )
 
+@ApiModel(value = "Metadata for en journalføring i joark")
 data class JournalforingDto(
         var arkivSak: ArkivSakDto? = null,
         var avsenderDto: AvsenderDto? = null,
@@ -37,8 +42,9 @@ data class JournalforingDto(
         var mottakskanal: String? = null
 )
 
+@ApiModel(value = "Metadata om et dokument hentet fra joark")
 data class JoarkDokumentDto(
-        var dokumentId: String? = null,
+        @ApiModelProperty(value = "Identifiserer et dokument (dokumentreferanse i midlertidig-brevlager)") var dokumentId: String? = null,
         var dokumentkategori: String? = null,
         var dokumentTypeId: String? = null,
         var navSkjemaId: String? = null,

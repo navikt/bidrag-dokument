@@ -17,4 +17,3 @@ data class BidragJournalpostDto(
         var mottattDato: LocalDate? = null,
         var saksnummer: String? = null
 )
-
