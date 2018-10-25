@@ -2,8 +2,6 @@ package no.nav.bidrag.dokument;
 
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.consumer.JournalforingConsumer;
-import no.nav.bidrag.dokument.service.JournalpostMapper;
-import no.nav.bidrag.dokument.service.JournalpostService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,10 +13,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 @PropertySource("classpath:url.properties")
 public class Bidragsdokument extends WebMvcConfigurationSupport {
 
-    @Bean public JournalpostService journalpostService(BidragJournalpostConsumer bidragJournalpostConsumer, JournalforingConsumer journalpostConsumer) {
-        return new JournalpostService(bidragJournalpostConsumer, journalpostConsumer, new JournalpostMapper());
-    }
-
     @Bean public BidragJournalpostConsumer bidragJournalpostConsumer(
             @Value("${JOURNALPOST_URL}") String bidragBaseUrl
     ) {
@@ -28,7 +22,7 @@ public class Bidragsdokument extends WebMvcConfigurationSupport {
     @Bean public JournalforingConsumer journalforingConsumer(
             @Value("${JOARK_URL}") String joarkRestServiceUrl
     ) {
-        return new JournalforingConsumer(joarkRestServiceUrl);
+        return new JournalforingConsumer(joarkRestServiceUrl + "/rest/journalfoerinngaaende/v1/journalposter/" );
     }
 
     public static void main(String[] args) {

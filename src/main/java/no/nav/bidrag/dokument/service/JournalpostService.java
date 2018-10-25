@@ -5,12 +5,14 @@ import no.nav.bidrag.dokument.consumer.JournalforingConsumer;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.bisys.BidragJournalpostDto;
 import no.nav.bidrag.dokument.dto.joark.JournalforingDto;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
+@Component
 public class JournalpostService {
     private final BidragJournalpostConsumer bidragJournalpostConsumer;
     private final JournalforingConsumer journalforingConsumer;

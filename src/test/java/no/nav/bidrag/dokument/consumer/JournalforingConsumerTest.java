@@ -14,6 +14,9 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @DisplayName("JournalforingConsumer")
@@ -25,34 +28,29 @@ class JournalforingConsumerTest {
     @BeforeEach void initMocksAndTestClass() {
         MockitoAnnotations.initMocks(this);
         RestTemplateFactory.use(() -> restTemplateMock);
-        journalforingConsumer = new JournalforingConsumer("/journalforing");
+        journalforingConsumer = new JournalforingConsumer("consumer");
     }
 
     @DisplayName("skal hente en journalforing med spring sin RestTemplate")
     @Test void skalHenteJournalforingMedRestTemplate() {
-        when(restTemplateMock.getForEntity("/journalforing", JournalforingDto.class))
-                .thenReturn(new ResponseEntity<>(new JournalforingDtoBygger().medTilstand("ENDELIG").get(), HttpStatus.OK));
+        when(restTemplateMock.getForEntity(anyString(), any()))
+                .thenReturn(new ResponseEntity<>(journalforingMedTilstand("ENDELIG"), HttpStatus.OK));
 
-        Optional<JournalforingDto> journalpostOptional = journalforingConsumer.hentJournalforing(null);
+        Optional<JournalforingDto> journalpostOptional = journalforingConsumer.hentJournalforing(101);
         JournalforingDto journalforingDto = journalpostOptional.orElseThrow(() -> new AssertionError("Ingen Dto fra manager!"));
 
         assertThat(journalforingDto.getJournalTilstand()).isEqualTo("ENDELIG");
+        verify(restTemplateMock).getForEntity("101", JournalforingDto.class);
+    }
+
+    private JournalforingDto journalforingMedTilstand(@SuppressWarnings("SameParameterValue") String journaltilstand) {
+        JournalforingDto journalforingDto = new JournalforingDto();
+        journalforingDto.setJournalTilstand(journaltilstand);
+
+        return journalforingDto;
     }
 
     @AfterEach void resetFactory() {
         RestTemplateFactory.reset();
-    }
-
-    private class JournalforingDtoBygger {
-        private JournalforingDto journalforingDto = new JournalforingDto();
-
-        JournalforingDtoBygger medTilstand(String journalTilstand) {
-            journalforingDto.setJournalTilstand(journalTilstand);
-            return this;
-        }
-
-        JournalforingDto get() {
-            return journalforingDto;
-        }
     }
 }

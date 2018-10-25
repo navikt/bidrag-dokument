@@ -59,7 +59,7 @@ import static org.mockito.Mockito.when;
         );
 
         bidragJournalpostConsumer.finnJournalposter("101");
-        verify(restTemplateMock).exchange(eq("journalpost/sak/101"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any());
+        verify(restTemplateMock).exchange(eq("101"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any());
     }
 
     @DisplayName("should log not invocations")
