@@ -13,25 +13,18 @@ public class JournalforingConsumer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JournalforingConsumer.class);
 
-    private final String joarkRestServiceUrl;
+    private final String joarkHentJournalforingerRestUrl;
 
-    public JournalforingConsumer(String joarkRestServiceUrl) {
-        this.joarkRestServiceUrl = joarkRestServiceUrl;
+    public JournalforingConsumer(String joarkHentJournalforingerRestUrl) {
+        this.joarkHentJournalforingerRestUrl = joarkHentJournalforingerRestUrl;
     }
 
     public Optional<JournalforingDto> hentJournalforing(Integer id) {
-        RestTemplate restTemplate = RestTemplateFactory.create();
-        ResponseEntity<JournalforingDto> journalforingDtoResponseEntity = restTemplate.getForEntity(joarkRestServiceUrl, JournalforingDto.class);
+        RestTemplate restTemplate = RestTemplateFactory.create(joarkHentJournalforingerRestUrl);
+        ResponseEntity<JournalforingDto> journalforingDtoResponseEntity = restTemplate.getForEntity(String.valueOf(id), JournalforingDto.class);
+        HttpStatus httpStatus = journalforingDtoResponseEntity.getStatusCode();
 
-        if (LOGGER.isDebugEnabled()) {
-            HttpStatus httpStatus = journalforingDtoResponseEntity.getStatusCode();
-
-            if (httpStatus.is2xxSuccessful()) {
-                LOGGER.trace(String.format("JournalforingDto med id=%s har http status %s - %s", id, httpStatus, httpStatus.getReasonPhrase()));
-            } else {
-                LOGGER.debug(String.format("JournalforingDto med id=%s har http status %s - %s", id, httpStatus, httpStatus.getReasonPhrase()));
-            }
-        }
+        LOGGER.info("JournalforingDto med id={} har http status {} - {}", id, httpStatus, httpStatus.getReasonPhrase());
 
         return Optional.ofNullable(journalforingDtoResponseEntity.getBody());
     }

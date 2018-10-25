@@ -41,8 +41,6 @@ class JournalpostControllerTest {
 
     @LocalServerPort private int port;
     @Mock private RestTemplate restTemplateMock;
-    @Value("${JOURNALPOST_URL}") private String journalpostBaseUrl;
-    @Value("${JOARK_URL}") private String joarkBaseUrl;
     @Value("${server.servlet.context-path}") private String contextPath;
     @Autowired private TestRestTemplate testRestTemplate;
 
@@ -53,7 +51,7 @@ class JournalpostControllerTest {
 
     @DisplayName("skal ha body som null når journalforing ikke finnes")
     @Test void skalGiBodySomNullNarJournalforingIkkeFinnes() {
-        when(restTemplateMock.getForEntity(eq(joarkBaseUrl), eq(JournalforingDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
+        when(restTemplateMock.getForEntity(eq("1"), eq(JournalforingDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
 
         String url = initBaseUrl() + "/journalforing/1";
         ResponseEntity<JournalpostDto> journalpostResponseEntity = testRestTemplate.getForEntity(url, JournalpostDto.class);
@@ -66,7 +64,7 @@ class JournalpostControllerTest {
 
     @DisplayName("skal finne Journalpost når journalforing finnes")
     @Test void skalGiJournalpostNarJournalforingFinnes() {
-        when(restTemplateMock.getForEntity(eq(joarkBaseUrl), eq(JournalforingDto.class))).thenReturn(new ResponseEntity<>(
+        when(restTemplateMock.getForEntity(eq("1"), eq(JournalforingDto.class))).thenReturn(new ResponseEntity<>(
                 new JournalforingDtoBygger().medTilstand("MIDLERTIDIG").get(), HttpStatus.I_AM_A_TEAPOT
         ));
 

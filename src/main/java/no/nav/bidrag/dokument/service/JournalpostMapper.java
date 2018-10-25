@@ -6,10 +6,12 @@ import no.nav.bidrag.dokument.dto.bisys.BidragJournalpostDto;
 import no.nav.bidrag.dokument.dto.joark.BrukerDto;
 import no.nav.bidrag.dokument.dto.joark.JoarkDokumentDto;
 import no.nav.bidrag.dokument.dto.joark.JournalforingDto;
+import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.stream.Collectors;
 
+@Component
 public class JournalpostMapper {
 
     JournalpostDto fraJournalforing(JournalforingDto journalforingDto) {
