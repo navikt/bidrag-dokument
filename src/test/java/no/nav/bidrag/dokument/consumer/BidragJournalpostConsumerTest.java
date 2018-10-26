@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
     }
 
     private void initTestClass() {
-        bidragJournalpostConsumer = new BidragJournalpostConsumer("journalpost/sak/", () -> loggerMock);
+        bidragJournalpostConsumer = new BidragJournalpostConsumer("journalpost", () -> loggerMock);
     }
 
     private void mockRestTemplateFactory() {
@@ -59,7 +59,7 @@ import static org.mockito.Mockito.when;
         );
 
         bidragJournalpostConsumer.finnJournalposter("101");
-        verify(restTemplateMock).exchange(eq("101"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any());
+        verify(restTemplateMock).exchange(eq("/sak/101"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any());
     }
 
     @DisplayName("should log not invocations")

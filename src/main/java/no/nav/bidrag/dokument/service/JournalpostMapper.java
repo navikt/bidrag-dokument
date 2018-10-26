@@ -9,6 +9,7 @@ import no.nav.bidrag.dokument.dto.joark.JournalforingDto;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -67,5 +68,34 @@ public class JournalpostMapper {
         dokumentDto.setDokumentType(bidragJournalpostDto.getDokumentType());
 
         return dokumentDto;
+    }
+
+    BidragJournalpostDto tilBidragJournalpost(JournalpostDto journalpostDto) {
+        DokumentDto dokumentDto = fetchFirstOrFail(journalpostDto.getDokumenter());
+
+        BidragJournalpostDto bidragJournalpostDto = new BidragJournalpostDto();
+        bidragJournalpostDto.setAvsender(journalpostDto.getAvsenderNavn());
+        bidragJournalpostDto.setBeskrivelse(journalpostDto.getInnhold());
+        bidragJournalpostDto.setDokumentdato(journalpostDto.getDokumentDato());
+        bidragJournalpostDto.setDokumentreferanse(dokumentDto.getDokumentreferanse());
+        bidragJournalpostDto.setDokumentType(dokumentDto.getDokumentType());
+        bidragJournalpostDto.setFagomrade(journalpostDto.getFagomrade());
+        bidragJournalpostDto.setGjelder(fetchFirstOrFail(journalpostDto.getGjelderBrukerId()));
+        bidragJournalpostDto.setJournalforendeEnhet(journalpostDto.getJournalforendeEnhet());
+        bidragJournalpostDto.setJournalfortAv(journalpostDto.getJournalfortAv());
+        bidragJournalpostDto.setJournaldato(journalpostDto.getJournalfortDato());
+        bidragJournalpostDto.setJournalpostId(journalpostDto.getJournalpostIdBisys());
+        bidragJournalpostDto.setMottattDato(journalpostDto.getMottattDato());
+        bidragJournalpostDto.setSaksnummer(journalpostDto.getSaksnummerBidrag());
+
+        return bidragJournalpostDto;
+    }
+
+    private <T> T fetchFirstOrFail(List<T> list) {
+        if (list.size() == 1) {
+            return list.get(0);
+        }
+
+        throw new IllegalArgumentException("Unable to fetch item from " + list);
     }
 }

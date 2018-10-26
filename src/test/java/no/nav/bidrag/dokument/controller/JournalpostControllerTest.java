@@ -1,12 +1,15 @@
 package no.nav.bidrag.dokument.controller;
 
+import no.nav.bidrag.dokument.JournalpostDtoBygger;
 import no.nav.bidrag.dokument.consumer.RestTemplateFactory;
+import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.bisys.BidragJournalpostDto;
 import no.nav.bidrag.dokument.dto.joark.JournalforingDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -27,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,6 +43,9 @@ import static org.mockito.Mockito.when;
 @DisplayName("JournalpostController")
 class JournalpostControllerTest {
 
+    private static final String ENDPOINT_JOURNALFORING = "/journalforing";
+    private static final String ENDPOINT_JOURNALPOST = "/journalpost";
+
     @LocalServerPort private int port;
     @Mock private RestTemplate restTemplateMock;
     @Value("${server.servlet.context-path}") private String contextPath;
@@ -49,70 +56,148 @@ class JournalpostControllerTest {
         RestTemplateFactory.use(() -> restTemplateMock);
     }
 
-    @DisplayName("skal ha body som null når journalforing ikke finnes")
-    @Test void skalGiBodySomNullNarJournalforingIkkeFinnes() {
-        when(restTemplateMock.getForEntity(eq("1"), eq(JournalforingDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
+    @DisplayName("endpoint: " + ENDPOINT_JOURNALFORING)
+    @Nested class EndpointJournalforing {
 
-        String url = initBaseUrl() + "/journalforing/1";
-        ResponseEntity<JournalpostDto> journalpostResponseEntity = testRestTemplate.getForEntity(url, JournalpostDto.class);
+        private String url = initEndpointUrl(ENDPOINT_JOURNALFORING);
 
-        assertThat(Optional.of(journalpostResponseEntity)).hasValueSatisfying(response -> assertAll(
-                () -> assertThat(response.getBody()).isNull(),
-                () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT)
-        ));
+        @DisplayName("skal ha body som null når journalforing ikke finnes")
+        @Test void skalGiBodySomNullNarJournalforingIkkeFinnes() {
+            when(restTemplateMock.getForEntity(eq("1"), eq(JournalforingDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
+
+            ResponseEntity<JournalpostDto> journalpostResponseEntity = testRestTemplate.getForEntity(url + "/1", JournalpostDto.class);
+
+            assertThat(Optional.of(journalpostResponseEntity)).hasValueSatisfying(response -> assertAll(
+                    () -> assertThat(response.getBody()).isNull(),
+                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT)
+            ));
+        }
+
+        @DisplayName("skal finne Journalpost når journalforing finnes")
+        @Test void skalGiJournalpostNarJournalforingFinnes() {
+            when(restTemplateMock.getForEntity(eq("1"), eq(JournalforingDto.class))).thenReturn(new ResponseEntity<>(
+                    journalforingMedTilstand("MIDLERTIDIG"), HttpStatus.I_AM_A_TEAPOT
+            ));
+
+            ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.getForEntity(url + "/1", JournalpostDto.class);
+
+            assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
+                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
+                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getHello).contains("hello from bidrag-dokument"),
+                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournaltilstand).contains("MIDLERTIDIG")
+            ));
+        }
+
+        private JournalforingDto journalforingMedTilstand(@SuppressWarnings("SameParameterValue") String journaltilstand) {
+            JournalforingDto journalforingDto = new JournalforingDto();
+            journalforingDto.setJournalTilstand(journaltilstand);
+
+            return journalforingDto;
+        }
     }
 
-    @DisplayName("skal finne Journalpost når journalforing finnes")
-    @Test void skalGiJournalpostNarJournalforingFinnes() {
-        when(restTemplateMock.getForEntity(eq("1"), eq(JournalforingDto.class))).thenReturn(new ResponseEntity<>(
-                new JournalforingDtoBygger().medTilstand("MIDLERTIDIG").get(), HttpStatus.I_AM_A_TEAPOT
-        ));
+    @DisplayName("endpoint: " + ENDPOINT_JOURNALPOST)
+    @Nested class EndpointJournalpost {
 
-        String url = initBaseUrl() + "/journalforing/1";
-        ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.getForEntity(url, JournalpostDto.class);
+        private String url = initEndpointUrl(ENDPOINT_JOURNALPOST);
 
-        assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
-                () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-                () -> assertThat(response.getBody()).extracting(JournalpostDto::getHello).contains("hello from bidrag-dokument"),
-                () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournaltilstand).contains("MIDLERTIDIG")
-        ));
+        @DisplayName("skal finne Journalposter for en bidragssak") @SuppressWarnings("unchecked")
+        @Test void skalFinneJournalposterForEnBidragssak() {
+            when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any()))
+                    .thenReturn(new ResponseEntity<>(asList(new BidragJournalpostDto(), new BidragJournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
+
+            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url + "/1001", HttpMethod.GET, null,
+                    new ParameterizedTypeReference<List<JournalpostDto>>() {
+                    }
+            );
+
+            assertThat(optional(responseEntity)).hasValueSatisfying(response -> assertAll(
+                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
+                    () -> assertThat(response.getBody()).hasSize(2)
+            ));
+        }
+
+        @DisplayName("skal gi http status 400 når post gjøres uten dokument")
+        @Test void skalGiHttpStatus400GrunnetDokument() {
+            JournalpostDto lagreJournalpostDto = new JournalpostDtoBygger()
+                    .medGjelderBrukerId("06127412345")
+                    .get();
+
+            ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.postForEntity(url, lagreJournalpostDto, JournalpostDto.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        }
+
+        @DisplayName("skal gi http status 400 når post gjøres med flere dokument")
+        @Test void skalGiHttpStatus400GrunnetFlereDokument() {
+            JournalpostDto lagreJournalpostDto = new JournalpostDtoBygger()
+                    .medDokumenter(asList(new DokumentDto(), new DokumentDto()))
+                    .medGjelderBrukerId("06127412345")
+                    .get();
+
+            ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.postForEntity(url, lagreJournalpostDto, JournalpostDto.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        }
+
+        @DisplayName("skal gi http status 400 når post gjøres uten gjelder bruker id")
+        @Test void skalGiHttpStatus400GrunnetGjelderBrukerId() {
+            JournalpostDto lagreJournalpostDto = new JournalpostDtoBygger()
+                    .medDokumenter(singletonList(new DokumentDto()))
+                    .get();
+
+            ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.postForEntity(url, lagreJournalpostDto, JournalpostDto.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        }
+
+        @DisplayName("skal gi http status 400 når post gjøres med flere gjelder bruker id")
+        @Test void skalGiHttpStatus400GrunnetFlereGjelderBrukerId() {
+            JournalpostDto lagreJournalpostDto = new JournalpostDtoBygger()
+                    .medDokumenter(singletonList(new DokumentDto()))
+                    .medGjelderBrukerId("06127412345", "01117712345")
+                    .get();
+
+            ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.postForEntity(url, lagreJournalpostDto, JournalpostDto.class);
+
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        }
+
+        @DisplayName("skal registrere ny journalpost")
+        @Test void skalRegistrereNyJournalpost() {
+            JournalpostDto lagreJournalpostDto = new JournalpostDtoBygger()
+                    .medDokumenter(singletonList(new DokumentDto()))
+                    .medGjelderBrukerId("06127412345")
+                    .get();
+
+            when(restTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(BidragJournalpostDto.class)))
+                    .thenReturn(new ResponseEntity<>(enBidragJournalpostMedId(101), HttpStatus.CREATED));
+
+            ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.postForEntity(url, lagreJournalpostDto, JournalpostDto.class);
+
+            assertThat(optional(responseEntity)).hasValueSatisfying(response -> assertAll(
+                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED),
+                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournalpostIdBisys).isEqualTo(singletonList(101))
+            ));
+        }
+
+        private BidragJournalpostDto enBidragJournalpostMedId(@SuppressWarnings("SameParameterValue") int id) {
+            BidragJournalpostDto bidragJournalpostDto = new BidragJournalpostDto();
+            bidragJournalpostDto.setJournalpostId(id);
+
+            return bidragJournalpostDto;
+        }
+
+        private <T> Optional<ResponseEntity<T>> optional(ResponseEntity<T> responseEntity) {
+            return Optional.ofNullable(responseEntity);
+        }
     }
 
-    @DisplayName("skal finne Journalposter for en bidragssak") @SuppressWarnings("unchecked")
-    @Test void skalFinneJournalposterForEnBidragssak() {
-        when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any()))
-                .thenReturn(new ResponseEntity<>(asList(new BidragJournalpostDto(), new BidragJournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
-
-        String url = initBaseUrl() + "/journalpost/1001";
-        ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url, HttpMethod.GET, null,
-                new ParameterizedTypeReference<List<JournalpostDto>>() {
-                }
-        );
-
-        assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
-                () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-                () -> assertThat(response.getBody()).hasSize(2)
-        ));
-    }
-
-    private String initBaseUrl() {
-        return "http://localhost:" + port + contextPath;
+    private String initEndpointUrl(@SuppressWarnings("SameParameterValue") String endpoint) {
+        return "http://localhost:" + port + contextPath + endpoint;
     }
 
     @AfterEach void resetFactory() {
         RestTemplateFactory.reset();
-    }
-
-    private class JournalforingDtoBygger {
-        private JournalforingDto journalforingDto = new JournalforingDto();
-
-        @SuppressWarnings("SameParameterValue") JournalforingDtoBygger medTilstand(String journalTilstand) {
-            journalforingDto.setJournalTilstand(journalTilstand);
-            return this;
-        }
-
-        JournalforingDto get() {
-            return journalforingDto;
-        }
     }
 }

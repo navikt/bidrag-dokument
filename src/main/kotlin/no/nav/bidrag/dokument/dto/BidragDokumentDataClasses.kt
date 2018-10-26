@@ -26,7 +26,7 @@ data class JournalpostDto(
 
 @ApiModel(value = "Dokument metadata")
 data class DokumentDto(
-        @ApiModelProperty(value = "Referanse som brukes når dokument skal hentes fra midlertidig-brevlager") var dokumentreferanse: String? = null,
+        @ApiModelProperty(value = "Referanse som brukes når dokument er i midlertidig-brevlager") var dokumentreferanse: String? = null,
         @ApiModelProperty(value = "Inngående (I), utgående (U) dokument, (X) internt notat") var dokumentType: String? = null,
         @ApiModelProperty(value = "Kort oppsummert av journalført innhold") var tittel: String? = null
 )

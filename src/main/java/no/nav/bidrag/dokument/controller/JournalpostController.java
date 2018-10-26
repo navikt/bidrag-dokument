@@ -5,15 +5,17 @@ import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.service.JournalpostService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class JournalpostController {
@@ -22,14 +24,12 @@ public class JournalpostController {
 
     private final JournalpostService journalpostService;
 
-    @Autowired
     public JournalpostController(JournalpostService journalpostService) {
         this.journalpostService = journalpostService;
     }
 
     @GetMapping("/status")
-    public @ResponseBody
-    String get() {
+    @ResponseBody public String get() {
         return "OK";
     }
 
@@ -52,5 +52,22 @@ public class JournalpostController {
         }
 
         return new ResponseEntity<>(journalposter, HttpStatus.OK);
+    }
+
+    @PostMapping("journalpost")
+    @ApiOperation("Registrer ny journalpost")
+    public ResponseEntity<JournalpostDto> post(@RequestBody JournalpostDto journalpostDto) {
+        if (harIngenEllerFlere(journalpostDto.getDokumenter()) || harIngenEllerFlere(journalpostDto.getGjelderBrukerId())) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        return Optional.of(journalpostService.save(journalpostDto))
+                .map(Optional::get)
+                .map(journalpost -> new ResponseEntity<>(journalpost, HttpStatus.CREATED))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.OK));
+    }
+
+    private <T> boolean harIngenEllerFlere(List<T> items) {
+        return items == null || items.isEmpty() || items.size() > 1;
     }
 }
