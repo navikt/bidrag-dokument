@@ -17,15 +17,9 @@ public class BidragJournalpostConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(BidragJournalpostConsumer.class);
 
     private final String baseUrlBidragJournalpost;
-    private final MyLogger myLogger;
 
     public BidragJournalpostConsumer(String baseUrlBidragJournalpost) {
-        this(baseUrlBidragJournalpost, () -> LOGGER);
-    }
-
-    BidragJournalpostConsumer(String baseUrlBidragJournalpost, MyLogger myLogger) {
         this.baseUrlBidragJournalpost = baseUrlBidragJournalpost;
-        this.myLogger = myLogger;
     }
 
     public List<BidragJournalpostDto> finnJournalposter(String saksnummer) {
@@ -37,7 +31,7 @@ public class BidragJournalpostConsumer {
         HttpStatus httpStatus = journalposterForBidragRequest.getStatusCode();
         String reasonPhrase = httpStatus != null ? httpStatus.getReasonPhrase() : null;
 
-        myLogger.getLogger().info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} - {}", httpStatus, saksnummer, reasonPhrase);
+        LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} - {}", httpStatus, saksnummer, reasonPhrase);
 
         return journalposterForBidragRequest.getBody();
     }
@@ -56,13 +50,8 @@ public class BidragJournalpostConsumer {
         HttpStatus httpStatus = registrertJournalpost.getStatusCode();
         String reasonPhrase = httpStatus != null ? httpStatus.getReasonPhrase() : null;
 
-        myLogger.getLogger().info("Fikk http status {}({}) fra registrer ny journalpost {}", httpStatus, reasonPhrase, bidragJournalpostDto);
+        LOGGER.info("Fikk http status {} - {}, fra registrer ny journalpost: {}", httpStatus, reasonPhrase, bidragJournalpostDto);
 
         return Optional.ofNullable(registrertJournalpost.getBody());
-    }
-
-    @FunctionalInterface
-    interface MyLogger {
-        Logger getLogger();
     }
 }

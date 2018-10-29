@@ -1,13 +1,17 @@
 package no.nav.bidrag.dokument.consumer;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
 import no.nav.bidrag.dokument.dto.bisys.BidragJournalpostDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -18,7 +22,9 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -27,6 +33,7 @@ import static org.mockito.Mockito.when;
 
     private BidragJournalpostConsumer bidragJournalpostConsumer;
 
+    private @Mock Appender appenderMock;
     private @Mock Logger loggerMock;
     private @Mock RestTemplate restTemplateMock;
 
@@ -34,6 +41,7 @@ import static org.mockito.Mockito.when;
         initMocks();
         initTestClass();
         mockRestTemplateFactory();
+        mockLogAppender();
     }
 
     private void initMocks() {
@@ -41,11 +49,18 @@ import static org.mockito.Mockito.when;
     }
 
     private void initTestClass() {
-        bidragJournalpostConsumer = new BidragJournalpostConsumer("journalpost", () -> loggerMock);
+        bidragJournalpostConsumer = new BidragJournalpostConsumer("journalpost");
     }
 
     private void mockRestTemplateFactory() {
         RestTemplateFactory.use(() -> restTemplateMock);
+    }
+
+    private void mockLogAppender() {
+        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        when(appenderMock.getName()).thenReturn("MOCK");
+        when(appenderMock.isStarted()).thenReturn(true);
+        logger.addAppender(appenderMock);
     }
 
     @AfterEach void shouldResetRestTemplateFactory() {
@@ -62,14 +77,31 @@ import static org.mockito.Mockito.when;
         verify(restTemplateMock).exchange(eq("/sak/101"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any());
     }
 
-    @DisplayName("should log not invocations")
-    @Test void shouldLogInvocations() {
+    @DisplayName("should log get invocations")
+    @Test void shouldLogGetInvocations() {
         when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any())).thenReturn(
                 new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)
         );
 
         bidragJournalpostConsumer.finnJournalposter("101");
 
-        verify(loggerMock).info(eq("Fikk http status {} fra journalposter i bidragssak med saksnummer {} - {}"), (Object[]) any());
+        verify(appenderMock, times(1)).doAppend(
+                argThat((ArgumentMatcher) argument -> ((ILoggingEvent) argument).getFormattedMessage()
+                        .contains("Fikk http status 500 fra journalposter i bidragssak med saksnummer 101 - Internal Server Error"))
+        );
+    }
+
+    @DisplayName("should log post invocations")
+    @Test void shouldLogPostInvocations() {
+        when(restTemplateMock.exchange(anyString(), any(), any(), eq(BidragJournalpostDto.class))).thenReturn(
+                new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)
+        );
+
+        bidragJournalpostConsumer.save(new BidragJournalpostDto());
+
+        verify(appenderMock, times(1)).doAppend(
+                argThat((ArgumentMatcher) argument -> ((ILoggingEvent) argument).getFormattedMessage()
+                        .contains("Fikk http status 500 - Internal Server Error, fra registrer ny journalpost: BidragJournalpostDto"))
+        );
     }
 }
