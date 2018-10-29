@@ -44,7 +44,7 @@ data class JournalforingDto(
 
 @ApiModel(value = "Metadata om et dokument hentet fra joark")
 data class JoarkDokumentDto(
-        @ApiModelProperty(value = "Identifiserer et dokument (dokumentreferanse i midlertidig-brevlager)") var dokumentId: String? = null,
+        @ApiModelProperty(value = "Identifiserer et dokument") var dokumentId: String? = null,
         var dokumentkategori: String? = null,
         var dokumentTypeId: String? = null,
         var navSkjemaId: String? = null,
