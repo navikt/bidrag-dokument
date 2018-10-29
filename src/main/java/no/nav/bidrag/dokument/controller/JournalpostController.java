@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class JournalpostController {
@@ -61,8 +60,7 @@ public class JournalpostController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        return Optional.of(journalpostService.save(journalpostDto))
-                .map(Optional::get)
+        return journalpostService.save(journalpostDto)
                 .map(journalpost -> new ResponseEntity<>(journalpost, HttpStatus.CREATED))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.OK));
     }
