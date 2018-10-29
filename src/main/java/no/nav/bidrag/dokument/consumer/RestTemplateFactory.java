@@ -2,7 +2,11 @@ package no.nav.bidrag.dokument.consumer;
 
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public final class RestTemplateFactory {
+    private static final Map<String, RestTemplate> restTemplatesPerBaseUri = new HashMap<>();
 
     private static InitRestTemplate initRestTemplate = defaultInitRestTemplate();
 
@@ -10,8 +14,9 @@ public final class RestTemplateFactory {
         // final factory
     }
 
-    static RestTemplate create() {
-        return initRestTemplate.init();
+    static RestTemplate create(String baseUrl) {
+        restTemplatesPerBaseUri.putIfAbsent(baseUrl, initRestTemplate.init());
+        return restTemplatesPerBaseUri.get(baseUrl);
     }
 
     private static InitRestTemplate defaultInitRestTemplate() {
@@ -19,11 +24,12 @@ public final class RestTemplateFactory {
     }
 
     public static void use(InitRestTemplate initRestTemplate) {
+        restTemplatesPerBaseUri.clear();
         RestTemplateFactory.initRestTemplate = initRestTemplate;
     }
 
     public static void reset() {
-        initRestTemplate = defaultInitRestTemplate();
+        use(defaultInitRestTemplate());
     }
 
     @FunctionalInterface public interface InitRestTemplate {

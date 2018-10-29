@@ -27,17 +27,22 @@ public class BidragJournalpostConsumer {
     }
 
     public List<BidragJournalpostDto> finnJournalposter(String saksnummer) {
-        RestTemplate restTemplate = RestTemplateFactory.create();
+        RestTemplate restTemplate = RestTemplateFactory.create(restServiceUrlBidragJournalpost);
         ResponseEntity<List<BidragJournalpostDto>> journalposterForBidragRequest = restTemplate.exchange(
-                restServiceUrlBidragJournalpost + saksnummer, HttpMethod.GET, null,
-                new ParameterizedTypeReference<List<BidragJournalpostDto>>() {
-                }
+                saksnummer, HttpMethod.GET, null, typereferansenErListeMedJournalposter()
         );
 
         HttpStatus httpStatus = journalposterForBidragRequest.getStatusCode();
-        myLogger.getLogger().info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} - {}", httpStatus, saksnummer, httpStatus.getReasonPhrase());
+        String reasonPhrase = httpStatus != null ? httpStatus.getReasonPhrase() : null;
+
+        myLogger.getLogger().info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} - {}", httpStatus, saksnummer, reasonPhrase);
 
         return journalposterForBidragRequest.getBody();
+    }
+
+    private static ParameterizedTypeReference<List<BidragJournalpostDto>> typereferansenErListeMedJournalposter() {
+        return new ParameterizedTypeReference<List<BidragJournalpostDto>>() {
+        };
     }
 
     @FunctionalInterface
