@@ -14,13 +14,13 @@ node {
    def zone = 'fss'
    def namespace = "${EnvironmentOut}"
  
-   stage("#1: checkout code") {
+        stage("#1: checkout code") {
            cleanWs()
-                    withCredentials([string(credentialsId: 'OAUTH_TOKEN', variable: 'token')]) {
-                       withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088']) {
-                          sh(script: "git clone https://${token}:x-oauth-basic@github.com/${repo}/${application}.git .")
-                       }
+                withCredentials([string(credentialsId: 'OAUTH_TOKEN', variable: 'token')]) {
+                    withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088']) {
+                        sh(script: "git clone https://${token}:x-oauth-basic@github.com/${repo}/${application}.git .")
                     }
+                }
        }
 
        stage("#2: initialize") {
@@ -119,4 +119,13 @@ node {
            println("[INFO] Ferdig :)")
        }
 
+       stage("#10: Cucumber") {
+           if(fileExists('cucumber')) {
+              println("[INFO] Run cucumber tests")
+              timeout(time: 8, unit: 'MINUTES') {
+                 sh "docker run -it --rm `pwd`/cucumber:/cucumber bidrag-cucumber"
+              }
+              println("[INFO] Ferdig :)")
+           }
+       }
    }
