@@ -1,12 +1,10 @@
 package no.nav.bidrag.dokument.service;
 
+import no.nav.bidrag.dokument.JournalpostDtoBygger;
 import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.bisys.BidragJournalpostDto;
-import no.nav.bidrag.dokument.dto.joark.ArkivSakDto;
-import no.nav.bidrag.dokument.dto.joark.AvsenderDto;
 import no.nav.bidrag.dokument.dto.joark.BrukerDto;
-import no.nav.bidrag.dokument.dto.joark.JoarkDokumentDto;
 import no.nav.bidrag.dokument.dto.joark.JournalforingDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -60,6 +58,44 @@ class JournalpostMapperTest {
         );
     }
 
+    @DisplayName("skal mappe fra bidrag-dokument journalpost til en journalpost i bidrag-dokument-journalpost")
+    @Test void skalMappeFraJournalpostTilBidragJournalpost() {
+        JournalpostDto journalpostDto = new JournalpostDtoBygger()
+                .medAvsenderNavn("Kom Post")
+                .medDokumentdato(LocalDate.now())
+                .medDokumentreferanse("10101")
+                .medDokumentType("Røyksignal")
+                .medFagomrade("BID")
+                .medGjelderBrukerId("06127412345")
+                .medInnhold("from russia with love")
+                .medJournalforendeEnhet("trygdekontoret")
+                .medJournalfortAv("tobias")
+                .medJournalfortDato(LocalDate.now().plusDays(1))
+                .medJournalpostIdBisys(123)
+                .medMottattDato(LocalDate.now().minusDays(1))
+                .medSaksnummerBidrag("123456789")
+                .get();
+
+        BidragJournalpostDto bidragJournalpostDto = journalpostMapper.tilBidragJournalpost(journalpostDto);
+        assertThat(bidragJournalpostDto).isNotNull();
+
+        assertAll(
+                () -> assertThat(bidragJournalpostDto.getAvsender()).as("avsender").isEqualTo(journalpostDto.getAvsenderNavn()),
+                () -> assertThat(bidragJournalpostDto.getBeskrivelse()).as("beskrivelse").isEqualTo(journalpostDto.getInnhold()),
+                () -> assertThat(bidragJournalpostDto.getDokumentdato()).as("dokumentdato").isEqualTo(journalpostDto.getDokumentDato()),
+                () -> assertThat(bidragJournalpostDto.getDokumentreferanse()).as("dokumentreferanse").isEqualTo(journalpostDto.getDokumenter().get(0).getDokumentreferanse()),
+                () -> assertThat(bidragJournalpostDto.getDokumentType()).as("dokumenttype").isEqualTo(journalpostDto.getDokumenter().get(0).getDokumentType()),
+                () -> assertThat(bidragJournalpostDto.getFagomrade()).as("fagomrade").isEqualTo(journalpostDto.getFagomrade()),
+                () -> assertThat(bidragJournalpostDto.getGjelder()).as("gjelder").isEqualTo(journalpostDto.getGjelderBrukerId().get(0)),
+                () -> assertThat(bidragJournalpostDto.getJournalfortAv()).as("journalfortAv").isEqualTo(journalpostDto.getJournalfortAv()),
+                () -> assertThat(bidragJournalpostDto.getJournalforendeEnhet()).as("journalforendeEnhet").isEqualTo("trygdekontoret"),
+                () -> assertThat(bidragJournalpostDto.getJournaldato()).as("journaldato").isEqualTo(LocalDate.now().plusDays(1)),
+                () -> assertThat(bidragJournalpostDto.getJournalpostId()).as("journalpostId").isEqualTo(123),
+                () -> assertThat(bidragJournalpostDto.getMottattDato()).as("mottattDato").isEqualTo(LocalDate.now().minusDays(1)),
+                () -> assertThat(bidragJournalpostDto.getSaksnummer()).as("saksnummer").isEqualTo("123456789")
+        );
+    }
+
     @DisplayName("skal mappe fra JournalforingDto") @SuppressWarnings("ConstantConditions")
     @Test void skalMappeFraJournalforingDto() {
         JournalforingDto journalforingDto = new JournalforingBuilder()
@@ -99,93 +135,5 @@ class JournalpostMapperTest {
                 () -> assertThat(journalpostDto.getMottattDato()).as("mottattDato").isEqualTo(journalforingDto.getDatoMottatt()),
                 () -> assertThat(journalpostDto.getSaksnummerGsak()).as("saksnummerGsak").isEqualTo(journalforingDto.getArkivSak().getId())
         );
-    }
-
-    @SuppressWarnings("SameParameterValue") private class JournalforingBuilder {
-        private JournalforingDto journalforingDto = new JournalforingDto();
-
-        JournalforingBuilder withArkivSakId(String arkivSakId) {
-            journalforingDto.setArkivSak(new ArkivSakDto(arkivSakId, null));
-            return this;
-        }
-
-        JournalforingBuilder withAvsender(String avsender) {
-            AvsenderDto avsenderDto = new AvsenderDto();
-            avsenderDto.setAvsender(avsender);
-            journalforingDto.setAvsenderDto(avsenderDto);
-
-            return this;
-        }
-
-        JournalforingBuilder withBruker(String brukerIdent) {
-            journalforingDto.setBrukere(singletonList(initBrukerDto(brukerIdent)));
-            return this;
-        }
-
-        private BrukerDto initBrukerDto(String brukerIdent) {
-            return new BrukerDto(null, brukerIdent);
-        }
-
-        JournalforingBuilder withFagomrade(String fagomrade) {
-            journalforingDto.setFagomrade(fagomrade);
-            return this;
-        }
-
-        JournalforingBuilder withDatoDokument(LocalDate datoDokument) {
-            journalforingDto.setDatoDokument(datoDokument);
-            return this;
-        }
-
-        JournalforingBuilder withDatoJournal(LocalDate datoJournal) {
-            journalforingDto.setDatoJournal(datoJournal);
-            return this;
-        }
-
-        JournalforingBuilder withDatoMottatt(LocalDate datoMottatt) {
-            journalforingDto.setDatoMottatt(datoMottatt);
-            return this;
-        }
-
-        JournalforingBuilder withDokumentId(String dokumentId) {
-            initJoarkDokumentDto().setDokumentId(dokumentId);
-            return this;
-        }
-
-        private JoarkDokumentDto initJoarkDokumentDto() {
-            if (journalforingDto.getDokumenter().isEmpty()) {
-                journalforingDto.setDokumenter(singletonList(new JoarkDokumentDto()));
-            }
-
-            return journalforingDto.getDokumenter().get(0);
-        }
-
-        JournalforingBuilder withInnhold(String innhold) {
-            journalforingDto.setInnhold(innhold);
-            return this;
-        }
-
-        JournalforingBuilder withJournalforendeEnhet(String journalforendeEnhet) {
-            journalforingDto.setJournalforendeEnhet(journalforendeEnhet);
-            return this;
-        }
-
-        JournalforingBuilder withJournalfortAvNavn(String journalfortAvNavn) {
-            journalforingDto.setJournalfortAvNavn(journalfortAvNavn);
-            return this;
-        }
-
-        JournalforingBuilder withJournalpostId(int journalpostId) {
-            journalforingDto.setJournalpostId(journalpostId);
-            return this;
-        }
-
-        JournalforingBuilder withDokumentTypeId(String dokumentTypeId) {
-            initJoarkDokumentDto().setDokumentTypeId(dokumentTypeId);
-            return this;
-        }
-
-        JournalforingDto get() {
-            return journalforingDto;
-        }
     }
 }

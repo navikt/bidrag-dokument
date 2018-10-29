@@ -37,4 +37,10 @@ public class JournalpostService {
                 .map(journalpostMapper::fraBidragJournalpost)
                 .collect(toList());
     }
+
+    public Optional<JournalpostDto> save(JournalpostDto journalpostDto) {
+        BidragJournalpostDto bidragJournalpost = journalpostMapper.tilBidragJournalpost(journalpostDto);
+        return bidragJournalpostConsumer.save(bidragJournalpost)
+                .map(journalpostMapper::fraBidragJournalpost);
+    }
 }
