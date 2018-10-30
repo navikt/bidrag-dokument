@@ -1,10 +1,9 @@
 const axios = require('axios');
 const fasitUrl = process.env.fasit || "https://fasit.adeo.no/api/v2/resources";
-
-process.env.NODE_TLS_REJECT_UNAUTHORIZED='0'
+const environment = process.env.environment || 'q0';
 
 function _hentUrl(data) {
-    if(data && data.length > 0) {
+    if (data && data.length > 0) {
         return data[0].properties.url
     }
     return null;
@@ -18,7 +17,9 @@ function hentFasitRessurs(ftype, alias, env) {
             environment: env,
             usage: false
         }
-    });
+    })
+    .then(response => response)
+    .catch(err =>  err)
 }
 
 function hentFasitRestUrl(alias, env) {
@@ -26,25 +27,28 @@ function hentFasitRestUrl(alias, env) {
         .then(response => {
             return _hentUrl(response.data);
         })
-	.catch(err => {
-	    console.log("ERROR", err)
-	})
+        .catch(err =>  err)
 }
 
+function kallFasitRestService(alias, suffix) {
+    return hentFasitRestUrl(alias, environment)
+        .then(url => {
+            return axios.get(url + suffix)
+        })
+        .catch(err => err)
+}
 
 function httpGet(alias, env, suffix) {
     return hentFasitRestUrl(alias, env)
         .then(url => {
             return axios.get(url + suffix)
         })
-	.catch(err => {
-		console.log("ERROR", err)
-		return null;
-	})
+        .catch(err =>  err)
 }
 
 module.exports = {
     httpGet,
     hentFasitRessurs,
-    hentFasitRestUrl
+    hentFasitRestUrl,
+    kallFasitRestService
 };

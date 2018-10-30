@@ -1,5 +1,5 @@
 const assert = require('assert');
-
+const util = require('util');
 const {
     Given,
     When,
@@ -7,32 +7,29 @@ const {
 } = require('cucumber');
 
 const {
-    httpGet
+    httpGet, kallFasitRestService
 } = require('../support/fasit')
 
-Given('restservice {string} i {string}', function (alias, env) {
+function journalpostSuffix(saksnummer) {
+    return util.format("/journalpost/%s", saksnummer)
+}
+
+Given('restservice {string}', function (alias) {
     this.alias = alias;
-    this.env = env;
+    this.env = process.env.environment;
 })
 
 Given('saksnummer {string}', function (saksnummer) {
     this.saksnummer = saksnummer;
 })
 
-When('jeg gjør get {string}', function (suffix, done) {
-    httpGet(this.alias, this.env, suffix)
-        .then(response => {
-            this.response = response;
-            done()
-        })
-        .catch(err => {
-            this.error = err;
-            this.response = null;
-            done()
-        })
+When('jeg henter journalpost {string}', async (saksnummer) => {
+        this.response = await kallFasitRestService(this.alias, journalpostSuffix(saksnummer))
+        assert(this.response != null, "Intet svar mottatt fra tjenesten")
+        assert(undefined === this.response.errno, "Feilmelding: " + this.response.errno);
 });
 
-Then('skal resultatet være en liste med journalposter', function () {
+Then('resultatet skal være en liste med journalposter', function () {
     assert.ok(Array.isArray(this.response.data), "resultatet er ikke en liste: " + JSON.stringify(this.list));
 });
 
@@ -48,6 +45,7 @@ Then('skal resultatet ikke være et journalpost objekt', function () {
 });
 
 Then('statuskoden skal være {string}', function (status) {
+    assert.ok(this.response != status, "response er null")
     assert.ok(this.response.status == status, "actual status: " + this.response.status)
 });
 
@@ -71,7 +69,5 @@ Then('hver rad i listen skal ha følgende properties satt:', function (table) {
             }
         })
     })
-    if (missing.length > 0) {
-        throw "manglende properties";
-    }
+    assert.ok(missing.length == 0, "Properties mangler: " + missing.join(","))
 })
