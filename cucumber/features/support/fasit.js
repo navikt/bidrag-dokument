@@ -10,6 +10,7 @@ function _hentUrl(data) {
 }
 
 function hentFasitRessurs(ftype, alias, env) {
+    console.log("hentFasitRessurs", alias, env, fasitUrl)
     return axios.get(fasitUrl, {
         params: {
             type: ftype,
@@ -33,6 +34,7 @@ function hentFasitRestUrl(alias, env) {
 function kallFasitRestService(alias, suffix) {
     return hentFasitRestUrl(alias, environment)
         .then(url => {
+            console.log("kallFasitRestService", url + suffix)
             return axios.get(url + suffix)
         })
         .catch(err => err)

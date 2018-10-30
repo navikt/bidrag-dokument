@@ -5,19 +5,19 @@ Feature: bidrag-dokument REST API
     alias til en RestService record i fasit for et gitt miljø.
 
     Background: Spesifiser base-url til tjenesten her så vi slipper å gjenta for hvert scenario.
-                Fasit environment er gitt ved environment variabler ved oppstart av container.
+                Fasit environment er gitt ved environment variabler ved oppstart.
         Given restservice 'bidragDokument'
 
     Scenario: Sjekk at vi får en liste med journalposter
         When jeg henter journalpost "0000003"
-        Then statuskoden skal være '200'
-        And resultatet skal være en liste med journalposter
+        Then skal resultatet være en liste med journalposter
         And hver journalpost i listen skal ha saksnummer '0000003' i 'saksnummerBidrag' feltet
+        And statuskoden skal være '200'
 
     Scenario: Sjekk innholdet av en enkelt journalpost i bidrag
         When jeg henter journalpost "0000003"
-        Then statuskoden skal være '200'
-        And resultatet skal være en liste med journalposter
+        Then skal resultatet være en liste med journalposter
+        And statuskoden skal være '200'
         And hver rad i listen skal ha følgende properties satt:
             | fagomrade          |
             | dokumenter         |
