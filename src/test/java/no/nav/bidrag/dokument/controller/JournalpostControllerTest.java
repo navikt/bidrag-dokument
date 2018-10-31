@@ -83,8 +83,8 @@ class JournalpostControllerTest {
 
             assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getHello).contains("hello from bidrag-dokument"),
-                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournaltilstand).contains("MIDLERTIDIG")
+                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getHello).isEqualTo("hello from bidrag-dokument"),
+                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournaltilstand).isEqualTo("MIDLERTIDIG")
             ));
         }
 
@@ -177,7 +177,7 @@ class JournalpostControllerTest {
 
             assertThat(optional(responseEntity)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED),
-                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournalpostIdBisys).isEqualTo(singletonList(101))
+                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournalpostIdBisys).isEqualTo(101)
             ));
         }
 

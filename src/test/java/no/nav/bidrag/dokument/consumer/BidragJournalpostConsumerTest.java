@@ -20,11 +20,11 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,7 +34,6 @@ import static org.mockito.Mockito.when;
     private BidragJournalpostConsumer bidragJournalpostConsumer;
 
     private @Mock Appender appenderMock;
-    private @Mock Logger loggerMock;
     private @Mock RestTemplate restTemplateMock;
 
     @BeforeEach void setup() {
@@ -85,9 +84,13 @@ import static org.mockito.Mockito.when;
 
         bidragJournalpostConsumer.finnJournalposter("101");
 
-        verify(appenderMock, times(1)).doAppend(
-                argThat((ArgumentMatcher) argument -> ((ILoggingEvent) argument).getFormattedMessage()
-                        .contains("Fikk http status 500 fra journalposter i bidragssak med saksnummer 101 - Internal Server Error"))
+        verify(appenderMock).doAppend(
+                argThat((ArgumentMatcher) argument -> {
+                    assertThat(((ILoggingEvent) argument).getFormattedMessage())
+                            .contains("Fikk http status 500 INTERNAL_SERVER_ERROR fra journalposter i bidragssak med saksnummer 101");
+
+                    return true;
+                })
         );
     }
 
@@ -99,9 +102,13 @@ import static org.mockito.Mockito.when;
 
         bidragJournalpostConsumer.save(new BidragJournalpostDto());
 
-        verify(appenderMock, times(1)).doAppend(
-                argThat((ArgumentMatcher) argument -> ((ILoggingEvent) argument).getFormattedMessage()
-                        .contains("Fikk http status 500 - Internal Server Error, fra registrer ny journalpost: BidragJournalpostDto"))
+        verify(appenderMock).doAppend(
+                argThat((ArgumentMatcher) argument -> {
+                    assertThat(((ILoggingEvent) argument).getFormattedMessage())
+                            .contains("Fikk http status 500 INTERNAL_SERVER_ERROR fra registrer ny journalpost: BidragJournalpostDto");
+
+                    return true;
+                })
         );
     }
 }
