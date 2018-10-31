@@ -1,7 +1,10 @@
 package no.nav.bidrag.dokument.controller;
 
 import io.swagger.annotations.ApiOperation;
+import no.nav.bidrag.dokument.BidragDokument;
+import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.exception.KildesystemException;
 import no.nav.bidrag.dokument.service.JournalpostService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +23,7 @@ import java.util.List;
 public class JournalpostController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JournalpostController.class);
+    private static final String ENDPOINT_JOURNALPOST = "/journalpost";
 
     private final JournalpostService journalpostService;
 
@@ -32,18 +36,26 @@ public class JournalpostController {
         return "OK";
     }
 
-    @GetMapping("/journalforing/{jid}")
-    @ApiOperation("Finn journalpost for en journalført id")
-    public ResponseEntity<JournalpostDto> get(@PathVariable Integer jid) {
-        return journalpostService.hentJournalpost(jid)
-                .map(journalpostDto -> new ResponseEntity<>(journalpostDto, HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NO_CONTENT));
+    @GetMapping(ENDPOINT_JOURNALPOST + "/hent/{journalpostIdForKildesystem}")
+    @ApiOperation("Finn journalpost for en id på formatet [" + BidragDokument.JOURNALPOST_ID_BIDRAG_REQUEST + "|" + BidragDokument.JOURNALPOST_ID_JOARK_REQUEST + "]<journalpostId>")
+    public ResponseEntity<JournalpostDto> hent(@PathVariable String journalpostIdForKildesystem) {
+        LOGGER.debug("request: bidrag-dokument" + ENDPOINT_JOURNALPOST + "/hent/" + journalpostIdForKildesystem);
+
+        try {
+            return journalpostService.hentJournalpost(journalpostIdForKildesystem)
+                    .map(journalpostDto -> new ResponseEntity<>(journalpostDto, HttpStatus.OK))
+                    .orElse(new ResponseEntity<>(HttpStatus.NO_CONTENT));
+        } catch (KildesystemException e) {
+            LOGGER.warn("Ukjent kildesystem: " + e.getMessage());
+
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 
-    @GetMapping("/journalpost/{saksnummer}")
+    @GetMapping(ENDPOINT_JOURNALPOST + "/{saksnummer}")
     @ApiOperation("Finn journalposter for et saksnummer på en bidragssak")
     public ResponseEntity<List<JournalpostDto>> get(@PathVariable String saksnummer) {
-        LOGGER.debug("request: bidrag-dokument/journalpost/" + saksnummer);
+        LOGGER.debug("request: bidrag-dokument" + ENDPOINT_JOURNALPOST + "/" + saksnummer);
         List<JournalpostDto> journalposter = journalpostService.finnJournalposter(saksnummer);
 
         if (journalposter.isEmpty()) {
@@ -53,10 +65,13 @@ public class JournalpostController {
         return new ResponseEntity<>(journalposter, HttpStatus.OK);
     }
 
-    @PostMapping("journalpost")
+    @PostMapping(ENDPOINT_JOURNALPOST)
     @ApiOperation("Registrer ny journalpost")
     public ResponseEntity<JournalpostDto> post(@RequestBody JournalpostDto journalpostDto) {
-        if (harIngenEllerFlere(journalpostDto.getDokumenter()) || harIngenEllerFlere(journalpostDto.getGjelderBrukerId())) {
+        List<DokumentDto> dokumenter = journalpostDto.getDokumenter();
+        List<String> gjelderBrukerId = journalpostDto.getGjelderBrukerId();
+
+        if (harIngenEllerFlere(dokumenter) || harIngenEllerFlere(gjelderBrukerId)) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 

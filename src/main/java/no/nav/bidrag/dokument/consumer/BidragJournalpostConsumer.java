@@ -50,4 +50,14 @@ public class BidragJournalpostConsumer {
 
         return Optional.ofNullable(registrertJournalpost.getBody());
     }
+
+    public Optional<BidragJournalpostDto> hentJournalpost(Integer id) {
+        RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost);
+        ResponseEntity<BidragJournalpostDto> journalpostResponseEntity = restTemplate.getForEntity("/journalpost/" + id, BidragJournalpostDto.class);
+        HttpStatus httpStatus = journalpostResponseEntity.getStatusCode();
+
+        LOGGER.info("BidragJournalpostDto med id={} har http status {}", id, httpStatus);
+
+        return Optional.ofNullable(journalpostResponseEntity.getBody());
+    }
 }
