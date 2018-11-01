@@ -29,9 +29,7 @@ public class BidragJournalpostConsumer {
         );
 
         HttpStatus httpStatus = journalposterForBidragRequest.getStatusCode();
-        String reasonPhrase = httpStatus != null ? httpStatus.getReasonPhrase() : null;
-
-        LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} - {}", httpStatus, saksnummer, reasonPhrase);
+        LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {}", httpStatus, saksnummer);
 
         return journalposterForBidragRequest.getBody();
     }
@@ -48,10 +46,18 @@ public class BidragJournalpostConsumer {
         );
 
         HttpStatus httpStatus = registrertJournalpost.getStatusCode();
-        String reasonPhrase = httpStatus != null ? httpStatus.getReasonPhrase() : null;
-
-        LOGGER.info("Fikk http status {} - {}, fra registrer ny journalpost: {}", httpStatus, reasonPhrase, bidragJournalpostDto);
+        LOGGER.info("Fikk http status {} fra registrer ny journalpost: {}", httpStatus, bidragJournalpostDto);
 
         return Optional.ofNullable(registrertJournalpost.getBody());
+    }
+
+    public Optional<BidragJournalpostDto> hentJournalpost(Integer id) {
+        RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost);
+        ResponseEntity<BidragJournalpostDto> journalpostResponseEntity = restTemplate.getForEntity("/journalpost/" + id, BidragJournalpostDto.class);
+        HttpStatus httpStatus = journalpostResponseEntity.getStatusCode();
+
+        LOGGER.info("BidragJournalpostDto med id={} har http status {}", id, httpStatus);
+
+        return Optional.ofNullable(journalpostResponseEntity.getBody());
     }
 }

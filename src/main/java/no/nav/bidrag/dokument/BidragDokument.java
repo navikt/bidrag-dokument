@@ -11,7 +11,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 
 @SpringBootApplication
 @PropertySource("classpath:url.properties")
-public class Bidragsdokument extends WebMvcConfigurationSupport {
+public class BidragDokument extends WebMvcConfigurationSupport {
+
+    public static final String JOURNALPOST_ID_BIDRAG_REQUEST = "BID-";
+    public static final String JOURNALPOST_ID_JOARK_REQUEST = "JOARK-";
 
     @Bean public BidragJournalpostConsumer bidragJournalpostConsumer(
             @Value("${JOURNALPOST_URL}") String bidragBaseUrl
@@ -26,6 +29,6 @@ public class Bidragsdokument extends WebMvcConfigurationSupport {
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(Bidragsdokument.class, args);
+        SpringApplication.run(BidragDokument.class, args);
     }
 }

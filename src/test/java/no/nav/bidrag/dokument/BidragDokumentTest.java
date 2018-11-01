@@ -6,10 +6,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@DisplayName("Bidragsdokument")
+@DisplayName("BidragDokument")
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-class BidragsdokumentTest {
+class BidragDokumentTest {
 
     @DisplayName("skal laste spring-context")
     @Test void shouldLoadContext() {

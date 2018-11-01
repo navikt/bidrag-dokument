@@ -16,7 +16,7 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
     @Bean public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage(Bidragsdokument.class.getPackage().getName()))
+                .apis(RequestHandlerSelectors.basePackage(BidragDokument.class.getPackage().getName()))
                 .build();
     }
 

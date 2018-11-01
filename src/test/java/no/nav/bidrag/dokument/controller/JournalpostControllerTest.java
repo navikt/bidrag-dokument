@@ -36,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
@@ -43,8 +44,8 @@ import static org.mockito.Mockito.when;
 @DisplayName("JournalpostController")
 class JournalpostControllerTest {
 
-    private static final String ENDPOINT_JOURNALFORING = "/journalforing";
     private static final String ENDPOINT_JOURNALPOST = "/journalpost";
+    private static final String ENDPOINT_JOURNALPOST_HENT = "/journalpost/hent";
 
     @LocalServerPort private int port;
     @Mock private RestTemplate restTemplateMock;
@@ -56,16 +57,18 @@ class JournalpostControllerTest {
         RestTemplateFactory.use(() -> restTemplateMock);
     }
 
-    @DisplayName("endpoint: " + ENDPOINT_JOURNALFORING)
-    @Nested class EndpointJournalforing {
+    @DisplayName("endpoint: " + ENDPOINT_JOURNALPOST_HENT)
+    @Nested class EndpointHentJournalpost {
 
-        private String url = initEndpointUrl(ENDPOINT_JOURNALFORING);
+        private String url = initEndpointUrl(ENDPOINT_JOURNALPOST_HENT);
 
-        @DisplayName("skal ha body som null når journalforing ikke finnes")
-        @Test void skalGiBodySomNullNarJournalforingIkkeFinnes() {
+        @DisplayName("skal ha body som null når enkel journalpost ikke finnes")
+        @Test void skalGiBodySomNullNarJournalpostIkkeFinnes() {
             when(restTemplateMock.getForEntity(eq("1"), eq(JournalforingDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
 
-            ResponseEntity<JournalpostDto> journalpostResponseEntity = testRestTemplate.getForEntity(url + "/1", JournalpostDto.class);
+            ResponseEntity<JournalpostDto> journalpostResponseEntity = testRestTemplate.getForEntity(url + "/joark-1", JournalpostDto.class);
+
+            verify(restTemplateMock).getForEntity(eq("1"), eq(JournalforingDto.class));
 
             assertThat(Optional.of(journalpostResponseEntity)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getBody()).isNull(),
@@ -73,26 +76,52 @@ class JournalpostControllerTest {
             ));
         }
 
-        @DisplayName("skal finne Journalpost når journalforing finnes")
-        @Test void skalGiJournalpostNarJournalforingFinnes() {
+        @DisplayName("skal hente Journalpost når den eksisterer")
+        @Test void skalHenteJournalpostNarDenEksisterer() {
             when(restTemplateMock.getForEntity(eq("1"), eq(JournalforingDto.class))).thenReturn(new ResponseEntity<>(
-                    journalforingMedTilstand("MIDLERTIDIG"), HttpStatus.I_AM_A_TEAPOT
+                    enJournalforingMedTilstand("MIDLERTIDIG"), HttpStatus.I_AM_A_TEAPOT
             ));
 
-            ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.getForEntity(url + "/1", JournalpostDto.class);
+            ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.getForEntity(url + "/joark-1", JournalpostDto.class);
+
+            verify(restTemplateMock).getForEntity(eq("1"), eq(JournalforingDto.class));
 
             assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getHello).contains("hello from bidrag-dokument"),
-                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournaltilstand).contains("MIDLERTIDIG")
+                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getHello).isEqualTo("hello from bidrag-dokument"),
+                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournaltilstand).isEqualTo("MIDLERTIDIG")
             ));
         }
 
-        private JournalforingDto journalforingMedTilstand(@SuppressWarnings("SameParameterValue") String journaltilstand) {
+        private JournalforingDto enJournalforingMedTilstand(@SuppressWarnings("SameParameterValue") String journaltilstand) {
             JournalforingDto journalforingDto = new JournalforingDto();
             journalforingDto.setJournalTilstand(journaltilstand);
 
             return journalforingDto;
+        }
+
+        @DisplayName("skal hente journalpost fra midlertidig brevlager")
+        @Test void skalHenteJournalpostFraMidlertidigBrevlager() {
+            when(restTemplateMock.getForEntity(eq("/journalpost/1"), eq(BidragJournalpostDto.class))).thenReturn(new ResponseEntity<>(
+                    enJournalpostFra("Grev Still E. Ben"), HttpStatus.I_AM_A_TEAPOT
+            ));
+
+            ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.getForEntity(url + "/bid-1", JournalpostDto.class);
+
+            verify(restTemplateMock).getForEntity(eq("/journalpost/1"), eq(BidragJournalpostDto.class));
+
+            assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
+                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
+                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getHello).isEqualTo("hello from bidrag-dokument"),
+                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getAvsenderNavn).isEqualTo("Grev Still E. Ben")
+            ));
+        }
+
+        private BidragJournalpostDto enJournalpostFra(@SuppressWarnings("SameParameterValue") String avsender) {
+            BidragJournalpostDto jp = new BidragJournalpostDto();
+            jp.setAvsender(avsender);
+
+            return jp;
         }
     }
 
@@ -177,7 +206,7 @@ class JournalpostControllerTest {
 
             assertThat(optional(responseEntity)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED),
-                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournalpostIdBisys).isEqualTo(singletonList(101))
+                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournalpostIdBisys).isEqualTo(101)
             ));
         }
 
