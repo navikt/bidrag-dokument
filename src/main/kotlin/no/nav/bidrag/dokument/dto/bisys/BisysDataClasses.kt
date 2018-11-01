@@ -4,6 +4,7 @@ import java.time.LocalDate
 
 data class BidragJournalpostDto(
         var avsender: String? = null,
+        var avsenderFornavn: String? = null,
         var beskrivelse: String? = null,
         var fagomrade: String? = null,
         var dokumentdato: LocalDate? = null,
@@ -15,5 +16,6 @@ data class BidragJournalpostDto(
         var journalfortAv: String? = null,
         var journalpostId: Int? = null,
         var mottattDato: LocalDate? = null,
-        var saksnummer: String? = null
+        var saksnummer: String? = null,
+        var skannetDato: LocalDate? = null
 )
