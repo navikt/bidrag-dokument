@@ -45,7 +45,7 @@ import static org.mockito.Mockito.when;
 class JournalpostControllerTest {
 
     private static final String ENDPOINT_JOURNALPOST = "/journalpost";
-    private static final String ENDPOINT_JOURNALPOST_HENT = "/journalpost/hent";
+    private static final String ENDPOINT_SAKJOURNAL = "/sakjournal";
 
     @LocalServerPort private int port;
     @Mock private RestTemplate restTemplateMock;
@@ -57,12 +57,12 @@ class JournalpostControllerTest {
         RestTemplateFactory.use(() -> restTemplateMock);
     }
 
-    @DisplayName("endpoint: " + ENDPOINT_JOURNALPOST_HENT)
+    @DisplayName("endpoint: " + ENDPOINT_JOURNALPOST)
     @Nested class EndpointHentJournalpost {
 
-        private String url = initEndpointUrl(ENDPOINT_JOURNALPOST_HENT);
+        private String url = initEndpointUrl(ENDPOINT_JOURNALPOST);
 
-        @DisplayName("skal ha body som null når enkel journalpost ikke finnes")
+        @DisplayName("skal ha body som null når journalpost ikke finnes")
         @Test void skalGiBodySomNullNarJournalpostIkkeFinnes() {
             when(restTemplateMock.getForEntity(eq("1"), eq(JournalforingDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
 
@@ -122,28 +122,6 @@ class JournalpostControllerTest {
             jp.setAvsender(avsender);
 
             return jp;
-        }
-    }
-
-    @DisplayName("endpoint: " + ENDPOINT_JOURNALPOST)
-    @Nested class EndpointJournalpost {
-
-        private String url = initEndpointUrl(ENDPOINT_JOURNALPOST);
-
-        @DisplayName("skal finne Journalposter for en bidragssak") @SuppressWarnings("unchecked")
-        @Test void skalFinneJournalposterForEnBidragssak() {
-            when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any()))
-                    .thenReturn(new ResponseEntity<>(asList(new BidragJournalpostDto(), new BidragJournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
-
-            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url + "/1001", HttpMethod.GET, null,
-                    new ParameterizedTypeReference<List<JournalpostDto>>() {
-                    }
-            );
-
-            assertThat(optional(responseEntity)).hasValueSatisfying(response -> assertAll(
-                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-                    () -> assertThat(response.getBody()).hasSize(2)
-            ));
         }
 
         @DisplayName("skal gi http status 400 når post gjøres uten dokument")
@@ -216,10 +194,32 @@ class JournalpostControllerTest {
 
             return bidragJournalpostDto;
         }
+    }
 
-        private <T> Optional<ResponseEntity<T>> optional(ResponseEntity<T> responseEntity) {
-            return Optional.ofNullable(responseEntity);
+    @DisplayName("endpoint: " + ENDPOINT_SAKJOURNAL)
+    @Nested class EndpointJournalpost {
+
+        private String url = initEndpointUrl(ENDPOINT_SAKJOURNAL);
+
+        @DisplayName("skal finne Journalposter for en bidragssak") @SuppressWarnings("unchecked")
+        @Test void skalFinneJournalposterForEnBidragssak() {
+            when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any()))
+                    .thenReturn(new ResponseEntity<>(asList(new BidragJournalpostDto(), new BidragJournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
+
+            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url + "/1001", HttpMethod.GET, null,
+                    new ParameterizedTypeReference<List<JournalpostDto>>() {
+                    }
+            );
+
+            assertThat(optional(responseEntity)).hasValueSatisfying(response -> assertAll(
+                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
+                    () -> assertThat(response.getBody()).hasSize(2)
+            ));
         }
+    }
+
+    private <T> Optional<ResponseEntity<T>> optional(ResponseEntity<T> responseEntity) {
+        return Optional.ofNullable(responseEntity);
     }
 
     private String initEndpointUrl(@SuppressWarnings("SameParameterValue") String endpoint) {

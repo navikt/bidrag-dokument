@@ -24,6 +24,7 @@ public class JournalpostController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JournalpostController.class);
     private static final String ENDPOINT_JOURNALPOST = "/journalpost";
+    private static final String ENDPOINT_SAKJOURNAL = "/sakjournal";
 
     private final JournalpostService journalpostService;
 
@@ -36,10 +37,10 @@ public class JournalpostController {
         return "OK";
     }
 
-    @GetMapping(ENDPOINT_JOURNALPOST + "/hent/{journalpostIdForKildesystem}")
-    @ApiOperation("Finn journalpost for en id på formatet [" + BidragDokument.JOURNALPOST_ID_BIDRAG_REQUEST + "|" + BidragDokument.JOURNALPOST_ID_JOARK_REQUEST + "]<journalpostId>")
+    @GetMapping(ENDPOINT_JOURNALPOST + "/{journalpostIdForKildesystem}")
+    @ApiOperation("Finn journalpost for en id på formatet <" + BidragDokument.JOURNALPOST_ID_BIDRAG_REQUEST + "|" + BidragDokument.JOURNALPOST_ID_JOARK_REQUEST + "journalpostId>")
     public ResponseEntity<JournalpostDto> hent(@PathVariable String journalpostIdForKildesystem) {
-        LOGGER.debug("request: bidrag-dokument" + ENDPOINT_JOURNALPOST + "/hent/" + journalpostIdForKildesystem);
+        LOGGER.debug("request: bidrag-dokument" + ENDPOINT_JOURNALPOST + journalpostIdForKildesystem);
 
         try {
             return journalpostService.hentJournalpost(journalpostIdForKildesystem)
@@ -52,7 +53,7 @@ public class JournalpostController {
         }
     }
 
-    @GetMapping(ENDPOINT_JOURNALPOST + "/{saksnummer}")
+    @GetMapping(ENDPOINT_SAKJOURNAL + "/{saksnummer}")
     @ApiOperation("Finn journalposter for et saksnummer på en bidragssak")
     public ResponseEntity<List<JournalpostDto>> get(@PathVariable String saksnummer) {
         LOGGER.debug("request: bidrag-dokument" + ENDPOINT_JOURNALPOST + "/" + saksnummer);
