@@ -40,7 +40,7 @@ public class JournalpostController {
     @GetMapping(ENDPOINT_JOURNALPOST + "/{journalpostIdForKildesystem}")
     @ApiOperation("Finn journalpost for en id på formatet <" + BidragDokument.JOURNALPOST_ID_BIDRAG_REQUEST + "|" + BidragDokument.JOURNALPOST_ID_JOARK_REQUEST + "journalpostId>")
     public ResponseEntity<JournalpostDto> hent(@PathVariable String journalpostIdForKildesystem) {
-        LOGGER.debug("request: bidrag-dokument" + ENDPOINT_JOURNALPOST + journalpostIdForKildesystem);
+        LOGGER.debug("request: bidrag-dokument" + ENDPOINT_JOURNALPOST + '/' + journalpostIdForKildesystem);
 
         try {
             return journalpostService.hentJournalpost(journalpostIdForKildesystem)
