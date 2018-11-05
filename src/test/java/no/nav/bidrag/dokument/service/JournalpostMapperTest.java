@@ -52,7 +52,7 @@ class JournalpostMapperTest {
                 () -> assertThat(journalpostDto.getJournalforendeEnhet()).as("journalforendeEnhet").isEqualTo("JUnit"),
                 () -> assertThat(journalpostDto.getJournalfortAv()).as("journalfortAv").isEqualTo("Dr. A. Cula"),
                 () -> assertThat(journalpostDto.getJournalfortDato()).as("journaldato -> journalfortDato").isEqualTo(LocalDate.now().minusDays(1)),
-                () -> assertThat(journalpostDto.getJournalpostIdBisys()).as("journalpostId -> journalpostIdBisys").isEqualTo(101),
+                () -> assertThat(journalpostDto.getJournalpostId()).as("journalpostId").isEqualTo("BID-101"),
                 () -> assertThat(journalpostDto.getMottattDato()).as("mottattDato").isEqualTo(LocalDate.now().minusDays(2)),
                 () -> assertThat(journalpostDto.getSaksnummerBidrag()).as("saksnummer -> saksnummerBidrag").isEqualTo("10101")
         );
@@ -71,10 +71,10 @@ class JournalpostMapperTest {
                 .medJournalforendeEnhet("trygdekontoret")
                 .medJournalfortAv("tobias")
                 .medJournalfortDato(LocalDate.now().plusDays(1))
-                .medJournalpostIdBisys(123)
+                .medJournalpostId("BID-123")
                 .medMottattDato(LocalDate.now().minusDays(1))
                 .medSaksnummerBidrag("123456789")
-                .get();
+                .build();
 
         BidragJournalpostDto bidragJournalpostDto = journalpostMapper.tilBidragJournalpost(journalpostDto);
         assertThat(bidragJournalpostDto).isNotNull();
@@ -131,9 +131,21 @@ class JournalpostMapperTest {
                 () -> assertThat(journalpostDto.getJournalforendeEnhet()).as("journalforendeEnhet").isEqualTo(journalforingDto.getJournalforendeEnhet()),
                 () -> assertThat(journalpostDto.getJournalfortAv()).as("journalfortAv").isEqualTo(journalforingDto.getJournalfortAvNavn()),
                 () -> assertThat(journalpostDto.getJournalfortDato()).as("journalfortDato").isEqualTo(journalforingDto.getDatoJournal()),
-                () -> assertThat(journalpostDto.getJournalpostIdJoark()).as("journalpostIdBisys").isEqualTo(journalforingDto.getJournalpostId()),
+                () -> assertThat(journalpostDto.getJournalpostId()).as("journalpostId").isEqualTo("JOARK-" + journalforingDto.getJournalpostId()),
                 () -> assertThat(journalpostDto.getMottattDato()).as("mottattDato").isEqualTo(journalforingDto.getDatoMottatt()),
                 () -> assertThat(journalpostDto.getSaksnummerGsak()).as("saksnummerGsak").isEqualTo(journalforingDto.getArkivSak().getId())
         );
+    }
+
+    @DisplayName("skal ignorere eventuell prefix når journalpostId mappes")
+    @Test void skalIgnorePrefixPaJournalpostId() {
+        JournalpostDto journalpostDto = new JournalpostDtoBygger()
+                .medJournalpostId("svada123")
+                .build();
+
+        BidragJournalpostDto bidragJournalpostDto = journalpostMapper.tilBidragJournalpost(journalpostDto);
+
+        assertThat(bidragJournalpostDto).isNotNull();
+        assertThat(bidragJournalpostDto.getJournalpostId()).isEqualTo(123);
     }
 }

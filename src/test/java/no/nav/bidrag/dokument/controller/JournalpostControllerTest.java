@@ -128,7 +128,8 @@ class JournalpostControllerTest {
         @Test void skalGiHttpStatus400GrunnetDokument() {
             JournalpostDto lagreJournalpostDto = new JournalpostDtoBygger()
                     .medGjelderBrukerId("06127412345")
-                    .get();
+                    .utenDokument()
+                    .build();
 
             ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.postForEntity(url, lagreJournalpostDto, JournalpostDto.class);
 
@@ -140,7 +141,7 @@ class JournalpostControllerTest {
             JournalpostDto lagreJournalpostDto = new JournalpostDtoBygger()
                     .medDokumenter(asList(new DokumentDto(), new DokumentDto()))
                     .medGjelderBrukerId("06127412345")
-                    .get();
+                    .build();
 
             ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.postForEntity(url, lagreJournalpostDto, JournalpostDto.class);
 
@@ -151,7 +152,8 @@ class JournalpostControllerTest {
         @Test void skalGiHttpStatus400GrunnetGjelderBrukerId() {
             JournalpostDto lagreJournalpostDto = new JournalpostDtoBygger()
                     .medDokumenter(singletonList(new DokumentDto()))
-                    .get();
+                    .utenBrukerId()
+                    .build();
 
             ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.postForEntity(url, lagreJournalpostDto, JournalpostDto.class);
 
@@ -163,7 +165,7 @@ class JournalpostControllerTest {
             JournalpostDto lagreJournalpostDto = new JournalpostDtoBygger()
                     .medDokumenter(singletonList(new DokumentDto()))
                     .medGjelderBrukerId("06127412345", "01117712345")
-                    .get();
+                    .build();
 
             ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.postForEntity(url, lagreJournalpostDto, JournalpostDto.class);
 
@@ -175,7 +177,7 @@ class JournalpostControllerTest {
             JournalpostDto lagreJournalpostDto = new JournalpostDtoBygger()
                     .medDokumenter(singletonList(new DokumentDto()))
                     .medGjelderBrukerId("06127412345")
-                    .get();
+                    .build();
 
             when(restTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(BidragJournalpostDto.class)))
                     .thenReturn(new ResponseEntity<>(enBidragJournalpostMedId(101), HttpStatus.CREATED));
@@ -184,7 +186,7 @@ class JournalpostControllerTest {
 
             assertThat(optional(responseEntity)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED),
-                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournalpostIdBisys).isEqualTo(101)
+                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournalpostId).isEqualTo("BID-101")
             ));
         }
 
