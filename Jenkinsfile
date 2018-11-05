@@ -123,7 +123,7 @@ node {
            if(fileExists('cucumber')) {
               println("[INFO] Run cucumber tests")
               timeout(time: 8, unit: 'MINUTES') {
-                 sh "docker run -it --rm `pwd`/cucumber:/cucumber bidrag-cucumber"
+                 sh "docker run --rm `pwd`/cucumber:/cucumber bidrag-cucumber"
               }
               println("[INFO] Ferdig :)")
            } else {
