@@ -119,13 +119,18 @@ node {
            println("[INFO] Ferdig :)")
        }
 
-       stage("#10: Cucumber") {
-           if(fileExists('cucumber')) {
-              println("[INFO] Run cucumber tests")
-              sh "docker run --rm `pwd`/cucumber:/cucumber bidrag-cucumber"
-              println("[INFO] Ferdig :)")
-           } else {
-              println("[INFO] No cucumber directory - not tests to run!")
+       // Only signal fail the step not the entire pipeline
+       try {
+           stage("#10: Cucumber") {
+               if(fileExists('cucumber')) {
+                  println("[INFO] Run cucumber tests")
+                  sh "docker run --rm ${env.WORKSPACE}/cucumber:/cucumber bidrag-cucumber"
+                println("[INFO] Ferdig :)")
+               } else {
+                  println("[INFO] No cucumber directory - not tests to run!")
+               }
            }
+       } catch(e) {
+           result = 'FAIL'
        }
    }
