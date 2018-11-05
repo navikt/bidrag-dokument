@@ -126,6 +126,8 @@ node {
                  sh "docker run -it --rm `pwd`/cucumber:/cucumber bidrag-cucumber"
               }
               println("[INFO] Ferdig :)")
+           } else {
+              println("[INFO] No cucumber directory - not tests to run!")
            }
        }
    }
