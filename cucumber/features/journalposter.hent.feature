@@ -8,6 +8,11 @@ Feature: bidrag-dokument REST API
                 Fasit environment er gitt ved environment variabler ved oppstart.
         Given restservice 'bidragDokument'
 
+    Scenario: Sjekk at health endpoint er operativt
+        When jeg kaller status endpoint
+        Then skal tjenesten returnere 'OK'
+        And statuskoden skal være '200'
+
     Scenario: Sjekk at vi får en liste med journalposter
         When jeg henter journalposter for sak "0000003"
         Then statuskoden skal være '200'

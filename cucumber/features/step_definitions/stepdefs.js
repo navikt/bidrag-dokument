@@ -19,16 +19,28 @@ Given('restservice {string}', alias => {
 });
 
 When('jeg henter journalposter for sak {string}', async saksnummer => {
-        console.log("henter journalpost", saksnummer, this.alias)
-        this.response = await kallFasitRestService(this.alias, journalpostSuffix(saksnummer))
-        assert(this.response != null, "Intet svar mottatt fra tjenesten")
-        assert(undefined === this.response.errno, "Feilmelding: " + this.response.errno);
+    console.log("henter journalpost", saksnummer, this.alias)
+    this.response = await kallFasitRestService(this.alias, journalpostSuffix(saksnummer))
+    assert(this.response != null, "Intet svar mottatt fra tjenesten")
+    assert(undefined === this.response.errno, "Feilmelding: " + this.response.errno);
 });
+
+When('jeg kaller status endpoint', async => {
+    console.log("Kaller /status endpoint")
+    this.response = await kallFasitRestService(this.alias, "/status")
+    assert(this.response != null, "Intet svar mottatt fra tjenesten")
+    assert(undefined === this.response.errno, "Feilmelding: " + this.response.errno);
+})
+
+Then('skal tjenesten returnere {string}', body => {
+    assert.ok(this.response != null, "response er null")
+    var r = this.response.response ? this.response.response : this.response;
+    assert.equal(r.data, body, util.format("forventet '%s' fikk '%s'", body, r.data));
+})
 
 Then('statuskoden skal være {string}', status => {
     assert.ok(this.response != null, "response er null")
     var r = this.response.response ? this.response.response : this.response;
-    // console.log("response objekt", r)
     assert.ok(r.status == status, r.status + " " + r.statusText)
 });
 

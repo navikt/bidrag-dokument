@@ -17,7 +17,8 @@ function hentFasitRessurs(ftype, alias, env) {
             alias: alias,
             environment: env,
             usage: false
-        }
+        },
+        timeout: 10000  
     })
     .then(response => response)
     .catch(err =>  err)
