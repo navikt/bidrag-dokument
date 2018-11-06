@@ -25,7 +25,7 @@ When('jeg henter journalposter for sak {string}', async saksnummer => {
     assert(undefined === this.response.errno, "Feilmelding: " + this.response.errno);
 });
 
-When('jeg kaller status endpoint', async => {
+When('jeg kaller status endpoint', async () => {
     console.log("Kaller /status endpoint")
     this.response = await kallFasitRestService(this.alias, "/status")
     assert(this.response != null, "Intet svar mottatt fra tjenesten")
