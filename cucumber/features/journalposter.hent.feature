@@ -9,13 +9,13 @@ Feature: bidrag-dokument REST API
         Given restservice 'bidragDokument'
 
     Scenario: Sjekk at vi får en liste med journalposter
-        When jeg henter journalpost "0000003"
+        When jeg henter journalposter for sak "0000003"
         Then statuskoden skal være '200'
         And skal resultatet være en liste med journalposter
         And hver journalpost i listen skal ha saksnummer '0000003' i 'saksnummerBidrag' feltet
 
     Scenario: Sjekk innholdet av en enkelt journalpost i bidrag
-        When jeg henter journalpost "0000003"
+        When jeg henter journalposter for sak "0000003"
         Then skal resultatet være en liste med journalposter
         And statuskoden skal være '200'
         And hver rad i listen skal ha følgende properties satt:
@@ -24,6 +24,6 @@ Feature: bidrag-dokument REST API
             | saksnummerBidrag   |
 
     Scenario: Sjekk at ukjent sak gir 204 med ingen data
-        When jeg henter journalpost "XYZ"
+        When jeg henter journalposter for sak "XYZ"
         Then statuskoden skal være '204'
 

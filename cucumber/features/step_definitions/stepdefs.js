@@ -7,7 +7,7 @@ const {
 } = require('cucumber');
 
 const {
-    httpGet, kallFasitRestService
+    kallFasitRestService
 } = require('../support/fasit')
 
 function journalpostSuffix(saksnummer) {
@@ -18,18 +18,18 @@ Given('restservice {string}', alias => {
     this.alias = alias;
 });
 
-When('jeg henter journalpost {string}', async saksnummer => {
+When('jeg henter journalposter for sak {string}', async saksnummer => {
         console.log("henter journalpost", saksnummer, this.alias)
         this.response = await kallFasitRestService(this.alias, journalpostSuffix(saksnummer))
-        // console.log("********", this.response)
         assert(this.response != null, "Intet svar mottatt fra tjenesten")
         assert(undefined === this.response.errno, "Feilmelding: " + this.response.errno);
 });
 
 Then('statuskoden skal være {string}', status => {
-    console.log("SJEKK STATUS", this.response)
-    assert.ok(this.response != status, "response er null")
-    assert.ok(this.response.status == status, "actual status: " + this.response.status)
+    assert.ok(this.response != null, "response er null")
+    var r = this.response.response ? this.response.response : this.response;
+    // console.log("response objekt", r)
+    assert.ok(r.status == status, r.status + " " + r.statusText)
 });
 
 Then('skal resultatet være en liste med journalposter', () => {
