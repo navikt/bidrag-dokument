@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,8 +31,9 @@ public class BidragJournalpostConsumer {
 
         HttpStatus httpStatus = journalposterForBidragRequest.getStatusCode();
         LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {}", httpStatus, saksnummer);
+        List<BidragJournalpostDto> journalposter = journalposterForBidragRequest.getBody();
 
-        return journalposterForBidragRequest.getBody();
+        return journalposter != null ? journalposter : Collections.emptyList();
     }
 
     private static ParameterizedTypeReference<List<BidragJournalpostDto>> typereferansenErListeMedJournalposter() {
