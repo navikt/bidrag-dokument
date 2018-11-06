@@ -1,6 +1,7 @@
 package no.nav.bidrag.dokument.service;
 
 import no.nav.bidrag.dokument.BidragDokument;
+import no.nav.bidrag.dokument.DigitUtil;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.consumer.JournalforingConsumer;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
@@ -16,7 +17,6 @@ import static java.util.stream.Collectors.toList;
 
 @Component
 public class JournalpostService {
-    private static final String NON_DIGITS = "\\D+";
 
     private final BidragJournalpostConsumer bidragJournalpostConsumer;
     private final JournalforingConsumer journalforingConsumer;
@@ -29,19 +29,17 @@ public class JournalpostService {
     }
 
     public Optional<JournalpostDto> hentJournalpost(String journalpostId) throws KildesystemException {
-        String message = "Kunne ikke identifisere kildesystem for id: ";
-
         try {
             if (startsWith(BidragDokument.JOURNALPOST_ID_BIDRAG_REQUEST, journalpostId)) {
-                return hentJournalpostFraBidrag(Integer.valueOf(journalpostId.replaceAll(NON_DIGITS, "")));
+                return hentJournalpostFraBidrag(DigitUtil.tryExtraction(journalpostId));
             } else if (startsWith(BidragDokument.JOURNALPOST_ID_JOARK_REQUEST, journalpostId)) {
-                return hentJournalpostFraJoark(Integer.valueOf(journalpostId.replaceAll(NON_DIGITS, "")));
+                return hentJournalpostFraJoark(DigitUtil.tryExtraction(journalpostId));
             }
         } catch (NumberFormatException nfe) {
-            message = "Kan ikke prosesseres som et tall: ";
+            throw new KildesystemException("Kan ikke prosesseres som et tall: " + journalpostId);
         }
 
-        throw new KildesystemException(message + journalpostId);
+        throw new KildesystemException("Kunne ikke identifisere kildesystem for id: " + journalpostId);
     }
 
     private boolean startsWith(String prefix, String string) {

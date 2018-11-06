@@ -1,5 +1,6 @@
 package no.nav.bidrag.dokument.service;
 
+import no.nav.bidrag.dokument.DigitUtil;
 import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.bisys.BidragJournalpostDto;
@@ -15,9 +16,6 @@ import java.util.stream.Collectors;
 @Component
 public class JournalpostMapper {
 
-    private static final String HAVE_DIGITS = ".*\\d+.*";
-    private static final String NON_DIGITS = "\\D+";
-
     JournalpostDto fraJournalforing(JournalforingDto journalforingDto) {
         JournalpostDto journalpostDto = new JournalpostDto();
         journalpostDto.setAvsenderNavn(journalforingDto.getAvsenderDto() != null ? journalforingDto.getAvsenderDto().getAvsender() : null);
@@ -30,7 +28,7 @@ public class JournalpostMapper {
         journalpostDto.setJournalforendeEnhet(journalforingDto.getJournalforendeEnhet());
         journalpostDto.setJournalfortAv(journalforingDto.getJournalfortAvNavn());
         journalpostDto.setJournalfortDato(journalforingDto.getDatoJournal());
-        journalpostDto.setJournalpostId(init("JOARK", journalforingDto.getJournalpostId()));
+        journalpostDto.setJournalpostId(withPrefix("JOARK", journalforingDto.getJournalpostId()));
         journalpostDto.setMottattDato(journalforingDto.getDatoMottatt());
         journalpostDto.setSaksnummerGsak(journalforingDto.getArkivSak() != null ? journalforingDto.getArkivSak().getId() : null);
 
@@ -57,14 +55,14 @@ public class JournalpostMapper {
         journalpostDto.setJournalforendeEnhet(bidragJournalpostDto.getJournalforendeEnhet());
         journalpostDto.setJournalfortAv(bidragJournalpostDto.getJournalfortAv());
         journalpostDto.setJournalfortDato(bidragJournalpostDto.getJournaldato());
-        journalpostDto.setJournalpostId(init("BID", bidragJournalpostDto.getJournalpostId()));
+        journalpostDto.setJournalpostId(withPrefix("BID", bidragJournalpostDto.getJournalpostId()));
         journalpostDto.setMottattDato(bidragJournalpostDto.getMottattDato());
         journalpostDto.setSaksnummerBidrag(bidragJournalpostDto.getSaksnummer());
 
         return journalpostDto;
     }
 
-    private String init(String prefix, Integer journalpostId) {
+    private String withPrefix(String prefix, Integer journalpostId) {
         return prefix + '-' + journalpostId;
     }
 
@@ -87,7 +85,7 @@ public class JournalpostMapper {
         bidragJournalpostDto.setJournalforendeEnhet(journalpostDto.getJournalforendeEnhet());
         bidragJournalpostDto.setJournalfortAv(journalpostDto.getJournalfortAv());
         bidragJournalpostDto.setJournaldato(journalpostDto.getJournalfortDato());
-        bidragJournalpostDto.setJournalpostId(extractDigits(journalpostDto.getJournalpostId()));
+        bidragJournalpostDto.setJournalpostId(DigitUtil.extract(journalpostDto.getJournalpostId()));
         bidragJournalpostDto.setMottattDato(journalpostDto.getMottattDato());
         bidragJournalpostDto.setSaksnummer(journalpostDto.getSaksnummerBidrag());
 
@@ -97,14 +95,6 @@ public class JournalpostMapper {
         bidragJournalpostDto.setFagomrade(journalpostDto.getFagomrade());
 
         return bidragJournalpostDto;
-    }
-
-    private Integer extractDigits(String journalpostId) {
-        if (journalpostId != null && journalpostId.matches(HAVE_DIGITS)) {
-            return Integer.valueOf(journalpostId.replaceAll(NON_DIGITS, ""));
-        }
-
-        return null;
     }
 
     private <T> T fetchFirstOrFail(List<T> list) {

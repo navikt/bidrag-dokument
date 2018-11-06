@@ -36,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -216,6 +217,22 @@ class JournalpostControllerTest {
             assertThat(optional(responseEntity)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
                     () -> assertThat(response.getBody()).hasSize(2)
+            ));
+        }
+
+        @DisplayName("skal ikke få internal server error (HttpStatus 500) når ukjent saksnummerstreng brukes") @SuppressWarnings("unchecked")
+        @Test void skalIkkeFremprovosereHttpStatus500MedUkjentSaksnummerStreng() {
+            when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any()))
+                    .thenReturn(new ResponseEntity<>(HttpStatus.NO_CONTENT));
+
+            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url + "/svada", HttpMethod.GET, null,
+                    new ParameterizedTypeReference<List<JournalpostDto>>() {
+                    }
+            );
+
+            assertThat(optional(responseEntity)).hasValueSatisfying(response -> assertAll(
+                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT),
+                    () -> assertThat(response.getBody()).isNull()
             ));
         }
     }
