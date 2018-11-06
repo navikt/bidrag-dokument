@@ -12,8 +12,18 @@ import static java.util.Arrays.asList;
 @SuppressWarnings("SameParameterValue")
 public class JournalpostDtoBygger {
     private JournalpostDto journalpostDto = new JournalpostDto();
+    private boolean medBrukerId = true;
+    private boolean medDokument = true;
 
-    public JournalpostDto get() {
+    public JournalpostDto build() {
+        if (journalpostDto.getDokumenter().isEmpty() && medDokument) {
+            journalpostDto.setDokumenter(Collections.singletonList(new DokumentDto()));
+        }
+
+        if (journalpostDto.getGjelderBrukerId().isEmpty() && medBrukerId) {
+            journalpostDto.setGjelderBrukerId(Collections.singletonList("brukerId"));
+        }
+
         return journalpostDto;
     }
 
@@ -78,8 +88,8 @@ public class JournalpostDtoBygger {
         return this;
     }
 
-    public JournalpostDtoBygger medJournalpostIdBisys(int journalpostIdBisys) {
-        journalpostDto.setJournalpostIdBisys(journalpostIdBisys);
+    public JournalpostDtoBygger medJournalpostId(String journalpostId) {
+        journalpostDto.setJournalpostId(journalpostId);
         return this;
     }
 
@@ -95,6 +105,16 @@ public class JournalpostDtoBygger {
 
     public JournalpostDtoBygger medDokumenter(List<DokumentDto> dokumenter) {
         journalpostDto.setDokumenter(dokumenter);
+        return this;
+    }
+
+    public JournalpostDtoBygger utenBrukerId() {
+        medBrukerId = false;
+        return this;
+    }
+
+    public JournalpostDtoBygger utenDokument() {
+        medDokument = false;
         return this;
     }
 }

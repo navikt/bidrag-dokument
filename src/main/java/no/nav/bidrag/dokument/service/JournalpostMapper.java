@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 @Component
 public class JournalpostMapper {
 
+    private static final String HAVE_DIGITS = ".*\\d+.*";
+    private static final String NON_DIGITS = "\\D+";
+
     JournalpostDto fraJournalforing(JournalforingDto journalforingDto) {
         JournalpostDto journalpostDto = new JournalpostDto();
         journalpostDto.setAvsenderNavn(journalforingDto.getAvsenderDto() != null ? journalforingDto.getAvsenderDto().getAvsender() : null);
@@ -27,7 +30,7 @@ public class JournalpostMapper {
         journalpostDto.setJournalforendeEnhet(journalforingDto.getJournalforendeEnhet());
         journalpostDto.setJournalfortAv(journalforingDto.getJournalfortAvNavn());
         journalpostDto.setJournalfortDato(journalforingDto.getDatoJournal());
-        journalpostDto.setJournalpostIdJoark(journalforingDto.getJournalpostId());
+        journalpostDto.setJournalpostId(init("JOARK", journalforingDto.getJournalpostId()));
         journalpostDto.setMottattDato(journalforingDto.getDatoMottatt());
         journalpostDto.setSaksnummerGsak(journalforingDto.getArkivSak() != null ? journalforingDto.getArkivSak().getId() : null);
 
@@ -54,11 +57,15 @@ public class JournalpostMapper {
         journalpostDto.setJournalforendeEnhet(bidragJournalpostDto.getJournalforendeEnhet());
         journalpostDto.setJournalfortAv(bidragJournalpostDto.getJournalfortAv());
         journalpostDto.setJournalfortDato(bidragJournalpostDto.getJournaldato());
-        journalpostDto.setJournalpostIdBisys(bidragJournalpostDto.getJournalpostId());
+        journalpostDto.setJournalpostId(init("BID", bidragJournalpostDto.getJournalpostId()));
         journalpostDto.setMottattDato(bidragJournalpostDto.getMottattDato());
         journalpostDto.setSaksnummerBidrag(bidragJournalpostDto.getSaksnummer());
 
         return journalpostDto;
+    }
+
+    private String init(String prefix, Integer journalpostId) {
+        return prefix + '-' + journalpostId;
     }
 
     private DokumentDto tilDokumentDto(BidragJournalpostDto bidragJournalpostDto) {
@@ -71,24 +78,33 @@ public class JournalpostMapper {
     }
 
     BidragJournalpostDto tilBidragJournalpost(JournalpostDto journalpostDto) {
-        DokumentDto dokumentDto = fetchFirstOrFail(journalpostDto.getDokumenter());
 
         BidragJournalpostDto bidragJournalpostDto = new BidragJournalpostDto();
         bidragJournalpostDto.setAvsender(journalpostDto.getAvsenderNavn());
         bidragJournalpostDto.setBeskrivelse(journalpostDto.getInnhold());
         bidragJournalpostDto.setDokumentdato(journalpostDto.getDokumentDato());
-        bidragJournalpostDto.setDokumentreferanse(dokumentDto.getDokumentreferanse());
-        bidragJournalpostDto.setDokumentType(dokumentDto.getDokumentType());
-        bidragJournalpostDto.setFagomrade(journalpostDto.getFagomrade());
         bidragJournalpostDto.setGjelder(fetchFirstOrFail(journalpostDto.getGjelderBrukerId()));
         bidragJournalpostDto.setJournalforendeEnhet(journalpostDto.getJournalforendeEnhet());
         bidragJournalpostDto.setJournalfortAv(journalpostDto.getJournalfortAv());
         bidragJournalpostDto.setJournaldato(journalpostDto.getJournalfortDato());
-        bidragJournalpostDto.setJournalpostId(journalpostDto.getJournalpostIdBisys());
+        bidragJournalpostDto.setJournalpostId(extractDigits(journalpostDto.getJournalpostId()));
         bidragJournalpostDto.setMottattDato(journalpostDto.getMottattDato());
         bidragJournalpostDto.setSaksnummer(journalpostDto.getSaksnummerBidrag());
 
+        DokumentDto dokumentDto = fetchFirstOrFail(journalpostDto.getDokumenter());
+        bidragJournalpostDto.setDokumentreferanse(dokumentDto.getDokumentreferanse());
+        bidragJournalpostDto.setDokumentType(dokumentDto.getDokumentType());
+        bidragJournalpostDto.setFagomrade(journalpostDto.getFagomrade());
+
         return bidragJournalpostDto;
+    }
+
+    private Integer extractDigits(String journalpostId) {
+        if (journalpostId != null && journalpostId.matches(HAVE_DIGITS)) {
+            return Integer.valueOf(journalpostId.replaceAll(NON_DIGITS, ""));
+        }
+
+        return null;
     }
 
     private <T> T fetchFirstOrFail(List<T> list) {
