@@ -11,7 +11,7 @@ const {
 } = require('../support/fasit')
 
 function journalpostSuffix(saksnummer) {
-    return util.format("/journalpost/%s", saksnummer)
+    return util.format("/sakjournal/%s", saksnummer)
 }
 
 Given('restservice {string}', alias => {
@@ -40,11 +40,6 @@ Then('skal resultatet være et journalpost objekt', () => {
     var data = this.response ? this.response.data : null;
     assert.ok(data != null, "posten finnes ikke");
     assert.ok(data.jp_id != null, "journalposten mangler påkrevde properties");
-});
-
-Then('skal resultatet ikke være et journalpost objekt', () => {
-    var data = this.response ? this.response.data : null;
-    assert.ok(data == null || data.length == 0, "requested object is not null/empty: " + JSON.stringify(data));
 });
 
 Then('hver journalpost i listen skal ha saksnummer {string} i {string} feltet', (saksnummer, prop) => {

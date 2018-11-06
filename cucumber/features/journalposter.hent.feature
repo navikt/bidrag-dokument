@@ -10,9 +10,9 @@ Feature: bidrag-dokument REST API
 
     Scenario: Sjekk at vi får en liste med journalposter
         When jeg henter journalpost "0000003"
-        Then skal resultatet være en liste med journalposter
+        Then statuskoden skal være '200'
+        And skal resultatet være en liste med journalposter
         And hver journalpost i listen skal ha saksnummer '0000003' i 'saksnummerBidrag' feltet
-        And statuskoden skal være '200'
 
     Scenario: Sjekk innholdet av en enkelt journalpost i bidrag
         When jeg henter journalpost "0000003"
@@ -25,6 +25,5 @@ Feature: bidrag-dokument REST API
 
     Scenario: Sjekk at ukjent sak gir 204 med ingen data
         When jeg henter journalpost "XYZ"
-        Then skal resultatet ikke være et journalpost objekt
-        And statuskoden skal være '204'
+        Then statuskoden skal være '204'
 
