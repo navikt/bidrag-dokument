@@ -126,7 +126,15 @@ node {
                   println("[INFO] Run cucumber tests")
                   sleep(20)
                   sh "docker run --rm -v ${env.WORKSPACE}/cucumber:/cucumber bidrag-cucumber"
-                println("[INFO] Ferdig :)")
+                  cucumber buildStatus: 'UNSTABLE',
+                        fileIncludePattern: 'cucumber/*.json',
+                        trendsLimit: 10,
+                        classifications: [
+                            [
+                                'key': 'Browser',
+                                'value': 'Firefox'
+                            ]
+                        ]
                } else {
                   println("[INFO] No cucumber directory - not tests to run!")
                }
