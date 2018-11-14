@@ -128,7 +128,7 @@ node {
                   try {
                       sh "docker run --rm -v ${env.WORKSPACE}/cucumber:/cucumber bidrag-cucumber"
                   } catch(e) {
-
+                      result = 'UNSTABLE'
                   }
                   if(fileExists('cucumber/cucumber.json')) {
                     cucumber buildStatus: 'UNSTABLE',
