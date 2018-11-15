@@ -1,7 +1,7 @@
 package no.nav.bidrag.dokument;
 
+import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
-import no.nav.bidrag.dokument.consumer.JournalforingConsumer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,10 +22,10 @@ public class BidragDokument extends WebMvcConfigurationSupport {
         return new BidragJournalpostConsumer(bidragBaseUrl);
     }
 
-    @Bean public JournalforingConsumer journalforingConsumer(
-            @Value("${JOARK_URL}") String joarkRestServiceUrl
+    @Bean public BidragArkivConsumer journalforingConsumer(
+            @Value("${BIDRAG_ARKIV_URL}") String joarkRestServiceUrl
     ) {
-        return new JournalforingConsumer(joarkRestServiceUrl + "/rest/journalfoerinngaaende/v1/journalposter/" );
+        return new BidragArkivConsumer(joarkRestServiceUrl + "/rest/journalfoerinngaaende/v1/journalposter/" );
     }
 
     public static void main(String[] args) {

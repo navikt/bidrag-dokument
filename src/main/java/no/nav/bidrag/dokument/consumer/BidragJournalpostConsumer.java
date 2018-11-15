@@ -1,6 +1,7 @@
 package no.nav.bidrag.dokument.consumer;
 
-import no.nav.bidrag.dokument.dto.bisys.BidragJournalpostDto;
+import no.nav.bidrag.dokument.dto.BrevlagerJournalpostDto;
+import no.nav.bidrag.dokument.dto.JournalpostDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -23,39 +24,39 @@ public class BidragJournalpostConsumer {
         this.baseUrlBidragJournalpost = baseUrlBidragJournalpost;
     }
 
-    public List<BidragJournalpostDto> finnJournalposter(String saksnummer) {
+    public List<JournalpostDto> finnJournalposter(String saksnummer) {
         RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost);
-        ResponseEntity<List<BidragJournalpostDto>> journalposterForBidragRequest = restTemplate.exchange(
+        ResponseEntity<List<JournalpostDto>> journalposterForBidragRequest = restTemplate.exchange(
                 "/sak/" + saksnummer, HttpMethod.GET, null, typereferansenErListeMedJournalposter()
         );
 
         HttpStatus httpStatus = journalposterForBidragRequest.getStatusCode();
         LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {}", httpStatus, saksnummer);
-        List<BidragJournalpostDto> journalposter = journalposterForBidragRequest.getBody();
+        List<JournalpostDto> journalposter = journalposterForBidragRequest.getBody();
 
         return journalposter != null ? journalposter : Collections.emptyList();
     }
 
-    private static ParameterizedTypeReference<List<BidragJournalpostDto>> typereferansenErListeMedJournalposter() {
-        return new ParameterizedTypeReference<List<BidragJournalpostDto>>() {
+    private static ParameterizedTypeReference<List<JournalpostDto>> typereferansenErListeMedJournalposter() {
+        return new ParameterizedTypeReference<List<JournalpostDto>>() {
         };
     }
 
-    public Optional<BidragJournalpostDto> save(BidragJournalpostDto bidragJournalpostDto) {
+    public Optional<BrevlagerJournalpostDto> save(BrevlagerJournalpostDto brevlagerJournalpostDto) {
         RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost);
-        ResponseEntity<BidragJournalpostDto> registrertJournalpost = restTemplate.exchange(
-                "/registrer", HttpMethod.POST, new HttpEntity<>(bidragJournalpostDto), BidragJournalpostDto.class
+        ResponseEntity<BrevlagerJournalpostDto> registrertJournalpost = restTemplate.exchange(
+                "/registrer", HttpMethod.POST, new HttpEntity<>(brevlagerJournalpostDto), BrevlagerJournalpostDto.class
         );
 
         HttpStatus httpStatus = registrertJournalpost.getStatusCode();
-        LOGGER.info("Fikk http status {} fra registrer ny journalpost: {}", httpStatus, bidragJournalpostDto);
+        LOGGER.info("Fikk http status {} fra registrer ny journalpost: {}", httpStatus, brevlagerJournalpostDto);
 
         return Optional.ofNullable(registrertJournalpost.getBody());
     }
 
-    public Optional<BidragJournalpostDto> hentJournalpost(Integer id) {
+    public Optional<JournalpostDto> hentJournalpost(Integer id) {
         RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost);
-        ResponseEntity<BidragJournalpostDto> journalpostResponseEntity = restTemplate.getForEntity("/journalpost/" + id, BidragJournalpostDto.class);
+        ResponseEntity<JournalpostDto> journalpostResponseEntity = restTemplate.getForEntity("/journalpost/" + id, JournalpostDto.class);
         HttpStatus httpStatus = journalpostResponseEntity.getStatusCode();
 
         LOGGER.info("BidragJournalpostDto med id={} har http status {}", id, httpStatus);

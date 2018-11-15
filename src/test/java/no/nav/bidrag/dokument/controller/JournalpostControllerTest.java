@@ -2,10 +2,9 @@ package no.nav.bidrag.dokument.controller;
 
 import no.nav.bidrag.dokument.JournalpostDtoBygger;
 import no.nav.bidrag.dokument.consumer.RestTemplateFactory;
+import no.nav.bidrag.dokument.dto.BrevlagerJournalpostDto;
 import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
-import no.nav.bidrag.dokument.dto.bisys.BidragJournalpostDto;
-import no.nav.bidrag.dokument.dto.joark.JournalforingDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,7 +35,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -63,13 +61,13 @@ class JournalpostControllerTest {
 
         private String url = initEndpointUrl(ENDPOINT_JOURNALPOST);
 
-        @DisplayName("skal ha body som null når journalpost ikke finnes")
-        @Test void skalGiBodySomNullNarJournalpostIkkeFinnes() {
-            when(restTemplateMock.getForEntity(eq("1"), eq(JournalforingDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
+        @DisplayName("skal mangle body når journalpost ikke finnes")
+        @Test void skalMangleBodyNarJournalpostIkkeFinnes() {
+            when(restTemplateMock.getForEntity(eq("1"), eq(JournalpostDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
 
             ResponseEntity<JournalpostDto> journalpostResponseEntity = testRestTemplate.getForEntity(url + "/joark-1", JournalpostDto.class);
 
-            verify(restTemplateMock).getForEntity(eq("1"), eq(JournalforingDto.class));
+            verify(restTemplateMock).getForEntity(eq("1"), eq(JournalpostDto.class));
 
             assertThat(Optional.of(journalpostResponseEntity)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getBody()).isNull(),
@@ -79,13 +77,13 @@ class JournalpostControllerTest {
 
         @DisplayName("skal hente Journalpost når den eksisterer")
         @Test void skalHenteJournalpostNarDenEksisterer() {
-            when(restTemplateMock.getForEntity(eq("1"), eq(JournalforingDto.class))).thenReturn(new ResponseEntity<>(
-                    enJournalforingMedTilstand("MIDLERTIDIG"), HttpStatus.I_AM_A_TEAPOT
+            when(restTemplateMock.getForEntity(eq("1"), eq(JournalpostDto.class))).thenReturn(new ResponseEntity<>(
+                    enJournalpostMedJournaltilstand("MIDLERTIDIG"), HttpStatus.I_AM_A_TEAPOT
             ));
 
             ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.getForEntity(url + "/joark-1", JournalpostDto.class);
 
-            verify(restTemplateMock).getForEntity(eq("1"), eq(JournalforingDto.class));
+            verify(restTemplateMock).getForEntity(eq("1"), eq(JournalpostDto.class));
 
             assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
@@ -94,22 +92,22 @@ class JournalpostControllerTest {
             ));
         }
 
-        private JournalforingDto enJournalforingMedTilstand(@SuppressWarnings("SameParameterValue") String journaltilstand) {
-            JournalforingDto journalforingDto = new JournalforingDto();
-            journalforingDto.setJournalTilstand(journaltilstand);
+        private JournalpostDto enJournalpostMedJournaltilstand(@SuppressWarnings("SameParameterValue") String journaltilstand) {
+            JournalpostDto journalpostDto = new JournalpostDto();
+            journalpostDto.setJournaltilstand(journaltilstand);
 
-            return journalforingDto;
+            return journalpostDto;
         }
 
         @DisplayName("skal hente journalpost fra midlertidig brevlager")
         @Test void skalHenteJournalpostFraMidlertidigBrevlager() {
-            when(restTemplateMock.getForEntity(eq("/journalpost/1"), eq(BidragJournalpostDto.class))).thenReturn(new ResponseEntity<>(
+            when(restTemplateMock.getForEntity(eq("/journalpost/1"), eq(JournalpostDto.class))).thenReturn(new ResponseEntity<>(
                     enJournalpostFra("Grev Still E. Ben"), HttpStatus.I_AM_A_TEAPOT
             ));
 
             ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.getForEntity(url + "/bid-1", JournalpostDto.class);
 
-            verify(restTemplateMock).getForEntity(eq("/journalpost/1"), eq(BidragJournalpostDto.class));
+            verify(restTemplateMock).getForEntity(eq("/journalpost/1"), eq(JournalpostDto.class));
 
             assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
@@ -118,9 +116,9 @@ class JournalpostControllerTest {
             ));
         }
 
-        private BidragJournalpostDto enJournalpostFra(@SuppressWarnings("SameParameterValue") String avsender) {
-            BidragJournalpostDto jp = new BidragJournalpostDto();
-            jp.setAvsender(avsender);
+        private JournalpostDto enJournalpostFra(@SuppressWarnings("SameParameterValue") String setAvsenderNavn) {
+            JournalpostDto jp = new JournalpostDto();
+            jp.setAvsenderNavn(setAvsenderNavn);
 
             return jp;
         }
@@ -180,8 +178,8 @@ class JournalpostControllerTest {
                     .medGjelderBrukerId("06127412345")
                     .build();
 
-            when(restTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(BidragJournalpostDto.class)))
-                    .thenReturn(new ResponseEntity<>(enBidragJournalpostMedId(101), HttpStatus.CREATED));
+            when(restTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(BrevlagerJournalpostDto.class)))
+                    .thenReturn(new ResponseEntity<>(enBrevlagerJournalpostDtoMedId(101), HttpStatus.CREATED));
 
             ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.postForEntity(url, lagreJournalpostDto, JournalpostDto.class);
 
@@ -191,11 +189,11 @@ class JournalpostControllerTest {
             ));
         }
 
-        private BidragJournalpostDto enBidragJournalpostMedId(@SuppressWarnings("SameParameterValue") int id) {
-            BidragJournalpostDto bidragJournalpostDto = new BidragJournalpostDto();
-            bidragJournalpostDto.setJournalpostId(id);
+        private BrevlagerJournalpostDto enBrevlagerJournalpostDtoMedId(@SuppressWarnings("SameParameterValue") int id) {
+            BrevlagerJournalpostDto brevlagerJournalpostDto = new BrevlagerJournalpostDto();
+            brevlagerJournalpostDto.setJournalpostId(id);
 
-            return bidragJournalpostDto;
+            return brevlagerJournalpostDto;
         }
     }
 
@@ -206,8 +204,8 @@ class JournalpostControllerTest {
 
         @DisplayName("skal finne Journalposter for en bidragssak") @SuppressWarnings("unchecked")
         @Test void skalFinneJournalposterForEnBidragssak() {
-            when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any()))
-                    .thenReturn(new ResponseEntity<>(asList(new BidragJournalpostDto(), new BidragJournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
+            when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
+                    .thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
 
             ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url + "/1001", HttpMethod.GET, null,
                     new ParameterizedTypeReference<List<JournalpostDto>>() {
@@ -222,7 +220,7 @@ class JournalpostControllerTest {
 
         @DisplayName("skal ikke få internal server error (HttpStatus 500) når ukjent saksnummerstreng brukes") @SuppressWarnings("unchecked")
         @Test void skalIkkeFremprovosereHttpStatus500MedUkjentSaksnummerStreng() {
-            when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any()))
+            when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
                     .thenReturn(new ResponseEntity<>(HttpStatus.NO_CONTENT));
 
             ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url + "/svada", HttpMethod.GET, null,

@@ -1,18 +1,15 @@
 package no.nav.bidrag.dokument.service;
 
 import no.nav.bidrag.dokument.JournalpostDtoBygger;
+import no.nav.bidrag.dokument.dto.BrevlagerJournalpostDto;
 import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
-import no.nav.bidrag.dokument.dto.bisys.BidragJournalpostDto;
-import no.nav.bidrag.dokument.dto.joark.BrukerDto;
-import no.nav.bidrag.dokument.dto.joark.JournalforingDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
@@ -21,24 +18,23 @@ class JournalpostMapperTest {
 
     private JournalpostMapper journalpostMapper = new JournalpostMapper();
 
-    @DisplayName("skal mappe fra BidragJournalpostDto")
-    @Test void skalMappeFraBidragJournalpost() {
-        BidragJournalpostDto bidragJournalpostDto = new BidragJournalpostDto();
-        bidragJournalpostDto.setAvsender("Bi Drag");
-        bidragJournalpostDto.setBeskrivelse("...and know, something completely different...");
-        bidragJournalpostDto.setFagomrade("BID");
-        bidragJournalpostDto.setDokumentdato(LocalDate.now().minusDays(3));
-        bidragJournalpostDto.setDokumentreferanse("101010101");
-        bidragJournalpostDto.setDokumentType("N");
-        bidragJournalpostDto.setGjelder("06127412345");
-        bidragJournalpostDto.setJournalforendeEnhet("JUnit");
-        bidragJournalpostDto.setJournaldato(LocalDate.now().minusDays(1));
-        bidragJournalpostDto.setJournalfortAv("Dr. A. Cula");
-        bidragJournalpostDto.setJournalpostId(101);
-        bidragJournalpostDto.setMottattDato(LocalDate.now().minusDays(2));
-        bidragJournalpostDto.setSaksnummer("10101");
+    @DisplayName("skal mappe fra BrevlagerJournalpostDto")
+    @Test void skalMappeFraBrevlagerJournalpostDto() {
+        BrevlagerJournalpostDto brevlagerJournalpostDto = new BrevlagerJournalpostDto();
+        brevlagerJournalpostDto.setAvsender("Bi Drag");
+        brevlagerJournalpostDto.setBeskrivelse("...and know, something completely different...");
+        brevlagerJournalpostDto.setDokumentdato(LocalDate.now().minusDays(3));
+        brevlagerJournalpostDto.setDokumentreferanse("101010101");
+        brevlagerJournalpostDto.setDokumentType("N");
+        brevlagerJournalpostDto.setGjelder("06127412345");
+        brevlagerJournalpostDto.setJournalforendeEnhet("JUnit");
+        brevlagerJournalpostDto.setJournaldato(LocalDate.now().minusDays(1));
+        brevlagerJournalpostDto.setJournalfortAv("Dr. A. Cula");
+        brevlagerJournalpostDto.setJournalpostId(101);
+        brevlagerJournalpostDto.setMottattDato(LocalDate.now().minusDays(2));
+        brevlagerJournalpostDto.setSaksnummer("10101");
 
-        JournalpostDto journalpostDto = journalpostMapper.fraBidragJournalpost(bidragJournalpostDto);
+        JournalpostDto journalpostDto = journalpostMapper.fraBrevlagerJournalpostDto(brevlagerJournalpostDto);
         assertThat(journalpostDto).isNotNull();
 
         assertAll(
@@ -58,8 +54,8 @@ class JournalpostMapperTest {
         );
     }
 
-    @DisplayName("skal mappe fra bidrag-dokument journalpost til en journalpost i bidrag-dokument-journalpost")
-    @Test void skalMappeFraJournalpostTilBidragJournalpost() {
+    @DisplayName("skal mappe til JournalpostDto")
+    @Test void skalMappeTilJournalpostDto() {
         JournalpostDto journalpostDto = new JournalpostDtoBygger()
                 .medAvsenderNavn("Kom Post")
                 .medDokumentdato(LocalDate.now())
@@ -76,7 +72,7 @@ class JournalpostMapperTest {
                 .medSaksnummerBidrag("123456789")
                 .build();
 
-        BidragJournalpostDto bidragJournalpostDto = journalpostMapper.tilBidragJournalpost(journalpostDto);
+        BrevlagerJournalpostDto bidragJournalpostDto = journalpostMapper.tilBidragJournalpost(journalpostDto);
         assertThat(bidragJournalpostDto).isNotNull();
 
         assertAll(
@@ -94,58 +90,5 @@ class JournalpostMapperTest {
                 () -> assertThat(bidragJournalpostDto.getMottattDato()).as("mottattDato").isEqualTo(LocalDate.now().minusDays(1)),
                 () -> assertThat(bidragJournalpostDto.getSaksnummer()).as("saksnummer").isEqualTo("123456789")
         );
-    }
-
-    @DisplayName("skal mappe fra JournalforingDto") @SuppressWarnings("ConstantConditions")
-    @Test void skalMappeFraJournalforingDto() {
-        JournalforingDto journalforingDto = new JournalforingBuilder()
-                .withArkivSakId("10101")
-                .withAvsender("U. A. N. Svarlig")
-                .withBruker("06127412345")
-                .withFagomrade("BID")
-                .withDatoDokument(LocalDate.now().minusDays(3))
-                .withDatoJournal(LocalDate.now().minusDays(1))
-                .withDatoMottatt(LocalDate.now().minusDays(2))
-                .withDokumentId("101")
-                .withInnhold("...and know, something completely different...")
-                .withJournalforendeEnhet("JUnit")
-                .withJournalfortAvNavn("Dr. A. Cula")
-                .withJournalpostId(101)
-                .withDokumentTypeId("N")
-                .get();
-
-        JournalpostDto journalpostDto = journalpostMapper.fraJournalforing(journalforingDto);
-        assertThat(journalpostDto).isNotNull();
-
-        assertAll(
-                () -> assertThat(journalpostDto.getAvsenderNavn()).as("avsenderNavn").isEqualTo(journalforingDto.getAvsenderDto().getAvsender()),
-                () -> assertThat(journalpostDto.getFagomrade()).as("fagomrade").isEqualTo(journalforingDto.getFagomrade()),
-                () -> assertThat(journalpostDto.getDokumentDato()).as("dokumentdato").isEqualTo(journalforingDto.getDatoDokument()),
-                () -> assertThat(journalpostDto.getDokumenter()).extracting(DokumentDto::getDokumentreferanse).as("dokumentreferanse")
-                        .isEqualTo(singletonList(journalforingDto.getDokumenter().get(0).getDokumentId())),
-                () -> assertThat(journalpostDto.getDokumenter()).extracting(DokumentDto::getDokumentType).as("dokumentType")
-                        .isEqualTo(singletonList(journalforingDto.getDokumenter().get(0).getDokumentTypeId())),
-                () -> assertThat(journalpostDto.getGjelderBrukerId()).as("gjelderBrukerId")
-                        .isEqualTo(journalforingDto.getBrukere().stream().map(BrukerDto::getBrukerId).collect(toList())),
-                () -> assertThat(journalpostDto.getInnhold()).as("innhold").isEqualTo(journalforingDto.getInnhold()),
-                () -> assertThat(journalpostDto.getJournalforendeEnhet()).as("journalforendeEnhet").isEqualTo(journalforingDto.getJournalforendeEnhet()),
-                () -> assertThat(journalpostDto.getJournalfortAv()).as("journalfortAv").isEqualTo(journalforingDto.getJournalfortAvNavn()),
-                () -> assertThat(journalpostDto.getJournalfortDato()).as("journalfortDato").isEqualTo(journalforingDto.getDatoJournal()),
-                () -> assertThat(journalpostDto.getJournalpostId()).as("journalpostId").isEqualTo("JOARK-" + journalforingDto.getJournalpostId()),
-                () -> assertThat(journalpostDto.getMottattDato()).as("mottattDato").isEqualTo(journalforingDto.getDatoMottatt()),
-                () -> assertThat(journalpostDto.getSaksnummerGsak()).as("saksnummerGsak").isEqualTo(journalforingDto.getArkivSak().getId())
-        );
-    }
-
-    @DisplayName("skal ignorere eventuell prefix når journalpostId mappes")
-    @Test void skalIgnorePrefixPaJournalpostId() {
-        JournalpostDto journalpostDto = new JournalpostDtoBygger()
-                .medJournalpostId("svada123")
-                .build();
-
-        BidragJournalpostDto bidragJournalpostDto = journalpostMapper.tilBidragJournalpost(journalpostDto);
-
-        assertThat(bidragJournalpostDto).isNotNull();
-        assertThat(bidragJournalpostDto.getJournalpostId()).isEqualTo(123);
     }
 }

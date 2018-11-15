@@ -1,8 +1,8 @@
 package no.nav.bidrag.dokument.service;
 
+import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
-import no.nav.bidrag.dokument.consumer.JournalforingConsumer;
-import no.nav.bidrag.dokument.dto.joark.JournalforingDto;
+import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.exception.KildesystemException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,24 +20,24 @@ import static org.mockito.Mockito.when;
 @DisplayName("JournalpostService")
 class JournalpostServiceTest {
 
-    private @Mock JournalforingConsumer journalforingConsumerMock;
+    private @Mock BidragArkivConsumer bidragArkivConsumerMock;
     private @Mock BidragJournalpostConsumer bidragJournalpostConsumerMock;
     private JournalpostService journalpostService;
 
     @BeforeEach void initMocksAndService() {
         MockitoAnnotations.initMocks(this);
-        journalpostService = new JournalpostService(bidragJournalpostConsumerMock, journalforingConsumerMock, new JournalpostMapper());
+        journalpostService = new JournalpostService(bidragJournalpostConsumerMock, bidragArkivConsumerMock, new JournalpostMapper());
     }
 
-    @DisplayName("skal ikke hente journalforing")
+    @DisplayName("skal ikke hente journalpost")
     @Test void skalIkkeHenteJournalpostGittId() throws KildesystemException {
-        when(journalforingConsumerMock.hentJournalforing(anyInt())).thenReturn(Optional.empty());
+        when(bidragArkivConsumerMock.hentJournalpost(anyInt())).thenReturn(Optional.empty());
         assertThat(journalpostService.hentJournalpost("joark-2")).isNotPresent();
     }
 
-    @DisplayName("skal hente journalforing gitt id")
+    @DisplayName("skal hente journalpost gitt id")
     @Test void skalHenteJournalpostGittId() throws KildesystemException {
-        when(journalforingConsumerMock.hentJournalforing(2)).thenReturn(Optional.of(new JournalforingDto()));
+        when(bidragArkivConsumerMock.hentJournalpost(2)).thenReturn(Optional.of(new JournalpostDto()));
         assertThat(journalpostService.hentJournalpost("joark-2")).isPresent();
     }
 

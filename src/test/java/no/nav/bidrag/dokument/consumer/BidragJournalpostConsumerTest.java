@@ -2,7 +2,8 @@ package no.nav.bidrag.dokument.consumer;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
-import no.nav.bidrag.dokument.dto.bisys.BidragJournalpostDto;
+import no.nav.bidrag.dokument.dto.BrevlagerJournalpostDto;
+import no.nav.bidrag.dokument.dto.JournalpostDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -68,17 +69,17 @@ import static org.mockito.Mockito.when;
 
     @DisplayName("skal bruke bidragssakens saksnummer i sti til tjeneste")
     @Test void shouldUseValueFromPath() {
-        when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any())).thenReturn(
+        when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any())).thenReturn(
                 new ResponseEntity<>(HttpStatus.NO_CONTENT)
         );
 
         bidragJournalpostConsumer.finnJournalposter("101");
-        verify(restTemplateMock).exchange(eq("/sak/101"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any());
+        verify(restTemplateMock).exchange(eq("/sak/101"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
     }
 
     @DisplayName("should log get invocations")
     @Test void shouldLogGetInvocations() {
-        when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any())).thenReturn(
+        when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any())).thenReturn(
                 new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)
         );
 
@@ -96,16 +97,16 @@ import static org.mockito.Mockito.when;
 
     @DisplayName("should log post invocations")
     @Test void shouldLogPostInvocations() {
-        when(restTemplateMock.exchange(anyString(), any(), any(), eq(BidragJournalpostDto.class))).thenReturn(
+        when(restTemplateMock.exchange(anyString(), any(), any(), eq(BrevlagerJournalpostDto.class))).thenReturn(
                 new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)
         );
 
-        bidragJournalpostConsumer.save(new BidragJournalpostDto());
+        bidragJournalpostConsumer.save(new BrevlagerJournalpostDto());
 
         verify(appenderMock).doAppend(
                 argThat((ArgumentMatcher) argument -> {
                     assertThat(((ILoggingEvent) argument).getFormattedMessage())
-                            .contains("Fikk http status 500 INTERNAL_SERVER_ERROR fra registrer ny journalpost: BidragJournalpostDto");
+                            .contains("Fikk http status 500 INTERNAL_SERVER_ERROR fra registrer ny journalpost: BrevlagerJournalpostDto");
 
                     return true;
                 })
