@@ -50,7 +50,7 @@ class JournalpostMapperTest {
                 () -> assertThat(journalpostDto.getJournalfortDato()).as("journaldato -> journalfortDato").isEqualTo(LocalDate.now().minusDays(1)),
                 () -> assertThat(journalpostDto.getJournalpostId()).as("journalpostId").isEqualTo("BID-101"),
                 () -> assertThat(journalpostDto.getMottattDato()).as("mottattDato").isEqualTo(LocalDate.now().minusDays(2)),
-                () -> assertThat(journalpostDto.getSaksnummerBidrag()).as("saksnummer -> saksnummerBidrag").isEqualTo("10101")
+                () -> assertThat(journalpostDto.getSaksnummer()).as("saksnummer").isEqualTo("BID-10101")
         );
     }
 
@@ -69,7 +69,7 @@ class JournalpostMapperTest {
                 .medJournalfortDato(LocalDate.now().plusDays(1))
                 .medJournalpostId("BID-123")
                 .medMottattDato(LocalDate.now().minusDays(1))
-                .medSaksnummerBidrag("123456789")
+                .medSaksnummer("123456789")
                 .build();
 
         BrevlagerJournalpostDto bidragJournalpostDto = journalpostMapper.tilBidragJournalpost(journalpostDto);

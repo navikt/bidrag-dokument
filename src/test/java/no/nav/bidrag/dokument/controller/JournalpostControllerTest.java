@@ -78,7 +78,7 @@ class JournalpostControllerTest {
         @DisplayName("skal hente Journalpost når den eksisterer")
         @Test void skalHenteJournalpostNarDenEksisterer() {
             when(restTemplateMock.getForEntity(eq("1"), eq(JournalpostDto.class))).thenReturn(new ResponseEntity<>(
-                    enJournalpostMedJournaltilstand("MIDLERTIDIG"), HttpStatus.I_AM_A_TEAPOT
+                    enJournalpostMedInnhold("MIDLERTIDIG"), HttpStatus.I_AM_A_TEAPOT
             ));
 
             ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.getForEntity(url + "/joark-1", JournalpostDto.class);
@@ -88,13 +88,13 @@ class JournalpostControllerTest {
             assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
                     () -> assertThat(response.getBody()).extracting(JournalpostDto::getHello).isEqualTo("hello from bidrag-dokument"),
-                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournaltilstand).isEqualTo("MIDLERTIDIG")
+                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getInnhold).isEqualTo("MIDLERTIDIG")
             ));
         }
 
-        private JournalpostDto enJournalpostMedJournaltilstand(@SuppressWarnings("SameParameterValue") String journaltilstand) {
+        private JournalpostDto enJournalpostMedInnhold(@SuppressWarnings("SameParameterValue") String innhold) {
             JournalpostDto journalpostDto = new JournalpostDto();
-            journalpostDto.setJournaltilstand(journaltilstand);
+            journalpostDto.setInnhold(innhold);
 
             return journalpostDto;
         }

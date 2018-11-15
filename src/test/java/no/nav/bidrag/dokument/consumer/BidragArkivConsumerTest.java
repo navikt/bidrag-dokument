@@ -39,13 +39,13 @@ class BidragArkivConsumerTest {
         Optional<JournalpostDto> journalpostOptional = bidragArkivConsumer.hentJournalpost(101);
         JournalpostDto journalpostDto = journalpostOptional.orElseThrow(() -> new AssertionError("Ingen Dto fra manager!"));
 
-        assertThat(journalpostDto.getJournaltilstand()).isEqualTo("ENDELIG");
+        assertThat(journalpostDto.getInnhold()).isEqualTo("ENDELIG");
         verify(restTemplateMock).getForEntity("101", JournalpostDto.class);
     }
 
-    private JournalpostDto enJournalpostMedJournaltilstand(@SuppressWarnings("SameParameterValue") String journaltilstand) {
+    private JournalpostDto enJournalpostMedJournaltilstand(@SuppressWarnings("SameParameterValue") String innhold) {
         JournalpostDto journalpostDto = new JournalpostDto();
-        journalpostDto.setJournaltilstand(journaltilstand);
+        journalpostDto.setInnhold(innhold);
 
         return journalpostDto;
     }

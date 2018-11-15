@@ -25,7 +25,7 @@ public class JournalpostMapper {
         journalpostDto.setJournalfortDato(brevlagerJournalpostDto.getJournaldato());
         journalpostDto.setJournalpostId("BID-" + brevlagerJournalpostDto.getJournalpostId());
         journalpostDto.setMottattDato(brevlagerJournalpostDto.getMottattDato());
-        journalpostDto.setSaksnummerBidrag(brevlagerJournalpostDto.getSaksnummer());
+        journalpostDto.setSaksnummer("BID-" + brevlagerJournalpostDto.getSaksnummer());
 
         return journalpostDto;
     }
@@ -51,7 +51,7 @@ public class JournalpostMapper {
         brevlagerJournalpostDto.setJournaldato(journalpostDto.getJournalfortDato());
         brevlagerJournalpostDto.setJournalpostId(DigitUtil.extract(journalpostDto.getJournalpostId()));
         brevlagerJournalpostDto.setMottattDato(journalpostDto.getMottattDato());
-        brevlagerJournalpostDto.setSaksnummer(journalpostDto.getSaksnummerBidrag());
+        brevlagerJournalpostDto.setSaksnummer(journalpostDto.getSaksnummer());
 
         DokumentDto dokumentDto = fetchFirstOrFail(journalpostDto.getDokumenter());
         brevlagerJournalpostDto.setDokumentreferanse(dokumentDto.getDokumentreferanse());
