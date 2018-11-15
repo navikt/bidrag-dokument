@@ -39,7 +39,7 @@ ingress:
   disabled: false # if true, no ingress will be created and application can only be reached from inside cluster
 fasitResources: # resources fetched from Fasit
   used: # this will be injected into the application as environment variables
-  - alias: bidragJournalpost
+  - alias: bidragDokumentJournalpost
     resourceType: restservice
     # use propertyMap to map properties to custom environment variables
     # env vars should be UPPERCASED_AND_UNDERSCORED
