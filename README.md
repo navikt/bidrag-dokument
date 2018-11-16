@@ -8,7 +8,7 @@ tjenester tilbudt av JOARK men som må tilpasses BISYS sin domenemodell. Denne t
 kaller andre mikrotjenester og blir kontrollert av `bidrag-dokument-ui`. Andre 
 tjenester som blit "rutet" via denne:
 * `bidrag-dokument-journalpost`
-* `bidrag-dokument-arkivk`
+* `bidrag-dokument-arkiv`
 
 ### bygg og kjør applikasjon
 
