@@ -7,6 +7,7 @@ import no.nav.bidrag.dokument.exception.KildesystemException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -22,11 +23,10 @@ class JournalpostServiceTest {
 
     private @Mock BidragArkivConsumer bidragArkivConsumerMock;
     private @Mock BidragJournalpostConsumer bidragJournalpostConsumerMock;
-    private JournalpostService journalpostService;
+    private @InjectMocks JournalpostService journalpostService;
 
     @BeforeEach void initMocksAndService() {
         MockitoAnnotations.initMocks(this);
-        journalpostService = new JournalpostService(bidragJournalpostConsumerMock, bidragArkivConsumerMock, new JournalpostMapper());
     }
 
     @DisplayName("skal ikke hente journalpost")

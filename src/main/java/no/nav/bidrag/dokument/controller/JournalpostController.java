@@ -2,8 +2,9 @@ package no.nav.bidrag.dokument.controller;
 
 import io.swagger.annotations.ApiOperation;
 import no.nav.bidrag.dokument.BidragDokument;
-import no.nav.bidrag.dokument.dto.DokumentDto;
+import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
 import no.nav.bidrag.dokument.exception.KildesystemException;
 import no.nav.bidrag.dokument.service.JournalpostService;
 import org.slf4j.Logger;
@@ -66,22 +67,23 @@ public class JournalpostController {
         return new ResponseEntity<>(journalposter, HttpStatus.OK);
     }
 
-    @PostMapping(ENDPOINT_JOURNALPOST)
+    @PostMapping(ENDPOINT_JOURNALPOST + "/ny")
     @ApiOperation("Registrer ny journalpost")
-    public ResponseEntity<JournalpostDto> post(@RequestBody JournalpostDto journalpostDto) {
-        List<DokumentDto> dokumenter = journalpostDto.getDokumenter();
-        List<String> gjelderBrukerId = journalpostDto.getGjelderBrukerId();
+    public ResponseEntity<JournalpostDto> post(@RequestBody NyJournalpostCommandDto nyJournalpostCommandDto) {
+        LOGGER.debug("post ny: {}\n \\-> bidrag-dokument/{}/ny", nyJournalpostCommandDto, ENDPOINT_JOURNALPOST);
 
-        if (harIngenEllerFlere(dokumenter) || harIngenEllerFlere(gjelderBrukerId)) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        return journalpostService.save(journalpostDto)
+        return journalpostService.registrer(nyJournalpostCommandDto)
                 .map(journalpost -> new ResponseEntity<>(journalpost, HttpStatus.CREATED))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.OK));
     }
 
-    private <T> boolean harIngenEllerFlere(List<T> items) {
-        return items == null || items.isEmpty() || items.size() > 1;
+    @PostMapping(ENDPOINT_JOURNALPOST)
+    @ApiOperation("Endre eksisterende journalpost")
+    public ResponseEntity<JournalpostDto> post(@RequestBody EndreJournalpostCommandDto endreJournalpostCommandDto) {
+        LOGGER.debug("post endret: {}\n \\-> bidrag-dokument/{}/endre", endreJournalpostCommandDto, ENDPOINT_JOURNALPOST);
+
+        return journalpostService.endre(endreJournalpostCommandDto)
+                .map(journalpost -> new ResponseEntity<>(journalpost, HttpStatus.CREATED))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.OK));
     }
 }

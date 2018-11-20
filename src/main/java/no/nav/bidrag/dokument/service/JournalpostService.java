@@ -4,25 +4,25 @@ import no.nav.bidrag.dokument.BidragDokument;
 import no.nav.bidrag.dokument.DigitUtil;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
-import no.nav.bidrag.dokument.dto.BrevlagerJournalpostDto;
+import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
 import no.nav.bidrag.dokument.exception.KildesystemException;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.DoubleStream;
 
 @Component
 public class JournalpostService {
 
     private final BidragJournalpostConsumer bidragJournalpostConsumer;
     private final BidragArkivConsumer bidragArkivConsumer;
-    private final JournalpostMapper journalpostMapper;
 
-    public JournalpostService(BidragJournalpostConsumer bidragJournalpostConsumer, BidragArkivConsumer bidragArkivConsumer, JournalpostMapper journalpostMapper) {
+    public JournalpostService(BidragJournalpostConsumer bidragJournalpostConsumer, BidragArkivConsumer bidragArkivConsumer) {
         this.bidragJournalpostConsumer = bidragJournalpostConsumer;
         this.bidragArkivConsumer = bidragArkivConsumer;
-        this.journalpostMapper = journalpostMapper;
     }
 
     public Optional<JournalpostDto> hentJournalpost(String journalpostId) throws KildesystemException {
@@ -47,9 +47,11 @@ public class JournalpostService {
         return bidragJournalpostConsumer.finnJournalposter(saksnummer);
     }
 
-    public Optional<JournalpostDto> save(JournalpostDto journalpostDto) {
-        BrevlagerJournalpostDto brevlagerJournalpostDto = journalpostMapper.tilBidragJournalpost(journalpostDto);
-        return bidragJournalpostConsumer.save(brevlagerJournalpostDto)
-                .map(journalpostMapper::fraBrevlagerJournalpostDto);
+    public Optional<JournalpostDto> registrer(NyJournalpostCommandDto nyJournalpostCommandDto) {
+        return bidragJournalpostConsumer.registrer(nyJournalpostCommandDto);
+    }
+
+    public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto) {
+        return bidragJournalpostConsumer.endre(endreJournalpostCommandDto);
     }
 }
