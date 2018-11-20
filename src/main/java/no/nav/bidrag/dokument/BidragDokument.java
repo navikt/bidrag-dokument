@@ -13,8 +13,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 @PropertySource("classpath:url.properties")
 public class BidragDokument extends WebMvcConfigurationSupport {
 
-    public static final String JOURNALPOST_ID_BIDRAG_REQUEST = "BID-";
-    public static final String JOURNALPOST_ID_JOARK_REQUEST = "JOARK-";
+    public static final String DELIMTER = "-";
+    public static final String PREFIX_BIDRAG = "BID";
+    public static final String PREFIX_GSAK = "GSAK";
+    public static final String PREFIX_JOARK = "JOARK";
 
     @Bean public BidragJournalpostConsumer bidragJournalpostConsumer(
             @Value("${JOURNALPOST_URL}") String bidragBaseUrl
@@ -25,7 +27,7 @@ public class BidragDokument extends WebMvcConfigurationSupport {
     @Bean public BidragArkivConsumer journalforingConsumer(
             @Value("${BIDRAG_ARKIV_URL}") String joarkRestServiceUrl
     ) {
-        return new BidragArkivConsumer(joarkRestServiceUrl + "/rest/journalfoerinngaaende/v1/journalposter/" );
+        return new BidragArkivConsumer(joarkRestServiceUrl + "/rest/journalfoerinngaaende/v1/journalposter/");
     }
 
     public static void main(String[] args) {
