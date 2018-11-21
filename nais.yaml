@@ -45,6 +45,12 @@ fasitResources: # resources fetched from Fasit
     # env vars should be UPPERCASED_AND_UNDERSCORED
     propertyMap:
       url: JOURNALPOST_URL # map the "url" property of restservice to JOURNALPOST_URL
+  - alias: bidragDokumentArkiv
+    resourceType: restservice
+    # use propertyMap to map properties to custom environment variables
+    # env vars should be UPPERCASED_AND_UNDERSCORED
+    propertyMap:
+      url: BIDRAG_ARKIV_URL # map the "url" property of restservice to BIDRAG_ARKIV_URL
   exposed: # Will be registered as exposed services on an application instane in Fasit
   - alias: bidragDokument
     resourceType: restservice

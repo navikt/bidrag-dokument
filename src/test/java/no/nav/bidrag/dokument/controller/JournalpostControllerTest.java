@@ -62,11 +62,11 @@ import static org.mockito.Mockito.when;
 
         @DisplayName("skal mangle body når journalpost ikke finnes")
         @Test void skalMangleBodyNarJournalpostIkkeFinnes() {
-            when(restTemplateMock.getForEntity(eq("1"), eq(JournalpostDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
+            when(restTemplateMock.getForEntity(eq("/journalpost/1"), eq(JournalpostDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
 
             ResponseEntity<JournalpostDto> journalpostResponseEntity = testRestTemplate.getForEntity(url + "/joark-1", JournalpostDto.class);
 
-            verify(restTemplateMock).getForEntity(eq("1"), eq(JournalpostDto.class));
+            verify(restTemplateMock).getForEntity(eq("/journalpost/1"), eq(JournalpostDto.class));
 
             assertThat(Optional.of(journalpostResponseEntity)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getBody()).isNull(),
@@ -76,13 +76,13 @@ import static org.mockito.Mockito.when;
 
         @DisplayName("skal hente Journalpost når den eksisterer")
         @Test void skalHenteJournalpostNarDenEksisterer() {
-            when(restTemplateMock.getForEntity(eq("1"), eq(JournalpostDto.class))).thenReturn(new ResponseEntity<>(
+            when(restTemplateMock.getForEntity(eq("/journalpost/1"), eq(JournalpostDto.class))).thenReturn(new ResponseEntity<>(
                     enJournalpostMedInnhold("MIDLERTIDIG"), HttpStatus.I_AM_A_TEAPOT
             ));
 
             ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.getForEntity(url + "/joark-1", JournalpostDto.class);
 
-            verify(restTemplateMock).getForEntity(eq("1"), eq(JournalpostDto.class));
+            verify(restTemplateMock).getForEntity(eq("/journalpost/1"), eq(JournalpostDto.class));
 
             assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
@@ -217,6 +217,24 @@ import static org.mockito.Mockito.when;
             ));
 
             verify(restTemplateMock).exchange(eq("/sak/1001"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
+        }
+
+        @DisplayName("skal finne Journalposter for en gsak") @SuppressWarnings("unchecked")
+        @Test void skalFinneJournalposterForEnGsak() {
+            when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
+                    .thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
+
+            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url + "/gsak-1001", HttpMethod.GET, null,
+                    new ParameterizedTypeReference<List<JournalpostDto>>() {
+                    }
+            );
+
+            assertThat(optional(responseEntity)).hasValueSatisfying(response -> assertAll(
+                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
+                    () -> assertThat(response.getBody()).hasSize(2)
+            ));
+
+            verify(restTemplateMock).exchange(eq("/journalpost/gsak/1001"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
         }
 
         @DisplayName("skal ikke få internal server error (HttpStatus 500) når ukjent bidragssaksnummerstreng brukes") @SuppressWarnings("unchecked")

@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
-import static no.nav.bidrag.dokument.BidragDokument.DELIMTER;
 import static no.nav.bidrag.dokument.BidragDokument.PREFIX_BIDRAG;
 import static no.nav.bidrag.dokument.BidragDokument.PREFIX_GSAK;
 import static no.nav.bidrag.dokument.BidragDokument.PREFIX_JOARK;
@@ -31,9 +30,9 @@ public class JournalpostService {
 
     public Optional<JournalpostDto> hentJournalpost(String journalpostId) throws KildesystemException {
         try {
-            if (startsWith(PREFIX_BIDRAG, journalpostId)) {
+            if (PrefixUtil.startsWith(PREFIX_BIDRAG, journalpostId)) {
                 return bidragJournalpostConsumer.hentJournalpost(PrefixUtil.tryExtraction(journalpostId));
-            } else if (startsWith(PREFIX_JOARK, journalpostId)) {
+            } else if (PrefixUtil.startsWith(PREFIX_JOARK, journalpostId)) {
                 return bidragArkivConsumer.hentJournalpost(PrefixUtil.tryExtraction(journalpostId));
             }
         } catch (NumberFormatException nfe) {
@@ -44,17 +43,13 @@ public class JournalpostService {
     }
 
     public List<JournalpostDto> finnJournalposter(String saksnummer) throws KildesystemException {
-        if (startsWith(PREFIX_BIDRAG, saksnummer)) {
-            return bidragJournalpostConsumer.finnJournalposter(PrefixUtil.replace(PREFIX_BIDRAG + DELIMTER, saksnummer.toUpperCase()));
-        } else if (startsWith(PREFIX_GSAK, saksnummer)) {
-            throw new UnsupportedOperationException("not implemented");
+        if (PrefixUtil.startsWith(PREFIX_BIDRAG, saksnummer)) {
+            return bidragJournalpostConsumer.finnJournalposter(PrefixUtil.remove(PREFIX_BIDRAG, saksnummer));
+        } else if (PrefixUtil.startsWith(PREFIX_GSAK, saksnummer)) {
+            return bidragArkivConsumer.finnJournalposter(PrefixUtil.remove(PREFIX_GSAK, saksnummer));
         }
 
         throw new KildesystemException("Kunne ikke identifisere kildesystem for saksnummer: " + saksnummer);
-    }
-
-    private boolean startsWith(String prefix, String string) {
-        return string != null && string.trim().toUpperCase().startsWith(prefix + DELIMTER);
     }
 
     public Optional<JournalpostDto> save(JournalpostDto journalpostDto) {
