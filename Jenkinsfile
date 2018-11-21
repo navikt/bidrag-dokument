@@ -110,8 +110,6 @@ node {
            println("[INFO] Ferdig :)")
        }
 
-<<<<<<< HEAD
-=======
        // Only signal fail the step not the entire pipeline
        try {
            stage("#10: Cucumber") {
@@ -143,5 +141,4 @@ node {
        } catch(e) {
            result = 'FAIL'
        }
->>>>>>> dbb27d003c23ed3903fe056ec6d5e3d576dde7b5
    }
