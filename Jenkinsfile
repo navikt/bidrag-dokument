@@ -110,4 +110,38 @@ node {
            println("[INFO] Ferdig :)")
        }
 
+<<<<<<< HEAD
+=======
+       // Only signal fail the step not the entire pipeline
+       try {
+           stage("#10: Cucumber") {
+               if(fileExists('cucumber')) {
+                  println("[INFO] Run cucumber tests")
+                  sleep(20)
+                  try {
+                      sh "docker run --rm -v ${env.WORKSPACE}/cucumber:/cucumber bidrag-cucumber"
+                  } catch(e) {
+                      result = 'UNSTABLE'
+                  }
+                  if(fileExists('cucumber/cucumber.json')) {
+                    cucumber buildStatus: 'UNSTABLE',
+                            fileIncludePattern: 'cucumber/*.json',
+                            trendsLimit: 10,
+                            classifications: [
+                                [
+                                    'key': 'Browser',
+                                    'value': 'Firefox'
+                                ]
+                            ]
+                  } else {
+                      throw e
+                  }
+               } else {
+                  println("[INFO] No cucumber directory - not tests to run!")
+               }
+           }
+       } catch(e) {
+           result = 'FAIL'
+       }
+>>>>>>> dbb27d003c23ed3903fe056ec6d5e3d576dde7b5
    }

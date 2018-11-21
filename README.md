@@ -8,7 +8,7 @@ tjenester tilbudt av JOARK men som må tilpasses BISYS sin domenemodell. Denne t
 kaller andre mikrotjenester og blir kontrollert av `bidrag-dokument-ui`. Andre 
 tjenester som blit "rutet" via denne:
 * `bidrag-dokument-journalpost`
-* `bidrag-dokument-arkivsak`
+* `bidrag-dokument-arkiv`
 
 ### bygg og kjør applikasjon
 
@@ -35,4 +35,4 @@ deretter<br>
 `docker run -p 8080:8080 bidrag-dokument`
 
 Etter applikasjon er startet kan den nåes med browser på
-`http://localhost:8080/bidrag-dokument/v2/api-docs`
+`http://localhost:8080/bidrag-dokument/swagger-ui.html`

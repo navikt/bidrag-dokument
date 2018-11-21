@@ -1,13 +1,19 @@
 package no.nav.bidrag.dokument.consumer;
 
-import no.nav.bidrag.dokument.dto.bisys.BidragJournalpostDto;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
+import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -16,8 +22,10 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,13 +35,14 @@ import static org.mockito.Mockito.when;
 
     private BidragJournalpostConsumer bidragJournalpostConsumer;
 
-    private @Mock Logger loggerMock;
+    private @Mock Appender appenderMock;
     private @Mock RestTemplate restTemplateMock;
 
     @BeforeEach void setup() {
         initMocks();
         initTestClass();
         mockRestTemplateFactory();
+        mockLogAppender();
     }
 
     private void initMocks() {
@@ -41,11 +50,18 @@ import static org.mockito.Mockito.when;
     }
 
     private void initTestClass() {
-        bidragJournalpostConsumer = new BidragJournalpostConsumer("journalpost/sak/", () -> loggerMock);
+        bidragJournalpostConsumer = new BidragJournalpostConsumer("http://bidrag-dokument.nav.no");
     }
 
     private void mockRestTemplateFactory() {
         RestTemplateFactory.use(() -> restTemplateMock);
+    }
+
+    private void mockLogAppender() {
+        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        when(appenderMock.getName()).thenReturn("MOCK");
+        when(appenderMock.isStarted()).thenReturn(true);
+        logger.addAppender(appenderMock);
     }
 
     @AfterEach void shouldResetRestTemplateFactory() {
@@ -54,22 +70,81 @@ import static org.mockito.Mockito.when;
 
     @DisplayName("skal bruke bidragssakens saksnummer i sti til tjeneste")
     @Test void shouldUseValueFromPath() {
-        when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any())).thenReturn(
+        when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any())).thenReturn(
                 new ResponseEntity<>(HttpStatus.NO_CONTENT)
         );
 
         bidragJournalpostConsumer.finnJournalposter("101");
-        verify(restTemplateMock).exchange(eq("101"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any());
+        verify(restTemplateMock).exchange(eq("/sak/101"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
     }
 
-    @DisplayName("should log not invocations")
-    @Test void shouldLogInvocations() {
-        when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<BidragJournalpostDto>>) any())).thenReturn(
+    @DisplayName("should log get invocations")
+    @Test void shouldLogGetInvocations() {
+        when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any())).thenReturn(
                 new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)
         );
 
         bidragJournalpostConsumer.finnJournalposter("101");
 
-        verify(loggerMock).info(eq("Fikk http status {} fra journalposter i bidragssak med saksnummer {} - {}"), (Object[]) any());
+        verify(appenderMock).doAppend(
+                argThat((ArgumentMatcher) argument -> {
+                    assertThat(((ILoggingEvent) argument).getFormattedMessage())
+                            .contains("Fikk http status 500 INTERNAL_SERVER_ERROR fra journalposter i bidragssak med saksnummer 101");
+
+                    return true;
+                })
+        );
+    }
+
+    @DisplayName("should log get invocations for single entity")
+    @Test void shouldLogGetInvocationsForSingleEntity() {
+        when(restTemplateMock.getForEntity(anyString(), eq(JournalpostDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
+
+        bidragJournalpostConsumer.hentJournalpost(101);
+
+        verify(appenderMock).doAppend(
+                argThat((ArgumentMatcher) argument -> {
+                    assertThat(((ILoggingEvent) argument).getFormattedMessage())
+                            .isEqualTo("JournalpostDto med id=101 har http status 500 INTERNAL_SERVER_ERROR");
+
+                    return true;
+                })
+        );
+    }
+
+    @DisplayName("should log new commands")
+    @Test void shouldLogNewCommands() {
+        when(restTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(JournalpostDto.class))).thenReturn(
+                new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)
+        );
+
+        bidragJournalpostConsumer.registrer(new NyJournalpostCommandDto());
+
+        verify(appenderMock).doAppend(
+                argThat((ArgumentMatcher) argument -> {
+                    assertThat(((ILoggingEvent) argument).getFormattedMessage())
+                            .contains("Fikk http status 500 INTERNAL_SERVER_ERROR fra registrer ny journalpost: NyJournalpostCommandDto");
+
+                    return true;
+                })
+        );
+    }
+
+    @DisplayName("should log edit commands")
+    @Test void shouldLogEditCommands() {
+        when(restTemplateMock.exchange(anyString(), any(), any(), eq(JournalpostDto.class))).thenReturn(
+                new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)
+        );
+
+        bidragJournalpostConsumer.endre(new EndreJournalpostCommandDto());
+
+        verify(appenderMock).doAppend(
+                argThat((ArgumentMatcher) argument -> {
+                    assertThat(((ILoggingEvent) argument).getFormattedMessage())
+                            .contains("Fikk http status 500 INTERNAL_SERVER_ERROR fra endre journalpost: EndreJournalpostCommandDto");
+
+                    return true;
+                })
+        );
     }
 }
