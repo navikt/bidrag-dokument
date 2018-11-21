@@ -8,7 +8,7 @@ const {
 
 const {
     kallFasitRestService
-} = require('../support/fasit')
+} = require('/support/fasit')
 
 function journalpostSuffix(saksnummer) {
     return util.format("/sakjournal/%s", saksnummer)

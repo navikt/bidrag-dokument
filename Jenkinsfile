@@ -125,8 +125,24 @@ node {
                if(fileExists('cucumber')) {
                   println("[INFO] Run cucumber tests")
                   sleep(20)
-                  sh "docker run --rm -v ${env.WORKSPACE}/cucumber:/cucumber bidrag-cucumber"
-                println("[INFO] Ferdig :)")
+                  try {
+                      sh "docker run --rm -v ${env.WORKSPACE}/cucumber:/cucumber bidrag-cucumber"
+                  } catch(e) {
+                      result = 'UNSTABLE'
+                  }
+                  if(fileExists('cucumber/cucumber.json')) {
+                    cucumber buildStatus: 'UNSTABLE',
+                            fileIncludePattern: 'cucumber/*.json',
+                            trendsLimit: 10,
+                            classifications: [
+                                [
+                                    'key': 'Browser',
+                                    'value': 'Firefox'
+                                ]
+                            ]
+                  } else {
+                      throw e
+                  }
                } else {
                   println("[INFO] No cucumber directory - not tests to run!")
                }

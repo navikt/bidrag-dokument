@@ -20,6 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static no.nav.bidrag.dokument.BidragDokument.DELIMTER;
+import static no.nav.bidrag.dokument.BidragDokument.PREFIX_BIDRAG;
+import static no.nav.bidrag.dokument.BidragDokument.PREFIX_GSAK;
+import static no.nav.bidrag.dokument.BidragDokument.PREFIX_JOARK;
+
 @RestController
 public class JournalpostController {
 
@@ -39,7 +44,7 @@ public class JournalpostController {
     }
 
     @GetMapping(ENDPOINT_JOURNALPOST + "/{journalpostIdForKildesystem}")
-    @ApiOperation("Finn journalpost for en id på formatet [" + BidragDokument.JOURNALPOST_ID_BIDRAG_REQUEST + "|" + BidragDokument.JOURNALPOST_ID_JOARK_REQUEST + "]<journalpostId>")
+    @ApiOperation("Finn journalpost for en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
     public ResponseEntity<JournalpostDto> hent(@PathVariable String journalpostIdForKildesystem) {
         LOGGER.debug("request: bidrag-dokument" + ENDPOINT_JOURNALPOST + '/' + journalpostIdForKildesystem);
 
@@ -54,17 +59,24 @@ public class JournalpostController {
         }
     }
 
-    @GetMapping(ENDPOINT_SAKJOURNAL + "/{saksnummer}")
-    @ApiOperation("Finn journalposter for et saksnummer på en bidragssak")
-    public ResponseEntity<List<JournalpostDto>> get(@PathVariable String saksnummer) {
-        LOGGER.debug("request: bidrag-dokument" + ENDPOINT_JOURNALPOST + "/" + saksnummer);
-        List<JournalpostDto> journalposter = journalpostService.finnJournalposter(saksnummer);
+    @GetMapping(ENDPOINT_SAKJOURNAL + "/{saksnummerForKildesystem}")
+    @ApiOperation("Finn journalposter for et saksnummer i en sak på formatet [" + PREFIX_BIDRAG + "|" + PREFIX_GSAK + "]" + DELIMTER + "<saksnummer>")
+    public ResponseEntity<List<JournalpostDto>> get(@PathVariable String saksnummerForKildesystem) {
+        LOGGER.debug("request: bidrag-dokument" + ENDPOINT_JOURNALPOST + "/" + saksnummerForKildesystem);
 
-        if (journalposter.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        try {
+            List<JournalpostDto> journalposter = journalpostService.finnJournalposter(saksnummerForKildesystem);
+
+            if (journalposter.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+
+            return new ResponseEntity<>(journalposter, HttpStatus.OK);
+        } catch (KildesystemException e) {
+            LOGGER.warn("Ukjent kildesystem: " + e.getMessage());
+
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
-        return new ResponseEntity<>(journalposter, HttpStatus.OK);
     }
 
     @PostMapping(ENDPOINT_JOURNALPOST + "/ny")

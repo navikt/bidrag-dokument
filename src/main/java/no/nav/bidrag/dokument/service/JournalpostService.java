@@ -1,7 +1,6 @@
 package no.nav.bidrag.dokument.service;
 
-import no.nav.bidrag.dokument.BidragDokument;
-import no.nav.bidrag.dokument.DigitUtil;
+import no.nav.bidrag.dokument.PrefixUtil;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
@@ -13,6 +12,11 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.DoubleStream;
+
+import static no.nav.bidrag.dokument.BidragDokument.DELIMTER;
+import static no.nav.bidrag.dokument.BidragDokument.PREFIX_BIDRAG;
+import static no.nav.bidrag.dokument.BidragDokument.PREFIX_GSAK;
+import static no.nav.bidrag.dokument.BidragDokument.PREFIX_JOARK;
 
 @Component
 public class JournalpostService {
@@ -27,10 +31,10 @@ public class JournalpostService {
 
     public Optional<JournalpostDto> hentJournalpost(String journalpostId) throws KildesystemException {
         try {
-            if (startsWith(BidragDokument.JOURNALPOST_ID_BIDRAG_REQUEST, journalpostId)) {
-                return bidragJournalpostConsumer.hentJournalpost(DigitUtil.tryExtraction(journalpostId));
-            } else if (startsWith(BidragDokument.JOURNALPOST_ID_JOARK_REQUEST, journalpostId)) {
-                return bidragArkivConsumer.hentJournalpost(DigitUtil.tryExtraction(journalpostId));
+            if (startsWith(PREFIX_BIDRAG, journalpostId)) {
+                return bidragJournalpostConsumer.hentJournalpost(PrefixUtil.tryExtraction(journalpostId));
+            } else if (startsWith(PREFIX_JOARK, journalpostId)) {
+                return bidragArkivConsumer.hentJournalpost(PrefixUtil.tryExtraction(journalpostId));
             }
         } catch (NumberFormatException nfe) {
             throw new KildesystemException("Kan ikke prosesseres som et tall: " + journalpostId);
@@ -39,12 +43,18 @@ public class JournalpostService {
         throw new KildesystemException("Kunne ikke identifisere kildesystem for id: " + journalpostId);
     }
 
-    private boolean startsWith(String prefix, String string) {
-        return string != null && string.trim().toUpperCase().startsWith(prefix);
+    public List<JournalpostDto> finnJournalposter(String saksnummer) throws KildesystemException {
+        if (startsWith(PREFIX_BIDRAG, saksnummer)) {
+            return bidragJournalpostConsumer.finnJournalposter(PrefixUtil.replace(PREFIX_BIDRAG + DELIMTER, saksnummer.toUpperCase()));
+        } else if (startsWith(PREFIX_GSAK, saksnummer)) {
+            throw new UnsupportedOperationException("not implemented");
+        }
+
+        throw new KildesystemException("Kunne ikke identifisere kildesystem for saksnummer: " + saksnummer);
     }
 
-    public List<JournalpostDto> finnJournalposter(String saksnummer) {
-        return bidragJournalpostConsumer.finnJournalposter(saksnummer);
+    private boolean startsWith(String prefix, String string) {
+        return string != null && string.trim().toUpperCase().startsWith(prefix + DELIMTER);
     }
 
     public Optional<JournalpostDto> registrer(NyJournalpostCommandDto nyJournalpostCommandDto) {
