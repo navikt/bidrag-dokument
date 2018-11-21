@@ -2,9 +2,9 @@ package no.nav.bidrag.dokument.controller;
 
 import no.nav.bidrag.dokument.JournalpostDtoBygger;
 import no.nav.bidrag.dokument.consumer.RestTemplateFactory;
-import no.nav.bidrag.dokument.dto.BrevlagerJournalpostDto;
 import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -122,77 +122,22 @@ import static org.mockito.Mockito.when;
             return jp;
         }
 
-        @DisplayName("skal gi http status 400 når post gjøres uten dokument")
-        @Test void skalGiHttpStatus400GrunnetDokument() {
-            JournalpostDto lagreJournalpostDto = new JournalpostDtoBygger()
-                    .medGjelderBrukerId("06127412345")
-                    .utenDokument()
-                    .build();
-
-            ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.postForEntity(url, lagreJournalpostDto, JournalpostDto.class);
-
-            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        }
-
-        @DisplayName("skal gi http status 400 når post gjøres med flere dokument")
-        @Test void skalGiHttpStatus400GrunnetFlereDokument() {
-            JournalpostDto lagreJournalpostDto = new JournalpostDtoBygger()
-                    .medDokumenter(asList(new DokumentDto(), new DokumentDto()))
-                    .medGjelderBrukerId("06127412345")
-                    .build();
-
-            ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.postForEntity(url, lagreJournalpostDto, JournalpostDto.class);
-
-            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        }
-
-        @DisplayName("skal gi http status 400 når post gjøres uten gjelder bruker id")
-        @Test void skalGiHttpStatus400GrunnetGjelderBrukerId() {
-            JournalpostDto lagreJournalpostDto = new JournalpostDtoBygger()
-                    .medDokumenter(singletonList(new DokumentDto()))
-                    .utenBrukerId()
-                    .build();
-
-            ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.postForEntity(url, lagreJournalpostDto, JournalpostDto.class);
-
-            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        }
-
-        @DisplayName("skal gi http status 400 når post gjøres med flere gjelder bruker id")
-        @Test void skalGiHttpStatus400GrunnetFlereGjelderBrukerId() {
-            JournalpostDto lagreJournalpostDto = new JournalpostDtoBygger()
-                    .medDokumenter(singletonList(new DokumentDto()))
-                    .medGjelderBrukerId("06127412345", "01117712345")
-                    .build();
-
-            ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.postForEntity(url, lagreJournalpostDto, JournalpostDto.class);
-
-            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        }
-
         @DisplayName("skal registrere ny journalpost")
         @Test void skalRegistrereNyJournalpost() {
-            JournalpostDto lagreJournalpostDto = new JournalpostDtoBygger()
-                    .medDokumenter(singletonList(new DokumentDto()))
-                    .medGjelderBrukerId("06127412345")
-                    .build();
+            when(restTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(JournalpostDto.class)))
+                    .thenReturn(new ResponseEntity<>(new JournalpostDtoBygger()
+                            .medDokumenter(singletonList(new DokumentDto()))
+                            .medGjelderBrukerId("06127412345")
+                            .medJournalpostId("BID-101")
+                            .build(), HttpStatus.CREATED)
+                    );
 
-            when(restTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(BrevlagerJournalpostDto.class)))
-                    .thenReturn(new ResponseEntity<>(enBrevlagerJournalpostDtoMedId(101), HttpStatus.CREATED));
-
-            ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.postForEntity(url, lagreJournalpostDto, JournalpostDto.class);
+            ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.postForEntity(url + "/ny", new NyJournalpostCommandDto(), JournalpostDto.class);
 
             assertThat(optional(responseEntity)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED),
                     () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournalpostId).isEqualTo("BID-101")
             ));
-        }
-
-        private BrevlagerJournalpostDto enBrevlagerJournalpostDtoMedId(@SuppressWarnings("SameParameterValue") int id) {
-            BrevlagerJournalpostDto brevlagerJournalpostDto = new BrevlagerJournalpostDto();
-            brevlagerJournalpostDto.setJournalpostId(id);
-
-            return brevlagerJournalpostDto;
         }
     }
 
