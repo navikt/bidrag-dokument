@@ -3,13 +3,15 @@ package no.nav.bidrag.dokument.service;
 import no.nav.bidrag.dokument.PrefixUtil;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
-import no.nav.bidrag.dokument.dto.BrevlagerJournalpostDto;
+import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
 import no.nav.bidrag.dokument.exception.KildesystemException;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.DoubleStream;
 
 import static no.nav.bidrag.dokument.BidragDokument.DELIMTER;
 import static no.nav.bidrag.dokument.BidragDokument.PREFIX_BIDRAG;
@@ -21,12 +23,10 @@ public class JournalpostService {
 
     private final BidragJournalpostConsumer bidragJournalpostConsumer;
     private final BidragArkivConsumer bidragArkivConsumer;
-    private final JournalpostMapper journalpostMapper;
 
-    public JournalpostService(BidragJournalpostConsumer bidragJournalpostConsumer, BidragArkivConsumer bidragArkivConsumer, JournalpostMapper journalpostMapper) {
+    public JournalpostService(BidragJournalpostConsumer bidragJournalpostConsumer, BidragArkivConsumer bidragArkivConsumer) {
         this.bidragJournalpostConsumer = bidragJournalpostConsumer;
         this.bidragArkivConsumer = bidragArkivConsumer;
-        this.journalpostMapper = journalpostMapper;
     }
 
     public Optional<JournalpostDto> hentJournalpost(String journalpostId) throws KildesystemException {
@@ -57,9 +57,11 @@ public class JournalpostService {
         return string != null && string.trim().toUpperCase().startsWith(prefix + DELIMTER);
     }
 
-    public Optional<JournalpostDto> save(JournalpostDto journalpostDto) {
-        BrevlagerJournalpostDto brevlagerJournalpostDto = journalpostMapper.tilBidragJournalpost(journalpostDto);
-        return bidragJournalpostConsumer.save(brevlagerJournalpostDto)
-                .map(journalpostMapper::fraBrevlagerJournalpostDto);
+    public Optional<JournalpostDto> registrer(NyJournalpostCommandDto nyJournalpostCommandDto) {
+        return bidragJournalpostConsumer.registrer(nyJournalpostCommandDto);
+    }
+
+    public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto) {
+        return bidragJournalpostConsumer.endre(endreJournalpostCommandDto);
     }
 }

@@ -1,7 +1,8 @@
 package no.nav.bidrag.dokument.consumer;
 
-import no.nav.bidrag.dokument.dto.BrevlagerJournalpostDto;
+import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -42,14 +43,15 @@ public class BidragJournalpostConsumer {
         };
     }
 
-    public Optional<BrevlagerJournalpostDto> save(BrevlagerJournalpostDto brevlagerJournalpostDto) {
+    public Optional<JournalpostDto> registrer(NyJournalpostCommandDto nyJournalpostCommandDto) {
         RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost);
-        ResponseEntity<BrevlagerJournalpostDto> registrertJournalpost = restTemplate.exchange(
-                "/registrer", HttpMethod.POST, new HttpEntity<>(brevlagerJournalpostDto), BrevlagerJournalpostDto.class
+
+        ResponseEntity<JournalpostDto> registrertJournalpost = restTemplate.exchange(
+                "/journalpost/ny", HttpMethod.POST, new HttpEntity<>(nyJournalpostCommandDto), JournalpostDto.class
         );
 
         HttpStatus httpStatus = registrertJournalpost.getStatusCode();
-        LOGGER.info("Fikk http status {} fra registrer ny journalpost: {}", httpStatus, brevlagerJournalpostDto);
+        LOGGER.info("Fikk http status {} fra registrer ny journalpost: {}", httpStatus, nyJournalpostCommandDto);
 
         return Optional.ofNullable(registrertJournalpost.getBody());
     }
@@ -59,8 +61,21 @@ public class BidragJournalpostConsumer {
         ResponseEntity<JournalpostDto> journalpostResponseEntity = restTemplate.getForEntity("/journalpost/" + id, JournalpostDto.class);
         HttpStatus httpStatus = journalpostResponseEntity.getStatusCode();
 
-        LOGGER.info("BidragJournalpostDto med id={} har http status {}", id, httpStatus);
+        LOGGER.info("JournalpostDto med id={} har http status {}", id, httpStatus);
 
         return Optional.ofNullable(journalpostResponseEntity.getBody());
+    }
+
+    public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto) {
+        RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost);
+
+        ResponseEntity<JournalpostDto> endretJournalpost = restTemplate.exchange(
+                "/journalpost", HttpMethod.POST, new HttpEntity<>(endreJournalpostCommandDto), JournalpostDto.class
+        );
+
+        HttpStatus httpStatus = endretJournalpost.getStatusCode();
+        LOGGER.info("Fikk http status {} fra endre journalpost: {}", httpStatus, endreJournalpostCommandDto);
+
+        return Optional.ofNullable(endretJournalpost.getBody());
     }
 }
