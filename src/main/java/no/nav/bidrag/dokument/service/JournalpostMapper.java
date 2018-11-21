@@ -1,6 +1,6 @@
 package no.nav.bidrag.dokument.service;
 
-import no.nav.bidrag.dokument.DigitUtil;
+import no.nav.bidrag.dokument.PrefixUtil;
 import no.nav.bidrag.dokument.dto.BrevlagerJournalpostDto;
 import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
@@ -49,7 +49,7 @@ public class JournalpostMapper {
         brevlagerJournalpostDto.setJournalforendeEnhet(journalpostDto.getJournalforendeEnhet());
         brevlagerJournalpostDto.setJournalfortAv(journalpostDto.getJournalfortAv());
         brevlagerJournalpostDto.setJournaldato(journalpostDto.getJournalfortDato());
-        brevlagerJournalpostDto.setJournalpostId(DigitUtil.extract(journalpostDto.getJournalpostId()));
+        brevlagerJournalpostDto.setJournalpostId(PrefixUtil.extract(journalpostDto.getJournalpostId()));
         brevlagerJournalpostDto.setMottattDato(journalpostDto.getMottattDato());
         brevlagerJournalpostDto.setSaksnummer(journalpostDto.getSaksnummer());
 

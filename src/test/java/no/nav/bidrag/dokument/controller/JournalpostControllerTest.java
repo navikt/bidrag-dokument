@@ -36,12 +36,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@DisplayName("JournalpostController")
-class JournalpostControllerTest {
+@ExtendWith(SpringExtension.class) @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DisplayName("JournalpostController") class JournalpostControllerTest {
 
     private static final String ENDPOINT_JOURNALPOST = "/journalpost";
     private static final String ENDPOINT_SAKJOURNAL = "/sakjournal";
@@ -207,7 +206,7 @@ class JournalpostControllerTest {
             when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
                     .thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
 
-            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url + "/1001", HttpMethod.GET, null,
+            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url + "/bid-1001", HttpMethod.GET, null,
                     new ParameterizedTypeReference<List<JournalpostDto>>() {
                     }
             );
@@ -216,14 +215,16 @@ class JournalpostControllerTest {
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
                     () -> assertThat(response.getBody()).hasSize(2)
             ));
+
+            verify(restTemplateMock).exchange(eq("/sak/1001"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
         }
 
-        @DisplayName("skal ikke få internal server error (HttpStatus 500) når ukjent saksnummerstreng brukes") @SuppressWarnings("unchecked")
+        @DisplayName("skal ikke få internal server error (HttpStatus 500) når ukjent bidragssaksnummerstreng brukes") @SuppressWarnings("unchecked")
         @Test void skalIkkeFremprovosereHttpStatus500MedUkjentSaksnummerStreng() {
             when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
                     .thenReturn(new ResponseEntity<>(HttpStatus.NO_CONTENT));
 
-            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url + "/svada", HttpMethod.GET, null,
+            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url + "/bid-svada", HttpMethod.GET, null,
                     new ParameterizedTypeReference<List<JournalpostDto>>() {
                     }
             );
@@ -232,6 +233,21 @@ class JournalpostControllerTest {
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT),
                     () -> assertThat(response.getBody()).isNull()
             ));
+        }
+
+        @DisplayName("skal få bad request (HttpStatus 400) når ukjent saksnummerstreng brukes") @SuppressWarnings("unchecked")
+        @Test void skalFremprovosereHttpStatus500MedUkjentSaksnummerStreng() {
+            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url + "/svada", HttpMethod.GET, null,
+                    new ParameterizedTypeReference<List<JournalpostDto>>() {
+                    }
+            );
+
+            assertThat(optional(responseEntity)).hasValueSatisfying(response -> assertAll(
+                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
+                    () -> assertThat(response.getBody()).isNull()
+            ));
+
+            verifyZeroInteractions(restTemplateMock);
         }
     }
 
