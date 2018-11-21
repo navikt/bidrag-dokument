@@ -55,8 +55,9 @@ node {
                sh "${mvn} versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
                sh "${mvn} clean install -Djava.io.tmpdir=/tmp/${application} -Dhendelse.environments=${environment} -B -e"
                sh "docker build --build-arg version=${releaseVersion} -t ${dockerRepo}/${application}:${imageVersion} ."
+               sh "git pull"
                sh "git commit -am \"set version to ${releaseVersion} (from Jenkins pipeline)\""
-               sh "git push origin master"
+               sh "git push"
                sh "git tag -a ${application}-${releaseVersion}-${environment} -m ${application}-${releaseVersion}-${environment}"
                sh "git push --tags"
            }else{
