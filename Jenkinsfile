@@ -13,8 +13,19 @@ node {
    def cluster = "${naisCluster}"
    def zone = 'fss'
    def namespace = "${EnvironmentOut}"
- 
-   stage("#1+2: initialize") {
+   
+   stage("#1: Clone Project From Github") {
+        stage("#1: checkout code") {
+           cleanWs()
+                withCredentials([string(credentialsId: 'OAUTH_TOKEN', variable: 'token')]) {
+                    withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088']) {
+                        sh(script: "git clone https://${token}:x-oauth-basic@github.com/${repo}/${application}.git .")
+                        sh(script: "git checkout ${github_branch}")
+                    }
+                }
+       }
+
+       stage("#2: initialize") {
            println("${EnvironmentOut}")
            pom = readMavenPom file: 'pom.xml'
            releaseVersion = pom.version.tokenize("-")[0]
@@ -55,9 +66,8 @@ node {
                sh "${mvn} versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
                sh "${mvn} clean install -Djava.io.tmpdir=/tmp/${application} -Dhendelse.environments=${environment} -B -e"
                sh "docker build --build-arg version=${releaseVersion} -t ${dockerRepo}/${application}:${imageVersion} ."
-               sh "git pull"
                sh "git commit -am \"set version to ${releaseVersion} (from Jenkins pipeline)\""
-               sh "git push"
+               sh "git push origin master"
                sh "git tag -a ${application}-${releaseVersion}-${environment} -m ${application}-${releaseVersion}-${environment}"
                sh "git push --tags"
            }else{
@@ -96,7 +106,7 @@ node {
 
            println("[INFO] Run 'nais upload' ... to Nexus!")
            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'naisUploader', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-               sh "${nais} upload -f ${appConfig} -a ${application} --version '${imageVersion}' --username ${USERNAME} --password '${PASSWORD}' "
+               sh "${nais} upload -f ${appConfig} -a ${application} --version '${imageVersion}' --username ${USERNAME} --password ${PASSWORD} "
            }
 
        }
@@ -105,7 +115,7 @@ node {
            println("[INFO] Run 'nais deploy' ... to NAIS!")
            timeout(time: 8, unit: 'MINUTES') {
               withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'naisUploader', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                  sh "${nais} deploy -a ${application} -v '${imageVersion}' -c ${cluster} -u ${USERNAME} -p '${PASSWORD}' --wait "
+                  sh "${nais} deploy -a ${application} -v '${imageVersion}' -c ${cluster} -u ${USERNAME} -p ${PASSWORD} --wait "
               }
            }
            println("[INFO] Ferdig :)")
