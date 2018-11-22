@@ -19,15 +19,15 @@ public class BidragDokument extends WebMvcConfigurationSupport {
     public static final String PREFIX_JOARK = "JOARK";
 
     @Bean public BidragJournalpostConsumer bidragJournalpostConsumer(
-            @Value("${JOURNALPOST_URL}") String bidragBaseUrl
+            @Value("${JOURNALPOST_URL}") String bidragDokumentBaseUrl
     ) {
-        return new BidragJournalpostConsumer(bidragBaseUrl);
+        return new BidragJournalpostConsumer(bidragDokumentBaseUrl);
     }
 
     @Bean public BidragArkivConsumer journalforingConsumer(
-            @Value("${BIDRAG_ARKIV_URL}") String joarkRestServiceUrl
+            @Value("${BIDRAG_ARKIV_URL}") String bidragArkivBaseUrl
     ) {
-        return new BidragArkivConsumer(joarkRestServiceUrl + "/rest/journalfoerinngaaende/v1/journalposter/");
+        return new BidragArkivConsumer(bidragArkivBaseUrl);
     }
 
     public static void main(String[] args) {

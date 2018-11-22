@@ -1,5 +1,7 @@
 package no.nav.bidrag.dokument;
 
+import static no.nav.bidrag.dokument.BidragDokument.DELIMTER;
+
 public class PrefixUtil {
 
     private static final String HAVE_DIGITS = ".*\\d+.*";
@@ -17,7 +19,11 @@ public class PrefixUtil {
         return Integer.valueOf(streng.replaceAll(NON_DIGITS, ""));
     }
 
-    public static String replace(String replacement, String streng) {
-        return streng.replace(replacement, "");
+    public static String remove(String prefix, String streng) {
+        return streng.substring(prefix.length() + DELIMTER.length());
+    }
+
+    public static boolean startsWith(String prefix, String string) {
+        return string != null && string.trim().toUpperCase().startsWith(prefix + DELIMTER);
     }
 }

@@ -13,6 +13,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -81,5 +82,11 @@ class JournalpostServiceTest {
         assertThat(thrown)
                 .isInstanceOf(KildesystemException.class)
                 .hasMessage("Kunne ikke identifisere kildesystem for saksnummer: 2");
+    }
+
+    @DisplayName("skal finne journalposter tilknyttet gsak")
+    @Test void skalFinneJournalposterTilknyttetGsak() throws KildesystemException {
+        when(bidragArkivConsumerMock.finnJournalposter("2")).thenReturn(asList(new JournalpostDto(), new JournalpostDto()));
+        assertThat(journalpostService.finnJournalposter("gsak-2")).hasSize(2);
     }
 }
