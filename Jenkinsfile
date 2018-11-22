@@ -19,6 +19,8 @@ node {
                 withCredentials([string(credentialsId: 'OAUTH_TOKEN', variable: 'token')]) {
                     withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088']) {
                         sh(script: "git clone https://${token}:x-oauth-basic@github.com/${repo}/${application}.git .")
+                        sh "echo ****** BRANCH ******"
+                        sh "echo 'BRANCH CHECKOUT: ${github_branch}'......"
                         sh(script: "git checkout ${github_branch}")
                     }
                 }
