@@ -93,7 +93,6 @@ node {
            nextVersion = "${devVersion}." + (newReleaseVersion.toInteger() + 1) + "-SNAPSHOT"
            sh "${mvn} versions:set -B -DnewVersion=${nextVersion} -DgenerateBackupPoms=false"
            sh "git commit -a -m \"updated to new dev-version ${nextVersion} after release by ${committer}\""
-           sh "git pull"
            sh "git push origin master"
        }
 
