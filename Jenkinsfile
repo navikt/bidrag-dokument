@@ -15,7 +15,6 @@ node {
    def namespace = "${EnvironmentOut}"
    
    stage("#1: Clone Project From Github") {
-        stage("#1: checkout code") {
            cleanWs()
                 withCredentials([string(credentialsId: 'OAUTH_TOKEN', variable: 'token')]) {
                     withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088']) {
