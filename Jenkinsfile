@@ -19,7 +19,7 @@ node {
                 withCredentials([string(credentialsId: 'OAUTH_TOKEN', variable: 'token')]) {
                     withEnv(['HTTPS_PROXY=http://webproxy-utvikler.nav.no:8088']) {
                         sh(script: "git clone https://${token}:x-oauth-basic@github.com/${repo}/${application}.git .")
-                        sh "echo ****** BRANCH ******"
+                        sh "echo '****** BRANCH ******'"
                         sh "echo 'BRANCH CHECKOUT: ${github_branch}'......"
                         sh(script: "git checkout ${github_branch}")
                     }
@@ -106,7 +106,7 @@ node {
 
            println("[INFO] Run 'nais upload' ... to Nexus!")
            withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'naisUploader', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-               sh "${nais} upload -f ${appConfig} -a ${application} --version '${imageVersion}' --username ${USERNAME} --password ${PASSWORD} "
+               sh "${nais} upload -f ${appConfig} -a ${application} --version '${imageVersion}' --username ${USERNAME} --password '${PASSWORD}' "
            }
 
        }
@@ -115,7 +115,7 @@ node {
            println("[INFO] Run 'nais deploy' ... to NAIS!")
            timeout(time: 8, unit: 'MINUTES') {
               withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'naisUploader', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                  sh "${nais} deploy -a ${application} -v '${imageVersion}' -c ${cluster} -u ${USERNAME} -p ${PASSWORD} --wait "
+                  sh "${nais} deploy -a ${application} -v '${imageVersion}' -c ${cluster} -u ${USERNAME} -p '${PASSWORD}' --wait "
               }
            }
            println("[INFO] Ferdig :)")
