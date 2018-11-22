@@ -52,9 +52,12 @@ public class JournalpostService {
         throw new KildesystemException("Kunne ikke identifisere kildesystem for saksnummer: " + saksnummer);
     }
 
-    public Optional<JournalpostDto> save(JournalpostDto journalpostDto) {
-        BrevlagerJournalpostDto brevlagerJournalpostDto = journalpostMapper.tilBidragJournalpost(journalpostDto);
-        return bidragJournalpostConsumer.save(brevlagerJournalpostDto)
-                .map(journalpostMapper::fraBrevlagerJournalpostDto);
+
+    public Optional<JournalpostDto> registrer(NyJournalpostCommandDto nyJournalpostCommandDto) {
+        return bidragJournalpostConsumer.registrer(nyJournalpostCommandDto);
+    }
+
+    public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto) {
+        return bidragJournalpostConsumer.endre(endreJournalpostCommandDto);
     }
 }
