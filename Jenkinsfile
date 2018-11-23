@@ -115,7 +115,7 @@ node {
            println("[INFO] Run 'nais deploy' ... to NAIS!")
            timeout(time: 8, unit: 'MINUTES') {
               withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'naisUploader', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
-                  sh "${nais} deploy -a ${application} -v '${imageVersion}' -c ${cluster} -u ${USERNAME} -p '${PASSWORD}' --wait "
+                  sh "${nais} deploy -a ${application} -v '${imageVersion}' -c ${cluster} -u ${USERNAME} -p '${PASSWORD}'  "
               }
            }
            println("[INFO] Ferdig :)")
