@@ -75,7 +75,7 @@ import static org.mockito.Mockito.when;
         );
 
         bidragJournalpostConsumer.finnJournalposter("101");
-        verify(restTemplateMock).exchange(eq("/sak/101"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
+        verify(restTemplateMock).exchange(eq("/sak/101?fagomrade=BNR"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
     }
 
     @DisplayName("should log get invocations")

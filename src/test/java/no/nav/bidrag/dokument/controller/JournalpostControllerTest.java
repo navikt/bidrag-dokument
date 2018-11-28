@@ -159,7 +159,7 @@ import static org.mockito.Mockito.when;
                     () -> assertThat(response.getBody()).hasSize(2)
             ));
 
-            verify(restTemplateMock).exchange(eq("/sak/1001"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
+            verify(restTemplateMock).exchange(eq("/sak/1001?fagomrade=BNR"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
         }
 
         @DisplayName("skal finne Journalposter for en gsak") @SuppressWarnings("unchecked")

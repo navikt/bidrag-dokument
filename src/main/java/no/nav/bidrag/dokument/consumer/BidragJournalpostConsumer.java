@@ -11,6 +11,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,8 +28,12 @@ public class BidragJournalpostConsumer {
 
     public List<JournalpostDto> finnJournalposter(String saksnummer) {
         RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost);
+        String uri = UriComponentsBuilder.fromPath("/sak/" + saksnummer)
+                .queryParam("fagomrade", "BNR")
+                .toUriString();
+
         ResponseEntity<List<JournalpostDto>> journalposterForBidragRequest = restTemplate.exchange(
-                "/sak/" + saksnummer, HttpMethod.GET, null, typereferansenErListeMedJournalposter()
+                uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter()
         );
 
         HttpStatus httpStatus = journalposterForBidragRequest.getStatusCode();
