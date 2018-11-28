@@ -86,7 +86,6 @@ import static org.mockito.Mockito.when;
 
             assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getHello).isEqualTo("hello from bidrag-dokument"),
                     () -> assertThat(response.getBody()).extracting(JournalpostDto::getInnhold).isEqualTo("MIDLERTIDIG")
             ));
         }
@@ -110,7 +109,6 @@ import static org.mockito.Mockito.when;
 
             assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getHello).isEqualTo("hello from bidrag-dokument"),
                     () -> assertThat(response.getBody()).extracting(JournalpostDto::getAvsenderNavn).isEqualTo("Grev Still E. Ben")
             ));
         }
@@ -198,7 +196,7 @@ import static org.mockito.Mockito.when;
             ));
         }
 
-        @DisplayName("skal få bad request (HttpStatus 400) når ukjent saksnummerstreng brukes") @SuppressWarnings("unchecked")
+        @DisplayName("skal få bad request (HttpStatus 400) når ukjent saksnummerstreng brukes")
         @Test void skalFremprovosereHttpStatus500MedUkjentSaksnummerStreng() {
             ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url + "/svada", HttpMethod.GET, null,
                     new ParameterizedTypeReference<List<JournalpostDto>>() {
