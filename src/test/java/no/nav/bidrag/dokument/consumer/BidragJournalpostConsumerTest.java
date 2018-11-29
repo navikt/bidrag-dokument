@@ -74,8 +74,8 @@ import static org.mockito.Mockito.when;
                 new ResponseEntity<>(HttpStatus.NO_CONTENT)
         );
 
-        bidragJournalpostConsumer.finnJournalposter("101");
-        verify(restTemplateMock).exchange(eq("/sak/101?fagomrade=BNR"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
+        bidragJournalpostConsumer.finnJournalposter("101", "BID");
+        verify(restTemplateMock).exchange(eq("/sak/101?fagomrade=BID"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
     }
 
     @DisplayName("should log get invocations")
@@ -84,12 +84,12 @@ import static org.mockito.Mockito.when;
                 new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)
         );
 
-        bidragJournalpostConsumer.finnJournalposter("101");
+        bidragJournalpostConsumer.finnJournalposter("101", "FAR");
 
         verify(appenderMock).doAppend(
                 argThat((ArgumentMatcher) argument -> {
                     assertThat(((ILoggingEvent) argument).getFormattedMessage())
-                            .contains("Fikk http status 500 INTERNAL_SERVER_ERROR fra journalposter i bidragssak med saksnummer 101");
+                            .contains("Fikk http status 500 INTERNAL_SERVER_ERROR fra journalposter i bidragssak med saksnummer 101 på fagområde FAR");
 
                     return true;
                 })

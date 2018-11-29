@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.DoubleStream;
 
 import static no.nav.bidrag.dokument.BidragDokument.PREFIX_BIDRAG;
 import static no.nav.bidrag.dokument.BidragDokument.PREFIX_GSAK;
@@ -42,16 +41,15 @@ public class JournalpostService {
         throw new KildesystemException("Kunne ikke identifisere kildesystem for id: " + journalpostId);
     }
 
-    public List<JournalpostDto> finnJournalposter(String saksnummer) throws KildesystemException {
+    public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) throws KildesystemException {
         if (PrefixUtil.startsWith(PREFIX_BIDRAG, saksnummer)) {
-            return bidragJournalpostConsumer.finnJournalposter(PrefixUtil.remove(PREFIX_BIDRAG, saksnummer));
+            return bidragJournalpostConsumer.finnJournalposter(PrefixUtil.remove(PREFIX_BIDRAG, saksnummer), fagomrade);
         } else if (PrefixUtil.startsWith(PREFIX_GSAK, saksnummer)) {
             return bidragArkivConsumer.finnJournalposter(PrefixUtil.remove(PREFIX_GSAK, saksnummer));
         }
 
         throw new KildesystemException("Kunne ikke identifisere kildesystem for saksnummer: " + saksnummer);
     }
-
 
     public Optional<JournalpostDto> registrer(NyJournalpostCommandDto nyJournalpostCommandDto) {
         return bidragJournalpostConsumer.registrer(nyJournalpostCommandDto);
