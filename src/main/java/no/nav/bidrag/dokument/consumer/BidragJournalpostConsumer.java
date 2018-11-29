@@ -26,10 +26,10 @@ public class BidragJournalpostConsumer {
         this.baseUrlBidragJournalpost = baseUrlBidragJournalpost;
     }
 
-    public List<JournalpostDto> finnJournalposter(String saksnummer) {
+    public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
         RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost);
         String uri = UriComponentsBuilder.fromPath("/sak/" + saksnummer)
-                .queryParam("fagomrade", "BNR")
+                .queryParam("fagomrade", fagomrade)
                 .toUriString();
 
         ResponseEntity<List<JournalpostDto>> journalposterForBidragRequest = restTemplate.exchange(
@@ -37,7 +37,7 @@ public class BidragJournalpostConsumer {
         );
 
         HttpStatus httpStatus = journalposterForBidragRequest.getStatusCode();
-        LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {}", httpStatus, saksnummer);
+        LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} på fagområde {}", httpStatus, saksnummer, fagomrade);
         List<JournalpostDto> journalposter = journalposterForBidragRequest.getBody();
 
         return journalposter != null ? journalposter : Collections.emptyList();

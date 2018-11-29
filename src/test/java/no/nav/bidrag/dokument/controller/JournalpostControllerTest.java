@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Optional;
@@ -142,14 +143,19 @@ import static org.mockito.Mockito.when;
     @DisplayName("endpoint: " + ENDPOINT_SAKJOURNAL)
     @Nested class EndpointJournalpost {
 
-        private String url = initEndpointUrl(ENDPOINT_SAKJOURNAL);
+        private String url(String path, String fagomrade) {
+            return UriComponentsBuilder
+                    .fromHttpUrl(initEndpointUrl(ENDPOINT_SAKJOURNAL) + path)
+                    .queryParam("fagomrade", fagomrade)
+                    .toUriString();
+        }
 
         @DisplayName("skal finne Journalposter for en bidragssak") @SuppressWarnings("unchecked")
         @Test void skalFinneJournalposterForEnBidragssak() {
             when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
                     .thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
 
-            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url + "/bid-1001", HttpMethod.GET, null,
+            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url("/bid-1001", "BID"), HttpMethod.GET, null,
                     new ParameterizedTypeReference<List<JournalpostDto>>() {
                     }
             );
@@ -159,7 +165,7 @@ import static org.mockito.Mockito.when;
                     () -> assertThat(response.getBody()).hasSize(2)
             ));
 
-            verify(restTemplateMock).exchange(eq("/sak/1001?fagomrade=BNR"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
+            verify(restTemplateMock).exchange(eq("/sak/1001?fagomrade=BID"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
         }
 
         @DisplayName("skal finne Journalposter for en gsak") @SuppressWarnings("unchecked")
@@ -167,7 +173,7 @@ import static org.mockito.Mockito.when;
             when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
                     .thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
 
-            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url + "/gsak-1001", HttpMethod.GET, null,
+            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url("/gsak-1001", "BID"), HttpMethod.GET, null,
                     new ParameterizedTypeReference<List<JournalpostDto>>() {
                     }
             );
@@ -185,7 +191,7 @@ import static org.mockito.Mockito.when;
             when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
                     .thenReturn(new ResponseEntity<>(HttpStatus.NO_CONTENT));
 
-            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url + "/bid-svada", HttpMethod.GET, null,
+            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url("/bid-svada", "BID"), HttpMethod.GET, null,
                     new ParameterizedTypeReference<List<JournalpostDto>>() {
                     }
             );
@@ -198,7 +204,7 @@ import static org.mockito.Mockito.when;
 
         @DisplayName("skal få bad request (HttpStatus 400) når ukjent saksnummerstreng brukes")
         @Test void skalFremprovosereHttpStatus500MedUkjentSaksnummerStreng() {
-            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url + "/svada", HttpMethod.GET, null,
+            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url("/svada", "BID"), HttpMethod.GET, null,
                     new ParameterizedTypeReference<List<JournalpostDto>>() {
                     }
             );

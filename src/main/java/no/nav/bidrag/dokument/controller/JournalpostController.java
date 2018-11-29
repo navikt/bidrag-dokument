@@ -1,7 +1,6 @@
 package no.nav.bidrag.dokument.controller;
 
 import io.swagger.annotations.ApiOperation;
-import no.nav.bidrag.dokument.BidragDokument;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -60,12 +60,15 @@ public class JournalpostController {
     }
 
     @GetMapping(ENDPOINT_SAKJOURNAL + "/{saksnummerForKildesystem}")
-    @ApiOperation("Finn journalposter for et saksnummer i en sak på formatet [" + PREFIX_BIDRAG + "|" + PREFIX_GSAK + "]" + DELIMTER + "<saksnummer>")
-    public ResponseEntity<List<JournalpostDto>> get(@PathVariable String saksnummerForKildesystem) {
-        LOGGER.debug("request: bidrag-dokument" + ENDPOINT_JOURNALPOST + "/" + saksnummerForKildesystem);
+    @ApiOperation(
+            "Finn saksjournal for et saksnummer i en sak på formatet [" + PREFIX_BIDRAG + "|" + PREFIX_GSAK + "]" + DELIMTER + "<saksnummer>, "
+                    + "samt parameter 'fagomrade' (FAR - farskapjournal) og (BID - bidragsjournal)"
+    )
+    public ResponseEntity<List<JournalpostDto>> get(@PathVariable String saksnummerForKildesystem, @RequestParam String fagomrade) {
+        LOGGER.debug("request: bidrag-dokument{}/{}?fagomrade={}", ENDPOINT_JOURNALPOST, saksnummerForKildesystem, fagomrade);
 
         try {
-            List<JournalpostDto> journalposter = journalpostService.finnJournalposter(saksnummerForKildesystem);
+            List<JournalpostDto> journalposter = journalpostService.finnJournalposter(saksnummerForKildesystem, fagomrade);
 
             if (journalposter.isEmpty()) {
                 return new ResponseEntity<>(HttpStatus.NO_CONTENT);

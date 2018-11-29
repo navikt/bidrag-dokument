@@ -76,7 +76,7 @@ class JournalpostServiceTest {
         String saksnummerUtenKildesystem = "2";
 
         // when
-        Throwable thrown = catchThrowable(() -> journalpostService.finnJournalposter(saksnummerUtenKildesystem));
+        Throwable thrown = catchThrowable(() -> journalpostService.finnJournalposter(saksnummerUtenKildesystem, null));
 
         // then
         assertThat(thrown)
@@ -87,6 +87,6 @@ class JournalpostServiceTest {
     @DisplayName("skal finne journalposter tilknyttet gsak")
     @Test void skalFinneJournalposterTilknyttetGsak() throws KildesystemException {
         when(bidragArkivConsumerMock.finnJournalposter("2")).thenReturn(asList(new JournalpostDto(), new JournalpostDto()));
-        assertThat(journalpostService.finnJournalposter("gsak-2")).hasSize(2);
+        assertThat(journalpostService.finnJournalposter("gsak-2", "FAR")).hasSize(2);
     }
 }
