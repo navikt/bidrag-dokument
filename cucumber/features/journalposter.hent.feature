@@ -13,22 +13,22 @@ Feature: bidrag-dokument REST API
         Then skal tjenesten returnere 'OK'
         And statuskoden skal være '200'
 
-    Scenario: Sjekk at vi får en liste med journalposter
-      When jeg henter journalposter for sak "BID-0000003"
+    Scenario: Sjekk at vi får en liste med journalposter på fagområdet
+        When jeg henter journalposter for sak "BID-0000003" på fagområdet "BID"
         Then statuskoden skal være '200'
         And skal resultatet være en liste med journalposter
-      And hver journalpost i listen skal ha saksnummer 'BID-0000003' i 'saksnummer' feltet
+        And hver journalpost i listen skal ha 'saksnummer' 'BID-0000003'
+        And hver journalpost i listen skal ha 'fagomrade' 'BID'
 
     Scenario: Sjekk innholdet av en enkelt journalpost i bidrag
-        When jeg henter journalposter for sak "BID-0000003"
-        Then skal resultatet være en liste med journalposter
-        And statuskoden skal være '200'
+        When jeg henter journalposter for sak "BID-0000003" på fagområdet "BID"
+        Then statuskoden skal være '200'
+        And skal resultatet være en liste med journalposter
         And hver rad i listen skal ha følgende properties satt:
             | fagomrade   |
             | dokumenter  |
             | saksnummer  |
 
     Scenario: Sjekk at ukjent sak gir 204 med ingen data
-        When jeg henter journalposter for sak "BID-XYZ"
+        When jeg henter journalposter for sak "BID-XYZ" på fagområdet "BID"
         Then statuskoden skal være '204'
-
