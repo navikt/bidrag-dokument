@@ -10,17 +10,18 @@ const {
     kallFasitRestService
 } = require('/support/fasit')
 
-function journalpostSuffix(saksnummer) {
-    return util.format("/sakjournal/%s", saksnummer)
+function journalpostSuffix(saksnummer, fagomrade) {
+    return util.format("/sakjournal/%s?fagomrade=%s", saksnummer, fagomrade)
 }
 
 Given('restservice {string}', alias => {
     this.alias = alias;
 });
 
-When('jeg henter journalposter for sak {string}', async saksnummer => {
-    console.log("henter journalpost", saksnummer, this.alias)
-    this.response = await kallFasitRestService(this.alias, journalpostSuffix(saksnummer))
+When('jeg henter journalposter for sak {string} på fagområdet {string}', async (saksnummer, fagomrade) => {
+    pathAndParam = journalpostSuffix(saksnummer, fagomrade)
+    console.log("henter journalposter", saksnummer, this.alias, pathAndParam)
+    this.response = await kallFasitRestService(this.alias, pathAndParam)
     assert(this.response != null, "Intet svar mottatt fra tjenesten")
     assert(undefined === this.response.errno, "Feilmelding: " + this.response.errno);
 });
@@ -54,8 +55,8 @@ Then('skal resultatet være et journalpost objekt', () => {
     assert.ok(data.jp_id != null, "journalposten mangler påkrevde properties");
 });
 
-Then('hver journalpost i listen skal ha saksnummer {string} i {string} feltet', (saksnummer, prop) => {
-    var arr = this.response.data.filter(jp => jp[prop] == saksnummer);
+Then('hver journalpost i listen skal ha {string} {string}', (prop, feltverdi) => {
+    var arr = this.response.data.filter(jp => jp[prop] == feltverdi);
     assert.ok(arr.length == this.response.data.length, "Det finnes forskjellige saksnummer i listen!")
 });
 
