@@ -46,7 +46,7 @@
     <properties>
 
         <!-- language -->
-        <java.version>1.8</java.version>
+        <java.version>11</java.version>
 
         <!-- dependent versions other than from spring-boot -->
         <bidrag-dokument-dto.version>0.0.57</bidrag-dokument-dto.version>
@@ -54,8 +54,6 @@
         <springfox-swagger.version>2.9.2</springfox-swagger.version>
 
         <!-- build -->
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.compiler.version>3.8.0</maven.compiler.version>
         <maven.surefire.version>2.22.0</maven.surefire.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -172,6 +170,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.compiler.version}</version>
+                <configuration>
+                    <target>${java.version}</target>
+                </configuration>
             </plugin>
         </plugins>
     </build>
