@@ -4,7 +4,6 @@ node {
    def color
    def application = "bidrag-dokument"
    def committer, committerEmail, pom, changelog, releaseVersion, isSnapshot, nextVersion, amount // metadata
-   def mvn = "/usr/bin/mvn"
    def nais = "/usr/bin/nais"
    def appConfig = "nais.yaml"
    def dockerRepo = "repo.adeo.no:5443"
@@ -13,7 +12,8 @@ node {
    def cluster = "${naisCluster}"
    def zone = 'fss'
    def namespace = "${EnvironmentOut}"
-   
+   def mvnImage = 'maven:3.6.0-jdk-11-slim'
+
    stage("#1: Clone Project From Github") {
            cleanWs()
                 withCredentials([string(credentialsId: 'OAUTH_TOKEN', variable: 'token')]) {
@@ -55,7 +55,8 @@ node {
        stage("#4: Build & Test Project") {
             sh "mkdir -p /tmp/${application}"
            if (isSnapshot) {
-               sh "${mvn} clean install -Djava.io.tmpdir=/tmp/${application} -B -e"
+               sh 'echo "running maven build image."'
+               sh "docker run --rm -v `pwd`:/usr/src/mymaven -w /usr/src/mymaven -v '$HOME/.m2':/root/.m2 ${mvnImage} mvn clean install -B -e"
            } else {
                println("POM version is not a SNAPSHOT, it is ${pom.version}. Skipping build and testing of backend")
            }
@@ -64,11 +65,11 @@ node {
 
        stage("#5: release artifact") {
            if (isSnapshot) {
-               sh "${mvn} versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
-               sh "${mvn} clean install -Djava.io.tmpdir=/tmp/${application} -Dhendelse.environments=${environment} -B -e"
+               sh "docker run --rm -v `pwd`:/usr/src/mymaven -w /usr/src/mymaven -v '$HOME/.m2':/root/.m2 ${mvnImage} mvn versions:set -B -DnewVersion=${releaseVersion} -DgenerateBackupPoms=false"
+               sh "docker run --rm -v `pwd`:/usr/src/mymaven -w /usr/src/mymaven -v '$HOME/.m2':/root/.m2 ${mvnImage} mvn clean install -DskipTests -Dhendelse.environments=${environment} -B -e"
                sh "docker build --build-arg version=${releaseVersion} -t ${dockerRepo}/${application}:${imageVersion} ."
                sh "git commit -am \"set version to ${releaseVersion} (from Jenkins pipeline)\""
-               sh "git push origin master"
+               sh "git push"
                sh "git tag -a ${application}-${releaseVersion}-${environment} -m ${application}-${releaseVersion}-${environment}"
                sh "git push --tags"
            }else{
@@ -77,8 +78,7 @@ node {
        }
        stage("#6: publish docker image") {
            if (isSnapshot) {
-               //sh ~/setenv.sh
-               sh "${mvn} clean deploy -DskipTests -B -e"
+               sh "docker run --rm -v `pwd`:/usr/src/mymaven -w /usr/src/mymaven -v '$HOME/.m2':/root/.m2 ${mvnImage} mvn clean deploy -DskipTests -B -e"
                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'nexusCredentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
                    sh "docker login -u ${USERNAME} -p ${PASSWORD} ${dockerRepo}"
                    sh "docker push ${dockerRepo}/${application}:${imageVersion}"
@@ -91,9 +91,9 @@ node {
 
        stage("#7: new dev version") {
            nextVersion = "${devVersion}." + (newReleaseVersion.toInteger() + 1) + "-SNAPSHOT"
-           sh "${mvn} versions:set -B -DnewVersion=${nextVersion} -DgenerateBackupPoms=false"
+           sh "docker run --rm -v `pwd`:/usr/src/mymaven -w /usr/src/mymaven -v '$HOME/.m2':/root/.m2 ${mvnImage} mvn versions:set -B -DnewVersion=${nextVersion} -DgenerateBackupPoms=false"
            sh "git commit -a -m \"updated to new dev-version ${nextVersion} after release by ${committer}\""
-           sh "git push origin master"
+           sh "git push"
        }
 
        stage("#8: validate & upload") {

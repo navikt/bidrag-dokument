@@ -5,6 +5,7 @@ import no.nav.bidrag.dokument.consumer.RestTemplateFactory;
 import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -143,10 +144,10 @@ import static org.mockito.Mockito.when;
     @DisplayName("endpoint: " + ENDPOINT_SAKJOURNAL)
     @Nested class EndpointJournalpost {
 
-        private String url(String path, String fagomrade) {
+        private String urlForFagomradeBid(String path) {
             return UriComponentsBuilder
                     .fromHttpUrl(initEndpointUrl(ENDPOINT_SAKJOURNAL) + path)
-                    .queryParam("fagomrade", fagomrade)
+                    .queryParam("fagomrade", "BID")
                     .toUriString();
         }
 
@@ -155,12 +156,11 @@ import static org.mockito.Mockito.when;
             when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
                     .thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
 
-            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url("/bid-1001", "BID"), HttpMethod.GET, null,
-                    new ParameterizedTypeReference<List<JournalpostDto>>() {
-                    }
+            var listeMedJournalposterResponse = testRestTemplate.exchange(
+                    urlForFagomradeBid("/bid-1001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
             );
 
-            assertThat(optional(responseEntity)).hasValueSatisfying(response -> assertAll(
+            assertThat(optional(listeMedJournalposterResponse)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
                     () -> assertThat(response.getBody()).hasSize(2)
             ));
@@ -173,12 +173,11 @@ import static org.mockito.Mockito.when;
             when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
                     .thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
 
-            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url("/gsak-1001", "BID"), HttpMethod.GET, null,
-                    new ParameterizedTypeReference<List<JournalpostDto>>() {
-                    }
+            var listeMedJournalposterResponse = testRestTemplate.exchange(
+                    urlForFagomradeBid("/gsak-1001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
             );
 
-            assertThat(optional(responseEntity)).hasValueSatisfying(response -> assertAll(
+            assertThat(optional(listeMedJournalposterResponse)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
                     () -> assertThat(response.getBody()).hasSize(2)
             ));
@@ -191,12 +190,11 @@ import static org.mockito.Mockito.when;
             when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
                     .thenReturn(new ResponseEntity<>(HttpStatus.NO_CONTENT));
 
-            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url("/bid-svada", "BID"), HttpMethod.GET, null,
-                    new ParameterizedTypeReference<List<JournalpostDto>>() {
-                    }
+            var listeMedJournalposterResponse = testRestTemplate.exchange(
+                    urlForFagomradeBid("/bid-svada"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
             );
 
-            assertThat(optional(responseEntity)).hasValueSatisfying(response -> assertAll(
+            assertThat(optional(listeMedJournalposterResponse)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT),
                     () -> assertThat(response.getBody()).isNull()
             ));
@@ -204,17 +202,21 @@ import static org.mockito.Mockito.when;
 
         @DisplayName("skal få bad request (HttpStatus 400) når ukjent saksnummerstreng brukes")
         @Test void skalFremprovosereHttpStatus500MedUkjentSaksnummerStreng() {
-            ResponseEntity<List<JournalpostDto>> responseEntity = testRestTemplate.exchange(url("/svada", "BID"), HttpMethod.GET, null,
-                    new ParameterizedTypeReference<List<JournalpostDto>>() {
-                    }
+            var listeMedJournalposterResponse = testRestTemplate.exchange(
+                    urlForFagomradeBid("/svada"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
             );
 
-            assertThat(optional(responseEntity)).hasValueSatisfying(response -> assertAll(
+            assertThat(optional(listeMedJournalposterResponse)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
                     () -> assertThat(response.getBody()).isNull()
             ));
 
             verifyZeroInteractions(restTemplateMock);
+        }
+
+        @NotNull private ParameterizedTypeReference<List<JournalpostDto>> responseTypeErListeMedJournalposter() {
+            return new ParameterizedTypeReference<>() {
+            };
         }
     }
 

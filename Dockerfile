@@ -1,4 +1,4 @@
-FROM navikt/java:10
+FROM navikt/java:11
 LABEL maintainer="Team Bidrag" \
       email="nav.ikt.prosjekt.og.forvaltning.bidrag@nav.no"
 
