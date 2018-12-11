@@ -1,5 +1,5 @@
 
-# Pipeline parametere må defineres før shared lib kjører
+// Pipeline parametere må defineres før shared lib kjører
 def envout = EnvironmentOut
 
 @Library('bidrag-dokument-jenkins') _
