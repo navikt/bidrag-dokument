@@ -3,7 +3,7 @@
    bidragDokumentPipeline {
       mvnImage = "maven:3.6.0-jdk-11-slim"
       application = "bidrag-dokument"
-      branch = "sharedlib"
+      branch = "master"
       environment = "${EnvironmentOut}"
    }
    
