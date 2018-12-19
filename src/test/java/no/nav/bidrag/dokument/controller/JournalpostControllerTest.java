@@ -1,10 +1,19 @@
 package no.nav.bidrag.dokument.controller;
 
-import no.nav.bidrag.dokument.JournalpostDtoBygger;
-import no.nav.bidrag.dokument.consumer.RestTemplateFactory;
-import no.nav.bidrag.dokument.dto.DokumentDto;
-import no.nav.bidrag.dokument.dto.JournalpostDto;
-import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Optional;
+
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,19 +36,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.List;
-import java.util.Optional;
-
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import no.nav.bidrag.dokument.JournalpostDtoBygger;
+import no.nav.bidrag.dokument.consumer.RestTemplateFactory;
+import no.nav.bidrag.dokument.dto.DokumentDto;
+import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
 
 @ExtendWith(SpringExtension.class) @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DisplayName("JournalpostController") class JournalpostControllerTest {
@@ -156,7 +157,7 @@ import static org.mockito.Mockito.when;
             when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
                     .thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
 
-            var listeMedJournalposterResponse = testRestTemplate.exchange(
+            ResponseEntity<List<JournalpostDto>> listeMedJournalposterResponse = testRestTemplate.exchange(
                     urlForFagomradeBid("/bid-1001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
             );
 
@@ -173,7 +174,7 @@ import static org.mockito.Mockito.when;
             when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
                     .thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
 
-            var listeMedJournalposterResponse = testRestTemplate.exchange(
+            ResponseEntity<List<JournalpostDto>> listeMedJournalposterResponse = testRestTemplate.exchange(
                     urlForFagomradeBid("/gsak-1001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
             );
 
@@ -190,7 +191,7 @@ import static org.mockito.Mockito.when;
             when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
                     .thenReturn(new ResponseEntity<>(HttpStatus.NO_CONTENT));
 
-            var listeMedJournalposterResponse = testRestTemplate.exchange(
+            ResponseEntity<List<JournalpostDto>> listeMedJournalposterResponse = testRestTemplate.exchange(
                     urlForFagomradeBid("/bid-svada"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
             );
 
@@ -202,7 +203,7 @@ import static org.mockito.Mockito.when;
 
         @DisplayName("skal få bad request (HttpStatus 400) når ukjent saksnummerstreng brukes")
         @Test void skalFremprovosereHttpStatus500MedUkjentSaksnummerStreng() {
-            var listeMedJournalposterResponse = testRestTemplate.exchange(
+            ResponseEntity<List<JournalpostDto>> listeMedJournalposterResponse = testRestTemplate.exchange(
                     urlForFagomradeBid("/svada"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
             );
 
@@ -215,7 +216,7 @@ import static org.mockito.Mockito.when;
         }
 
         @NotNull private ParameterizedTypeReference<List<JournalpostDto>> responseTypeErListeMedJournalposter() {
-            return new ParameterizedTypeReference<>() {
+            return new ParameterizedTypeReference<List<JournalpostDto>>() {
             };
         }
     }

@@ -1,6 +1,6 @@
 package no.nav.bidrag.dokument;
 
-import static no.nav.bidrag.dokument.BidragDokument.DELIMTER;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.DELIMTER;
 
 public class PrefixUtil {
 

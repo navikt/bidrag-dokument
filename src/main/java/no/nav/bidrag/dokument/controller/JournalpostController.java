@@ -1,11 +1,12 @@
 package no.nav.bidrag.dokument.controller;
 
-import io.swagger.annotations.ApiOperation;
-import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
-import no.nav.bidrag.dokument.dto.JournalpostDto;
-import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
-import no.nav.bidrag.dokument.exception.KildesystemException;
-import no.nav.bidrag.dokument.service.JournalpostService;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.DELIMTER;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_BIDRAG;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_GSAK;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
+
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -18,14 +19,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
-import static no.nav.bidrag.dokument.BidragDokument.DELIMTER;
-import static no.nav.bidrag.dokument.BidragDokument.PREFIX_BIDRAG;
-import static no.nav.bidrag.dokument.BidragDokument.PREFIX_GSAK;
-import static no.nav.bidrag.dokument.BidragDokument.PREFIX_JOARK;
+import io.swagger.annotations.ApiOperation;
+import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
+import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
+import no.nav.bidrag.dokument.exception.KildesystemException;
+import no.nav.bidrag.dokument.service.JournalpostService;
+import no.nav.security.oidc.api.ProtectedWithClaims;
 
 @RestController
+@ProtectedWithClaims(issuer = "isso", claimMap = { "acr=Level4" })
 public class JournalpostController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JournalpostController.class);

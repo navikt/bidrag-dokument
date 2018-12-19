@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
-import static no.nav.bidrag.dokument.BidragDokument.PREFIX_BIDRAG;
-import static no.nav.bidrag.dokument.BidragDokument.PREFIX_GSAK;
-import static no.nav.bidrag.dokument.BidragDokument.PREFIX_JOARK;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_BIDRAG;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_GSAK;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
 
 @Component
 public class JournalpostService {
