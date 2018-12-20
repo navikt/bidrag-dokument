@@ -39,7 +39,7 @@ deretter<br>
 Etter applikasjon er startet kan den nåes med browser på
 `http://localhost:8080/bidrag-dokument/swagger-ui.html`
 
-####Sikkerhet
+### Sikkerhet
 Tjenestens endepunkter er sikret med navikt [oidc-spring-support](https://github.com/navikt/token-support/tree/master/oidc-spring-support)
 fra [token-support](https://github.com/navikt/token-support). Det betyr at gyldig OIDC-id-token må være inkludert som Bearer-token i Authorization 
 header for alle spørringer mot disse endepunktene. 
@@ -51,7 +51,7 @@ oidc-test-support-modulen kun tilgjengelig i test-scope. I tillegg er bruken av 
 
 BidragDokumentLocal brukes i stedet for BidragDokument ved lokal kjøring.
 
-#####Oppskrift for kjøring med sikkerhet lokalt
+#### Oppskrift for kjøring med sikkerhet lokalt
  - Start BidragDokumentLocal som standard Java-applikasjon
  
  - Registrere app-instans for bruk av oidc-test-support, naviger til:<br> 
