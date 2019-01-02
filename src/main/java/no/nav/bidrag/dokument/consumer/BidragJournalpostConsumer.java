@@ -26,8 +26,8 @@ public class BidragJournalpostConsumer {
         this.baseUrlBidragJournalpost = baseUrlBidragJournalpost;
     }
 
-    public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
-        RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost);
+    public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade, String bearerToken) {
+        RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost, bearerToken);
         String uri = UriComponentsBuilder.fromPath("/sak/" + saksnummer)
                 .queryParam("fagomrade", fagomrade)
                 .toUriString();
@@ -48,8 +48,8 @@ public class BidragJournalpostConsumer {
         };
     }
 
-    public Optional<JournalpostDto> registrer(NyJournalpostCommandDto nyJournalpostCommandDto) {
-        RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost);
+    public Optional<JournalpostDto> registrer(NyJournalpostCommandDto nyJournalpostCommandDto, String bearerToken) {
+        RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost, bearerToken);
 
         ResponseEntity<JournalpostDto> registrertJournalpost = restTemplate.exchange(
                 "/journalpost/ny", HttpMethod.POST, new HttpEntity<>(nyJournalpostCommandDto), JournalpostDto.class
@@ -61,8 +61,8 @@ public class BidragJournalpostConsumer {
         return Optional.ofNullable(registrertJournalpost.getBody());
     }
 
-    public Optional<JournalpostDto> hentJournalpost(Integer id) {
-        RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost);
+    public Optional<JournalpostDto> hentJournalpost(Integer id, String bearerToken) {
+        RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost, bearerToken);
         ResponseEntity<JournalpostDto> journalpostResponseEntity = restTemplate.getForEntity("/journalpost/" + id, JournalpostDto.class);
         HttpStatus httpStatus = journalpostResponseEntity.getStatusCode();
 
@@ -71,8 +71,8 @@ public class BidragJournalpostConsumer {
         return Optional.ofNullable(journalpostResponseEntity.getBody());
     }
 
-    public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto) {
-        RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost);
+    public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto, String bearerToken) {
+        RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost, bearerToken);
 
         ResponseEntity<JournalpostDto> endretJournalpost = restTemplate.exchange(
                 "/journalpost", HttpMethod.POST, new HttpEntity<>(endreJournalpostCommandDto), JournalpostDto.class

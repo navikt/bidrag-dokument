@@ -8,7 +8,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import no.nav.security.oidc.test.support.spring.TokenGeneratorConfiguration;
 import no.nav.security.spring.oidc.api.EnableOIDCTokenValidation;

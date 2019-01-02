@@ -26,6 +26,8 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import static no.nav.bidrag.dokument.BidragDokumentTest.bearer;
+
 @DisplayName("BidragArkivConsumer")
 @SuppressWarnings("unchecked") class BidragArkivConsumerTest {
 
@@ -65,7 +67,7 @@ import static org.mockito.Mockito.when;
         when(restTemplateMock.getForEntity(anyString(), any()))
                 .thenReturn(new ResponseEntity<>(enJournalpostMedJournaltilstand("ENDELIG"), HttpStatus.OK));
 
-        Optional<JournalpostDto> journalpostOptional = bidragArkivConsumer.hentJournalpost(101);
+        Optional<JournalpostDto> journalpostOptional = bidragArkivConsumer.hentJournalpost(101, bearer());
         JournalpostDto journalpostDto = journalpostOptional.orElseThrow(() -> new AssertionError("Ingen Dto fra manager!"));
 
         assertThat(journalpostDto.getInnhold()).isEqualTo("ENDELIG");
@@ -83,7 +85,7 @@ import static org.mockito.Mockito.when;
     @Test void skalLoggeHentJournalpost() {
         when(restTemplateMock.getForEntity(anyString(), any())).thenReturn(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
 
-        bidragArkivConsumer.hentJournalpost(123);
+        bidragArkivConsumer.hentJournalpost(123, bearer());
 
         verify(appenderMock).doAppend(
                 argThat((ArgumentMatcher) argument -> {
@@ -101,7 +103,7 @@ import static org.mockito.Mockito.when;
                 new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)
         );
 
-        bidragArkivConsumer.finnJournalposter("12345");
+        bidragArkivConsumer.finnJournalposter("12345", bearer());
 
         verify(appenderMock).doAppend(
                 argThat((ArgumentMatcher) argument -> {

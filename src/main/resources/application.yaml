@@ -7,7 +7,7 @@ management:
       exposure:
         include: "*"
         
+TOKEN_OBTAINED_BY: bidrag-dokument-ui
         
-no.nav.security.oidc.issuer.isso.acceptedaudience: ${APP_NAME}-${FASIT_ENVIRONMENT_NAME}
+no.nav.security.oidc.issuer.isso.acceptedaudience: ${TOKEN_OBTAINED_BY}-${FASIT_ENVIRONMENT_NAME}
 no.nav.security.oidc.issuer.isso.discoveryurl: ${ISSO_ISSUER_URL}/.well-known/openid-configuration
-no.nav.security.oidc.issuer.isso.cookiename: bidrag-id-token

@@ -53,6 +53,7 @@
 		<oidc-spring-support.version>0.2.12</oidc-spring-support.version>
 		<logback.encoder.version>5.2</logback.encoder.version>
 		<springfox-swagger.version>2.9.2</springfox-swagger.version>
+		<apache.httpcomponents.version>4.5.3</apache.httpcomponents.version>
 
 		<!-- build -->
 		<maven.compiler.version>3.8.0</maven.compiler.version>
@@ -113,6 +114,11 @@
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger-ui</artifactId>
 			<version>${springfox-swagger.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
 		</dependency>
 
 		<!-- logback -->
@@ -183,19 +189,19 @@
 
 	<build>
 		<plugins>
-		
+
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
-			
+
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<release>${java.version}</release>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -203,7 +209,7 @@
 					<release>${java.version}</release>
 				</configuration>
 			</plugin>
-			
+
 		</plugins>
 	</build>
 
