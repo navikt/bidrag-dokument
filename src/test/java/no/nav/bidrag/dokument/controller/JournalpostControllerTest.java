@@ -167,7 +167,7 @@ class JournalpostControllerTest {
             when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
                     .thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
 
-            ResponseEntity<List<JournalpostDto>> listeMedJournalposterResponse = testRestTemplate.exchange(
+            var listeMedJournalposterResponse = testRestTemplate.exchange(
                     urlForFagomradeBid("/bid-1001"), HttpMethod.GET, addSecurityHeader(null), responseTypeErListeMedJournalposter()
             );
 
@@ -184,7 +184,7 @@ class JournalpostControllerTest {
             when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
                     .thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
 
-            ResponseEntity<List<JournalpostDto>> listeMedJournalposterResponse = testRestTemplate.exchange(
+            var listeMedJournalposterResponse = testRestTemplate.exchange(
                     urlForFagomradeBid("/gsak-1001"), HttpMethod.GET, addSecurityHeader(null), responseTypeErListeMedJournalposter()
             );
 
@@ -201,7 +201,7 @@ class JournalpostControllerTest {
             when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
                     .thenReturn(new ResponseEntity<>(HttpStatus.NO_CONTENT));
 
-            ResponseEntity<List<JournalpostDto>> listeMedJournalposterResponse = testRestTemplate.exchange(
+            var listeMedJournalposterResponse = testRestTemplate.exchange(
                     urlForFagomradeBid("/bid-svada"), HttpMethod.GET, addSecurityHeader(null), responseTypeErListeMedJournalposter()
             );
 
@@ -213,7 +213,7 @@ class JournalpostControllerTest {
 
         @DisplayName("skal få bad request (HttpStatus 400) når ukjent saksnummerstreng brukes")
         @Test void skalFremprovosereHttpStatus500MedUkjentSaksnummerStreng() {
-            ResponseEntity<List<JournalpostDto>> listeMedJournalposterResponse = testRestTemplate.exchange(
+            var listeMedJournalposterResponse = testRestTemplate.exchange(
                     urlForFagomradeBid("/svada"), HttpMethod.GET, addSecurityHeader(null), responseTypeErListeMedJournalposter()
             );
 
@@ -226,7 +226,7 @@ class JournalpostControllerTest {
         }
 
         @NotNull private ParameterizedTypeReference<List<JournalpostDto>> responseTypeErListeMedJournalposter() {
-            return new ParameterizedTypeReference<List<JournalpostDto>>() {
+            return new ParameterizedTypeReference<>() {
             };
         }
     }
