@@ -1,10 +1,22 @@
 package no.nav.bidrag.dokument.controller;
 
-import no.nav.bidrag.dokument.JournalpostDtoBygger;
-import no.nav.bidrag.dokument.consumer.RestTemplateFactory;
-import no.nav.bidrag.dokument.dto.DokumentDto;
-import no.nav.bidrag.dokument.dto.JournalpostDto;
-import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,29 +32,28 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.List;
-import java.util.Optional;
+import no.nav.bidrag.dokument.BidragDokumentLocal;
+import no.nav.bidrag.dokument.JournalpostDtoBygger;
+import no.nav.bidrag.dokument.consumer.RestTemplateFactory;
+import no.nav.bidrag.dokument.dto.DokumentDto;
+import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
-@ExtendWith(SpringExtension.class) @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@DisplayName("JournalpostController") class JournalpostControllerTest {
+@ExtendWith(SpringExtension.class) 
+@SpringBootTest(classes = BidragDokumentLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("dev")
+@DisplayName("JournalpostController")
+class JournalpostControllerTest {
 
     private static final String ENDPOINT_JOURNALPOST = "/journalpost";
     private static final String ENDPOINT_SAKJOURNAL = "/sakjournal";
@@ -65,8 +76,8 @@ import static org.mockito.Mockito.when;
         @DisplayName("skal mangle body når journalpost ikke finnes")
         @Test void skalMangleBodyNarJournalpostIkkeFinnes() {
             when(restTemplateMock.getForEntity(eq("/journalpost/1"), eq(JournalpostDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
-
-            ResponseEntity<JournalpostDto> journalpostResponseEntity = testRestTemplate.getForEntity(url + "/joark-1", JournalpostDto.class);
+            
+            ResponseEntity<JournalpostDto> journalpostResponseEntity = testRestTemplate.exchange(url + "/joark-1", HttpMethod.GET, addSecurityHeader(null), JournalpostDto.class);
 
             verify(restTemplateMock).getForEntity(eq("/journalpost/1"), eq(JournalpostDto.class));
 
@@ -82,7 +93,7 @@ import static org.mockito.Mockito.when;
                     enJournalpostMedInnhold("MIDLERTIDIG"), HttpStatus.I_AM_A_TEAPOT
             ));
 
-            ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.getForEntity(url + "/joark-1", JournalpostDto.class);
+            ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.exchange(url + "/joark-1", HttpMethod.GET, addSecurityHeader(null), JournalpostDto.class);
 
             verify(restTemplateMock).getForEntity(eq("/journalpost/1"), eq(JournalpostDto.class));
 
@@ -104,8 +115,8 @@ import static org.mockito.Mockito.when;
             when(restTemplateMock.getForEntity(eq("/journalpost/1"), eq(JournalpostDto.class))).thenReturn(new ResponseEntity<>(
                     enJournalpostFra("Grev Still E. Ben"), HttpStatus.I_AM_A_TEAPOT
             ));
-
-            ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.getForEntity(url + "/bid-1", JournalpostDto.class);
+            
+            ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.exchange(url + "/bid-1", HttpMethod.GET, addSecurityHeader(null), JournalpostDto.class);
 
             verify(restTemplateMock).getForEntity(eq("/journalpost/1"), eq(JournalpostDto.class));
 
@@ -130,16 +141,16 @@ import static org.mockito.Mockito.when;
                             .medGjelderBrukerId("06127412345")
                             .medJournalpostId("BID-101")
                             .build(), HttpStatus.CREATED)
-                    );
+                    );                      
 
-            ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.postForEntity(url + "/ny", new NyJournalpostCommandDto(), JournalpostDto.class);
+            ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.postForEntity(url + "/ny", addSecurityHeader(new NyJournalpostCommandDto()), JournalpostDto.class);
 
             assertThat(optional(responseEntity)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED),
                     () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournalpostId).isEqualTo("BID-101")
             ));
         }
-    }
+    }   
 
     @DisplayName("endpoint: " + ENDPOINT_SAKJOURNAL)
     @Nested class EndpointJournalpost {
@@ -157,7 +168,7 @@ import static org.mockito.Mockito.when;
                     .thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
 
             var listeMedJournalposterResponse = testRestTemplate.exchange(
-                    urlForFagomradeBid("/bid-1001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+                    urlForFagomradeBid("/bid-1001"), HttpMethod.GET, addSecurityHeader(null), responseTypeErListeMedJournalposter()
             );
 
             assertThat(optional(listeMedJournalposterResponse)).hasValueSatisfying(response -> assertAll(
@@ -174,7 +185,7 @@ import static org.mockito.Mockito.when;
                     .thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
 
             var listeMedJournalposterResponse = testRestTemplate.exchange(
-                    urlForFagomradeBid("/gsak-1001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+                    urlForFagomradeBid("/gsak-1001"), HttpMethod.GET, addSecurityHeader(null), responseTypeErListeMedJournalposter()
             );
 
             assertThat(optional(listeMedJournalposterResponse)).hasValueSatisfying(response -> assertAll(
@@ -191,7 +202,7 @@ import static org.mockito.Mockito.when;
                     .thenReturn(new ResponseEntity<>(HttpStatus.NO_CONTENT));
 
             var listeMedJournalposterResponse = testRestTemplate.exchange(
-                    urlForFagomradeBid("/bid-svada"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+                    urlForFagomradeBid("/bid-svada"), HttpMethod.GET, addSecurityHeader(null), responseTypeErListeMedJournalposter()
             );
 
             assertThat(optional(listeMedJournalposterResponse)).hasValueSatisfying(response -> assertAll(
@@ -203,7 +214,7 @@ import static org.mockito.Mockito.when;
         @DisplayName("skal få bad request (HttpStatus 400) når ukjent saksnummerstreng brukes")
         @Test void skalFremprovosereHttpStatus500MedUkjentSaksnummerStreng() {
             var listeMedJournalposterResponse = testRestTemplate.exchange(
-                    urlForFagomradeBid("/svada"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+                    urlForFagomradeBid("/svada"), HttpMethod.GET, addSecurityHeader(null), responseTypeErListeMedJournalposter()
             );
 
             assertThat(optional(listeMedJournalposterResponse)).hasValueSatisfying(response -> assertAll(
@@ -226,6 +237,26 @@ import static org.mockito.Mockito.when;
 
     private String initEndpointUrl(@SuppressWarnings("SameParameterValue") String endpoint) {
         return "http://localhost:" + port + contextPath + endpoint;
+    }
+    
+    private <T> HttpEntity<T> addSecurityHeader(T body) {
+        
+        Map<String, String> urlVars = new HashMap<>();
+        urlVars.put("redirect", "/bidrag-dokument/api");
+        
+        String oidcTestTokenGeneratorUrl = initEndpointUrl("/local/cookie");
+        
+        // Generate test-token
+        testRestTemplate.getForObject(oidcTestTokenGeneratorUrl, String.class, urlVars); 
+        
+        // Get test-token
+        String jwtUrl = initEndpointUrl("/local/jwt");        
+        String idToken = testRestTemplate.getForObject(jwtUrl, String.class); 
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + idToken);                       
+
+        return new HttpEntity<>(body, headers);        
     }
 
     @AfterEach void resetFactory() {

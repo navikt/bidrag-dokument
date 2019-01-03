@@ -17,7 +17,10 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+
+import static  no.nav.bidrag.dokument.BidragDokumentTest.bearer;
 
 @DisplayName("JournalpostService")
 class JournalpostServiceTest {
@@ -32,14 +35,14 @@ class JournalpostServiceTest {
 
     @DisplayName("skal ikke hente journalpost")
     @Test void skalIkkeHenteJournalpostGittId() throws KildesystemException {
-        when(bidragArkivConsumerMock.hentJournalpost(anyInt())).thenReturn(Optional.empty());
-        assertThat(journalpostService.hentJournalpost("joark-2")).isNotPresent();
+        when(bidragArkivConsumerMock.hentJournalpost(anyInt(), anyString())).thenReturn(Optional.empty());
+        assertThat(journalpostService.hentJournalpost("joark-2", bearer())).isNotPresent();
     }
 
     @DisplayName("skal hente journalpost gitt id")
     @Test void skalHenteJournalpostGittId() throws KildesystemException {
-        when(bidragArkivConsumerMock.hentJournalpost(2)).thenReturn(Optional.of(new JournalpostDto()));
-        assertThat(journalpostService.hentJournalpost("joark-2")).isPresent();
+        when(bidragArkivConsumerMock.hentJournalpost(2, bearer())).thenReturn(Optional.of(new JournalpostDto()));
+        assertThat(journalpostService.hentJournalpost("joark-2", bearer())).isPresent();
     }
 
     @DisplayName("skal feile med KildesystemException når kilsdesystem ikke er identifisert av id")
@@ -48,7 +51,7 @@ class JournalpostServiceTest {
         String journalpostIdUtenKildesystem = "2";
 
         // when
-        Throwable thrown = catchThrowable(() -> journalpostService.hentJournalpost(journalpostIdUtenKildesystem));
+        Throwable thrown = catchThrowable(() -> journalpostService.hentJournalpost(journalpostIdUtenKildesystem, bearer()));
 
         // then
         assertThat(thrown)
@@ -62,7 +65,7 @@ class JournalpostServiceTest {
         String journalpostIdMedUbrukeligId = "bid-jalla";
 
         // when
-        Throwable thrown = catchThrowable(() -> journalpostService.hentJournalpost(journalpostIdMedUbrukeligId));
+        Throwable thrown = catchThrowable(() -> journalpostService.hentJournalpost(journalpostIdMedUbrukeligId, bearer()));
 
         // then
         assertThat(thrown)
@@ -76,7 +79,7 @@ class JournalpostServiceTest {
         String saksnummerUtenKildesystem = "2";
 
         // when
-        Throwable thrown = catchThrowable(() -> journalpostService.finnJournalposter(saksnummerUtenKildesystem, null));
+        Throwable thrown = catchThrowable(() -> journalpostService.finnJournalposter(saksnummerUtenKildesystem, null, bearer()));
 
         // then
         assertThat(thrown)
@@ -86,7 +89,7 @@ class JournalpostServiceTest {
 
     @DisplayName("skal finne journalposter tilknyttet gsak")
     @Test void skalFinneJournalposterTilknyttetGsak() throws KildesystemException {
-        when(bidragArkivConsumerMock.finnJournalposter("2")).thenReturn(asList(new JournalpostDto(), new JournalpostDto()));
-        assertThat(journalpostService.finnJournalposter("gsak-2", "FAR")).hasSize(2);
+        when(bidragArkivConsumerMock.finnJournalposter("2", bearer())).thenReturn(asList(new JournalpostDto(), new JournalpostDto()));
+        assertThat(journalpostService.finnJournalposter("gsak-2", "FAR", bearer())).hasSize(2);
     }
 }
