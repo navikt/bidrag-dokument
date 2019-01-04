@@ -30,6 +30,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import static  no.nav.bidrag.dokument.BidragDokumentTest.bearer;
+
 @DisplayName("BidragJournalpostConsumer")
 @SuppressWarnings("unchecked") class BidragJournalpostConsumerTest {
 
@@ -37,6 +39,7 @@ import static org.mockito.Mockito.when;
 
     private @Mock Appender appenderMock;
     private @Mock RestTemplate restTemplateMock;
+    
 
     @BeforeEach void setup() {
         initMocks();
@@ -74,7 +77,7 @@ import static org.mockito.Mockito.when;
                 new ResponseEntity<>(HttpStatus.NO_CONTENT)
         );
 
-        bidragJournalpostConsumer.finnJournalposter("101", "BID");
+        bidragJournalpostConsumer.finnJournalposter("101", "BID", bearer());
         verify(restTemplateMock).exchange(eq("/sak/101?fagomrade=BID"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
     }
 
@@ -84,7 +87,7 @@ import static org.mockito.Mockito.when;
                 new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)
         );
 
-        bidragJournalpostConsumer.finnJournalposter("101", "FAR");
+        bidragJournalpostConsumer.finnJournalposter("101", "FAR", bearer());
 
         verify(appenderMock).doAppend(
                 argThat((ArgumentMatcher) argument -> {
@@ -100,7 +103,7 @@ import static org.mockito.Mockito.when;
     @Test void shouldLogGetInvocationsForSingleEntity() {
         when(restTemplateMock.getForEntity(anyString(), eq(JournalpostDto.class))).thenReturn(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
 
-        bidragJournalpostConsumer.hentJournalpost(101);
+        bidragJournalpostConsumer.hentJournalpost(101, bearer());
 
         verify(appenderMock).doAppend(
                 argThat((ArgumentMatcher) argument -> {
@@ -118,7 +121,7 @@ import static org.mockito.Mockito.when;
                 new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)
         );
 
-        bidragJournalpostConsumer.registrer(new NyJournalpostCommandDto());
+        bidragJournalpostConsumer.registrer(new NyJournalpostCommandDto(), bearer());
 
         verify(appenderMock).doAppend(
                 argThat((ArgumentMatcher) argument -> {
@@ -136,7 +139,7 @@ import static org.mockito.Mockito.when;
                 new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR)
         );
 
-        bidragJournalpostConsumer.endre(new EndreJournalpostCommandDto());
+        bidragJournalpostConsumer.endre(new EndreJournalpostCommandDto(), bearer());
 
         verify(appenderMock).doAppend(
                 argThat((ArgumentMatcher) argument -> {

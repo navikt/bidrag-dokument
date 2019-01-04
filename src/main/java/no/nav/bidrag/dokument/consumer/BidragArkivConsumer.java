@@ -22,8 +22,8 @@ public class BidragArkivConsumer {
         this.bidragArkivBaseUrl = bidragArkivBaseUrl;
     }
 
-    public Optional<JournalpostDto> hentJournalpost(Integer id) {
-        RestTemplate restTemplate = RestTemplateFactory.create(bidragArkivBaseUrl);
+    public Optional<JournalpostDto> hentJournalpost(Integer id, String bearerToken) {
+        RestTemplate restTemplate = RestTemplateFactory.create(bidragArkivBaseUrl, bearerToken);
         ResponseEntity<JournalpostDto> journalforingDtoResponseEntity = restTemplate.getForEntity("/journalpost/" + id, JournalpostDto.class);
         HttpStatus httpStatus = journalforingDtoResponseEntity.getStatusCode();
 
@@ -32,8 +32,8 @@ public class BidragArkivConsumer {
         return Optional.ofNullable(journalforingDtoResponseEntity.getBody());
     }
 
-    public List<JournalpostDto> finnJournalposter(String saksnummer) {
-        RestTemplate restTemplate = RestTemplateFactory.create(bidragArkivBaseUrl);
+    public List<JournalpostDto> finnJournalposter(String saksnummer, String bearerToken) {
+        RestTemplate restTemplate = RestTemplateFactory.create(bidragArkivBaseUrl, bearerToken);
         ResponseEntity<List<JournalpostDto>> responseEntity = restTemplate.exchange("/journalpost/gsak/" + saksnummer, HttpMethod.GET, null,
                 new ParameterizedTypeReference<List<JournalpostDto>>() {
                 }

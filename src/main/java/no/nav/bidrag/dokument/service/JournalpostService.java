@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
-import static no.nav.bidrag.dokument.BidragDokument.PREFIX_BIDRAG;
-import static no.nav.bidrag.dokument.BidragDokument.PREFIX_GSAK;
-import static no.nav.bidrag.dokument.BidragDokument.PREFIX_JOARK;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_BIDRAG;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_GSAK;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
 
 @Component
 public class JournalpostService {
@@ -27,12 +27,12 @@ public class JournalpostService {
         this.bidragArkivConsumer = bidragArkivConsumer;
     }
 
-    public Optional<JournalpostDto> hentJournalpost(String journalpostId) throws KildesystemException {
+    public Optional<JournalpostDto> hentJournalpost(String journalpostId, String bearerToken) throws KildesystemException {
         try {
             if (PrefixUtil.startsWith(PREFIX_BIDRAG, journalpostId)) {
-                return bidragJournalpostConsumer.hentJournalpost(PrefixUtil.tryExtraction(journalpostId));
+                return bidragJournalpostConsumer.hentJournalpost(PrefixUtil.tryExtraction(journalpostId), bearerToken);
             } else if (PrefixUtil.startsWith(PREFIX_JOARK, journalpostId)) {
-                return bidragArkivConsumer.hentJournalpost(PrefixUtil.tryExtraction(journalpostId));
+                return bidragArkivConsumer.hentJournalpost(PrefixUtil.tryExtraction(journalpostId), bearerToken);
             }
         } catch (NumberFormatException nfe) {
             throw new KildesystemException("Kan ikke prosesseres som et tall: " + journalpostId);
@@ -41,21 +41,21 @@ public class JournalpostService {
         throw new KildesystemException("Kunne ikke identifisere kildesystem for id: " + journalpostId);
     }
 
-    public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) throws KildesystemException {
+    public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade, String bearerToken) throws KildesystemException {
         if (PrefixUtil.startsWith(PREFIX_BIDRAG, saksnummer)) {
-            return bidragJournalpostConsumer.finnJournalposter(PrefixUtil.remove(PREFIX_BIDRAG, saksnummer), fagomrade);
+            return bidragJournalpostConsumer.finnJournalposter(PrefixUtil.remove(PREFIX_BIDRAG, saksnummer), fagomrade, bearerToken);
         } else if (PrefixUtil.startsWith(PREFIX_GSAK, saksnummer)) {
-            return bidragArkivConsumer.finnJournalposter(PrefixUtil.remove(PREFIX_GSAK, saksnummer));
+            return bidragArkivConsumer.finnJournalposter(PrefixUtil.remove(PREFIX_GSAK, saksnummer), bearerToken);
         }
 
         throw new KildesystemException("Kunne ikke identifisere kildesystem for saksnummer: " + saksnummer);
     }
 
-    public Optional<JournalpostDto> registrer(NyJournalpostCommandDto nyJournalpostCommandDto) {
-        return bidragJournalpostConsumer.registrer(nyJournalpostCommandDto);
+    public Optional<JournalpostDto> registrer(NyJournalpostCommandDto nyJournalpostCommandDto, String bearerToken) {
+        return bidragJournalpostConsumer.registrer(nyJournalpostCommandDto, bearerToken);
     }
 
-    public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto) {
-        return bidragJournalpostConsumer.endre(endreJournalpostCommandDto);
+    public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto, String bearerToken) {
+        return bidragJournalpostConsumer.endre(endreJournalpostCommandDto, bearerToken);
     }
 }
