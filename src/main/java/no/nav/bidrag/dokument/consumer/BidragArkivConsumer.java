@@ -1,6 +1,10 @@
 package no.nav.bidrag.dokument.consumer;
 
-import no.nav.bidrag.dokument.dto.JournalpostDto;
+import static no.nav.bidrag.dokument.consumer.ConsumerUtil.addSecurityHeader;
+
+import java.util.List;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -9,8 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
-import java.util.Optional;
+import no.nav.bidrag.dokument.dto.JournalpostDto;
 
 public class BidragArkivConsumer {
 
@@ -24,7 +27,9 @@ public class BidragArkivConsumer {
 
     public Optional<JournalpostDto> hentJournalpost(Integer id, String bearerToken) {
         RestTemplate restTemplate = RestTemplateFactory.create(bidragArkivBaseUrl, bearerToken);
-        ResponseEntity<JournalpostDto> journalforingDtoResponseEntity = restTemplate.getForEntity("/journalpost/" + id, JournalpostDto.class);
+        ResponseEntity<JournalpostDto> journalforingDtoResponseEntity = restTemplate.exchange(
+                "/journalpost/" + id, HttpMethod.GET, addSecurityHeader(null, bearerToken), JournalpostDto.class);
+
         HttpStatus httpStatus = journalforingDtoResponseEntity.getStatusCode();
 
         LOGGER.info("Journalpost med id={} har http status {}", id, httpStatus);
@@ -34,10 +39,10 @@ public class BidragArkivConsumer {
 
     public List<JournalpostDto> finnJournalposter(String saksnummer, String bearerToken) {
         RestTemplate restTemplate = RestTemplateFactory.create(bidragArkivBaseUrl, bearerToken);
-        ResponseEntity<List<JournalpostDto>> responseEntity = restTemplate.exchange("/journalpost/gsak/" + saksnummer, HttpMethod.GET, null,
+        ResponseEntity<List<JournalpostDto>> responseEntity = restTemplate.exchange(
+                "/journalpost/gsak/" + saksnummer, HttpMethod.GET, addSecurityHeader(null, bearerToken),
                 new ParameterizedTypeReference<List<JournalpostDto>>() {
-                }
-        );
+                });
 
         HttpStatus httpStatus = responseEntity.getStatusCode();
         LOGGER.info("Journalposter knyttet til gsak={} har http status {}", saksnummer, httpStatus);

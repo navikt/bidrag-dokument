@@ -5,10 +5,13 @@ import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_BIDRAG;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_GSAK;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +33,7 @@ import no.nav.bidrag.dokument.service.JournalpostService;
 import no.nav.security.oidc.api.ProtectedWithClaims;
 
 @RestController
-@ProtectedWithClaims(issuer = "isso", claimMap = { "acr=Level4" })
+@ProtectedWithClaims(issuer = "isso")
 public class JournalpostController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JournalpostController.class);
@@ -119,4 +122,5 @@ public class JournalpostController {
                 .map(journalpost -> new ResponseEntity<>(journalpost, HttpStatus.CREATED))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.OK));
     }
+    
 }
