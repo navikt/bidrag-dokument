@@ -1,8 +1,11 @@
 package no.nav.bidrag.dokument.consumer;
 
-import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
-import no.nav.bidrag.dokument.dto.JournalpostDto;
-import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
+import static no.nav.bidrag.dokument.consumer.ConsumerUtil.addSecurityHeader;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -13,9 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
+import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
 
 public class BidragJournalpostConsumer {
     private static final Logger LOGGER = LoggerFactory.getLogger(BidragJournalpostConsumer.class);
@@ -28,13 +31,14 @@ public class BidragJournalpostConsumer {
 
     public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade, String bearerToken) {
         RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost, bearerToken);
-        String uri = UriComponentsBuilder.fromPath("/sak/" + saksnummer)
+        String path = "/sak/" + saksnummer;
+
+        String uri = UriComponentsBuilder.fromPath(path)
                 .queryParam("fagomrade", fagomrade)
                 .toUriString();
 
         ResponseEntity<List<JournalpostDto>> journalposterForBidragRequest = restTemplate.exchange(
-                uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter()
-        );
+                uri, HttpMethod.GET, addSecurityHeader(null, bearerToken), typereferansenErListeMedJournalposter());
 
         HttpStatus httpStatus = journalposterForBidragRequest.getStatusCode();
         LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} på fagområde {}", httpStatus, saksnummer, fagomrade);
@@ -50,10 +54,11 @@ public class BidragJournalpostConsumer {
 
     public Optional<JournalpostDto> registrer(NyJournalpostCommandDto nyJournalpostCommandDto, String bearerToken) {
         RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost, bearerToken);
+        String path = "/journalpost/ny";
 
         ResponseEntity<JournalpostDto> registrertJournalpost = restTemplate.exchange(
-                "/journalpost/ny", HttpMethod.POST, new HttpEntity<>(nyJournalpostCommandDto), JournalpostDto.class
-        );
+                path, HttpMethod.POST, addSecurityHeader(new HttpEntity<>(nyJournalpostCommandDto), bearerToken),
+                JournalpostDto.class);
 
         HttpStatus httpStatus = registrertJournalpost.getStatusCode();
         LOGGER.info("Fikk http status {} fra registrer ny journalpost: {}", httpStatus, nyJournalpostCommandDto);
@@ -63,7 +68,11 @@ public class BidragJournalpostConsumer {
 
     public Optional<JournalpostDto> hentJournalpost(Integer id, String bearerToken) {
         RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost, bearerToken);
-        ResponseEntity<JournalpostDto> journalpostResponseEntity = restTemplate.getForEntity("/journalpost/" + id, JournalpostDto.class);
+        String path = "/journalpost/" + id;
+
+        ResponseEntity<JournalpostDto> journalpostResponseEntity = restTemplate.exchange(
+                path, HttpMethod.GET, addSecurityHeader(null, bearerToken), JournalpostDto.class);
+
         HttpStatus httpStatus = journalpostResponseEntity.getStatusCode();
 
         LOGGER.info("JournalpostDto med id={} har http status {}", id, httpStatus);
@@ -73,10 +82,11 @@ public class BidragJournalpostConsumer {
 
     public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto, String bearerToken) {
         RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost, bearerToken);
+        String path = "/journalpost";
 
         ResponseEntity<JournalpostDto> endretJournalpost = restTemplate.exchange(
-                "/journalpost", HttpMethod.POST, new HttpEntity<>(endreJournalpostCommandDto), JournalpostDto.class
-        );
+                path, HttpMethod.POST, addSecurityHeader(new HttpEntity<>(endreJournalpostCommandDto), bearerToken),
+                JournalpostDto.class);
 
         HttpStatus httpStatus = endretJournalpost.getStatusCode();
         LOGGER.info("Fikk http status {} fra endre journalpost: {}", httpStatus, endreJournalpostCommandDto);
