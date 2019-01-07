@@ -5,13 +5,10 @@ import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_BIDRAG;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_GSAK;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +44,8 @@ public class JournalpostController {
     }
 
     @GetMapping("/status")
-    @ResponseBody public String get() {
+    @ResponseBody
+    public String get() {
         return "OK";
     }
 
@@ -55,8 +53,8 @@ public class JournalpostController {
     @ApiOperation("Finn journalpost for en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
     public ResponseEntity<JournalpostDto> hent(
             @PathVariable String journalpostIdForKildesystem,
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String bearer) {               
-        
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String bearer) {
+
         LOGGER.debug("request: bidrag-dokument" + ENDPOINT_JOURNALPOST + '/' + journalpostIdForKildesystem);
 
         try {
@@ -71,15 +69,13 @@ public class JournalpostController {
     }
 
     @GetMapping(ENDPOINT_SAKJOURNAL + "/{saksnummerForKildesystem}")
-    @ApiOperation(
-            "Finn saksjournal for et saksnummer i en sak på formatet [" + PREFIX_BIDRAG + "|" + PREFIX_GSAK + "]" + DELIMTER + "<saksnummer>, "
-                    + "samt parameter 'fagomrade' (FAR - farskapjournal) og (BID - bidragsjournal)"
-    )
+    @ApiOperation("Finn saksjournal for et saksnummer i en sak på formatet [" + PREFIX_BIDRAG + "|" + PREFIX_GSAK + "]" + DELIMTER + "<saksnummer>, "
+            + "samt parameter 'fagomrade' (FAR - farskapjournal) og (BID - bidragsjournal)")
     public ResponseEntity<List<JournalpostDto>> get(
-            @PathVariable String saksnummerForKildesystem, 
-            @RequestParam String fagomrade, 
+            @PathVariable String saksnummerForKildesystem,
+            @RequestParam String fagomrade,
             @RequestHeader(HttpHeaders.AUTHORIZATION) String bearer) {
-        
+
         LOGGER.debug("request: bidrag-dokument{}/{}?fagomrade={}", ENDPOINT_JOURNALPOST, saksnummerForKildesystem, fagomrade);
 
         try {
@@ -100,9 +96,9 @@ public class JournalpostController {
     @PostMapping(ENDPOINT_JOURNALPOST + "/ny")
     @ApiOperation("Registrer ny journalpost")
     public ResponseEntity<JournalpostDto> post(
-            @RequestBody NyJournalpostCommandDto nyJournalpostCommandDto, 
+            @RequestBody NyJournalpostCommandDto nyJournalpostCommandDto,
             @RequestHeader(HttpHeaders.AUTHORIZATION) String bearer) {
-        
+
         LOGGER.debug("post ny: {}\n \\-> bidrag-dokument/{}/ny", nyJournalpostCommandDto, ENDPOINT_JOURNALPOST);
 
         return journalpostService.registrer(nyJournalpostCommandDto, bearer)
@@ -113,14 +109,14 @@ public class JournalpostController {
     @PostMapping(ENDPOINT_JOURNALPOST)
     @ApiOperation("Endre eksisterende journalpost")
     public ResponseEntity<JournalpostDto> post(
-            @RequestBody EndreJournalpostCommandDto endreJournalpostCommandDto, 
+            @RequestBody EndreJournalpostCommandDto endreJournalpostCommandDto,
             @RequestHeader(HttpHeaders.AUTHORIZATION) String bearer) {
-        
+
         LOGGER.debug("post endret: {}\n \\-> bidrag-dokument/{}/endre", endreJournalpostCommandDto, ENDPOINT_JOURNALPOST);
 
         return journalpostService.endre(endreJournalpostCommandDto, bearer)
                 .map(journalpost -> new ResponseEntity<>(journalpost, HttpStatus.CREATED))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.OK));
     }
-    
+
 }
