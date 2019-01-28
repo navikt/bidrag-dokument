@@ -1,16 +1,8 @@
 package no.nav.bidrag.dokument.consumer;
 
-import static no.nav.bidrag.dokument.BidragDokumentTest.bearer;
-import static no.nav.bidrag.dokument.consumer.ConsumerUtil.addSecurityHeader;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
-
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import no.nav.bidrag.dokument.dto.JournalpostDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,16 +13,22 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
-import no.nav.bidrag.dokument.dto.JournalpostDto;
+import java.util.Optional;
+
+import static no.nav.bidrag.dokument.BidragDokumentTest.bearer;
+import static no.nav.bidrag.dokument.consumer.ConsumerUtil.addSecurityHeader;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @DisplayName("BidragArkivConsumer")
 @SuppressWarnings("unchecked")
@@ -78,8 +76,8 @@ class BidragArkivConsumerTest {
                 anyString(),
                 any(HttpMethod.class),
                 any(HttpEntity.class),
-                ArgumentMatchers.<Class<JournalpostDto>> any()))
-                        .thenReturn(new ResponseEntity<JournalpostDto>(enJournalpostMedJournaltilstand("ENDELIG"), HttpStatus.OK));
+                ArgumentMatchers.<Class<JournalpostDto>>any())
+        ).thenReturn(new ResponseEntity<>(enJournalpostMedJournaltilstand("ENDELIG"), HttpStatus.OK));
 
         Optional<JournalpostDto> journalpostOptional = bidragArkivConsumer.hentJournalpost(101, bearer());
         JournalpostDto journalpostDto = journalpostOptional.orElseThrow(() -> new AssertionError("Ingen Dto fra manager!"));
@@ -108,8 +106,8 @@ class BidragArkivConsumerTest {
                 anyString(),
                 any(HttpMethod.class),
                 any(HttpEntity.class),
-                ArgumentMatchers.<Class<JournalpostDto>> any()))
-                        .thenReturn(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
+                ArgumentMatchers.<Class<JournalpostDto>>any()))
+                .thenReturn(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
 
         bidragArkivConsumer.hentJournalpost(123, bearer());
 
@@ -117,23 +115,6 @@ class BidragArkivConsumerTest {
                 argThat((ArgumentMatcher) argument -> {
                     assertThat(((ILoggingEvent) argument).getFormattedMessage())
                             .contains("Journalpost med id=123 har http status 500 INTERNAL_SERVER_ERROR");
-
-                    return true;
-                }));
-    }
-
-    @DisplayName("skalLoggeFinnJournalposter")
-    @Test
-    void skalLoggeFinnJournalposter() {
-        when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<?>) any())).thenReturn(
-                new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
-
-        bidragArkivConsumer.finnJournalposter("12345", bearer());
-
-        verify(appenderMock).doAppend(
-                argThat((ArgumentMatcher) argument -> {
-                    assertThat(((ILoggingEvent) argument).getFormattedMessage())
-                            .contains("Journalposter knyttet til gsak=12345 har http status 500 INTERNAL_SERVER_ERROR");
 
                     return true;
                 }));

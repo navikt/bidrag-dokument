@@ -237,66 +237,6 @@ class JournalpostControllerTest {
             verify(restTemplateMock).exchange(eq("/sak/1001?fagomrade=BID"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
         }
 
-        @DisplayName("skal finne Journalposter for en gsak")
-        @SuppressWarnings("unchecked")
-        @Test
-        void skalFinneJournalposterForEnGsak() {
-            when(restTemplateMock.exchange(
-                    anyString(),
-                    any(),
-                    any(),
-                    (ParameterizedTypeReference<List<JournalpostDto>>) any()))
-                            .thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
-
-            var listeMedJournalposterResponse = testRestTemplate.exchange(
-                    urlForFagomradeBid("/gsak-1001"), HttpMethod.GET, addSecurityHeader(null, testBearerToken), responseTypeErListeMedJournalposter());
-
-            assertThat(optional(listeMedJournalposterResponse)).hasValueSatisfying(response -> assertAll(
-                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-                    () -> assertThat(response.getBody()).hasSize(2)));
-
-            verify(restTemplateMock).exchange(eq("/journalpost/gsak/1001"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
-        }
-
-        @DisplayName("skal ikke få internal server error (HttpStatus 500) når ukjent bidragssaksnummerstreng brukes")
-        @SuppressWarnings("unchecked")
-        @Test
-        void skalIkkeFremprovosereHttpStatus500MedUkjentSaksnummerStreng() {
-            when(restTemplateMock.exchange(
-                    anyString(),
-                    any(),
-                    any(),
-                    (ParameterizedTypeReference<List<JournalpostDto>>) any()))
-                            .thenReturn(new ResponseEntity<>(HttpStatus.NO_CONTENT));
-
-            var listeMedJournalposterResponse = testRestTemplate.exchange(
-                    urlForFagomradeBid("/bid-svada"),
-                    HttpMethod.GET,
-                    addSecurityHeader(null, testBearerToken),
-                    responseTypeErListeMedJournalposter());
-
-            assertThat(optional(listeMedJournalposterResponse)).hasValueSatisfying(response -> assertAll(
-                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT),
-                    () -> assertThat(response.getBody()).isNull()));
-        }
-
-        @DisplayName("skal få bad request (HttpStatus 400) når ukjent saksnummerstreng brukes")
-        @Test
-        void skalFremprovosereHttpStatus500MedUkjentSaksnummerStreng() {
-            String testToken = generateTestBearerToken();
-            var listeMedJournalposterResponse = testRestTemplate.exchange(
-                    urlForFagomradeBid("/svada"),
-                    HttpMethod.GET,
-                    addSecurityHeader(null, testToken),
-                    responseTypeErListeMedJournalposter());
-
-            assertThat(optional(listeMedJournalposterResponse)).hasValueSatisfying(response -> assertAll(
-                    () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
-                    () -> assertThat(response.getBody()).isNull()));
-
-            verifyZeroInteractions(restTemplateMock);
-        }
-
         @NotNull
         private ParameterizedTypeReference<List<JournalpostDto>> responseTypeErListeMedJournalposter() {
             return new ParameterizedTypeReference<>() {
