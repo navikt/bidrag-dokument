@@ -17,7 +17,7 @@ Feature: bidrag-dokument REST API
         When jeg henter journalposter for sak "BID-0000003" på fagområdet "BID"
         Then statuskoden skal være '200'
         And skal resultatet være en liste med journalposter
-        And hver journalpost i listen skal ha 'saksnummer' 'BID-0000003'
+        And hver journalpost i listen skal ha 'saksnummer' '0000003'
         And hver journalpost i listen skal ha 'fagomrade' 'BID'
 
     Scenario: Sjekk innholdet av en enkelt journalpost i bidrag
