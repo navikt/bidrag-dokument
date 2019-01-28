@@ -6,7 +6,7 @@
 
 	<groupId>no.nav.bidrag.dokument</groupId>
 	<artifactId>bidrag-dokument</artifactId>
-	<version>1.0.161-SNAPSHOT</version>
+	<version>1.0.174-SNAPSHOT</version>
 
 	<description>Backend NAIS for bidrag-dokument</description>
 	<url>https://github.com/navikt/bidrag-dokument</url>
@@ -50,10 +50,9 @@
 
 		<!-- dependent versions other than from spring-boot -->
 		<bidrag-dokument-dto.version>0.0.57</bidrag-dokument-dto.version>
-		<oidc-spring-support.version>0.2.12</oidc-spring-support.version>
+		<oidc-spring-support.version>0.2.13</oidc-spring-support.version>
 		<logback.encoder.version>5.2</logback.encoder.version>
 		<springfox-swagger.version>2.9.2</springfox-swagger.version>
-		<apache.httpcomponents.version>4.5.3</apache.httpcomponents.version>
 
 		<!-- build -->
 		<maven.compiler.version>3.8.0</maven.compiler.version>
@@ -114,11 +113,6 @@
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger-ui</artifactId>
 			<version>${springfox-swagger.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
 		</dependency>
 
 		<!-- logback -->

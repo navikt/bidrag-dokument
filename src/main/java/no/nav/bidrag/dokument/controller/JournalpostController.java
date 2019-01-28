@@ -30,7 +30,7 @@ import no.nav.bidrag.dokument.service.JournalpostService;
 import no.nav.security.oidc.api.ProtectedWithClaims;
 
 @RestController
-@ProtectedWithClaims(issuer = "isso", claimMap = { "acr=Level4" })
+@ProtectedWithClaims(issuer = "isso")
 public class JournalpostController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JournalpostController.class);
@@ -44,7 +44,8 @@ public class JournalpostController {
     }
 
     @GetMapping("/status")
-    @ResponseBody public String get() {
+    @ResponseBody
+    public String get() {
         return "OK";
     }
 
@@ -52,8 +53,8 @@ public class JournalpostController {
     @ApiOperation("Finn journalpost for en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
     public ResponseEntity<JournalpostDto> hent(
             @PathVariable String journalpostIdForKildesystem,
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String bearer) {               
-        
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String bearer) {
+
         LOGGER.debug("request: bidrag-dokument" + ENDPOINT_JOURNALPOST + '/' + journalpostIdForKildesystem);
 
         try {
@@ -68,15 +69,13 @@ public class JournalpostController {
     }
 
     @GetMapping(ENDPOINT_SAKJOURNAL + "/{saksnummerForKildesystem}")
-    @ApiOperation(
-            "Finn saksjournal for et saksnummer i en sak på formatet [" + PREFIX_BIDRAG + "|" + PREFIX_GSAK + "]" + DELIMTER + "<saksnummer>, "
-                    + "samt parameter 'fagomrade' (FAR - farskapjournal) og (BID - bidragsjournal)"
-    )
+    @ApiOperation("Finn saksjournal for et saksnummer i en sak på formatet [" + PREFIX_BIDRAG + "|" + PREFIX_GSAK + "]" + DELIMTER + "<saksnummer>, "
+            + "samt parameter 'fagomrade' (FAR - farskapjournal) og (BID - bidragsjournal)")
     public ResponseEntity<List<JournalpostDto>> get(
-            @PathVariable String saksnummerForKildesystem, 
-            @RequestParam String fagomrade, 
+            @PathVariable String saksnummerForKildesystem,
+            @RequestParam String fagomrade,
             @RequestHeader(HttpHeaders.AUTHORIZATION) String bearer) {
-        
+
         LOGGER.debug("request: bidrag-dokument{}/{}?fagomrade={}", ENDPOINT_JOURNALPOST, saksnummerForKildesystem, fagomrade);
 
         try {
@@ -97,9 +96,9 @@ public class JournalpostController {
     @PostMapping(ENDPOINT_JOURNALPOST + "/ny")
     @ApiOperation("Registrer ny journalpost")
     public ResponseEntity<JournalpostDto> post(
-            @RequestBody NyJournalpostCommandDto nyJournalpostCommandDto, 
+            @RequestBody NyJournalpostCommandDto nyJournalpostCommandDto,
             @RequestHeader(HttpHeaders.AUTHORIZATION) String bearer) {
-        
+
         LOGGER.debug("post ny: {}\n \\-> bidrag-dokument/{}/ny", nyJournalpostCommandDto, ENDPOINT_JOURNALPOST);
 
         return journalpostService.registrer(nyJournalpostCommandDto, bearer)
@@ -110,13 +109,14 @@ public class JournalpostController {
     @PostMapping(ENDPOINT_JOURNALPOST)
     @ApiOperation("Endre eksisterende journalpost")
     public ResponseEntity<JournalpostDto> post(
-            @RequestBody EndreJournalpostCommandDto endreJournalpostCommandDto, 
+            @RequestBody EndreJournalpostCommandDto endreJournalpostCommandDto,
             @RequestHeader(HttpHeaders.AUTHORIZATION) String bearer) {
-        
+
         LOGGER.debug("post endret: {}\n \\-> bidrag-dokument/{}/endre", endreJournalpostCommandDto, ENDPOINT_JOURNALPOST);
 
         return journalpostService.endre(endreJournalpostCommandDto, bearer)
                 .map(journalpost -> new ResponseEntity<>(journalpost, HttpStatus.CREATED))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.OK));
     }
+
 }
