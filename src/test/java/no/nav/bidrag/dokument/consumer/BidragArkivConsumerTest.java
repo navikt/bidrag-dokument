@@ -31,18 +31,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @DisplayName("BidragArkivConsumer")
-@SuppressWarnings("unchecked")
 class BidragArkivConsumerTest {
 
     private BidragArkivConsumer bidragArkivConsumer;
 
-    @Mock
-    private Appender appenderMock;
-    @Mock
-    private RestTemplate restTemplateMock;
+    @Mock private Appender appenderMock;
+    @Mock private RestTemplate restTemplateMock;
 
-    @BeforeEach
-    void setUp() {
+    @BeforeEach void setUp() {
         initMocks();
         initTestClass();
         mockRestTemplateFactory();
@@ -61,6 +57,7 @@ class BidragArkivConsumerTest {
         RestTemplateFactory.use(() -> restTemplateMock);
     }
 
+    @SuppressWarnings("unchecked")
     private void mockLogAppender() {
         ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         when(appenderMock.getName()).thenReturn("MOCK");
@@ -69,8 +66,7 @@ class BidragArkivConsumerTest {
     }
 
     @DisplayName("skal hente en journalpost med spring sin RestTemplate")
-    @Test
-    void skalHenteJournalpostMedRestTemplate() {
+    @Test void skalHenteJournalpostMedRestTemplate() {
 
         when(restTemplateMock.exchange(
                 anyString(),
@@ -98,16 +94,16 @@ class BidragArkivConsumerTest {
         return journalpostDto;
     }
 
+    @SuppressWarnings("unchecked")
     @DisplayName("skalLoggeHentJournalpost")
-    @Test
-    void skalLoggeHentJournalpost() {
+    @Test void skalLoggeHentJournalpost() {
 
         when(restTemplateMock.exchange(
                 anyString(),
                 any(HttpMethod.class),
                 any(HttpEntity.class),
-                ArgumentMatchers.<Class<JournalpostDto>>any()))
-                .thenReturn(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
+                ArgumentMatchers.<Class<JournalpostDto>>any())
+        ).thenReturn(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
 
         bidragArkivConsumer.hentJournalpost(123, bearer());
 
@@ -120,8 +116,7 @@ class BidragArkivConsumerTest {
                 }));
     }
 
-    @AfterEach
-    void resetFactory() {
+    @AfterEach void resetFactory() {
         RestTemplateFactory.reset();
     }
 }
