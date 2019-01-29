@@ -55,7 +55,7 @@ fasitResources: # resources fetched from Fasit
     resourceType: baseUrl
     propertyMap: 
       url: ISSO_ISSUER_URL
-  - alias: bidrag-sak
+  - alias: bidragSak
     resourceType: restservice
     propertyMap:
       url: BIDRAG_SAK_URL # map the "url" property of restservice to BIDRAG_SAK_URL
