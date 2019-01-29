@@ -14,14 +14,14 @@ Feature: bidrag-dokument REST API
         And statuskoden skal være '200'
 
     Scenario: Sjekk at vi får en liste med journalposter på fagområdet
-        When jeg henter journalposter for sak "BID-0000003" på fagområdet "BID"
+        When jeg henter journalposter for sak "0000003" på fagområdet "BID"
         Then statuskoden skal være '200'
         And skal resultatet være en liste med journalposter
         And hver journalpost i listen skal ha 'saksnummer' '0000003'
         And hver journalpost i listen skal ha 'fagomrade' 'BID'
 
     Scenario: Sjekk innholdet av en enkelt journalpost i bidrag
-        When jeg henter journalposter for sak "BID-0000003" på fagområdet "BID"
+        When jeg henter journalposter for sak "0000003" på fagområdet "BID"
         Then statuskoden skal være '200'
         And skal resultatet være en liste med journalposter
         And hver rad i listen skal ha følgende properties satt:
@@ -30,5 +30,5 @@ Feature: bidrag-dokument REST API
             | saksnummer  |
 
     Scenario: Sjekk at ukjent sak gir 204 med ingen data
-        When jeg henter journalposter for sak "BID-XYZ" på fagområdet "BID"
+        When jeg henter journalposter for sak "XYZ" på fagområdet "BID"
         Then statuskoden skal være '204'

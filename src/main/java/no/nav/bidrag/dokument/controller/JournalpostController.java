@@ -1,12 +1,12 @@
 package no.nav.bidrag.dokument.controller;
 
-import static no.nav.bidrag.dokument.BidragDokumentConfig.DELIMTER;
-import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_BIDRAG;
-import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_GSAK;
-import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
-
-import java.util.List;
-
+import io.swagger.annotations.ApiOperation;
+import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
+import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
+import no.nav.bidrag.dokument.exception.KildesystemException;
+import no.nav.bidrag.dokument.service.JournalpostService;
+import no.nav.security.oidc.api.ProtectedWithClaims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -21,13 +21,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.annotations.ApiOperation;
-import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
-import no.nav.bidrag.dokument.dto.JournalpostDto;
-import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
-import no.nav.bidrag.dokument.exception.KildesystemException;
-import no.nav.bidrag.dokument.service.JournalpostService;
-import no.nav.security.oidc.api.ProtectedWithClaims;
+import java.util.List;
+
+import static no.nav.bidrag.dokument.BidragDokumentConfig.DELIMTER;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_BIDRAG;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
 
 @RestController
 @ProtectedWithClaims(issuer = "isso")
@@ -68,29 +66,19 @@ public class JournalpostController {
         }
     }
 
-    @GetMapping(ENDPOINT_SAKJOURNAL + "/{saksnummerForKildesystem}")
-    @ApiOperation("Finn saksjournal for et saksnummer i en sak på formatet [" + PREFIX_BIDRAG + "|" + PREFIX_GSAK + "]" + DELIMTER + "<saksnummer>, "
-            + "samt parameter 'fagomrade' (FAR - farskapjournal) og (BID - bidragsjournal)")
-    public ResponseEntity<List<JournalpostDto>> get(
-            @PathVariable String saksnummerForKildesystem,
+    @GetMapping(ENDPOINT_SAKJOURNAL + "/{saksnummer}")
+    @ApiOperation("Finn saksjournal for et saksnummer i en bidragssak, "
+            + "samt parameter 'fagomrade' (FAR - farskapjournal) og (BID - bidragsjournal)"
+    ) public ResponseEntity<List<JournalpostDto>> get(
+            @PathVariable String saksnummer,
             @RequestParam String fagomrade,
             @RequestHeader(HttpHeaders.AUTHORIZATION) String bearer) {
 
-        LOGGER.debug("request: bidrag-dokument{}/{}?fagomrade={}", ENDPOINT_JOURNALPOST, saksnummerForKildesystem, fagomrade);
+        LOGGER.debug("request: bidrag-dokument{}/{}?fagomrade={}", ENDPOINT_JOURNALPOST, saksnummer, fagomrade);
 
-        try {
-            List<JournalpostDto> journalposter = journalpostService.finnJournalposter(saksnummerForKildesystem, fagomrade, bearer);
+        var journalposter = journalpostService.finnJournalposter(saksnummer, fagomrade, bearer);
 
-            if (journalposter.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-
-            return new ResponseEntity<>(journalposter, HttpStatus.OK);
-        } catch (KildesystemException e) {
-            LOGGER.warn("Ukjent kildesystem: " + e.getMessage());
-
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        return new ResponseEntity<>(journalposter, journalposter.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK);
     }
 
     @PostMapping(ENDPOINT_JOURNALPOST + "/ny")

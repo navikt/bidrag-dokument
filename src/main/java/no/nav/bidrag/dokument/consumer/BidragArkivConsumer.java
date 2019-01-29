@@ -36,17 +36,4 @@ public class BidragArkivConsumer {
 
         return Optional.ofNullable(journalforingDtoResponseEntity.getBody());
     }
-
-    public List<JournalpostDto> finnJournalposter(String saksnummer, String bearerToken) {
-        RestTemplate restTemplate = RestTemplateFactory.create(bidragArkivBaseUrl, bearerToken);
-        ResponseEntity<List<JournalpostDto>> responseEntity = restTemplate.exchange(
-                "/journalpost/gsak/" + saksnummer, HttpMethod.GET, addSecurityHeader(null, bearerToken),
-                new ParameterizedTypeReference<List<JournalpostDto>>() {
-                });
-
-        HttpStatus httpStatus = responseEntity.getStatusCode();
-        LOGGER.info("Journalposter knyttet til gsak={} har http status {}", saksnummer, httpStatus);
-
-        return responseEntity.getBody();
-    }
 }

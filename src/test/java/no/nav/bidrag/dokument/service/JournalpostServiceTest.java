@@ -72,24 +72,4 @@ class JournalpostServiceTest {
                 .isInstanceOf(KildesystemException.class)
                 .hasMessage("Kan ikke prosesseres som et tall: bid-jalla");
     }
-
-    @DisplayName("skal feile med KildesystemException når kilsdesystem ikke er identifisert av saksnummer")
-    @Test void skalFeileNarSaksnummerIkkeIdentifisererKildesystem() {
-        // given
-        String saksnummerUtenKildesystem = "2";
-
-        // when
-        Throwable thrown = catchThrowable(() -> journalpostService.finnJournalposter(saksnummerUtenKildesystem, null, bearer()));
-
-        // then
-        assertThat(thrown)
-                .isInstanceOf(KildesystemException.class)
-                .hasMessage("Kunne ikke identifisere kildesystem for saksnummer: 2");
-    }
-
-    @DisplayName("skal finne journalposter tilknyttet gsak")
-    @Test void skalFinneJournalposterTilknyttetGsak() throws KildesystemException {
-        when(bidragArkivConsumerMock.finnJournalposter("2", bearer())).thenReturn(asList(new JournalpostDto(), new JournalpostDto()));
-        assertThat(journalpostService.finnJournalposter("gsak-2", "FAR", bearer())).hasSize(2);
-    }
 }
