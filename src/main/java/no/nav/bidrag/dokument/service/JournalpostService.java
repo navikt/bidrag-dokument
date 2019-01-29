@@ -41,7 +41,7 @@ public class JournalpostService {
     }
 
     public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade, String bearerToken) {
-        return bidragJournalpostConsumer.finnJournalposter(PrefixUtil.remove(PREFIX_BIDRAG, saksnummer), fagomrade, bearerToken);
+        return bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade, bearerToken);
     }
 
     public Optional<JournalpostDto> registrer(NyJournalpostCommandDto nyJournalpostCommandDto, String bearerToken) {

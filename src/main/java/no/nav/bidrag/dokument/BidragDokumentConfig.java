@@ -13,7 +13,6 @@ public class BidragDokumentConfig {
     
     public static final String DELIMTER = "-";
     public static final String PREFIX_BIDRAG = "BID";
-    public static final String PREFIX_GSAK = "GSAK";
     public static final String PREFIX_JOARK = "JOARK";
 
     @Bean public BidragJournalpostConsumer bidragJournalpostConsumer(
