@@ -14,6 +14,10 @@ function journalpostSuffix(saksnummer, fagomrade) {
     return util.format("/sakjournal/%s?fagomrade=%s", saksnummer, fagomrade)
 }
 
+function enkelJournalpostSuffix(journalpostIdForKildesystem) {
+    return util.format("/journalpost/%s", journalpostIdForKildesystem)
+}
+
 Given('restservice {string}', alias => {
     this.alias = alias;
 });
@@ -77,3 +81,26 @@ Then('hver rad i listen skal ha følgende properties satt:', (table) => {
     })
     assert.ok(missing.length == 0, "Properties mangler: " + missing.join(","))
 })
+
+When('Jeg henter en journalpost med id {string}', async journalpostIdForKildesystem => {
+    let pathAndParam = enkelJournalpostSuffix(journalpostIdForKildesystem);
+    console.log("henter journalpost", journalpostIdForKildesystem, this.alias, pathAndParam);
+    this.response = await kallFasitRestService(this.alias, pathAndParam);
+    assert(this.response != null, "Intet svar mottatt fra tjenesten");
+    assert(undefined === this.response.errno, "Feilmelding: " + this.response.errno);
+});
+
+Then('journalposten skal inneholde metadata om gjelderBrukerIds bidragssaker som inkluderer', (table) => {
+    var missing = [];
+
+    this.response.data.forEach(row => {
+        table.rawTable.forEach(item => {
+            if (!row[item[0]]) {
+                console.log("-- mangler", item[0], "i", row);
+                missing.push(item[0])
+            }
+        })
+    });
+
+    assert.ok(missing.length === 0, "BidragSakDto mangler properties: " + missing.join(","))
+});
