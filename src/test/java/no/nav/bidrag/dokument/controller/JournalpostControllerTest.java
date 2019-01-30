@@ -3,6 +3,7 @@ package no.nav.bidrag.dokument.controller;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
 import no.nav.bidrag.dokument.JournalpostDtoBygger;
 import no.nav.bidrag.dokument.consumer.RestTemplateFactory;
+import no.nav.bidrag.dokument.dto.BidragSakDto;
 import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
@@ -47,11 +48,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = BidragDokumentLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("dev")
-@DisplayName("JournalpostController")
-@TestInstance(Lifecycle.PER_CLASS)
+@ExtendWith(SpringExtension.class) @SpringBootTest(classes = BidragDokumentLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("dev") @DisplayName("JournalpostController") @TestInstance(Lifecycle.PER_CLASS)
 class JournalpostControllerTest {
 
     private static final String ENDPOINT_JOURNALPOST = "/journalpost";
@@ -185,19 +183,56 @@ class JournalpostControllerTest {
 
             assertThat(optional(responseEntity)).hasValueSatisfying(response -> assertAll(
                     () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED),
-                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournalpostId).isEqualTo("BID-101")));
+                    () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournalpostId).isEqualTo("BID-101"))
+            );
         }
 
-        @DisplayName("skal ikke feile ved bruk av saksnummer som ikke er heltall")
-        @Test void skalIkkeFeileNarSaksnummerIkkeErHeltall() {
+        @DisplayName("skal hente BidragSakDto for journalpostens gjelderBrukerId") @SuppressWarnings("unchecked")
+        @Test void skalHenteBidragSakDtoForJournalpostensGjelderBrukerId() {
+            when(restTemplateMock.exchange(
+                    "/journalpost/1",
+                    HttpMethod.GET,
+                    addSecurityHeader(null, testBearerToken),
+                    JournalpostDto.class)
+            ).thenReturn(new ResponseEntity<>(enJournalpostFraBrukerId("06127412345"), HttpStatus.I_AM_A_TEAPOT));
+
+            when(restTemplateMock.exchange(
+                    "/person/sak/06127412345",
+                    HttpMethod.GET,
+                    addSecurityHeader(null, testBearerToken),
+                    listAvBidragssakerType())
+            ).thenReturn(new ResponseEntity<>(List.of(new BidragSakDto()), HttpStatus.I_AM_A_TEAPOT));
+
+            var journalpostDtoResponseEntity = testRestTemplate.exchange(
+                    url + "/bid-1", HttpMethod.GET, addSecurityHeader(null, testBearerToken), JournalpostDto.class
+            );
+
+            assertAll(
+                    () -> assertThat(journalpostDtoResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK),
+                    () -> assertThat(journalpostDtoResponseEntity.getBody()).isNotNull(),
+                    () -> assertThat(journalpostDtoResponseEntity.getBody().getBidragssaker()).isNotEmpty()
+            );
+
+            verify(restTemplateMock).exchange(eq("/person/sak/06127412345"), any(), any(), (ParameterizedTypeReference<List<BidragSakDto>>) any());
         }
 
+        private JournalpostDto enJournalpostFraBrukerId(@SuppressWarnings("SameParameterValue") String brukerId) {
+            JournalpostDto journalpostDto = new JournalpostDto();
+            journalpostDto.setGjelderBrukerId(List.of(brukerId));
+
+            return journalpostDto;
+        }
+
+        private ParameterizedTypeReference<List<BidragSakDto>> listAvBidragssakerType() {
+            return new ParameterizedTypeReference<>() {
+            };
+        }
     }
 
     @DisplayName("endpoint: " + ENDPOINT_SAKJOURNAL)
     @Nested class EndpointJournalpost {
 
-        private String urlForFagomradeBid(String path) {
+        private String urlForFagomradeBid(@SuppressWarnings("SameParameterValue") String path) {
             return UriComponentsBuilder
                     .fromHttpUrl(initEndpointUrl(ENDPOINT_SAKJOURNAL) + path)
                     .queryParam("fagomrade", "BID")
