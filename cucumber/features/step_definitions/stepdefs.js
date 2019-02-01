@@ -82,7 +82,20 @@ Then('hver rad i listen skal ha følgende properties satt:', (table) => {
     assert.ok(missing.length == 0, "Properties mangler: " + missing.join(","))
 })
 
-When('Jeg henter en journalpost med id {string}', async journalpostIdForKildesystem => {
+Then('journalposten skal inneholde metadata om gjelderBrukerIds bidragssaker som inkluderer', (table) => {
+    var bidragssaker = this.response.data.bidragssaker;
+    var missing = [];
+
+    table.rawTable.forEach(item => {
+        if (!bidragssaker[item[0]]) {
+            missing.push(item[0])
+        }
+    });
+
+    assert.ok(missing.length === 0, "Manglende properties i bidragssaker: " + missing.join(","))
+});
+
+When('jeg henter journalpost med id {string}', async (journalpostIdForKildesystem) => {
     let pathAndParam = enkelJournalpostSuffix(journalpostIdForKildesystem);
     console.log("henter journalpost", journalpostIdForKildesystem, this.alias, pathAndParam);
     this.response = await kallFasitRestService(this.alias, pathAndParam);
@@ -90,17 +103,13 @@ When('Jeg henter en journalpost med id {string}', async journalpostIdForKildesys
     assert(undefined === this.response.errno, "Feilmelding: " + this.response.errno);
 });
 
-Then('journalposten skal inneholde metadata om gjelderBrukerIds bidragssaker som inkluderer', (table) => {
-    var missing = [];
-
-    this.response.data.forEach(row => {
-        table.rawTable.forEach(item => {
-            if (!row[item[0]]) {
-                console.log("-- mangler", item[0], "i", row);
-                missing.push(item[0])
-            }
-        })
-    });
-
-    assert.ok(missing.length === 0, "BidragSakDto mangler properties: " + missing.join(","))
-});
+Then('journalposten sine bidragssaker skal ha følgende properties:', (table) => {
+    var jp = this.response.data.dokumenter[0];
+    var missing = []
+    table.rawTable.forEach(item => {
+        if (!jp[item[0]]) {
+            missing.push(item[0])
+        }
+    })
+    assert.equal(missing.length, 0, "Mangler properties: " + missing.join(","));
+})
