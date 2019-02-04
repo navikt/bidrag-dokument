@@ -21,11 +21,11 @@ public final class RestTemplateFactory {
         this.initRestTemplate = initRestTemplate;
     }
 
-    static RestTemplate create(String baseUrl, String bearerToken) {
-        return instance.createTemplate(baseUrl, bearerToken);
+    static RestTemplate create(String baseUrl) {
+        return instance.createTemplate(baseUrl);
     }
 
-    private RestTemplate createTemplate(String baseUrl, String bearerToken) {
+    private RestTemplate createTemplate(String baseUrl) {
         RestTemplate restTemplate;
 
         if (restTemplatesPerBaseUri.containsKey(baseUrl)) {

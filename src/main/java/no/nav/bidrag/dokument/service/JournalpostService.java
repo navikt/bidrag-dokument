@@ -1,5 +1,14 @@
 package no.nav.bidrag.dokument.service;
 
+import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_BIDRAG;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Component;
+
 import no.nav.bidrag.dokument.PrefixUtil;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
@@ -9,14 +18,6 @@ import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
 import no.nav.bidrag.dokument.exception.KildesystemException;
-import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_BIDRAG;
-import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
 
 @Component
 public class JournalpostService {
@@ -31,17 +32,16 @@ public class JournalpostService {
         this.bidragArkivConsumer = bidragArkivConsumer;
     }
 
-    public Optional<JournalpostDto> hentJournalpost(String journalpostId, String bearerToken) throws KildesystemException {
+    public Optional<JournalpostDto> hentJournalpost(String journalpostId) throws KildesystemException {
         try {
             if (PrefixUtil.startsWith(PREFIX_BIDRAG, journalpostId)) {
-                Optional<JournalpostDto> muligJournalpostDto = bidragJournalpostConsumer.hentJournalpost(PrefixUtil.tryExtraction(journalpostId), bearerToken);
+                Optional<JournalpostDto> muligJournalpostDto = bidragJournalpostConsumer.hentJournalpost(PrefixUtil.tryExtraction(journalpostId));
                 muligJournalpostDto.ifPresent(
-                        journalpostDto -> journalpostDto.setBidragssaker(finnBidragssaker(journalpostDto.getGjelderBrukerId(), bearerToken))
-                );
+                        journalpostDto -> journalpostDto.setBidragssaker(finnBidragssaker(journalpostDto.getGjelderBrukerId())));
 
                 return muligJournalpostDto;
             } else if (PrefixUtil.startsWith(PREFIX_JOARK, journalpostId)) {
-                return bidragArkivConsumer.hentJournalpost(PrefixUtil.tryExtraction(journalpostId), bearerToken);
+                return bidragArkivConsumer.hentJournalpost(PrefixUtil.tryExtraction(journalpostId));
             }
         } catch (NumberFormatException nfe) {
             throw new KildesystemException("Kan ikke prosesseres som et tall: " + journalpostId);
@@ -50,22 +50,22 @@ public class JournalpostService {
         throw new KildesystemException("Kunne ikke identifisere kildesystem for id: " + journalpostId);
     }
 
-    private List<BidragSakDto> finnBidragssaker(List<String> gjelderBrukerId, String bearerToken) {
+    private List<BidragSakDto> finnBidragssaker(List<String> gjelderBrukerId) {
         List<BidragSakDto> bidragssaker = new ArrayList<>();
-        gjelderBrukerId.forEach(fnr -> bidragssaker.addAll(bidragSakConsumer.finnInnvolverteSaker(fnr, bearerToken)));
+        gjelderBrukerId.forEach(fnr -> bidragssaker.addAll(bidragSakConsumer.finnInnvolverteSaker(fnr)));
 
         return bidragssaker;
     }
 
-    public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade, String bearerToken) {
-        return bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade, bearerToken);
+    public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
+        return bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade);
     }
 
-    public Optional<JournalpostDto> registrer(NyJournalpostCommandDto nyJournalpostCommandDto, String bearerToken) {
-        return bidragJournalpostConsumer.registrer(nyJournalpostCommandDto, bearerToken);
+    public Optional<JournalpostDto> registrer(NyJournalpostCommandDto nyJournalpostCommandDto) {
+        return bidragJournalpostConsumer.registrer(nyJournalpostCommandDto);
     }
 
-    public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto, String bearerToken) {
-        return bidragJournalpostConsumer.endre(endreJournalpostCommandDto, bearerToken);
+    public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto) {
+        return bidragJournalpostConsumer.endre(endreJournalpostCommandDto);
     }
 }
