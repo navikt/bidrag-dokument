@@ -65,5 +65,5 @@ BidragDokumentLocal brukes i stedet for BidragDokument ved lokal kjøring.
   
 #### Swagger Authorize 
 Den grønne authorize-knappen øverst i Swagger-ui kan brukes til å autentisere requester om du har tilgang på et gyldig OIDC-token. For å benytte authorize må følgende legges i value-feltet:
- - "Bearer <id-token>"
+ - "Bearer id-token" (hvor id-token er en gyldig jwt-tekst-streng)
  
