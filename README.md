@@ -55,15 +55,31 @@ BidragDokumentLocal brukes i stedet for BidragDokument ved lokal kjøring.
  - Start BidragDokumentLocal som standard Java-applikasjon
  
  - Opprette cookie for nettleser med token app-instans for bruk av oidc-test-support, naviger til:<br> 
- 	 - [http://localhost:8080/bidrag-dokument-journalpost/local/cookie?redirect=/bidrag-dokument-journalpost](http://localhost:8080/bidrag-dokument-journalpost/local/cookie?redirect=/bidrag-dokument-journalpost)
+ 	 - [http://localhost:8080/bidrag-dokument/local/cookie?redirect=/bidrag-dokument](http://localhost:8080/bidrag-dokument/local/cookie?redirect=/bidrag-dokument)
  	 - Cookie med testtoken er nå tilgjengelig i nettleser, naviger til http://localhost:8080/bidrag-dokument/swagger-ui.html for å teste.
  	 
  - (Valgfri) Verifiser at test-tokengeneratoren fungerer ved å hente frem:<br>
- 	 - [http://localhost:8080/bidrag-dokument-journalpost/local/jwt](http://localhost:8080/bidrag-dokument-journalpost/local/jwt)<br> 	  	
- 	 - [http://localhost:8080/bidrag-dokument-journalpost/local/cookie](http://localhost:8080/bidrag-dokument-journalpost/local/cookie)<br> 	  	 
-  	 - [http://localhost:8080/bidrag-dokument-journalpost/local/claims](http://localhost:8080/bidrag-dokument-journalpost/local/claims)<br>
+ 	 - [http://localhost:8080/bidrag-dokument/local/jwt](http://localhost:8080/bidrag-dokument/local/jwt)<br> 	  	
+ 	 - [http://localhost:8080/bidrag-dokument/local/cookie](http://localhost:8080/bidrag-dokument/local/cookie)<br> 	  	 
+  	 - [http://localhost:8080/bidrag-dokument/local/claims](http://localhost:8080/bidrag-dokument/local/claims)<br>
   
 #### Swagger Authorize 
 Den grønne authorize-knappen øverst i Swagger-ui kan brukes til å autentisere requester om du har tilgang på et gyldig OIDC-token. For å benytte authorize må følgende legges i value-feltet:
  - "Bearer id-token" (hvor id-token er en gyldig jwt-tekst-streng)
+ 
+ For localhost kan et gyldig id-token hentes med følgende URL dersom BidragDokumentArkivLocal er startet på port 8080:
+   - [http://localhost:8080/bidrag-dokument/local/jwt](http://localhost:8080/bidrag-dokument/local/jwt)<br>
+   
+For preprod kan følgende CURL-kommando benyttes (krever tilgang til isso-agent-passord i Fasit for aktuelt miljø):
+ 
+ <code> curl -X POST \ </code><br>
+	  <code> -u "{isso-agent-brukernavn}:{isso-agent-passord}" \ </code> <br>
+	  <code> -d "grant_type=client_credentials&scope=openid" \ </code> <br>
+	  <code> {isso-issuer-url}/access_token </code> <br>
+ 
+  
+hvor <code>{isso-agent-brukernavn}</code> og <code>{isso-agent-passord}</code> hentes fra Fasit-ressurs OpenIdConnect bidrag-dokument-ui-oidc for aktuelt miljø (f.eks [https://fasit.adeo.no/resources/6419841](https://fasit.adeo.no/resources/6419841) for q0),
+
+og <code>{isso-issuer-url}</code> hentes fra Fasit-ressurs BaseUrl isso-issuer (f.eks [https://fasit.adeo.no/resources/2291405](https://fasit.adeo.no/resources/2291405) for q0.
+ 
  
