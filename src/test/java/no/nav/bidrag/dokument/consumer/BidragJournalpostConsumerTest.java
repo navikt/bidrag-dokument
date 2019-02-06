@@ -1,6 +1,6 @@
 package no.nav.bidrag.dokument.consumer;
 
-import static no.nav.bidrag.dokument.BidragDokumentTest.bearer;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.ISSUER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -12,9 +12,12 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.mockito.ArgumentMatcher;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
@@ -28,20 +31,44 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import com.nimbusds.jwt.SignedJWT;
+
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
+import no.nav.security.oidc.context.OIDCClaims;
+import no.nav.security.oidc.context.OIDCRequestContextHolder;
+import no.nav.security.oidc.context.OIDCValidationContext;
+import no.nav.security.oidc.context.TokenContext;
+import no.nav.security.oidc.test.support.jersey.TestTokenGeneratorResource;
 
 @DisplayName("BidragJournalpostConsumer")
 @SuppressWarnings("unchecked")
+@TestInstance(Lifecycle.PER_CLASS)
 class BidragJournalpostConsumerTest {
 
+    private String idToken;
+    private OIDCValidationContext oidcValidationContext;
     private BidragJournalpostConsumer bidragJournalpostConsumer;
 
+    private @Mock OIDCRequestContextHolder securityContextHolder;
     private @Mock Appender appenderMock;
     private @Mock RestTemplate restTemplateMock;
+
+    @BeforeAll
+    void prepareOidcValidationContext() {
+        var testTokenGeneratorResource = new TestTokenGeneratorResource();
+        idToken = testTokenGeneratorResource.issueToken("localhost-idtoken");
+
+        oidcValidationContext = new OIDCValidationContext();
+        TokenContext tokenContext = new TokenContext(ISSUER, idToken);
+        SignedJWT signedJWT = testTokenGeneratorResource.jwtClaims(ISSUER);
+        OIDCClaims oidcClaims = new OIDCClaims(signedJWT);
+
+        oidcValidationContext.addValidatedToken(ISSUER, tokenContext, oidcClaims);
+    }
 
     @BeforeEach
     void setup() {
@@ -49,6 +76,8 @@ class BidragJournalpostConsumerTest {
         initTestClass();
         mockRestTemplateFactory();
         mockLogAppender();
+
+        when(securityContextHolder.getOIDCValidationContext()).thenReturn(oidcValidationContext);
     }
 
     private void initMocks() {
@@ -56,7 +85,9 @@ class BidragJournalpostConsumerTest {
     }
 
     private void initTestClass() {
-        bidragJournalpostConsumer = new BidragJournalpostConsumer("http://bidrag-dokument.nav.no");
+        bidragJournalpostConsumer = new BidragJournalpostConsumer(
+                "http://bidrag-dokument.nav.no",
+                securityContextHolder);
     }
 
     private void mockRestTemplateFactory() {
@@ -81,7 +112,7 @@ class BidragJournalpostConsumerTest {
         when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any())).thenReturn(
                 new ResponseEntity<>(HttpStatus.NO_CONTENT));
 
-        bidragJournalpostConsumer.finnJournalposter("101", "BID", bearer());
+        bidragJournalpostConsumer.finnJournalposter("101", "BID");
         verify(restTemplateMock).exchange(eq("/sak/101?fagomrade=BID"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
     }
 
@@ -91,7 +122,7 @@ class BidragJournalpostConsumerTest {
         when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any())).thenReturn(
                 new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
 
-        bidragJournalpostConsumer.finnJournalposter("101", "FAR", bearer());
+        bidragJournalpostConsumer.finnJournalposter("101", "FAR");
 
         verify(appenderMock).doAppend(
                 argThat((ArgumentMatcher) argument -> {
@@ -113,7 +144,7 @@ class BidragJournalpostConsumerTest {
                 ArgumentMatchers.<Class<JournalpostDto>> any()))
                         .thenReturn(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
 
-        bidragJournalpostConsumer.hentJournalpost(101, bearer());
+        bidragJournalpostConsumer.hentJournalpost(101);
 
         verify(appenderMock).doAppend(
                 argThat((ArgumentMatcher) argument -> {
@@ -130,7 +161,7 @@ class BidragJournalpostConsumerTest {
         when(restTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(JournalpostDto.class))).thenReturn(
                 new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
 
-        bidragJournalpostConsumer.registrer(new NyJournalpostCommandDto(), bearer());
+        bidragJournalpostConsumer.registrer(new NyJournalpostCommandDto());
 
         verify(appenderMock).doAppend(
                 argThat((ArgumentMatcher) argument -> {
@@ -147,7 +178,7 @@ class BidragJournalpostConsumerTest {
         when(restTemplateMock.exchange(anyString(), any(), any(), eq(JournalpostDto.class))).thenReturn(
                 new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
 
-        bidragJournalpostConsumer.endre(new EndreJournalpostCommandDto(), bearer());
+        bidragJournalpostConsumer.endre(new EndreJournalpostCommandDto());
 
         verify(appenderMock).doAppend(
                 argThat((ArgumentMatcher) argument -> {
@@ -156,5 +187,9 @@ class BidragJournalpostConsumerTest {
 
                     return true;
                 }));
+    }
+
+    private String getBearerToken() {
+        return "Bearer " + securityContextHolder.getOIDCValidationContext().getToken(ISSUER).getIdToken();
     }
 }
