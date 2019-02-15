@@ -74,7 +74,7 @@ class JournalpostControllerTest {
   }
 
   @BeforeEach
-  void mockRestTemplateFactory() {
+  void initMocks() {
     MockitoAnnotations.initMocks(this);
   }
 
