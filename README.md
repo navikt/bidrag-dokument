@@ -7,8 +7,9 @@ Microservice for integrasjon mellom BISYS og JOARK
 tjenester tilbudt av JOARK men som må tilpasses BISYS sin domenemodell. Denne tjenesten
 kaller andre mikrotjenester og blir kontrollert av `bidrag-dokument-ui`. Andre 
 tjenester som blir "rutet" via denne:
-* `bidrag-dokument-journalpost`
 * `bidrag-dokument-arkiv`
+* `bidrag-dokument-journalpost`
+* `bidrag-dokument-sak`
 
 ### bygg og kjør applikasjon
 
