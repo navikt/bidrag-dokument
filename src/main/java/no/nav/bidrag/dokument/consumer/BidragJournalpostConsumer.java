@@ -99,7 +99,7 @@ public class BidragJournalpostConsumer {
 
   private String getBearerToken() {
     String token = "Bearer " + featchBearerToken();
-    LOGGER.debug("Using token: " + token);
+    LOGGER.info("Using token: " + token);
 
     return token;
   }
