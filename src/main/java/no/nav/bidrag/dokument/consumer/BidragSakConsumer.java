@@ -5,7 +5,9 @@ import static no.nav.bidrag.dokument.consumer.ConsumerUtil.addSecurityHeader;
 
 import java.util.Collections;
 import java.util.List;
-
+import java.util.Optional;
+import no.nav.bidrag.dokument.dto.BidragSakDto;
+import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -14,44 +16,40 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import no.nav.bidrag.dokument.dto.BidragSakDto;
-import no.nav.security.oidc.context.OIDCRequestContextHolder;
-
 public class BidragSakConsumer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BidragSakConsumer.class);
 
-    private final String baseUrlBidragSak;
-    private final OIDCRequestContextHolder securityContextHolder;
+  private static final Logger LOGGER = LoggerFactory.getLogger(BidragSakConsumer.class);
+  private static final String PATH_PERSON_SAK = "/person/sak/";
 
-    public BidragSakConsumer(
-            String baseUrlBidragSak,
-            OIDCRequestContextHolder securityContextHolder) {
+  private final OIDCRequestContextHolder securityContextHolder;
+  private final RestTemplate restTemplate;
 
-        this.baseUrlBidragSak = baseUrlBidragSak;
-        this.securityContextHolder = securityContextHolder;
-    }
+  public BidragSakConsumer(OIDCRequestContextHolder securityContextHolder, RestTemplate restTemplate) {
+    this.restTemplate = restTemplate;
+    this.securityContextHolder = securityContextHolder;
+  }
 
-    public List<BidragSakDto> finnInnvolverteSaker(String foedselsnummer) {
-        RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragSak);
-        String uri = UriComponentsBuilder.fromPath("/person/sak/" + foedselsnummer)
-                .toUriString();
+  public List<BidragSakDto> finnInnvolverteSaker(String foedselsnummer) {
+    String uri = UriComponentsBuilder.fromPath(PATH_PERSON_SAK + foedselsnummer)
+        .toUriString();
 
-        var sakerForPersonResponse = restTemplate.exchange(
-                uri, HttpMethod.GET, addSecurityHeader(null, getBearerToken()), listeMedBidragSakDtoType());
+    var sakerForPersonResponse = restTemplate.exchange(
+        uri, HttpMethod.GET, addSecurityHeader(null, getBearerToken()), listeMedBidragSakDtoType()
+    );
 
-        HttpStatus httpStatus = sakerForPersonResponse.getStatusCode();
-        LOGGER.info("Fikk http status {} fra bidrag-sak/{}", httpStatus, uri);
-        var sakerForPerson = sakerForPersonResponse.getBody();
+    HttpStatus httpStatus = sakerForPersonResponse.getStatusCode();
+    LOGGER.info("Fikk http status {} fra bidrag-sak/{}", httpStatus, uri);
+    var sakerForPerson = Optional.ofNullable(sakerForPersonResponse.getBody());
 
-        return sakerForPerson != null ? sakerForPerson : Collections.emptyList();
-    }
+    return sakerForPerson.orElse(Collections.emptyList());
+  }
 
-    private static ParameterizedTypeReference<List<BidragSakDto>> listeMedBidragSakDtoType() {
-        return new ParameterizedTypeReference<>() {
-        };
-    }
+  private static ParameterizedTypeReference<List<BidragSakDto>> listeMedBidragSakDtoType() {
+    return new ParameterizedTypeReference<>() {
+    };
+  }
 
-    private String getBearerToken() {
-        return "Bearer " + securityContextHolder.getOIDCValidationContext().getToken(ISSUER).getIdToken();
-    }
+  private String getBearerToken() {
+    return "Bearer " + securityContextHolder.getOIDCValidationContext().getToken(ISSUER).getIdToken();
+  }
 }

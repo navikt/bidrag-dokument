@@ -1,49 +1,53 @@
 package no.nav.bidrag.dokument;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.consumer.BidragSakConsumer;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RootUriTemplateHandler;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class BidragDokumentConfig {
 
-    public static final String DELIMTER = "-";
-    public static final String PREFIX_BIDRAG = "BID";
-    public static final String PREFIX_JOARK = "JOARK";
-    public static final String ISSUER = "isso";
+  public static final String DELIMTER = "-";
+  public static final String PREFIX_BIDRAG = "BID";
+  public static final String PREFIX_JOARK = "JOARK";
+  public static final String ISSUER = "isso";
 
-    @Bean
-    public BidragJournalpostConsumer bidragJournalpostConsumer(
-            @Value("${JOURNALPOST_URL}") String journalpostBaseUrl,
-            OIDCRequestContextHolder securityContextHolder) {
+  @Bean
+  public BidragJournalpostConsumer bidragJournalpostConsumer(
+      @Value("${JOURNALPOST_URL}") String journalpostBaseUrl,
+      OIDCRequestContextHolder securityContextHolder,
+      RestTemplate restTemplate) {
 
-        return new BidragJournalpostConsumer(
-                journalpostBaseUrl,
-                securityContextHolder);
-    }
+    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(journalpostBaseUrl));
 
-    @Bean
-    public BidragSakConsumer bidragSakConsumer(
-            @Value("${BIDRAG_SAK_URL}") String sakBaseUrl,
-            OIDCRequestContextHolder securityContextHolder) {
+    return new BidragJournalpostConsumer(securityContextHolder, restTemplate);
+  }
 
-        return new BidragSakConsumer(
-                sakBaseUrl,
-                securityContextHolder);
-    }
+  @Bean
+  public BidragSakConsumer bidragSakConsumer(
+      @Value("${BIDRAG_SAK_URL}") String sakBaseUrl,
+      OIDCRequestContextHolder securityContextHolder,
+      RestTemplate restTemplate) {
 
-    @Bean
-    public BidragArkivConsumer journalforingConsumer(
-            @Value("${BIDRAG_ARKIV_URL}") String bidragArkivBaseUrl,
-            OIDCRequestContextHolder securityContextHolder) {
+    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(sakBaseUrl));
 
-        return new BidragArkivConsumer(
-                bidragArkivBaseUrl,
-                securityContextHolder);
-    }
+    return new BidragSakConsumer(securityContextHolder, restTemplate);
+  }
+
+  @Bean
+  public BidragArkivConsumer journalforingConsumer(
+      @Value("${BIDRAG_ARKIV_URL}") String bidragArkivBaseUrl,
+      OIDCRequestContextHolder securityContextHolder,
+      RestTemplate restTemplate) {
+
+    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(bidragArkivBaseUrl));
+
+    return new BidragArkivConsumer(securityContextHolder, restTemplate);
+  }
 }

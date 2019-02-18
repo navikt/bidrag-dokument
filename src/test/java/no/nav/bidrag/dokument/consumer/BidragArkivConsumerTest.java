@@ -9,9 +9,16 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
+import com.nimbusds.jwt.SignedJWT;
 import java.util.Optional;
-
-import org.junit.jupiter.api.AfterEach;
+import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.security.oidc.context.OIDCClaims;
+import no.nav.security.oidc.context.OIDCRequestContextHolder;
+import no.nav.security.oidc.context.OIDCValidationContext;
+import no.nav.security.oidc.context.TokenContext;
+import no.nav.security.oidc.test.support.jersey.TestTokenGeneratorResource;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,132 +37,114 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import com.nimbusds.jwt.SignedJWT;
-
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
-import no.nav.bidrag.dokument.dto.JournalpostDto;
-import no.nav.security.oidc.context.OIDCClaims;
-import no.nav.security.oidc.context.OIDCRequestContextHolder;
-import no.nav.security.oidc.context.OIDCValidationContext;
-import no.nav.security.oidc.context.TokenContext;
-import no.nav.security.oidc.test.support.jersey.TestTokenGeneratorResource;
-
 @DisplayName("BidragArkivConsumer")
 @TestInstance(Lifecycle.PER_CLASS)
 class BidragArkivConsumerTest {
 
-    private String idToken;
-    private OIDCValidationContext oidcValidationContext;
-    private BidragArkivConsumer bidragArkivConsumer;
+  private String idToken;
+  private OIDCValidationContext oidcValidationContext;
+  private BidragArkivConsumer bidragArkivConsumer;
 
-    private @Mock OIDCRequestContextHolder securityContextHolder;
-    private @Mock Appender appenderMock;
-    private @Mock RestTemplate restTemplateMock;
+  @Mock
+  private OIDCRequestContextHolder securityContextHolder;
+  @Mock
+  private Appender appenderMock;
+  @Mock
+  private RestTemplate restTemplateMock;
 
-    @BeforeAll
-    void prepareOidcValidationContext() {
-        var testTokenGeneratorResource = new TestTokenGeneratorResource();
-        idToken = testTokenGeneratorResource.issueToken("localhost-idtoken");
+  @BeforeAll
+  void prepareOidcValidationContext() {
+    var testTokenGeneratorResource = new TestTokenGeneratorResource();
+    idToken = testTokenGeneratorResource.issueToken("localhost-idtoken");
 
-        oidcValidationContext = new OIDCValidationContext();
-        TokenContext tokenContext = new TokenContext(ISSUER, idToken);
-        SignedJWT signedJWT = testTokenGeneratorResource.jwtClaims(ISSUER);
-        OIDCClaims oidcClaims = new OIDCClaims(signedJWT);
+    oidcValidationContext = new OIDCValidationContext();
+    TokenContext tokenContext = new TokenContext(ISSUER, idToken);
+    SignedJWT signedJWT = testTokenGeneratorResource.jwtClaims(ISSUER);
+    OIDCClaims oidcClaims = new OIDCClaims(signedJWT);
 
-        oidcValidationContext.addValidatedToken(ISSUER, tokenContext, oidcClaims);
-    }
+    oidcValidationContext.addValidatedToken(ISSUER, tokenContext, oidcClaims);
+  }
 
-    @BeforeEach
-    void setUp() {
-        initMocks();
-        initTestClass();
-        mockRestTemplateFactory();
-        mockLogAppender();
+  @BeforeEach
+  void setUp() {
+    initMocks();
+    initTestClass();
+    mockLogAppender();
+    mockOIDCValidationContext();
+  }
 
-        when(securityContextHolder.getOIDCValidationContext()).thenReturn(oidcValidationContext);
-    }
+  private void initMocks() {
+    MockitoAnnotations.initMocks(this);
+  }
 
-    private void initMocks() {
-        MockitoAnnotations.initMocks(this);
-    }
+  private void initTestClass() {
+    bidragArkivConsumer = new BidragArkivConsumer(securityContextHolder, restTemplateMock);
+  }
 
-    private void initTestClass() {
+  @SuppressWarnings("unchecked")
+  private void mockLogAppender() {
+    ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+    when(appenderMock.getName()).thenReturn("MOCK");
+    when(appenderMock.isStarted()).thenReturn(true);
+    logger.addAppender(appenderMock);
+  }
 
-        bidragArkivConsumer = new BidragArkivConsumer(
-                "baseUrl",
-                securityContextHolder);
-    }
+  private void mockOIDCValidationContext() {
+    when(securityContextHolder.getOIDCValidationContext()).thenReturn(oidcValidationContext);
+  }
 
-    private void mockRestTemplateFactory() {
-        RestTemplateFactory.use(() -> restTemplateMock);
-    }
+  @Test
+  @DisplayName("skal hente en journalpost med spring sin RestTemplate")
+  void skalHenteJournalpostMedRestTemplate() {
 
-    @SuppressWarnings("unchecked")
-    private void mockLogAppender() {
-        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        when(appenderMock.getName()).thenReturn("MOCK");
-        when(appenderMock.isStarted()).thenReturn(true);
-        logger.addAppender(appenderMock);
-    }
+    when(restTemplateMock.exchange(
+        anyString(),
+        any(HttpMethod.class),
+        any(HttpEntity.class),
+        ArgumentMatchers.<Class<JournalpostDto>>any())).thenReturn(new ResponseEntity<>(enJournalpostMedJournaltilstand("ENDELIG"), HttpStatus.OK));
 
-    @DisplayName("skal hente en journalpost med spring sin RestTemplate")
-    @Test
-    void skalHenteJournalpostMedRestTemplate() {
+    Optional<JournalpostDto> journalpostOptional = bidragArkivConsumer.hentJournalpost(101);
+    JournalpostDto journalpostDto = journalpostOptional.orElseThrow(() -> new AssertionError("Ingen Dto fra manager!"));
 
-        when(restTemplateMock.exchange(
-                anyString(),
-                any(HttpMethod.class),
-                any(HttpEntity.class),
-                ArgumentMatchers.<Class<JournalpostDto>> any())).thenReturn(new ResponseEntity<>(enJournalpostMedJournaltilstand("ENDELIG"), HttpStatus.OK));
+    assertThat(journalpostDto.getInnhold()).isEqualTo("ENDELIG");
 
-        Optional<JournalpostDto> journalpostOptional = bidragArkivConsumer.hentJournalpost(101);
-        JournalpostDto journalpostDto = journalpostOptional.orElseThrow(() -> new AssertionError("Ingen Dto fra manager!"));
+    verify(restTemplateMock).exchange(
+        "/journalpost/101",
+        HttpMethod.GET,
+        addSecurityHeader(null, getBearerToken()),
+        JournalpostDto.class);
+  }
 
-        assertThat(journalpostDto.getInnhold()).isEqualTo("ENDELIG");
+  private JournalpostDto enJournalpostMedJournaltilstand(@SuppressWarnings("SameParameterValue") String innhold) {
+    JournalpostDto journalpostDto = new JournalpostDto();
+    journalpostDto.setInnhold(innhold);
 
-        verify(restTemplateMock).exchange(
-                "/journalpost/101",
-                HttpMethod.GET,
-                addSecurityHeader(null, getBearerToken()),
-                JournalpostDto.class);
-    }
+    return journalpostDto;
+  }
 
-    private JournalpostDto enJournalpostMedJournaltilstand(@SuppressWarnings("SameParameterValue") String innhold) {
-        JournalpostDto journalpostDto = new JournalpostDto();
-        journalpostDto.setInnhold(innhold);
+  @Test
+  @SuppressWarnings("unchecked")
+  @DisplayName("skalLoggeHentJournalpost")
+  void skalLoggeHentJournalpost() {
 
-        return journalpostDto;
-    }
+    when(restTemplateMock.exchange(
+        anyString(),
+        any(HttpMethod.class),
+        any(HttpEntity.class),
+        ArgumentMatchers.<Class<JournalpostDto>>any())).thenReturn(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
 
-    @SuppressWarnings("unchecked")
-    @DisplayName("skalLoggeHentJournalpost")
-    @Test
-    void skalLoggeHentJournalpost() {
+    bidragArkivConsumer.hentJournalpost(123);
 
-        when(restTemplateMock.exchange(
-                anyString(),
-                any(HttpMethod.class),
-                any(HttpEntity.class),
-                ArgumentMatchers.<Class<JournalpostDto>> any())).thenReturn(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
+    verify(appenderMock).doAppend(
+        argThat((ArgumentMatcher) argument -> {
+          assertThat(((ILoggingEvent) argument).getFormattedMessage())
+              .contains("Journalpost med id=123 har http status 500 INTERNAL_SERVER_ERROR");
 
-        bidragArkivConsumer.hentJournalpost(123);
+          return true;
+        }));
+  }
 
-        verify(appenderMock).doAppend(
-                argThat((ArgumentMatcher) argument -> {
-                    assertThat(((ILoggingEvent) argument).getFormattedMessage())
-                            .contains("Journalpost med id=123 har http status 500 INTERNAL_SERVER_ERROR");
-
-                    return true;
-                }));
-    }
-
-    @AfterEach
-    void resetFactory() {
-        RestTemplateFactory.reset();
-    }
-
-    String getBearerToken() {
-        return "Bearer " + idToken;
-    }
+  String getBearerToken() {
+    return "Bearer " + idToken;
+  }
 }
