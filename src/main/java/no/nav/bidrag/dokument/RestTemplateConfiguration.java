@@ -1,7 +1,9 @@
 package no.nav.bidrag.dokument;
 
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpEntity;
@@ -9,6 +11,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriTemplateHandler;
 
 @Configuration
 public class RestTemplateConfiguration {
@@ -33,7 +36,14 @@ public class RestTemplateConfiguration {
       try {
         return (ResponseEntity<T>) restCaller.doRestApi();
       } catch (RuntimeException e) {
-        LOGGER.error("Failed to execute rest api - {}, {}: {}", this.getUriTemplateHandler(),  url, e);
+        String baseUrl = Optional.ofNullable(getUriTemplateHandler())
+            .filter(handler -> handler instanceof RootUriTemplateHandler)
+            .map(handler -> (RootUriTemplateHandler) handler)
+            .map(RootUriTemplateHandler::getRootUri)
+            .orElse("RestTemplate not configured correctly");
+
+        LOGGER.error("Failed to execute rest api - {}{}: {}", baseUrl,  url, e.getMessage());
+        LOGGER.error("Cause: " + e.getCause());
 
         throw e;
       }
