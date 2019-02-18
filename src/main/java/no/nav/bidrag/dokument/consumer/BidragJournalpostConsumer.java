@@ -10,6 +10,7 @@ import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
+import no.nav.security.oidc.context.TokenContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -97,6 +98,17 @@ public class BidragJournalpostConsumer {
   }
 
   private String getBearerToken() {
-    return "Bearer " + securityContextHolder.getOIDCValidationContext().getToken(ISSUER).getIdToken();
+    String token = "Bearer " + featchBearerToken();
+    LOGGER.debug("Using token: " + token);
+
+    return token;
+  }
+
+  private String featchBearerToken() {
+    return Optional.ofNullable(securityContextHolder)
+        .map(OIDCRequestContextHolder::getOIDCValidationContext)
+        .map(oidcValidationContext -> oidcValidationContext.getToken(ISSUER))
+        .map(TokenContext::getIdToken)
+        .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));
   }
 }
