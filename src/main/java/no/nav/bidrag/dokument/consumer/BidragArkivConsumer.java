@@ -16,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 public class BidragArkivConsumer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(BidragArkivConsumer.class);
+  private static final String PATH_JOURNALPOST = "/journalpost/";
 
   private final OIDCRequestContextHolder securityContextHolder;
   private final RestTemplate restTemplate;
@@ -27,7 +28,7 @@ public class BidragArkivConsumer {
 
   public Optional<JournalpostDto> hentJournalpost(Integer id) {
     ResponseEntity<JournalpostDto> journalforingDtoResponseEntity = restTemplate.exchange(
-        "/journalpost/" + id, HttpMethod.GET, addSecurityHeader(null, getBearerToken()), JournalpostDto.class);
+        PATH_JOURNALPOST + id, HttpMethod.GET, addSecurityHeader(null, getBearerToken()), JournalpostDto.class);
 
     HttpStatus httpStatus = journalforingDtoResponseEntity.getStatusCode();
 

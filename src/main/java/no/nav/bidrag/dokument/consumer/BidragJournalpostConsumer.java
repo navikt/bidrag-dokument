@@ -23,6 +23,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class BidragJournalpostConsumer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(BidragJournalpostConsumer.class);
+  private static final String PATH_JOURNALPOST = "/journalpost";
+  private static final String PATH_SAK = "/sak/";
+  private static final String PARAM_FAGOMRADE = "fagomrade";
 
   private final OIDCRequestContextHolder securityContextHolder;
   private final RestTemplate restTemplate;
@@ -33,14 +36,15 @@ public class BidragJournalpostConsumer {
   }
 
   public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
-    String path = "/sak/" + saksnummer;
+    String path = PATH_SAK + saksnummer;
 
     String uri = UriComponentsBuilder.fromPath(path)
-        .queryParam("fagomrade", fagomrade)
+        .queryParam(PARAM_FAGOMRADE, fagomrade)
         .toUriString();
 
     ResponseEntity<List<JournalpostDto>> journalposterForBidragRequest = restTemplate.exchange(
-        uri, HttpMethod.GET, addSecurityHeader(null, getBearerToken()), typereferansenErListeMedJournalposter());
+        uri, HttpMethod.GET, addSecurityHeader(null, getBearerToken()), typereferansenErListeMedJournalposter()
+    );
 
     HttpStatus httpStatus = journalposterForBidragRequest.getStatusCode();
     LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} på fagområde {}", httpStatus, saksnummer, fagomrade);
@@ -55,11 +59,11 @@ public class BidragJournalpostConsumer {
   }
 
   public Optional<JournalpostDto> registrer(NyJournalpostCommandDto nyJournalpostCommandDto) {
-    String path = "/journalpost/ny";
+    String path = PATH_JOURNALPOST + "/ny";
 
     ResponseEntity<JournalpostDto> registrertJournalpost = restTemplate.exchange(
-        path, HttpMethod.POST, addSecurityHeader(new HttpEntity<>(nyJournalpostCommandDto), getBearerToken()),
-        JournalpostDto.class);
+        path, HttpMethod.POST, addSecurityHeader(new HttpEntity<>(nyJournalpostCommandDto), getBearerToken()), JournalpostDto.class
+    );
 
     HttpStatus httpStatus = registrertJournalpost.getStatusCode();
     LOGGER.info("Fikk http status {} fra registrer ny journalpost: {}", httpStatus, nyJournalpostCommandDto);
@@ -68,10 +72,11 @@ public class BidragJournalpostConsumer {
   }
 
   public Optional<JournalpostDto> hentJournalpost(Integer id) {
-    String path = "/journalpost/" + id;
+    String path = PATH_JOURNALPOST + '/' + id;
 
     ResponseEntity<JournalpostDto> journalpostResponseEntity = restTemplate.exchange(
-        path, HttpMethod.GET, addSecurityHeader(null, getBearerToken()), JournalpostDto.class);
+        path, HttpMethod.GET, addSecurityHeader(null, getBearerToken()), JournalpostDto.class
+    );
 
     HttpStatus httpStatus = journalpostResponseEntity.getStatusCode();
 
@@ -81,11 +86,9 @@ public class BidragJournalpostConsumer {
   }
 
   public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto) {
-    String path = "/journalpost";
-
     ResponseEntity<JournalpostDto> endretJournalpost = restTemplate.exchange(
-        path, HttpMethod.POST, addSecurityHeader(new HttpEntity<>(endreJournalpostCommandDto), getBearerToken()),
-        JournalpostDto.class);
+        PATH_JOURNALPOST, HttpMethod.POST, addSecurityHeader(new HttpEntity<>(endreJournalpostCommandDto), getBearerToken()), JournalpostDto.class
+    );
 
     HttpStatus httpStatus = endretJournalpost.getStatusCode();
     LOGGER.info("Fikk http status {} fra endre journalpost: {}", httpStatus, endreJournalpostCommandDto);

@@ -19,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class BidragSakConsumer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(BidragSakConsumer.class);
+  private static final String PATH_PERSON_SAK = "/person/sak/";
 
   private final OIDCRequestContextHolder securityContextHolder;
   private final RestTemplate restTemplate;
@@ -29,11 +30,12 @@ public class BidragSakConsumer {
   }
 
   public List<BidragSakDto> finnInnvolverteSaker(String foedselsnummer) {
-    String uri = UriComponentsBuilder.fromPath("/person/sak/" + foedselsnummer)
+    String uri = UriComponentsBuilder.fromPath(PATH_PERSON_SAK + foedselsnummer)
         .toUriString();
 
     var sakerForPersonResponse = restTemplate.exchange(
-        uri, HttpMethod.GET, addSecurityHeader(null, getBearerToken()), listeMedBidragSakDtoType());
+        uri, HttpMethod.GET, addSecurityHeader(null, getBearerToken()), listeMedBidragSakDtoType()
+    );
 
     HttpStatus httpStatus = sakerForPersonResponse.getStatusCode();
     LOGGER.info("Fikk http status {} fra bidrag-sak/{}", httpStatus, uri);
