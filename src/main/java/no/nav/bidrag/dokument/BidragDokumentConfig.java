@@ -48,7 +48,7 @@ public class BidragDokumentConfig {
 
   @Bean
   public BidragArkivConsumer journalforingConsumer(
-      @Value("${BIDRAG_ARKIV_URL}") String bidragArkivBaseUrl,
+      @Value("${JOURNALPOST_URL}") String bidragArkivBaseUrl,
       OIDCRequestContextHolder securityContextHolder,
       RestTemplate restTemplate) {
 
