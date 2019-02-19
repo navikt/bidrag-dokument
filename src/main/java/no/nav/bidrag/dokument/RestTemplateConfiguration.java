@@ -11,7 +11,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriTemplateHandler;
 
 @Configuration
 public class RestTemplateConfiguration {
@@ -28,6 +27,7 @@ public class RestTemplateConfiguration {
     @Override
     public <T> ResponseEntity<T> exchange(String url, HttpMethod method, HttpEntity<?> requestEntity, Class<T> responseType, Object... uriVariables)
         throws RestClientException {
+
       return logExchange(url, () -> super.exchange(url, method, requestEntity, responseType, uriVariables));
     }
 
@@ -36,13 +36,13 @@ public class RestTemplateConfiguration {
       try {
         return (ResponseEntity<T>) restCaller.doRestApi();
       } catch (RuntimeException e) {
-        String baseUrl = Optional.ofNullable(getUriTemplateHandler())
+        var baseUrl = Optional.ofNullable(getUriTemplateHandler())
             .filter(handler -> handler instanceof RootUriTemplateHandler)
             .map(handler -> (RootUriTemplateHandler) handler)
             .map(RootUriTemplateHandler::getRootUri)
             .orElse("RestTemplate not configured correctly");
 
-        LOGGER.error("Failed to execute rest api - {}{}: {}", baseUrl,  url, e.getMessage());
+        LOGGER.error("Failed to execute rest api - {}{}: {}", baseUrl, url, e.getMessage());
         LOGGER.error("Cause: " + e.getCause());
 
         throw e;
