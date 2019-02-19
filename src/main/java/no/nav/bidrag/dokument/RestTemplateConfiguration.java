@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ public class RestTemplateConfiguration {
   private static final Logger LOGGER = LoggerFactory.getLogger(RestTemplateConfiguration.class);
 
   @Bean
+  @Scope("prototype")
   public RestTemplate restTemplate() {
     return new RestTemplateLogger();
   }
