@@ -30,11 +30,11 @@ public class RestTemplateConfiguration {
     public <T> ResponseEntity<T> exchange(String url, HttpMethod method, HttpEntity<?> requestEntity, Class<T> responseType, Object... uriVariables)
         throws RestClientException {
 
-      return logExchange(url, () -> super.exchange(url, method, requestEntity, responseType, uriVariables));
+      return logRestApi(url, () -> super.exchange(url, method, requestEntity, responseType, uriVariables));
     }
 
     @SuppressWarnings("unchecked")
-    private <T> ResponseEntity<T> logExchange(String url, RestCaller restCaller) {
+    private <T> ResponseEntity<T> logRestApi(String url, RestCaller restCaller) {
       try {
         return (ResponseEntity<T>) restCaller.doRestApi();
       } catch (RuntimeException e) {
@@ -45,9 +45,20 @@ public class RestTemplateConfiguration {
             .orElse("RestTemplate not configured correctly");
 
         LOGGER.error("Failed to execute rest api - {}{}: {}", baseUrl, url, e.getMessage());
-        LOGGER.error("Cause: " + e.getCause());
+
+        Throwable cause = e.getCause();
+        logCause(cause);
 
         throw e;
+      }
+    }
+
+    private void logCause(Throwable cause) {
+      Optional<Throwable> possibleCause = Optional.ofNullable(cause);
+
+      while (possibleCause.isPresent()) {
+        LOGGER.error("Cause: " + possibleCause.get());
+        possibleCause = Optional.ofNullable(possibleCause.get().getCause());
       }
     }
 
