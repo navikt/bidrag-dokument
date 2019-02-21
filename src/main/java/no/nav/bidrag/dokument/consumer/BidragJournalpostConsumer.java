@@ -25,7 +25,7 @@ public class BidragJournalpostConsumer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(BidragJournalpostConsumer.class);
   private static final String PATH_JOURNALPOST = "/journalpost";
-  private static final String PATH_SAK = "/sak/";
+  private static final String PATH_SAK = "/sakjournal/";
   private static final String PARAM_FAGOMRADE = "fagomrade";
 
   private final OIDCRequestContextHolder securityContextHolder;

@@ -278,7 +278,7 @@ class JournalpostControllerTest {
           () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
           () -> assertThat(response.getBody()).hasSize(2)));
 
-      verify(restTemplateMock).exchange(eq("/sak/1001?fagomrade=BID"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
+      verify(restTemplateMock).exchange(eq("/sakjournal/1001?fagomrade=BID"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
     }
 
     @NotNull

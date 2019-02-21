@@ -30,7 +30,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 @DisplayName("BidragJournalpostConsumer")
-@SuppressWarnings("unchecked")
 @TestInstance(Lifecycle.PER_CLASS)
 class BidragJournalpostConsumerTest {
 
@@ -75,6 +74,7 @@ class BidragJournalpostConsumerTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   @DisplayName("skal bruke bidragssakens saksnummer i sti til tjeneste")
   void shouldUseValueFromPath() {
     when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any())).thenReturn(
@@ -82,6 +82,6 @@ class BidragJournalpostConsumerTest {
 
     bidragJournalpostConsumer.finnJournalposter("101", "BID");
     verify(restTemplateMock)
-        .exchange(eq("/sak/101?fagomrade=BID"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
+        .exchange(eq("/sakjournal/101?fagomrade=BID"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
   }
 }
