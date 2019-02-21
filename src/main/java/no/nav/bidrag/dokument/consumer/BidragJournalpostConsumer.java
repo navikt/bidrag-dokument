@@ -88,13 +88,16 @@ public class BidragJournalpostConsumer {
 
   public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto) {
     ResponseEntity<JournalpostDto> endretJournalpost = restTemplate.exchange(
-        PATH_JOURNALPOST, HttpMethod.POST, addSecurityHeader(new HttpEntity<>(endreJournalpostCommandDto), getBearerToken()), JournalpostDto.class
+        PATH_JOURNALPOST + '/' + endreJournalpostCommandDto.getJournalpostId(),
+        HttpMethod.PUT,
+        addSecurityHeader(new HttpEntity<>(endreJournalpostCommandDto), getBearerToken()),
+        JournalpostDto.class
     );
 
-    HttpStatus httpStatus = endretJournalpost.getStatusCode();
+    HttpStatus httpStatus = Optional.ofNullable(endretJournalpost).map(ResponseEntity::getStatusCode).orElse(HttpStatus.I_AM_A_TEAPOT);
     LOGGER.info("Fikk http status {} fra endre journalpost: {}", httpStatus, endreJournalpostCommandDto);
 
-    return Optional.ofNullable(endretJournalpost.getBody());
+    return Optional.ofNullable(endretJournalpost).map(ResponseEntity::getBody);
   }
 
   private String getBearerToken() {
