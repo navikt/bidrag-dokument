@@ -186,12 +186,15 @@ class JournalpostControllerTest {
               .medDokumenter(singletonList(new DokumentDto()))
               .medGjelderBrukerId("06127412345")
               .medJournalpostId("BID-101")
-              .build(), HttpStatus.CREATED));
+              .build(), HttpStatus.CREATED)
+          );
 
-      ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.postForEntity(
-          url + "/ny",
+      ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.exchange(
+          url,
+          HttpMethod.POST,
           addSecurityHeader(new NyJournalpostCommandDto(), testBearerToken),
-          JournalpostDto.class);
+          JournalpostDto.class
+      );
 
       assertThat(optional(responseEntity)).hasValueSatisfying(response -> assertAll(
           () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED),

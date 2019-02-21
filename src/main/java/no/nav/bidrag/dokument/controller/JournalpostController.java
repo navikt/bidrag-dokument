@@ -4,8 +4,14 @@ import static no.nav.bidrag.dokument.BidragDokumentConfig.DELIMTER;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_BIDRAG;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
 
+import io.swagger.annotations.ApiOperation;
 import java.util.List;
-
+import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
+import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
+import no.nav.bidrag.dokument.exception.KildesystemException;
+import no.nav.bidrag.dokument.service.JournalpostService;
+import no.nav.security.oidc.api.ProtectedWithClaims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -13,93 +19,86 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.annotations.ApiOperation;
-import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
-import no.nav.bidrag.dokument.dto.JournalpostDto;
-import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
-import no.nav.bidrag.dokument.exception.KildesystemException;
-import no.nav.bidrag.dokument.service.JournalpostService;
-import no.nav.security.oidc.api.ProtectedWithClaims;
-
 @RestController
 @ProtectedWithClaims(issuer = "isso")
 public class JournalpostController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JournalpostController.class);
-    private static final String ENDPOINT_JOURNALPOST = "/journalpost";
-    private static final String ENDPOINT_SAKJOURNAL = "/sakjournal";
+  private static final Logger LOGGER = LoggerFactory.getLogger(JournalpostController.class);
+  private static final String ENDPOINT_JOURNALPOST = "/journalpost";
+  private static final String ENDPOINT_SAKJOURNAL = "/sakjournal";
 
-    private final JournalpostService journalpostService;
+  private final JournalpostService journalpostService;
 
-    public JournalpostController(JournalpostService journalpostService) {
-        this.journalpostService = journalpostService;
+  public JournalpostController(JournalpostService journalpostService) {
+    this.journalpostService = journalpostService;
+  }
+
+  @GetMapping("/status")
+  @ResponseBody
+  public String get() {
+    return "OK";
+  }
+
+  @GetMapping(ENDPOINT_JOURNALPOST + "/{journalpostIdForKildesystem}")
+  @ApiOperation("Finn journalpost for en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
+  public ResponseEntity<JournalpostDto> hent(@PathVariable String journalpostIdForKildesystem) {
+
+    LOGGER.info("request: bidrag-dokument{}/{}", ENDPOINT_JOURNALPOST, journalpostIdForKildesystem);
+
+    try {
+      return journalpostService.hentJournalpost(journalpostIdForKildesystem)
+          .map(journalpostDto -> new ResponseEntity<>(journalpostDto, HttpStatus.OK))
+          .orElse(new ResponseEntity<>(HttpStatus.NO_CONTENT));
+    } catch (KildesystemException e) {
+      LOGGER.warn("Ukjent kildesystem: " + e.getMessage());
+
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
+  }
 
-    @GetMapping("/status")
-    @ResponseBody
-    public String get() {
-        return "OK";
-    }
+  @GetMapping(ENDPOINT_SAKJOURNAL + "/{saksnummer}")
+  @ApiOperation("Finn saksjournal for et saksnummer i en bidragssak, "
+      + "samt parameter 'fagomrade' (FAR - farskapjournal) og (BID - bidragsjournal)")
+  public ResponseEntity<List<JournalpostDto>> get(
+      @PathVariable String saksnummer,
+      @RequestParam String fagomrade
+  ) {
 
-    @GetMapping(ENDPOINT_JOURNALPOST + "/{journalpostIdForKildesystem}")
-    @ApiOperation("Finn journalpost for en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
-    public ResponseEntity<JournalpostDto> hent(
-            @PathVariable String journalpostIdForKildesystem) {
+    LOGGER.info("request: bidrag-dokument{}/{}?fagomrade={}", ENDPOINT_JOURNALPOST, saksnummer, fagomrade);
 
-        LOGGER.debug("request: bidrag-dokument" + ENDPOINT_JOURNALPOST + '/' + journalpostIdForKildesystem);
+    var journalposter = journalpostService.finnJournalposter(saksnummer, fagomrade);
 
-        try {
-            return journalpostService.hentJournalpost(journalpostIdForKildesystem)
-                    .map(journalpostDto -> new ResponseEntity<>(journalpostDto, HttpStatus.OK))
-                    .orElse(new ResponseEntity<>(HttpStatus.NO_CONTENT));
-        } catch (KildesystemException e) {
-            LOGGER.warn("Ukjent kildesystem: " + e.getMessage());
+    return new ResponseEntity<>(journalposter, journalposter.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK);
+  }
 
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
+  @PostMapping(ENDPOINT_JOURNALPOST)
+  @ApiOperation("Registrer ny journalpost")
+  public ResponseEntity<JournalpostDto> post(@RequestBody NyJournalpostCommandDto nyJournalpostCommandDto) {
 
-    @GetMapping(ENDPOINT_SAKJOURNAL + "/{saksnummer}")
-    @ApiOperation("Finn saksjournal for et saksnummer i en bidragssak, "
-            + "samt parameter 'fagomrade' (FAR - farskapjournal) og (BID - bidragsjournal)")
-    public ResponseEntity<List<JournalpostDto>> get(
-            @PathVariable String saksnummer,
-            @RequestParam String fagomrade) {
+    LOGGER.info("post ny: {}\n \\-> bidrag-dokument/{}", nyJournalpostCommandDto, ENDPOINT_JOURNALPOST);
 
-        LOGGER.debug("request: bidrag-dokument{}/{}?fagomrade={}", ENDPOINT_JOURNALPOST, saksnummer, fagomrade);
+    return journalpostService.registrer(nyJournalpostCommandDto)
+        .map(journalpost -> new ResponseEntity<>(journalpost, HttpStatus.CREATED))
+        .orElseGet(() -> new ResponseEntity<>(HttpStatus.OK));
+  }
 
-        var journalposter = journalpostService.finnJournalposter(saksnummer, fagomrade);
+  @PutMapping(ENDPOINT_JOURNALPOST + "/{journalpostId")
+  @ApiOperation("Endre eksisterende journalpost")
+  public ResponseEntity<JournalpostDto> put(
+      @RequestBody EndreJournalpostCommandDto endreJournalpostCommandDto,
+      @PathVariable String journalpostId
+  ) {
 
-        return new ResponseEntity<>(journalposter, journalposter.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK);
-    }
+    LOGGER.info("put endret: {}\n \\-> bidrag-dokument/{}/{}", endreJournalpostCommandDto, ENDPOINT_JOURNALPOST, journalpostId);
 
-    @PostMapping(ENDPOINT_JOURNALPOST + "/ny")
-    @ApiOperation("Registrer ny journalpost")
-    public ResponseEntity<JournalpostDto> post(
-            @RequestBody NyJournalpostCommandDto nyJournalpostCommandDto) {
-
-        LOGGER.debug("post ny: {}\n \\-> bidrag-dokument/{}/ny", nyJournalpostCommandDto, ENDPOINT_JOURNALPOST);
-
-        return journalpostService.registrer(nyJournalpostCommandDto)
-                .map(journalpost -> new ResponseEntity<>(journalpost, HttpStatus.CREATED))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.OK));
-    }
-
-    @PostMapping(ENDPOINT_JOURNALPOST)
-    @ApiOperation("Endre eksisterende journalpost")
-    public ResponseEntity<JournalpostDto> post(
-            @RequestBody EndreJournalpostCommandDto endreJournalpostCommandDto) {
-
-        LOGGER.debug("post endret: {}\n \\-> bidrag-dokument/{}/endre", endreJournalpostCommandDto, ENDPOINT_JOURNALPOST);
-
-        return journalpostService.endre(endreJournalpostCommandDto)
-                .map(journalpost -> new ResponseEntity<>(journalpost, HttpStatus.CREATED))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.OK));
-    }
-
+    return journalpostService.endre(endreJournalpostCommandDto)
+        .map(journalpost -> new ResponseEntity<>(journalpost, HttpStatus.ACCEPTED))
+        .orElseGet(() -> new ResponseEntity<>(HttpStatus.OK));
+  }
 }
