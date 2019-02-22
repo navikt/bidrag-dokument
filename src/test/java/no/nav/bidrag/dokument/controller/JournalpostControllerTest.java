@@ -226,7 +226,7 @@ class JournalpostControllerTest {
   @DisplayName("endpoint - lagre: " + ENDPOINT_JOURNALPOST)
   class EndpointLagreJournalpost {
 
-    private String url = initEndpointUrl(ENDPOINT_JOURNALPOST);
+    private String lagreJournalpostUrl = initEndpointUrl(ENDPOINT_JOURNALPOST);
 
     @Test
     @DisplayName("skal registrere ny journalpost")
@@ -240,7 +240,7 @@ class JournalpostControllerTest {
           );
 
       ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.exchange(
-          url,
+          lagreJournalpostUrl,
           HttpMethod.POST,
           initHttpEntityWithSecurityHeader(new NyJournalpostCommandDto(), testBearerToken),
           JournalpostDto.class
@@ -256,7 +256,10 @@ class JournalpostControllerTest {
     @DisplayName("skal få BAD_REQUEST når prefix er ukjent")
     void skalFaBadRequestMedUkjentPrefix() {
       var badRequestResponse = testRestTemplate.exchange(
-          url + "/svada-1", HttpMethod.GET, initHttpEntityWithSecurityHeader(null, testBearerToken), JournalpostDto.class
+          lagreJournalpostUrl + "/svada-1",
+          HttpMethod.GET,
+          initHttpEntityWithSecurityHeader(null, testBearerToken),
+          JournalpostDto.class
       );
 
       assertThat(badRequestResponse).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -266,7 +269,10 @@ class JournalpostControllerTest {
     @DisplayName("skal få BAD_REQUEST når journalpostId ikke er et tall")
     void skalFaBadRequestMedJournalpostIdSomIkkeErEtTall() {
       var badRequestResponse = testRestTemplate.exchange(
-          url + "/bid-en", HttpMethod.GET, initHttpEntityWithSecurityHeader(null, testBearerToken), JournalpostDto.class
+          lagreJournalpostUrl + "/bid-en",
+          HttpMethod.GET,
+          initHttpEntityWithSecurityHeader(null, testBearerToken),
+          JournalpostDto.class
       );
 
       assertThat(badRequestResponse).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -276,13 +282,37 @@ class JournalpostControllerTest {
     @DisplayName("skal få BAD_REQUEST når prefix er ukjent ved endring av journalpost")
     void skalFaBadRequestMedUkjentPrefixVedEndringAvJournalpost() {
       var badRequestResponse = testRestTemplate.exchange(
-          url + "/svada-1",
+          lagreJournalpostUrl + "/svada-1",
           HttpMethod.PUT,
           initHttpEntityWithSecurityHeader(new EndreJournalpostCommandDto(), testBearerToken),
           JournalpostDto.class
       );
 
       assertThat(badRequestResponse).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    @DisplayName("skal endre journalpost")
+    void skalEndreJournalpost() {
+      when(restTemplateMock.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(JournalpostDto.class)))
+          .thenReturn(new ResponseEntity<>(new JournalpostDtoBygger()
+              .medDokumenter(singletonList(new DokumentDto()))
+              .medGjelderBrukerId("06127412345")
+              .medJournalpostId("BID-101")
+              .build(), HttpStatus.I_AM_A_TEAPOT)
+          );
+
+      var endretJournalpostResponse = testRestTemplate.exchange(
+          lagreJournalpostUrl + "/bid-1",
+          HttpMethod.PUT,
+          initHttpEntityWithSecurityHeader(new EndreJournalpostCommandDto(), testBearerToken),
+          JournalpostDto.class
+      );
+
+      assertThat(optional(endretJournalpostResponse)).hasValueSatisfying(response -> assertAll(
+          () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED),
+          () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournalpostId).isEqualTo("BID-101"))
+      );
     }
   }
 
