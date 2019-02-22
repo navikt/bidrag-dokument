@@ -82,7 +82,7 @@ public class JournalpostController {
   @ApiOperation("Registrer ny journalpost")
   public ResponseEntity<JournalpostDto> post(@RequestBody NyJournalpostCommandDto nyJournalpostCommandDto) {
 
-    LOGGER.info("post ny: {}\n \\-> bidrag-dokument{}", nyJournalpostCommandDto, ENDPOINT_JOURNALPOST);
+    LOGGER.info("post ny: bidrag-dokument{}\n \\-> {}", ENDPOINT_JOURNALPOST, nyJournalpostCommandDto);
 
     return journalpostService.registrer(nyJournalpostCommandDto)
         .map(journalpost -> new ResponseEntity<>(journalpost, HttpStatus.CREATED))
@@ -96,7 +96,7 @@ public class JournalpostController {
       @PathVariable String journalpostIdForKildesystem
   ) {
 
-    LOGGER.info("put endret: {}\n \\-> bidrag-dokument{}/{}", endreJournalpostCommandDto, ENDPOINT_JOURNALPOST, journalpostIdForKildesystem);
+    LOGGER.info("put endret: bidrag-dokument{}/{}\n \\-> {}", ENDPOINT_JOURNALPOST, journalpostIdForKildesystem, endreJournalpostCommandDto);
 
     KildesystemIdenfikator kildesystemIdentifikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
 

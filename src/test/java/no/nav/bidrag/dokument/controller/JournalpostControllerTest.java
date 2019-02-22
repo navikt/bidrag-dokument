@@ -79,7 +79,7 @@ class JournalpostControllerTest {
   }
 
   @Nested
-  @DisplayName("endpoint: hent " + ENDPOINT_JOURNALPOST)
+  @DisplayName("endpoint - hent: " + ENDPOINT_JOURNALPOST)
   class EndpointHentJournalpost {
 
     private String url = initEndpointUrl(ENDPOINT_JOURNALPOST);
@@ -223,7 +223,7 @@ class JournalpostControllerTest {
   }
 
   @Nested
-  @DisplayName("endpoint: lagre " + ENDPOINT_JOURNALPOST)
+  @DisplayName("endpoint - lagre: " + ENDPOINT_JOURNALPOST)
   class EndpointLagreJournalpost {
 
     private String url = initEndpointUrl(ENDPOINT_JOURNALPOST);
@@ -276,7 +276,10 @@ class JournalpostControllerTest {
     @DisplayName("skal få BAD_REQUEST når prefix er ukjent ved endring av journalpost")
     void skalFaBadRequestMedUkjentPrefixVedEndringAvJournalpost() {
       var badRequestResponse = testRestTemplate.exchange(
-          url + "/svada-1", HttpMethod.PUT, initHttpEntityWithSecurityHeader(new EndreJournalpostCommandDto(), testBearerToken), JournalpostDto.class
+          url + "/svada-1",
+          HttpMethod.PUT,
+          initHttpEntityWithSecurityHeader(new EndreJournalpostCommandDto(), testBearerToken),
+          JournalpostDto.class
       );
 
       assertThat(badRequestResponse).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -284,7 +287,7 @@ class JournalpostControllerTest {
   }
 
   @Nested
-  @DisplayName("endpoint: " + ENDPOINT_SAKJOURNAL)
+  @DisplayName("endpoint - hent: " + ENDPOINT_SAKJOURNAL)
   class EndpointJournalpost {
 
     private String urlForFagomradeBid(@SuppressWarnings("SameParameterValue") String path) {
