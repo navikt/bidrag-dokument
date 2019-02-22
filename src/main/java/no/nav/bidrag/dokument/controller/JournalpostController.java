@@ -82,21 +82,27 @@ public class JournalpostController {
   @ApiOperation("Registrer ny journalpost")
   public ResponseEntity<JournalpostDto> post(@RequestBody NyJournalpostCommandDto nyJournalpostCommandDto) {
 
-    LOGGER.info("post ny: {}\n \\-> bidrag-dokument/{}", nyJournalpostCommandDto, ENDPOINT_JOURNALPOST);
+    LOGGER.info("post ny: {}\n \\-> bidrag-dokument{}", nyJournalpostCommandDto, ENDPOINT_JOURNALPOST);
 
     return journalpostService.registrer(nyJournalpostCommandDto)
         .map(journalpost -> new ResponseEntity<>(journalpost, HttpStatus.CREATED))
         .orElseGet(() -> new ResponseEntity<>(HttpStatus.OK));
   }
 
-  @PutMapping(ENDPOINT_JOURNALPOST + "/{journalpostId")
+  @PutMapping(ENDPOINT_JOURNALPOST + "/{journalpostIdForKildesystem}")
   @ApiOperation("Endre eksisterende journalpost")
   public ResponseEntity<JournalpostDto> put(
       @RequestBody EndreJournalpostCommandDto endreJournalpostCommandDto,
-      @PathVariable String journalpostId
+      @PathVariable String journalpostIdForKildesystem
   ) {
 
-    LOGGER.info("put endret: {}\n \\-> bidrag-dokument/{}/{}", endreJournalpostCommandDto, ENDPOINT_JOURNALPOST, journalpostId);
+    LOGGER.info("put endret: {}\n \\-> bidrag-dokument{}/{}", endreJournalpostCommandDto, ENDPOINT_JOURNALPOST, journalpostIdForKildesystem);
+
+    KildesystemIdenfikator kildesystemIdentifikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
+
+    if (Kildesystem.UKJENT == kildesystemIdentifikator.hentKildesystem()) {
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
 
     return journalpostService.endre(endreJournalpostCommandDto)
         .map(journalpost -> new ResponseEntity<>(journalpost, HttpStatus.ACCEPTED))

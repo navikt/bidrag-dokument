@@ -1,7 +1,7 @@
 package no.nav.bidrag.dokument.consumer;
 
 import static no.nav.bidrag.dokument.BidragDokumentConfig.ISSUER;
-import static no.nav.bidrag.dokument.consumer.ConsumerUtil.addSecurityHeader;
+import static no.nav.bidrag.dokument.consumer.ConsumerUtil.initHttpEntityWithSecurityHeader;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +35,7 @@ public class BidragSakConsumer {
         .toUriString();
 
     var sakerForPersonResponse = restTemplate.exchange(
-        uri, HttpMethod.GET, addSecurityHeader(null, getBearerToken()), listeMedBidragSakDtoType()
+        uri, HttpMethod.GET, initHttpEntityWithSecurityHeader(null, getBearerToken()), listeMedBidragSakDtoType()
     );
 
     HttpStatus httpStatus = sakerForPersonResponse.getStatusCode();

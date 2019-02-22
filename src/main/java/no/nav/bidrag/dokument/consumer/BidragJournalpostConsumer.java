@@ -1,7 +1,7 @@
 package no.nav.bidrag.dokument.consumer;
 
 import static no.nav.bidrag.dokument.BidragDokumentConfig.ISSUER;
-import static no.nav.bidrag.dokument.consumer.ConsumerUtil.addSecurityHeader;
+import static no.nav.bidrag.dokument.consumer.ConsumerUtil.initHttpEntityWithSecurityHeader;
 
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +44,7 @@ public class BidragJournalpostConsumer {
         .toUriString();
 
     ResponseEntity<List<JournalpostDto>> journalposterForBidragRequest = restTemplate.exchange(
-        uri, HttpMethod.GET, addSecurityHeader(null, getBearerToken()), typereferansenErListeMedJournalposter()
+        uri, HttpMethod.GET, initHttpEntityWithSecurityHeader(null, getBearerToken()), typereferansenErListeMedJournalposter()
     );
 
     HttpStatus httpStatus = journalposterForBidragRequest.getStatusCode();
@@ -63,7 +63,7 @@ public class BidragJournalpostConsumer {
     String path = PATH_JOURNALPOST + "/ny";
 
     ResponseEntity<JournalpostDto> registrertJournalpost = restTemplate.exchange(
-        path, HttpMethod.POST, addSecurityHeader(new HttpEntity<>(nyJournalpostCommandDto), getBearerToken()), JournalpostDto.class
+        path, HttpMethod.POST, initHttpEntityWithSecurityHeader(new HttpEntity<>(nyJournalpostCommandDto), getBearerToken()), JournalpostDto.class
     );
 
     HttpStatus httpStatus = registrertJournalpost.getStatusCode();
@@ -76,7 +76,7 @@ public class BidragJournalpostConsumer {
     String path = PATH_JOURNALPOST + '/' + id;
 
     ResponseEntity<JournalpostDto> journalpostResponseEntity = restTemplate.exchange(
-        path, HttpMethod.GET, addSecurityHeader(null, getBearerToken()), JournalpostDto.class
+        path, HttpMethod.GET, initHttpEntityWithSecurityHeader(null, getBearerToken()), JournalpostDto.class
     );
 
     HttpStatus httpStatus = journalpostResponseEntity.getStatusCode();
@@ -90,7 +90,7 @@ public class BidragJournalpostConsumer {
     ResponseEntity<JournalpostDto> endretJournalpost = restTemplate.exchange(
         PATH_JOURNALPOST + '/' + endreJournalpostCommandDto.getJournalpostId(),
         HttpMethod.PUT,
-        addSecurityHeader(new HttpEntity<>(endreJournalpostCommandDto), getBearerToken()),
+        initHttpEntityWithSecurityHeader(new HttpEntity<>(endreJournalpostCommandDto), getBearerToken()),
         JournalpostDto.class
     );
 
