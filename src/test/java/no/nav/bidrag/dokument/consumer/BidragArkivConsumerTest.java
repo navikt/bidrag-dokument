@@ -1,7 +1,7 @@
 package no.nav.bidrag.dokument.consumer;
 
 import static no.nav.bidrag.dokument.BidragDokumentConfig.ISSUER;
-import static no.nav.bidrag.dokument.consumer.ConsumerUtil.addSecurityHeader;
+import static no.nav.bidrag.dokument.consumer.ConsumerUtil.initHttpEntityWithSecurityHeader;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -94,7 +94,7 @@ class BidragArkivConsumerTest {
     verify(restTemplateMock).exchange(
         "/journalpost/101",
         HttpMethod.GET,
-        addSecurityHeader(null, getBearerToken()),
+        initHttpEntityWithSecurityHeader(null, getBearerToken()),
         JournalpostDto.class);
   }
 

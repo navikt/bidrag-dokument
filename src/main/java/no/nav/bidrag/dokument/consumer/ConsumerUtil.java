@@ -5,7 +5,7 @@ import org.springframework.http.HttpHeaders;
 
 public class ConsumerUtil {
 
-    public static <T> HttpEntity<T> addSecurityHeader(T body, String bearerToken) {
+    public static <T> HttpEntity<T> initHttpEntityWithSecurityHeader(T body, String bearerToken) {
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.AUTHORIZATION, bearerToken);

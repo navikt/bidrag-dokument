@@ -1,7 +1,7 @@
 package no.nav.bidrag.dokument.consumer;
 
 import static no.nav.bidrag.dokument.BidragDokumentConfig.ISSUER;
-import static no.nav.bidrag.dokument.consumer.ConsumerUtil.addSecurityHeader;
+import static no.nav.bidrag.dokument.consumer.ConsumerUtil.initHttpEntityWithSecurityHeader;
 
 import java.util.Optional;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
@@ -29,7 +29,7 @@ public class BidragArkivConsumer {
 
   public Optional<JournalpostDto> hentJournalpost(Integer id) {
     ResponseEntity<JournalpostDto> journalforingDtoResponseEntity = restTemplate.exchange(
-        PATH_JOURNALPOST + id, HttpMethod.GET, addSecurityHeader(null, getBearerToken()), JournalpostDto.class);
+        PATH_JOURNALPOST + id, HttpMethod.GET, initHttpEntityWithSecurityHeader(null, getBearerToken()), JournalpostDto.class);
 
     HttpStatus httpStatus = journalforingDtoResponseEntity.getStatusCode();
 
