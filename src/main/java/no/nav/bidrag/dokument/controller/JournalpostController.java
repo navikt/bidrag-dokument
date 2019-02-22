@@ -6,10 +6,11 @@ import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
 
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
+import no.nav.bidrag.dokument.KildesystemIdenfikator;
+import no.nav.bidrag.dokument.KildesystemIdenfikator.Kildesystem;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
-import no.nav.bidrag.dokument.exception.KildesystemException;
 import no.nav.bidrag.dokument.service.JournalpostService;
 import no.nav.security.oidc.api.ProtectedWithClaims;
 import org.slf4j.Logger;
@@ -51,15 +52,15 @@ public class JournalpostController {
 
     LOGGER.info("request: bidrag-dokument{}/{}", ENDPOINT_JOURNALPOST, journalpostIdForKildesystem);
 
-    try {
-      return journalpostService.hentJournalpost(journalpostIdForKildesystem)
-          .map(journalpostDto -> new ResponseEntity<>(journalpostDto, HttpStatus.OK))
-          .orElse(new ResponseEntity<>(HttpStatus.NO_CONTENT));
-    } catch (KildesystemException e) {
-      LOGGER.warn("Ukjent kildesystem: " + e.getMessage());
+    KildesystemIdenfikator kildesystemIdentifikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
 
+    if (Kildesystem.UKJENT == kildesystemIdentifikator.hentKildesystem() || kildesystemIdentifikator.harIkkeJournalpostIdSomTall()) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
+
+    return journalpostService.hentJournalpost(kildesystemIdentifikator)
+        .map(journalpostDto -> new ResponseEntity<>(journalpostDto, HttpStatus.OK))
+        .orElse(new ResponseEntity<>(HttpStatus.NO_CONTENT));
   }
 
   @GetMapping(ENDPOINT_SAKJOURNAL + "/{saksnummer}")

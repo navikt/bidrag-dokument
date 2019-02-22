@@ -21,7 +21,6 @@ import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
 import no.nav.security.oidc.test.support.jersey.TestTokenGeneratorResource;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -233,6 +232,26 @@ class JournalpostControllerTest {
       verify(restTemplateMock).exchange(eq("/person/sak/06127412345"), any(), any(), (ParameterizedTypeReference<List<BidragSakDto>>) any());
     }
 
+    @Test
+    @DisplayName("skal få BAD_REQUEST når prefix er ukjent")
+    void skalFaBadRequestMedUkjentPrefix() {
+      var badRequestResponse = testRestTemplate.exchange(
+          url + "/svada-1", HttpMethod.GET, addSecurityHeader(null, testBearerToken), JournalpostDto.class
+      );
+
+      assertThat(badRequestResponse).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    @DisplayName("skal få BAD_REQUEST når journalpostId ikke er et tall")
+    void skalFaBadRequestMedJournalpostIdSomIkkeErEtTall() {
+      var badRequestResponse = testRestTemplate.exchange(
+          url + "/bid-en", HttpMethod.GET, addSecurityHeader(null, testBearerToken), JournalpostDto.class
+      );
+
+      assertThat(badRequestResponse).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
     private JournalpostDto enJournalpostFraBrukerId(@SuppressWarnings("SameParameterValue") String brukerId) {
       JournalpostDto journalpostDto = new JournalpostDto();
       journalpostDto.setGjelderBrukerId(List.of(brukerId));
@@ -281,7 +300,6 @@ class JournalpostControllerTest {
       verify(restTemplateMock).exchange(eq("/sakjournal/1001?fagomrade=BID"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
     }
 
-    @NotNull
     private ParameterizedTypeReference<List<JournalpostDto>> responseTypeErListeMedJournalposter() {
       return new ParameterizedTypeReference<>() {
       };
