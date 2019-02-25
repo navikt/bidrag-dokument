@@ -1,5 +1,7 @@
 package no.nav.bidrag.dokument;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +32,11 @@ public class RestTemplateConfiguration {
     public <T> ResponseEntity<T> exchange(String url, HttpMethod method, HttpEntity<?> requestEntity, Class<T> responseType, Object... uriVariables)
         throws RestClientException {
 
-      return logRestApi(url, method, () -> super.exchange(url, method, requestEntity, responseType, uriVariables));
+      return logRestApi(url, method, requestEntity.getBody(), () -> super.exchange(url, method, requestEntity, responseType, uriVariables));
     }
 
     @SuppressWarnings("unchecked")
-    private <T> ResponseEntity<T> logRestApi(String url, HttpMethod method, RestCaller restCaller) {
+    private <T> ResponseEntity<T> logRestApi(String url, HttpMethod method, Object body, RestCaller restCaller) {
       try {
         return (ResponseEntity<T>) restCaller.doRestApi();
       } catch (RuntimeException e) {
@@ -44,20 +46,22 @@ public class RestTemplateConfiguration {
             .map(RootUriTemplateHandler::getRootUri)
             .orElse("RestTemplate not configured correctly");
 
-        LOGGER.error("Failed to execute rest api, {}, '{}{}': {}", method, baseUrl, url, e.getMessage());
+        String timehex = Long.toHexString(LocalDateTime.now().toEpochSecond(ZoneOffset.UTC));
+        LOGGER.error("{} - Failed rest api, {}, '{}{}': {}", timehex, method, baseUrl, url, e.getMessage());
+        LOGGER.error("{} - HttpEntity.body: {}", timehex, body);
 
         Throwable cause = e.getCause();
-        logCause(cause);
+        logCause(timehex, cause);
 
         throw e;
       }
     }
 
-    private void logCause(Throwable cause) {
+    private void logCause(String timehex, Throwable cause) {
       Optional<Throwable> possibleCause = Optional.ofNullable(cause);
 
       while (possibleCause.isPresent()) {
-        LOGGER.error("Cause: " + possibleCause.get());
+        LOGGER.error("{} - Cause: {}", timehex, possibleCause.get());
         possibleCause = Optional.ofNullable(possibleCause.get().getCause());
       }
     }
