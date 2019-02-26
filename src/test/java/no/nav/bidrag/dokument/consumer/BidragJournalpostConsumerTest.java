@@ -106,7 +106,7 @@ class BidragJournalpostConsumerTest {
 
   private EndreJournalpostCommandDto endreJournalpostCommandMedId101() {
     return new EndreJournalpostCommandDto(
-        "101", null, null, null, null, null, null
+        "101", null, null, null, null, null, null, "id"
     );
   }
 }

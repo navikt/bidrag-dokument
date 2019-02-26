@@ -11,11 +11,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @SpringBootTest(classes = BidragDokumentLocal.class)
 @ActiveProfiles("dev")
 @DisplayName("BidragDokument")
-public class BidragDokumentTest {
+class BidragDokumentTest {
 
-    @DisplayName("skal laste spring-context")
-    @Test
-    void shouldLoadContext() {
-    }
+  @Test
+  @DisplayName("skal laste spring-context")
+  void shouldLoadContext() {
+  }
 
 }
