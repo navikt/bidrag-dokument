@@ -9,6 +9,7 @@ import no.nav.bidrag.dokument.dto.MedDtoId;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.SourceLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -26,9 +27,11 @@ public class ExceptionLogger {
         .map(o -> (MedDtoId) o)
         .collect(toList());
 
+    String exceptionSource = within(joinPoint.getSourceLocation());
+
     for (MedDtoId medDtoId : dtoArguments) {
       var beskrevetDtoId = medDtoId.getBeskrevetDtoId();
-      LOGGER.error("{} - Exception caught in BidragDokument {}: {}", beskrevetDtoId, joinPoint.getSignature(), joinPoint.getSourceLocation());
+      LOGGER.error("{} - Exception caught in BidragDokument within {}", beskrevetDtoId, exceptionSource);
       LOGGER.error("{} - Failed by {}", beskrevetDtoId, exception.toString());
       LOGGER.error("{} - Body {}", beskrevetDtoId, medDtoId);
 
@@ -36,11 +39,15 @@ public class ExceptionLogger {
     }
 
     if (dtoArguments.isEmpty()) {
-      LOGGER.error("Exception caught in BidragDokument {}: {}", joinPoint.getSignature(), joinPoint.getSourceLocation());
+      LOGGER.error("Exception caught in BidragDokument within {}", exceptionSource);
       LOGGER.error("Failed by {}", exception.toString());
 
       logCause(String.valueOf(LocalDateTime.now()), exception.getCause());
     }
+  }
+
+  private String within(SourceLocation sourceLocation) {
+    return String.valueOf(sourceLocation.getWithinType());
   }
 
   private void logCause(String beskrevetDtoId, Throwable cause) {
