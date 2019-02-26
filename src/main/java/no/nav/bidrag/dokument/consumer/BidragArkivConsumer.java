@@ -28,14 +28,20 @@ public class BidragArkivConsumer {
   }
 
   public Optional<JournalpostDto> hentJournalpost(Integer id) {
-    ResponseEntity<JournalpostDto> journalforingDtoResponseEntity = restTemplate.exchange(
-        PATH_JOURNALPOST + id, HttpMethod.GET, initHttpEntityWithSecurityHeader(null, getBearerToken()), JournalpostDto.class);
+    Optional<ResponseEntity<JournalpostDto>> possibleExchange = Optional.ofNullable(
+        restTemplate.exchange(
+            PATH_JOURNALPOST + id, HttpMethod.GET, initHttpEntityWithSecurityHeader(null, getBearerToken()), JournalpostDto.class
+        )
+    );
 
-    HttpStatus httpStatus = journalforingDtoResponseEntity.getStatusCode();
+    possibleExchange.ifPresent(
+        (responseEntity) -> {
+          String beskrevetDtoId = responseEntity.getBody() != null ? responseEntity.getBody().getBeskrevetDtoId() : null;
+          LOGGER.info("Hent journalpost {} har http status {}", beskrevetDtoId, responseEntity.getStatusCode());
+        }
+    );
 
-    LOGGER.info("Journalpost med id={} har http status {}", id, httpStatus);
-
-    return Optional.ofNullable(journalforingDtoResponseEntity.getBody());
+    return possibleExchange.map(ResponseEntity::getBody);
   }
 
   private String getBearerToken() {

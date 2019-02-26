@@ -75,29 +75,39 @@ public class BidragJournalpostConsumer {
   public Optional<JournalpostDto> hentJournalpost(Integer id) {
     String path = PATH_JOURNALPOST + '/' + id;
 
-    ResponseEntity<JournalpostDto> journalpostResponseEntity = restTemplate.exchange(
-        path, HttpMethod.GET, initHttpEntityWithSecurityHeader(null, getBearerToken()), JournalpostDto.class
+    Optional<ResponseEntity<JournalpostDto>> possibleExchange = Optional.ofNullable(
+        restTemplate.exchange(path, HttpMethod.GET, initHttpEntityWithSecurityHeader(null, getBearerToken()), JournalpostDto.class
+        )
     );
 
-    HttpStatus httpStatus = journalpostResponseEntity.getStatusCode();
+    possibleExchange.ifPresent(
+        (response) -> {
+          String beskrevetDtoId = response.getBody() != null ? response.getBody().getBeskrevetDtoId() : null;
+          LOGGER.info("Hent journalpost {} fikk http status {}", beskrevetDtoId, response.getStatusCode());
+        }
+    );
 
-    LOGGER.info("JournalpostDto med id={} har http status {}", id, httpStatus);
-
-    return Optional.ofNullable(journalpostResponseEntity.getBody());
+    return possibleExchange.map(ResponseEntity::getBody);
   }
 
   public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto) {
-    ResponseEntity<JournalpostDto> endretJournalpost = restTemplate.exchange(
-        PATH_JOURNALPOST + '/' + endreJournalpostCommandDto.getJournalpostId(),
-        HttpMethod.PUT,
-        initHttpEntityWithSecurityHeader(new HttpEntity<>(endreJournalpostCommandDto), getBearerToken()),
-        JournalpostDto.class
+    Optional<ResponseEntity<JournalpostDto>> possibleExchange = Optional.ofNullable(
+        restTemplate.exchange(
+            PATH_JOURNALPOST + '/' + endreJournalpostCommandDto.getJournalpostId(),
+            HttpMethod.PUT,
+            initHttpEntityWithSecurityHeader(new HttpEntity<>(endreJournalpostCommandDto), getBearerToken()),
+            JournalpostDto.class
+        )
     );
 
-    HttpStatus httpStatus = Optional.ofNullable(endretJournalpost).map(ResponseEntity::getStatusCode).orElse(HttpStatus.I_AM_A_TEAPOT);
-    LOGGER.info("Fikk http status {} fra endre journalpost: {}", httpStatus, endreJournalpostCommandDto);
+    possibleExchange.ifPresent(
+        (responseEntity) -> {
+          String beskrevetDtoId = responseEntity.getBody() != null ? responseEntity.getBody().getBeskrevetDtoId() : null;
+          LOGGER.info("Endre journalpost {} har http status {}, body: ", beskrevetDtoId, responseEntity.getStatusCode(), endreJournalpostCommandDto);
+        }
+    );
 
-    return Optional.ofNullable(endretJournalpost).map(ResponseEntity::getBody);
+    return possibleExchange.map(ResponseEntity::getBody);
   }
 
   private String getBearerToken() {
