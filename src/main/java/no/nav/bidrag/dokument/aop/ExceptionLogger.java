@@ -1,7 +1,5 @@
 package no.nav.bidrag.dokument.aop;
 
-import static java.util.stream.Collectors.toList;
-
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Optional;
@@ -22,28 +20,19 @@ public class ExceptionLogger {
 
   @AfterThrowing(pointcut = "within (no.nav.bidrag.dokument.controller..*)", throwing = "exception")
   public void logException(JoinPoint joinPoint, Exception exception) {
-    var dtoArguments = Arrays.stream(joinPoint.getArgs())
+    var possibleDtoId = Arrays.stream(joinPoint.getArgs())
         .filter(o -> o instanceof MedDtoId)
         .map(o -> (MedDtoId) o)
-        .collect(toList());
+        .findFirst();
 
-    String exceptionSource = within(joinPoint.getSourceLocation());
+    var dtoId = possibleDtoId.map(MedDtoId::getBeskrevetDtoId).orElseGet(() -> LocalDateTime.now().toString());
+    var exceptionSource = within(joinPoint.getSourceLocation());
 
-    for (MedDtoId medDtoId : dtoArguments) {
-      var beskrevetDtoId = medDtoId.getBeskrevetDtoId();
-      LOGGER.error("{} - Exception caught in BidragDokument within {}", beskrevetDtoId, exceptionSource);
-      LOGGER.error("{} - Failed by {}", beskrevetDtoId, exception.toString());
-      LOGGER.error("{} - Body {}", beskrevetDtoId, medDtoId);
+    LOGGER.error("{} - Exception caught in BidragDokument within {}", dtoId, exceptionSource);
+    LOGGER.error("{} - Failed by {}", dtoId, exception.toString());
+    possibleDtoId.ifPresent(medDtoId -> LOGGER.error("{} - Body {}", medDtoId.getBeskrevetDtoId(), medDtoId));
 
-      logCause(beskrevetDtoId, exception.getCause());
-    }
-
-    if (dtoArguments.isEmpty()) {
-      LOGGER.error("Exception caught in BidragDokument within {}", exceptionSource);
-      LOGGER.error("Failed by {}", exception.toString());
-
-      logCause(String.valueOf(LocalDateTime.now()), exception.getCause());
-    }
+    logCause(dtoId, exception.getCause());
   }
 
   private String within(SourceLocation sourceLocation) {
