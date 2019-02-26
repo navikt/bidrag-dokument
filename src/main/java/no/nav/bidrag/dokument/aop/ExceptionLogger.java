@@ -19,7 +19,7 @@ public class ExceptionLogger {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionLogger.class);
 
-  @AfterThrowing(pointcut = "execution (* no.nav.bidrag.dokument.controller..*Controller(..))", throwing = "exception")
+  @AfterThrowing(pointcut = "within (no.nav.bidrag.dokument.controller..*)", throwing = "exception")
   public void logException(JoinPoint joinPoint, Exception exception) {
     var dtoArguments = Arrays.stream(joinPoint.getArgs())
         .filter(o -> o instanceof MedDtoId)
@@ -28,7 +28,7 @@ public class ExceptionLogger {
 
     for (MedDtoId medDtoId : dtoArguments) {
       LOGGER.error("{} - Error in {}", medDtoId.getBeskrevetDtoId(), joinPoint.toShortString());
-      LOGGER.error("{} - Failed by {}", medDtoId.getBeskrevetDtoId(), exception);
+      LOGGER.error("{} - Failed by {}", medDtoId.getBeskrevetDtoId(), exception.toString());
       LOGGER.error("{} - Body {}", medDtoId.getBeskrevetDtoId(), medDtoId);
 
       logCause(medDtoId.getBeskrevetDtoId(), exception.getCause());
@@ -38,7 +38,7 @@ public class ExceptionLogger {
       String timestamp = String.valueOf(LocalDateTime.now());
 
       LOGGER.error("{} - Error in {}", timestamp, joinPoint.toShortString());
-      LOGGER.error("{} - Failed by {}", timestamp, exception);
+      LOGGER.error("{} - Failed by {}", timestamp, exception.toString());
 
       logCause(timestamp, exception.getCause());
     }
