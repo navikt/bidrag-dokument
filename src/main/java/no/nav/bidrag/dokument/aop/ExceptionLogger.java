@@ -27,20 +27,19 @@ public class ExceptionLogger {
         .collect(toList());
 
     for (MedDtoId medDtoId : dtoArguments) {
-      LOGGER.error("{} - Error in {}", medDtoId.getBeskrevetDtoId(), joinPoint.toShortString());
-      LOGGER.error("{} - Failed by {}", medDtoId.getBeskrevetDtoId(), exception.toString());
-      LOGGER.error("{} - Body {}", medDtoId.getBeskrevetDtoId(), medDtoId);
+      var beskrevetDtoId = medDtoId.getBeskrevetDtoId();
+      LOGGER.error("{} - Exception caught in BidragDokument {}: {}", beskrevetDtoId, joinPoint.getSignature(), joinPoint.getSourceLocation());
+      LOGGER.error("{} - Failed by {}", beskrevetDtoId, exception.toString());
+      LOGGER.error("{} - Body {}", beskrevetDtoId, medDtoId);
 
-      logCause(medDtoId.getBeskrevetDtoId(), exception.getCause());
+      logCause(beskrevetDtoId, exception.getCause());
     }
 
     if (dtoArguments.isEmpty()) {
-      String timestamp = String.valueOf(LocalDateTime.now());
+      LOGGER.error("Exception caught in BidragDokument {}: {}", joinPoint.getSignature(), joinPoint.getSourceLocation());
+      LOGGER.error("Failed by {}", exception.toString());
 
-      LOGGER.error("{} - Error in {}", timestamp, joinPoint.toShortString());
-      LOGGER.error("{} - Failed by {}", timestamp, exception.toString());
-
-      logCause(timestamp, exception.getCause());
+      logCause(String.valueOf(LocalDateTime.now()), exception.getCause());
     }
   }
 
