@@ -91,6 +91,8 @@ public class BidragJournalpostConsumer {
   }
 
   public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto) {
+    LOGGER.info("Endre journalpost BidragDokument: " + endreJournalpostCommandDto);
+
     Optional<ResponseEntity<JournalpostDto>> possibleExchange = Optional.ofNullable(
         restTemplate.exchange(
             PATH_JOURNALPOST + '/' + endreJournalpostCommandDto.getJournalpostId(),
