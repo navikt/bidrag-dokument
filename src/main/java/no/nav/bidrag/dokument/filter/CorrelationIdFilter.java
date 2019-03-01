@@ -18,7 +18,8 @@ import org.springframework.stereotype.Component;
 public class CorrelationIdFilter implements Filter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CorrelationIdFilter.class);
-  private static final String CORRELATION_ID = "X_CORRELATION_ID";
+  private static final String CORRELATION_ID_MDC = "correlationId";
+  private static final String CORRELATION_ID_HEADER = "X_CORRELATION_ID";
 
   @Override
   public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -27,15 +28,19 @@ public class CorrelationIdFilter implements Filter {
     var method = httpServletRequest.getMethod();
     var requestURI = httpServletRequest.getRequestURI();
 
+    if (isRequestToActuatorEndpoint(requestURI)) {
+      return;
+    }
+
     String correlationId;
 
-    if (httpServletResponse.containsHeader(CORRELATION_ID)) {
-      correlationId = httpServletResponse.getHeader(CORRELATION_ID);
+    if (httpServletResponse.containsHeader(CORRELATION_ID_HEADER)) {
+      correlationId = httpServletResponse.getHeader(CORRELATION_ID_HEADER);
     } else {
       correlationId = addCorreleationIdToHttpHeader(httpServletResponse, fetchedTimestamped(requestURI));
     }
 
-    MDC.put(CORRELATION_ID, correlationId);
+    MDC.put(CORRELATION_ID_MDC, correlationId);
 
     LOGGER.info("Prosessing {} {}", method, requestURI);
 
@@ -43,8 +48,16 @@ public class CorrelationIdFilter implements Filter {
     MDC.clear();
   }
 
+  private boolean isRequestToActuatorEndpoint(String requestURI) {
+    if (requestURI == null) {
+      throw new IllegalStateException("should only use this class in an web environment which receives requestUri!!!");
+    }
+
+    return requestURI.contains("/actuator/");
+  }
+
   private String addCorreleationIdToHttpHeader(HttpServletResponse httpServletResponse, String correlationId) {
-    httpServletResponse.addHeader(CORRELATION_ID, correlationId);
+    httpServletResponse.addHeader(CORRELATION_ID_HEADER, correlationId);
 
     return correlationId;
   }
@@ -55,10 +68,10 @@ public class CorrelationIdFilter implements Filter {
   }
 
   private String fetchLastPartOfRequestUri(String requestUri) {
-    return requestUri != null ? Stream.of(requestUri)
+    return Stream.of(requestUri)
         .filter(uri -> uri.contains("/"))
         .map(uri -> uri.substring(uri.lastIndexOf('/') + 1))
         .findFirst()
-        .orElse(requestUri) : "wtf???";
+        .orElse(requestUri);
   }
 }

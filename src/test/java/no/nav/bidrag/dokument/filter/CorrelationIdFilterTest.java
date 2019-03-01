@@ -101,6 +101,29 @@ class CorrelationIdFilterTest {
     );
   }
 
+  @Test
+  @SuppressWarnings("unchecked")
+  @DisplayName("skal ikke logge requests mot actuator endpoints")
+  void skalIkkeLoggeRequestsMotActuatorEndpoints() {
+    var response = testRestTemplate.exchange(
+        "http://localhost:" + port + "/bidrag-dokument/actuator/health",
+        HttpMethod.GET,
+        initHttpEntityWithSecurityHeader(null, testBearerToken),
+        String.class
+    );
+
+    assertAll(
+        () -> assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK),
+        () -> verify(appenderMock, atLeastOnce()).doAppend(
+            argThat((ArgumentMatcher) argument -> {
+              logMeldinger.add(((ILoggingEvent) argument).getFormattedMessage());
+
+              return true;
+            })),
+        () -> assertThat(String.join("\n", logMeldinger)).doesNotContain("Processing").doesNotContain("/actuator/")
+    );
+  }
+
   @Nested
   @DisplayName("funksjonstest")
   class Functional {
@@ -124,6 +147,8 @@ class CorrelationIdFilterTest {
     @Test
     @DisplayName("skal legge HttpHeader.CORRELATION_ID på response")
     void skalLeggeHttpHeaderCorrelationIdPaaResponse() throws IOException, ServletException {
+      when(httpServletRequestMock.getRequestURI()).thenReturn("somewhere");
+
       correlationIdFilter.doFilter(httpServletRequestMock, httpServletResponseMock, filterChainMock);
 
       verify(httpServletResponseMock).addHeader(eq(CORRELATION_ID), anyString());
@@ -132,6 +157,7 @@ class CorrelationIdFilterTest {
     @Test
     @DisplayName("skal ikke legge HttpHeader.CORRELATION_ID på response når den allerede eksisterer")
     void skalIkkeLeggeHttpHeaderCorrelationIdPaaResponseNaarDenAlleredeEksisterer() throws IOException, ServletException {
+      when(httpServletRequestMock.getRequestURI()).thenReturn("somewhere");
       when(httpServletRequestMock.getHeader(CORRELATION_ID)).thenReturn("svada");
       when(httpServletResponseMock.containsHeader(CORRELATION_ID)).thenReturn(true);
 
