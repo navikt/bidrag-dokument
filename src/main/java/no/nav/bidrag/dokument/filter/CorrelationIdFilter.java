@@ -28,32 +28,30 @@ public class CorrelationIdFilter implements Filter {
     var method = httpServletRequest.getMethod();
     var requestURI = httpServletRequest.getRequestURI();
 
-    if (isRequestToActuatorEndpoint(requestURI)) {
-      return;
+    if (isNotRequestToActuatorEndpoint(requestURI)) {
+      String correlationId;
+
+      if (httpServletResponse.containsHeader(CORRELATION_ID_HEADER)) {
+        correlationId = httpServletResponse.getHeader(CORRELATION_ID_HEADER);
+      } else {
+        correlationId = addCorreleationIdToHttpHeader(httpServletResponse, fetchedTimestamped(requestURI));
+      }
+
+      MDC.put(CORRELATION_ID_MDC, correlationId);
+
+      LOGGER.info("Prosessing {} {}", method, requestURI);
     }
-
-    String correlationId;
-
-    if (httpServletResponse.containsHeader(CORRELATION_ID_HEADER)) {
-      correlationId = httpServletResponse.getHeader(CORRELATION_ID_HEADER);
-    } else {
-      correlationId = addCorreleationIdToHttpHeader(httpServletResponse, fetchedTimestamped(requestURI));
-    }
-
-    MDC.put(CORRELATION_ID_MDC, correlationId);
-
-    LOGGER.info("Prosessing {} {}", method, requestURI);
 
     filterChain.doFilter(servletRequest, servletResponse);
     MDC.clear();
   }
 
-  private boolean isRequestToActuatorEndpoint(String requestURI) {
+  private boolean isNotRequestToActuatorEndpoint(String requestURI) {
     if (requestURI == null) {
       throw new IllegalStateException("should only use this class in an web environment which receives requestUri!!!");
     }
 
-    return requestURI.contains("/actuator/");
+    return !requestURI.contains("/actuator/");
   }
 
   private String addCorreleationIdToHttpHeader(HttpServletResponse httpServletResponse, String correlationId) {
