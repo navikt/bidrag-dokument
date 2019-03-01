@@ -35,8 +35,7 @@ public class BidragArkivConsumer {
 
     possibleExchange.ifPresent(
         (responseEntity) -> {
-          String beskrevetDtoId = responseEntity.getBody() != null ? responseEntity.getBody().getBeskrevetDtoId() : null;
-          LOGGER.info("Hent journalpost {} har http status {}", beskrevetDtoId, responseEntity.getStatusCode());
+          LOGGER.info("Hent journalpost fikk http status {} fra joark", responseEntity.getStatusCode());
         }
     );
 

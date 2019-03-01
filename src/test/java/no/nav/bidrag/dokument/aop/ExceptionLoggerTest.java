@@ -89,14 +89,14 @@ class ExceptionLoggerTest {
         }));
 
     assertThat(Optional.of(String.join("", logMeldinger))).hasValueSatisfying(logs -> assertAll(
-        () -> assertThat(logs).contains("svadaDtoId(jpid-101)"),
+        () -> assertThat(logs).contains("journalpostId=101"),
         () -> assertThat(logs).contains("java.lang.IllegalStateException: something fishy happened")
     ));
   }
 
   private EndreJournalpostCommandDto endreJournalpostCommandMedId101() {
     return new EndreJournalpostCommandDto(
-        "101", null, null, null, null, null, null, "svadaDtoId"
+        "101", null, null, null, null, null, null, null
     );
   }
 }

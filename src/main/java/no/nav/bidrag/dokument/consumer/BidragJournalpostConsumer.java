@@ -80,10 +80,7 @@ public class BidragJournalpostConsumer {
     );
 
     possibleExchange.ifPresent(
-        (response) -> {
-          String beskrevetDtoId = response.getBody() != null ? response.getBody().getBeskrevetDtoId() : null;
-          LOGGER.info("Hent journalpost {} fikk http status {}", beskrevetDtoId, response.getStatusCode());
-        }
+        (response) -> LOGGER.info("Hent journalpost fikk http status {} fra bidrag-dokument-journalpost", response.getStatusCode())
     );
 
     return possibleExchange.map(ResponseEntity::getBody);
@@ -102,10 +99,7 @@ public class BidragJournalpostConsumer {
     );
 
     possibleExchange.ifPresent(
-        (responseEntity) -> {
-          String beskrevetDtoId = responseEntity.getBody() != null ? responseEntity.getBody().getBeskrevetDtoId() : null;
-          LOGGER.info("Endre journalpost {} har http status {}, body: ", beskrevetDtoId, responseEntity.getStatusCode(), endreJournalpostCommandDto);
-        }
+        (responseEntity) -> LOGGER.info("Endre journalpost fikk http status {}, body: ", responseEntity.getStatusCode(), endreJournalpostCommandDto)
     );
 
     return possibleExchange.map(ResponseEntity::getBody);
