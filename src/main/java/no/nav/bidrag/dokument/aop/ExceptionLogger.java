@@ -1,9 +1,6 @@
 package no.nav.bidrag.dokument.aop;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Optional;
-import no.nav.bidrag.dokument.dto.MedDtoId;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
@@ -20,30 +17,24 @@ public class ExceptionLogger {
 
   @AfterThrowing(pointcut = "within (no.nav.bidrag.dokument.controller..*)", throwing = "exception")
   public void logException(JoinPoint joinPoint, Exception exception) {
-    var possibleDtoId = Arrays.stream(joinPoint.getArgs())
-        .filter(o -> o instanceof MedDtoId)
-        .map(o -> (MedDtoId) o)
-        .findFirst();
-
-    var dtoId = possibleDtoId.map(MedDtoId::getBeskrevetDtoId).orElseGet(() -> LocalDateTime.now().toString());
     var exceptionSource = within(joinPoint.getSourceLocation());
 
-    LOGGER.error("{} - Exception caught in BidragDokument within {}", dtoId, exceptionSource);
-    LOGGER.error("{} - Failed by {}", dtoId, exception.toString());
-    possibleDtoId.ifPresent(medDtoId -> LOGGER.error("{} - Body {}", medDtoId.getBeskrevetDtoId(), medDtoId));
+    LOGGER.error("Exception caught in BidragDokument within {}", exceptionSource);
+    LOGGER.error("Failed by {}", exception.toString());
+    LOGGER.error("Arguments to controller: {}", joinPoint.getArgs());
 
-    logCause(dtoId, exception.getCause());
+    logCause(exception.getCause());
   }
 
   private String within(SourceLocation sourceLocation) {
     return String.valueOf(sourceLocation.getWithinType());
   }
 
-  private void logCause(String beskrevetDtoId, Throwable cause) {
+  private void logCause(Throwable cause) {
     Optional<Throwable> possibleCause = Optional.ofNullable(cause);
 
     while (possibleCause.isPresent()) {
-      LOGGER.error("{} - Cause: {}", beskrevetDtoId, possibleCause.get());
+      LOGGER.error("Cause: {}", possibleCause.get());
       possibleCause = Optional.ofNullable(possibleCause.get().getCause());
     }
   }

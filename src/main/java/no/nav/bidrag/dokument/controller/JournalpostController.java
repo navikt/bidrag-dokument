@@ -47,7 +47,7 @@ public class JournalpostController {
   }
 
   @GetMapping(ENDPOINT_JOURNALPOST + "/{journalpostIdForKildesystem}")
-  @ApiOperation("Finn journalpost for en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
+  @ApiOperation("Hent en journalpost for en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
   public ResponseEntity<JournalpostDto> hent(@PathVariable String journalpostIdForKildesystem) {
 
     LOGGER.info("request: bidrag-dokument{}/{}", ENDPOINT_JOURNALPOST, journalpostIdForKildesystem);
