@@ -14,7 +14,6 @@ import no.nav.security.oidc.context.TokenContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,7 +62,7 @@ public class BidragJournalpostConsumer {
     String path = PATH_JOURNALPOST + "/ny";
 
     ResponseEntity<JournalpostDto> registrertJournalpost = restTemplate.exchange(
-        path, HttpMethod.POST, initHttpEntityWithSecurityHeader(new HttpEntity<>(nyJournalpostCommandDto), getBearerToken()), JournalpostDto.class
+        path, HttpMethod.POST, initHttpEntityWithSecurityHeader(nyJournalpostCommandDto, getBearerToken()), JournalpostDto.class
     );
 
     HttpStatus httpStatus = registrertJournalpost.getStatusCode();
@@ -97,7 +96,7 @@ public class BidragJournalpostConsumer {
         restTemplate.exchange(
             PATH_JOURNALPOST + '/' + endreJournalpostCommandDto.getJournalpostId(),
             HttpMethod.PUT,
-            initHttpEntityWithSecurityHeader(new HttpEntity<>(endreJournalpostCommandDto), getBearerToken()),
+            initHttpEntityWithSecurityHeader(endreJournalpostCommandDto, getBearerToken()),
             JournalpostDto.class
         )
     );
