@@ -2,7 +2,6 @@ package no.nav.bidrag.dokument.controller;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static no.nav.bidrag.dokument.consumer.ConsumerUtil.initHttpEntityWithSecurityHeader;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
@@ -16,28 +15,25 @@ import java.util.List;
 import java.util.Optional;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
 import no.nav.bidrag.dokument.JournalpostDtoBygger;
+import no.nav.bidrag.dokument.SecuredTestRestTemplateConfiguration.SecuredTestRestTemplate;
 import no.nav.bidrag.dokument.dto.BidragSakDto;
 import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
-import no.nav.security.oidc.test.support.jersey.TestTokenGeneratorResource;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +46,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 @SpringBootTest(classes = BidragDokumentLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("dev")
 @DisplayName("JournalpostController")
-@TestInstance(Lifecycle.PER_CLASS)
 class JournalpostControllerTest {
 
   private static final String ENDPOINT_JOURNALPOST = "/journalpost";
@@ -63,15 +58,7 @@ class JournalpostControllerTest {
   @Value("${server.servlet.context-path}")
   private String contextPath;
   @Autowired
-  private TestRestTemplate testRestTemplate;
-
-  private String testBearerToken;
-
-  @BeforeAll
-  void generateTestBearerToken() {
-    TestTokenGeneratorResource testTokenGeneratorResource = new TestTokenGeneratorResource();
-    this.testBearerToken = "Bearer " + testTokenGeneratorResource.issueToken("localhost-idtoken");
-  }
+  private SecuredTestRestTemplate securedTestRestTemplate;
 
   @BeforeEach
   void initMocks() {
@@ -87,23 +74,12 @@ class JournalpostControllerTest {
     @Test
     @DisplayName("skal mangle body når journalpost ikke finnes")
     void skalMangleBodyNarJournalpostIkkeFinnes() {
-      when(restTemplateMock.exchange(
-          "/journalpost/1",
-          HttpMethod.GET,
-          initHttpEntityWithSecurityHeader(null, testBearerToken),
-          JournalpostDto.class)).thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
+      when(restTemplateMock.exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class))
+          .thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
 
-      ResponseEntity<JournalpostDto> journalpostResponseEntity = testRestTemplate.exchange(
-          url + "/joark-1",
-          HttpMethod.GET,
-          initHttpEntityWithSecurityHeader(null, testBearerToken),
-          JournalpostDto.class);
+      var journalpostResponseEntity = securedTestRestTemplate.exchange(url + "/joark-1", HttpMethod.GET, null, JournalpostDto.class);
 
-      verify(restTemplateMock, atLeastOnce()).exchange(
-          "/journalpost/1",
-          HttpMethod.GET,
-          initHttpEntityWithSecurityHeader(null, testBearerToken),
-          JournalpostDto.class);
+      verify(restTemplateMock, atLeastOnce()).exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class);
 
       assertThat(Optional.of(journalpostResponseEntity)).hasValueSatisfying(response -> assertAll(
           () -> assertThat(response.getBody()).isNull(),
@@ -116,17 +92,9 @@ class JournalpostControllerTest {
       when(restTemplateMock.exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class))
           .thenReturn(new ResponseEntity<>(enJournalpostMedInnhold("MIDLERTIDIG"), HttpStatus.I_AM_A_TEAPOT));
 
-      ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.exchange(
-          url + "/joark-1",
-          HttpMethod.GET,
-          initHttpEntityWithSecurityHeader(null, testBearerToken),
-          JournalpostDto.class);
+      var responseEntity = securedTestRestTemplate.exchange(url + "/joark-1", HttpMethod.GET, null, JournalpostDto.class);
 
-      verify(restTemplateMock, atLeastOnce()).exchange(
-          "/journalpost/1",
-          HttpMethod.GET,
-          initHttpEntityWithSecurityHeader(null, testBearerToken),
-          JournalpostDto.class);
+      verify(restTemplateMock, atLeastOnce()).exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class);
 
       assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
           () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
@@ -143,24 +111,12 @@ class JournalpostControllerTest {
     @Test
     @DisplayName("skal hente journalpost fra midlertidig brevlager")
     void skalHenteJournalpostFraMidlertidigBrevlager() {
-      when(restTemplateMock.exchange(
-          "/journalpost/1",
-          HttpMethod.GET,
-          initHttpEntityWithSecurityHeader(null, testBearerToken),
-          JournalpostDto.class)).thenReturn(new ResponseEntity<>(
-          enJournalpostFra("Grev Still E. Ben"), HttpStatus.I_AM_A_TEAPOT));
+      when(restTemplateMock.exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class))
+          .thenReturn(new ResponseEntity<>(enJournalpostFra("Grev Still E. Ben"), HttpStatus.I_AM_A_TEAPOT));
 
-      ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.exchange(
-          url + "/bid-1",
-          HttpMethod.GET,
-          initHttpEntityWithSecurityHeader(null, testBearerToken),
-          JournalpostDto.class);
+      var responseEntity = securedTestRestTemplate.exchange(url + "/bid-1", HttpMethod.GET, null, JournalpostDto.class);
 
-      verify(restTemplateMock).exchange(
-          "/journalpost/1",
-          HttpMethod.GET,
-          initHttpEntityWithSecurityHeader(null, testBearerToken),
-          JournalpostDto.class);
+      verify(restTemplateMock).exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class);
 
       assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
           () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
@@ -178,19 +134,13 @@ class JournalpostControllerTest {
     @SuppressWarnings("unchecked")
     @DisplayName("skal hente BidragSakDto for journalpostens gjelderBrukerId")
     void skalHenteBidragSakDtoForJournalpostensGjelderBrukerId() {
-      when(restTemplateMock.exchange(
-          "/journalpost/1",
-          HttpMethod.GET,
-          initHttpEntityWithSecurityHeader(null, testBearerToken),
-          JournalpostDto.class)
-      ).thenReturn(new ResponseEntity<>(enJournalpostFraBrukerId("06127412345"), HttpStatus.I_AM_A_TEAPOT));
+      when(restTemplateMock.exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class))
+          .thenReturn(new ResponseEntity<>(enJournalpostFraBrukerId("06127412345"), HttpStatus.I_AM_A_TEAPOT));
 
       when(restTemplateMock.exchange("/person/sak/06127412345", HttpMethod.GET, null, listAvBidragssakerType()))
           .thenReturn(new ResponseEntity<>(List.of(new BidragSakDto()), HttpStatus.I_AM_A_TEAPOT));
 
-      var journalpostDtoResponseEntity = testRestTemplate.exchange(
-          url + "/bid-1", HttpMethod.GET, initHttpEntityWithSecurityHeader(null, testBearerToken), JournalpostDto.class
-      );
+      var journalpostDtoResponseEntity = securedTestRestTemplate.exchange(url + "/bid-1", HttpMethod.GET, null, JournalpostDto.class);
 
       assertAll(
           () -> assertThat(journalpostDtoResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK),
@@ -231,11 +181,8 @@ class JournalpostControllerTest {
               .build(), HttpStatus.CREATED)
           );
 
-      ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.exchange(
-          lagreJournalpostUrl,
-          HttpMethod.POST,
-          initHttpEntityWithSecurityHeader(new NyJournalpostCommandDto(), testBearerToken),
-          JournalpostDto.class
+      var responseEntity = securedTestRestTemplate.exchange(
+          lagreJournalpostUrl, HttpMethod.POST, new HttpEntity<>(new NyJournalpostCommandDto()), JournalpostDto.class
       );
 
       assertThat(optional(responseEntity)).hasValueSatisfying(response -> assertAll(
@@ -247,12 +194,7 @@ class JournalpostControllerTest {
     @Test
     @DisplayName("skal få BAD_REQUEST når prefix er ukjent")
     void skalFaBadRequestMedUkjentPrefix() {
-      var badRequestResponse = testRestTemplate.exchange(
-          lagreJournalpostUrl + "/svada-1",
-          HttpMethod.GET,
-          initHttpEntityWithSecurityHeader(null, testBearerToken),
-          JournalpostDto.class
-      );
+      var badRequestResponse = securedTestRestTemplate.exchange(lagreJournalpostUrl + "/svada-1", HttpMethod.GET, null, JournalpostDto.class);
 
       assertThat(badRequestResponse).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -260,12 +202,7 @@ class JournalpostControllerTest {
     @Test
     @DisplayName("skal få BAD_REQUEST når journalpostId ikke er et tall")
     void skalFaBadRequestMedJournalpostIdSomIkkeErEtTall() {
-      var badRequestResponse = testRestTemplate.exchange(
-          lagreJournalpostUrl + "/bid-en",
-          HttpMethod.GET,
-          initHttpEntityWithSecurityHeader(null, testBearerToken),
-          JournalpostDto.class
-      );
+      var badRequestResponse = securedTestRestTemplate.exchange(lagreJournalpostUrl + "/bid-en", HttpMethod.GET, null, JournalpostDto.class);
 
       assertThat(badRequestResponse).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -273,11 +210,8 @@ class JournalpostControllerTest {
     @Test
     @DisplayName("skal få BAD_REQUEST når prefix er ukjent ved endring av journalpost")
     void skalFaBadRequestMedUkjentPrefixVedEndringAvJournalpost() {
-      var badRequestResponse = testRestTemplate.exchange(
-          lagreJournalpostUrl + "/svada-1",
-          HttpMethod.PUT,
-          initHttpEntityWithSecurityHeader(new EndreJournalpostCommandDto(), testBearerToken),
-          JournalpostDto.class
+      var badRequestResponse = securedTestRestTemplate.exchange(
+          lagreJournalpostUrl + "/svada-1", HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommandDto()), JournalpostDto.class
       );
 
       assertThat(badRequestResponse).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -294,11 +228,8 @@ class JournalpostControllerTest {
               .build(), HttpStatus.I_AM_A_TEAPOT)
           );
 
-      var endretJournalpostResponse = testRestTemplate.exchange(
-          lagreJournalpostUrl + "/bid-1",
-          HttpMethod.PUT,
-          initHttpEntityWithSecurityHeader(new EndreJournalpostCommandDto(), testBearerToken),
-          JournalpostDto.class
+      var endretJournalpostResponse = securedTestRestTemplate.exchange(
+          lagreJournalpostUrl + "/bid-1", HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommandDto()), JournalpostDto.class
       );
 
       assertThat(optional(endretJournalpostResponse)).hasValueSatisfying(response -> assertAll(
@@ -323,22 +254,17 @@ class JournalpostControllerTest {
     @SuppressWarnings("unchecked")
     @DisplayName("skal finne Journalposter for en bidragssak")
     void skalFinneJournalposterForEnBidragssak() {
-      when(restTemplateMock.exchange(
-          anyString(),
-          any(),
-          any(),
-          (ParameterizedTypeReference<List<JournalpostDto>>) any())
-      ).thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
+      when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
+          .thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
 
-      var listeMedJournalposterResponse = testRestTemplate.exchange(
-          urlForFagomradeBid("/1001"),
-          HttpMethod.GET,
-          initHttpEntityWithSecurityHeader(null, testBearerToken),
-          responseTypeErListeMedJournalposter());
+      var listeMedJournalposterResponse = securedTestRestTemplate.exchange(
+          urlForFagomradeBid("/1001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+      );
 
       assertThat(optional(listeMedJournalposterResponse)).hasValueSatisfying(response -> assertAll(
           () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-          () -> assertThat(response.getBody()).hasSize(2)));
+          () -> assertThat(response.getBody()).hasSize(2))
+      );
 
       verify(restTemplateMock)
           .exchange(eq("/sakjournal/1001?fagomrade=BID"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());

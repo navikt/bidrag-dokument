@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.ActiveProfiles;
@@ -38,7 +39,7 @@ import org.springframework.web.client.RestTemplate;
 
 @ActiveProfiles("dev")
 @DisplayName("ExceptionLogger")
-@SpringBootTest(classes = BidragDokumentLocal.class)
+@SpringBootTest(classes = BidragDokumentLocal.class, webEnvironment = WebEnvironment.DEFINED_PORT)
 class ExceptionLoggerTest {
 
   @Autowired
