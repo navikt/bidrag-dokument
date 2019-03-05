@@ -3,8 +3,8 @@ package no.nav.bidrag.dokument;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.ISSUER;
 
 import java.util.Optional;
-import no.nav.bidrag.dokument.HttpHeaderRestTemplateConfiguration.Header;
-import no.nav.bidrag.dokument.HttpHeaderRestTemplateConfiguration.HeaderGenerator;
+import no.nav.bidrag.dokument.HttpHeaderRestTemplate.Header;
+import no.nav.bidrag.dokument.HttpHeaderRestTemplate.HeaderGenerator;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.security.oidc.context.TokenContext;
 import org.springframework.context.annotation.Bean;
@@ -19,10 +19,10 @@ public class RestTemplateConfiguration {
   @Bean
   @Scope("prototype")
   public RestTemplate restTemplate(OIDCRequestContextHolder oidcRequestContextHolder) {
-    HttpHeaderRestTemplateConfiguration httpHeaderRestTemplateConfiguration = new HttpHeaderRestTemplateConfiguration();
-    httpHeaderRestTemplateConfiguration.addHeaderGenerator(createBearerTokenGenerator(oidcRequestContextHolder));
+    HttpHeaderRestTemplate httpHeaderRestTemplate = new HttpHeaderRestTemplate();
+    httpHeaderRestTemplate.addHeaderGenerator(createBearerTokenGenerator(oidcRequestContextHolder));
 
-    return httpHeaderRestTemplateConfiguration;
+    return httpHeaderRestTemplate;
   }
 
   private HeaderGenerator createBearerTokenGenerator(OIDCRequestContextHolder oidcRequestContextHolder) {

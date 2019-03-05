@@ -12,9 +12,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.RestTemplate;
 
-public class HttpHeaderRestTemplateConfiguration extends RestTemplate {
+public class HttpHeaderRestTemplate extends RestTemplate {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(HttpHeaderRestTemplateConfiguration.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(HttpHeaderRestTemplate.class);
 
   private Set<HeaderGenerator> headerGenerators = new HashSet<>();
 

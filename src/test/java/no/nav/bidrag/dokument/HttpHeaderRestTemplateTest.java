@@ -13,7 +13,7 @@ import ch.qos.logback.core.Appender;
 import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
-import no.nav.bidrag.dokument.HttpHeaderRestTemplateConfiguration.Header;
+import no.nav.bidrag.dokument.HttpHeaderRestTemplate.Header;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,10 +25,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 
-@DisplayName("HttpHeaderRestTemplateConfiguration")
-class HttpHeaderRestTemplateConfigurationTest {
+@DisplayName("HttpHeaderRestTemplate")
+class HttpHeaderRestTemplateTest {
 
-  private HttpHeaderRestTemplateConfiguration httpHeaderRestTemplateConfiguration = new HttpHeaderRestTemplateConfiguration();
+  private HttpHeaderRestTemplate httpHeaderRestTemplate = new HttpHeaderRestTemplate();
   private Set<String> logMeldinger = new HashSet<>();
 
   @Mock
@@ -58,9 +58,9 @@ class HttpHeaderRestTemplateConfigurationTest {
   void skalLoggeBrukAvHttpHeader() {
     when(headerMock.name()).thenReturn("JUNIT_HEADER");
     when(headerMock.value()).thenReturn("header value");
-    httpHeaderRestTemplateConfiguration.addHeaderGenerator(() -> headerMock);
+    httpHeaderRestTemplate.addHeaderGenerator(() -> headerMock);
 
-    httpHeaderRestTemplateConfiguration.httpEntityCallback(null, typeMock);
+    httpHeaderRestTemplate.httpEntityCallback(null, typeMock);
 
     assertAll(
         () -> verify(appenderMock).doAppend(
@@ -83,9 +83,9 @@ class HttpHeaderRestTemplateConfigurationTest {
     when(headerMock.name()).thenReturn("ADDITIONAL_HEADER");
     when(headerMock.value()).thenReturn("additional value");
 
-    httpHeaderRestTemplateConfiguration.addHeaderGenerator(() -> headerMock);
+    httpHeaderRestTemplate.addHeaderGenerator(() -> headerMock);
 
-    httpHeaderRestTemplateConfiguration.httpEntityCallback(new HttpEntity<>(null, existingHttpHeaders), typeMock);
+    httpHeaderRestTemplate.httpEntityCallback(new HttpEntity<>(null, existingHttpHeaders), typeMock);
 
     assertAll(
         () -> verify(appenderMock, atLeastOnce()).doAppend(
@@ -108,14 +108,14 @@ class HttpHeaderRestTemplateConfigurationTest {
   @Test
   @DisplayName("skal feile når httpEntityCallback brukes med request body som ikke er en HttpEntity")
   void skalFeileNaarHttpEntityCallbackBrukesMedTypeSomIkkeErAvHttpEntity() {
-    httpHeaderRestTemplateConfiguration.addHeaderGenerator(() -> headerMock);
+    httpHeaderRestTemplate.addHeaderGenerator(() -> headerMock);
 
     assertThatIllegalStateException()
-        .isThrownBy(() -> httpHeaderRestTemplateConfiguration.httpEntityCallback("a request body", typeMock))
+        .isThrownBy(() -> httpHeaderRestTemplate.httpEntityCallback("a request body", typeMock))
         .withMessage("String cannot be used as a request body for a HttpEntityCallback");
 
     assertThatIllegalStateException()
-        .isThrownBy(() -> httpHeaderRestTemplateConfiguration.httpEntityCallback(new Object(), typeMock))
+        .isThrownBy(() -> httpHeaderRestTemplate.httpEntityCallback(new Object(), typeMock))
         .withMessage("Object cannot be used as a request body for a HttpEntityCallback");
   }
 }
