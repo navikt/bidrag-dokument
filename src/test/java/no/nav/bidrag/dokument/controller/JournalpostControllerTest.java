@@ -113,12 +113,8 @@ class JournalpostControllerTest {
     @Test
     @DisplayName("skal hente Journalpost når den eksisterer")
     void skalHenteJournalpostNarDenEksisterer() {
-      when(restTemplateMock.exchange(
-          "/journalpost/1",
-          HttpMethod.GET,
-          initHttpEntityWithSecurityHeader(null, testBearerToken),
-          JournalpostDto.class)).thenReturn(new ResponseEntity<>(
-          enJournalpostMedInnhold("MIDLERTIDIG"), HttpStatus.I_AM_A_TEAPOT));
+      when(restTemplateMock.exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class))
+          .thenReturn(new ResponseEntity<>(enJournalpostMedInnhold("MIDLERTIDIG"), HttpStatus.I_AM_A_TEAPOT));
 
       ResponseEntity<JournalpostDto> responseEntity = testRestTemplate.exchange(
           url + "/joark-1",

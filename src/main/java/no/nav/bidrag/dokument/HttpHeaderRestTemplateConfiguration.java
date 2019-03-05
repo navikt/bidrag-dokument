@@ -2,7 +2,6 @@ package no.nav.bidrag.dokument;
 
 import java.lang.reflect.Type;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
@@ -20,44 +19,33 @@ public class HttpHeaderRestTemplateConfiguration extends RestTemplate {
   private Set<HeaderGenerator> headerGenerators = new HashSet<>();
 
   @Override
-  @SuppressWarnings("unchecked")
   public <T> RequestCallback httpEntityCallback(Object requestBody, Type responseType) {
     if (headerGenerators.isEmpty()) {
       return super.httpEntityCallback(requestBody, responseType);
     }
 
-    HttpEntity<T> httpEntity = Optional.ofNullable(requestBody)
-        .map(this::newEntityWithAdditionalHttpHeaders)
-        .orElseGet(() -> new HttpEntity<>(null, generateHttpHeaders()));
-
+    HttpEntity<T> httpEntity = newEntityWithAdditionalHttpHeaders(requestBody);
     httpEntity.getHeaders().forEach((name, values) -> LOGGER.info("Using {}: {}", name, values.get(0)));
 
     return super.httpEntityCallback(httpEntity, responseType);
   }
 
-  private HttpHeaders generateHttpHeaders() {
-    HttpHeaders httpHeaders = new HttpHeaders();
+  private <T> HttpEntity<T> newEntityWithAdditionalHttpHeaders(Object o) {
+    HttpEntity<T> httpEntity = o != null ? mapToHttpEntity(o) : new HttpEntity<>(null, null);
+    MultiValueMap<String, String> allHeaders = combineHeaders(httpEntity.getHeaders());
 
-    headerGenerators.stream()
-        .map(HeaderGenerator::generate)
-        .forEach(header -> httpHeaders.add(header.name(), header.value()));
-
-    return httpHeaders;
+    return new HttpEntity<>(httpEntity.getBody(), allHeaders);
   }
 
   @SuppressWarnings("unchecked")
-  private HttpEntity newEntityWithAdditionalHttpHeaders(Object o) {
-    HttpEntity httpEntity = Stream.of(o)
+  private <T> HttpEntity<T> mapToHttpEntity(Object o) {
+    return Stream.of(o)
         .filter(obj -> obj instanceof HttpEntity)
-        .map(obj -> (HttpEntity) obj)
+        .map(obj -> (HttpEntity<T>) obj)
         .findFirst()
         .orElseThrow(() -> new IllegalStateException(
             String.format("%s cannot be used as a request body for a HttpEntityCallback", o.getClass().getSimpleName())
         ));
-
-    MultiValueMap<String, String> allHeaders = combineHeaders(httpEntity.getHeaders());
-
-    return new HttpEntity(httpEntity.getBody(), allHeaders);
   }
 
   private MultiValueMap<String, String> combineHeaders(HttpHeaders existingHeaders) {
