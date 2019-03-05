@@ -6,6 +6,7 @@ import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
 
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
+import no.nav.bidrag.dokument.BidragDokumentConfig;
 import no.nav.bidrag.dokument.KildesystemIdenfikator;
 import no.nav.bidrag.dokument.KildesystemIdenfikator.Kildesystem;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
@@ -27,7 +28,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@ProtectedWithClaims(issuer = "isso")
+@ProtectedWithClaims(issuer = BidragDokumentConfig.ISSUER)
 public class JournalpostController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(JournalpostController.class);

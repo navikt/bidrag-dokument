@@ -189,12 +189,8 @@ class JournalpostControllerTest {
           JournalpostDto.class)
       ).thenReturn(new ResponseEntity<>(enJournalpostFraBrukerId("06127412345"), HttpStatus.I_AM_A_TEAPOT));
 
-      when(restTemplateMock.exchange(
-          "/person/sak/06127412345",
-          HttpMethod.GET,
-          initHttpEntityWithSecurityHeader(null, testBearerToken),
-          listAvBidragssakerType())
-      ).thenReturn(new ResponseEntity<>(List.of(new BidragSakDto()), HttpStatus.I_AM_A_TEAPOT));
+      when(restTemplateMock.exchange("/person/sak/06127412345", HttpMethod.GET, null, listAvBidragssakerType()))
+          .thenReturn(new ResponseEntity<>(List.of(new BidragSakDto()), HttpStatus.I_AM_A_TEAPOT));
 
       var journalpostDtoResponseEntity = testRestTemplate.exchange(
           url + "/bid-1", HttpMethod.GET, initHttpEntityWithSecurityHeader(null, testBearerToken), JournalpostDto.class
