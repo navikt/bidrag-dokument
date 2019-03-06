@@ -11,7 +11,6 @@ import no.nav.bidrag.dokument.KildesystemIdenfikator;
 import no.nav.bidrag.dokument.KildesystemIdenfikator.Kildesystem;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
-import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
 import no.nav.bidrag.dokument.service.JournalpostService;
 import no.nav.security.oidc.api.ProtectedWithClaims;
 import org.slf4j.Logger;
@@ -20,7 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -77,17 +75,6 @@ public class JournalpostController {
     var journalposter = journalpostService.finnJournalposter(saksnummer, fagomrade);
 
     return new ResponseEntity<>(journalposter, journalposter.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK);
-  }
-
-  @PostMapping(ENDPOINT_JOURNALPOST)
-  @ApiOperation("Registrer ny journalpost")
-  public ResponseEntity<JournalpostDto> post(@RequestBody NyJournalpostCommandDto nyJournalpostCommandDto) {
-
-    LOGGER.info("post ny: bidrag-dokument{}\n \\-> {}", ENDPOINT_JOURNALPOST, nyJournalpostCommandDto);
-
-    return journalpostService.registrer(nyJournalpostCommandDto)
-        .map(journalpost -> new ResponseEntity<>(journalpost, HttpStatus.CREATED))
-        .orElseGet(() -> new ResponseEntity<>(HttpStatus.OK));
   }
 
   @PutMapping(ENDPOINT_JOURNALPOST + "/{journalpostIdForKildesystem}")

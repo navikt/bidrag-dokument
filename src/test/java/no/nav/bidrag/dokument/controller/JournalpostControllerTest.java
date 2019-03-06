@@ -15,12 +15,11 @@ import java.util.List;
 import java.util.Optional;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
 import no.nav.bidrag.dokument.JournalpostDtoBygger;
-import no.nav.bidrag.dokument.security.SecuredTestRestTemplateConfiguration.SecuredTestRestTemplate;
 import no.nav.bidrag.dokument.dto.BidragSakDto;
 import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
-import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
+import no.nav.bidrag.dokument.security.SecuredTestRestTemplateConfiguration.SecuredTestRestTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -169,27 +168,6 @@ class JournalpostControllerTest {
   class EndpointLagreJournalpost {
 
     private String lagreJournalpostUrl = initEndpointUrl(ENDPOINT_JOURNALPOST);
-
-    @Test
-    @DisplayName("skal registrere ny journalpost")
-    void skalRegistrereNyJournalpost() {
-      when(restTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(JournalpostDto.class)))
-          .thenReturn(new ResponseEntity<>(new JournalpostDtoBygger()
-              .medDokumenter(singletonList(new DokumentDto()))
-              .medGjelderBrukerId("06127412345")
-              .medJournalpostId("BID-101")
-              .build(), HttpStatus.CREATED)
-          );
-
-      var responseEntity = securedTestRestTemplate.exchange(
-          lagreJournalpostUrl, HttpMethod.POST, new HttpEntity<>(new NyJournalpostCommandDto()), JournalpostDto.class
-      );
-
-      assertThat(optional(responseEntity)).hasValueSatisfying(response -> assertAll(
-          () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED),
-          () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournalpostId).isEqualTo("BID-101"))
-      );
-    }
 
     @Test
     @DisplayName("skal få BAD_REQUEST når prefix er ukjent")
