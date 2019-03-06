@@ -20,7 +20,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponseWrapper;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
-import no.nav.bidrag.dokument.SecuredTestRestTemplateConfiguration.SecuredTestRestTemplate;
+import no.nav.bidrag.dokument.security.SecuredTestRestTemplateConfiguration.SecuredTestRestTemplate;
 import no.nav.bidrag.dokument.service.JournalpostService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,7 +42,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(classes = BidragDokumentLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("dev")
+@ActiveProfiles({"dev", "secure-test"})
 @DisplayName("CorrelationIdFilter")
 class CorrelationIdFilterTest {
 

@@ -1,17 +1,20 @@
-package no.nav.bidrag.dokument;
+package no.nav.bidrag.dokument.security;
 
 import java.util.Optional;
 import no.nav.security.oidc.test.support.jersey.TestTokenGeneratorResource;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.ActiveProfiles;
 
 @Configuration
+@Profile("secure-test")
 public class SecuredTestRestTemplateConfiguration {
 
   @Bean

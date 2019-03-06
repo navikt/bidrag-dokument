@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
 import no.nav.bidrag.dokument.JournalpostDtoBygger;
-import no.nav.bidrag.dokument.SecuredTestRestTemplateConfiguration.SecuredTestRestTemplate;
+import no.nav.bidrag.dokument.security.SecuredTestRestTemplateConfiguration.SecuredTestRestTemplate;
 import no.nav.bidrag.dokument.dto.BidragSakDto;
 import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
@@ -44,7 +44,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = BidragDokumentLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("dev")
+@ActiveProfiles({"dev", "secure-test"})
 @DisplayName("JournalpostController")
 class JournalpostControllerTest {
 
