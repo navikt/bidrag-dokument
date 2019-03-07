@@ -1,5 +1,6 @@
 package no.nav.bidrag.dokument;
 
+import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.consumer.BidragSakConsumer;
@@ -56,5 +57,10 @@ public class BidragDokumentConfig {
     LOGGER.info("BidragArkivConsumer med base url: " + bidragArkivBaseUrl);
 
     return new BidragArkivConsumer(restTemplate);
+  }
+
+  @Bean
+  public CorrelationIdFilter correlationIdFilter() {
+    return new CorrelationIdFilter();
   }
 }
