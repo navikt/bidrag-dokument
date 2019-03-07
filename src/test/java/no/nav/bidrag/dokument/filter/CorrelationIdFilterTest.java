@@ -1,6 +1,5 @@
 package no.nav.bidrag.dokument.filter;
 
-import static no.nav.bidrag.dokument.consumer.ConsumerUtil.initHttpEntityWithSecurityHeader;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -21,8 +20,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponseWrapper;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
+import no.nav.bidrag.dokument.security.SecuredTestRestTemplateConfiguration.SecuredTestRestTemplate;
 import no.nav.bidrag.dokument.service.JournalpostService;
-import no.nav.security.oidc.test.support.jersey.TestTokenGeneratorResource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -36,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -44,30 +42,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(classes = BidragDokumentLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("dev")
+@ActiveProfiles({"dev", "secure-test"})
 @DisplayName("CorrelationIdFilter")
 class CorrelationIdFilterTest {
 
   private static final String CORRELATION_ID = "X_CORRELATION_ID";
 
   @Autowired
-  private TestRestTemplate testRestTemplate;
+  private SecuredTestRestTemplate securedTestRestTemplate;
   @MockBean
   private JournalpostService journalpostServiceMock;
   @LocalServerPort
   private int port;
 
   private Set<String> logMeldinger = new HashSet<>();
-  private String testBearerToken;
 
   @MockBean
   private Appender appenderMock;
-
-  @BeforeEach
-  void generateTestBearerToken() {
-    TestTokenGeneratorResource testTokenGeneratorResource = new TestTokenGeneratorResource();
-    testBearerToken = "Bearer " + testTokenGeneratorResource.issueToken("localhost-idtoken");
-  }
 
   @BeforeEach
   @SuppressWarnings("unchecked")
@@ -82,10 +73,10 @@ class CorrelationIdFilterTest {
   @SuppressWarnings("unchecked")
   @DisplayName("skal logge requests mot applikasjonen")
   void skalLoggeRequestsMotApplikasjonen() {
-    var response = testRestTemplate.exchange(
+    var response = securedTestRestTemplate.exchange(
         "http://localhost:" + port + "/bidrag-dokument/journalpost/BID-123",
         HttpMethod.GET,
-        initHttpEntityWithSecurityHeader(null, testBearerToken),
+        null,
         String.class
     );
 
@@ -105,10 +96,10 @@ class CorrelationIdFilterTest {
   @SuppressWarnings("unchecked")
   @DisplayName("skal ikke logge requests mot actuator endpoints")
   void skalIkkeLoggeRequestsMotActuatorEndpoints() {
-    var response = testRestTemplate.exchange(
+    var response = securedTestRestTemplate.exchange(
         "http://localhost:" + port + "/bidrag-dokument/actuator/health",
         HttpMethod.GET,
-        initHttpEntityWithSecurityHeader(null, testBearerToken),
+        null,
         String.class
     );
 

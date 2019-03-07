@@ -43,7 +43,7 @@ public class BidragDokumentConfig {
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(sakBaseUrl));
     LOGGER.info("BidragSakConsumer med base url: " + sakBaseUrl);
 
-    return new BidragSakConsumer(securityContextHolder, restTemplate);
+    return new BidragSakConsumer(restTemplate);
   }
 
   @Bean
@@ -55,6 +55,6 @@ public class BidragDokumentConfig {
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(bidragArkivBaseUrl));
     LOGGER.info("BidragArkivConsumer med base url: " + bidragArkivBaseUrl);
 
-    return new BidragArkivConsumer(securityContextHolder, restTemplate);
+    return new BidragArkivConsumer(restTemplate);
   }
 }

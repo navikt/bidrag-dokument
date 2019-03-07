@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class})
 @SpringBootTest(classes = BidragDokumentLocal.class)
 @ActiveProfiles("dev")
 @DisplayName("BidragDokument")

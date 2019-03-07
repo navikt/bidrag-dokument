@@ -49,7 +49,7 @@
     <java.version>11</java.version>
 
     <!-- dependent versions other than from spring-boot -->
-    <bidrag-dokument-dto.version>0.0.93</bidrag-dokument-dto.version>
+    <bidrag-dokument-dto.version>0.0.95</bidrag-dokument-dto.version>
     <oidc-spring-support.version>0.2.15</oidc-spring-support.version>
     <logback.encoder.version>5.3</logback.encoder.version>
     <springfox-swagger.version>2.9.2</springfox-swagger.version>
