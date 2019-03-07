@@ -13,13 +13,13 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import no.nav.bidrag.commons.web.test.SecuredTestRestTemplate;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
 import no.nav.bidrag.dokument.JournalpostDtoBygger;
 import no.nav.bidrag.dokument.dto.BidragSakDto;
 import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
-import no.nav.bidrag.dokument.security.SecuredTestRestTemplateConfiguration.SecuredTestRestTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

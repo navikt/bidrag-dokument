@@ -11,7 +11,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import java.util.HashSet;
 import java.util.Set;
-import no.nav.bidrag.dokument.security.SecuredTestRestTemplateConfiguration.SecuredTestRestTemplate;
+import no.nav.bidrag.commons.web.test.SecuredTestRestTemplate;
 import no.nav.bidrag.dokument.service.JournalpostService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
