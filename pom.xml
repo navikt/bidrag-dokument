@@ -49,6 +49,8 @@
     <java.version>11</java.version>
 
     <!-- dependent versions other than from spring-boot -->
+    <bidrag-commons.version>0.0.4</bidrag-commons.version>
+    <bidrag-commons-test.version>0.0.4</bidrag-commons-test.version>
     <bidrag-dokument-dto.version>0.0.95</bidrag-dokument-dto.version>
     <oidc-spring-support.version>0.2.15</oidc-spring-support.version>
     <logback.encoder.version>5.3</logback.encoder.version>
@@ -87,9 +89,22 @@
     </dependency>
 
     <dependency>
+      <groupId>no.nav.bidrag</groupId>
+      <artifactId>bidrag-commons</artifactId>
+      <version>${bidrag-commons.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>no.nav.security</groupId>
       <artifactId>oidc-test-support</artifactId>
       <version>${oidc-spring-support.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>no.nav.bidrag</groupId>
+      <artifactId>bidrag-commons-test</artifactId>
+      <version>${bidrag-commons-test.version}</version>
       <scope>test</scope>
     </dependency>
 
