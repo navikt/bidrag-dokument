@@ -1,5 +1,6 @@
 package no.nav.bidrag.dokument;
 
+import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
@@ -27,8 +28,8 @@ public class BidragDokumentConfig {
   public BidragJournalpostConsumer bidragJournalpostConsumer(
       @Value("${JOURNALPOST_URL}") String journalpostBaseUrl,
       OIDCRequestContextHolder securityContextHolder,
-      RestTemplate restTemplate) {
-
+      RestTemplate restTemplate
+  ) {
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(journalpostBaseUrl));
     LOGGER.info("BidragJournalpostConsumer med base url: " + journalpostBaseUrl);
 
@@ -38,9 +39,8 @@ public class BidragDokumentConfig {
   @Bean
   public BidragSakConsumer bidragSakConsumer(
       @Value("${BIDRAG_SAK_URL}") String sakBaseUrl,
-      OIDCRequestContextHolder securityContextHolder,
-      RestTemplate restTemplate) {
-
+      RestTemplate restTemplate
+  ) {
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(sakBaseUrl));
     LOGGER.info("BidragSakConsumer med base url: " + sakBaseUrl);
 
@@ -50,9 +50,8 @@ public class BidragDokumentConfig {
   @Bean
   public BidragArkivConsumer journalforingConsumer(
       @Value("${BIDRAG_ARKIV_URL}") String bidragArkivBaseUrl,
-      OIDCRequestContextHolder securityContextHolder,
-      RestTemplate restTemplate) {
-
+      RestTemplate restTemplate
+  ) {
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(bidragArkivBaseUrl));
     LOGGER.info("BidragArkivConsumer med base url: " + bidragArkivBaseUrl);
 
@@ -62,5 +61,10 @@ public class BidragDokumentConfig {
   @Bean
   public CorrelationIdFilter correlationIdFilter() {
     return new CorrelationIdFilter();
+  }
+
+  @Bean
+  public ExceptionLogger exceptionLogger() {
+    return new ExceptionLogger("BidragDokument");
   }
 }
