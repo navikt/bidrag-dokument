@@ -5,7 +5,6 @@ import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.consumer.BidragSakConsumer;
-import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,13 +26,12 @@ public class BidragDokumentConfig {
   @Bean
   public BidragJournalpostConsumer bidragJournalpostConsumer(
       @Value("${JOURNALPOST_URL}") String journalpostBaseUrl,
-      OIDCRequestContextHolder securityContextHolder,
       RestTemplate restTemplate
   ) {
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(journalpostBaseUrl));
     LOGGER.info("BidragJournalpostConsumer med base url: " + journalpostBaseUrl);
 
-    return new BidragJournalpostConsumer(securityContextHolder, restTemplate);
+    return new BidragJournalpostConsumer(restTemplate);
   }
 
   @Bean

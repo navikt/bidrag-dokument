@@ -26,7 +26,7 @@ public class BidragJournalpostConsumer {
 
   private final RestTemplate restTemplate;
 
-  public BidragJournalpostConsumer(OIDCRequestContextHolder securityContextHolder, RestTemplate restTemplate) {
+  public BidragJournalpostConsumer(RestTemplate restTemplate) {
     this.restTemplate = restTemplate;
   }
 

@@ -32,32 +32,15 @@ import org.springframework.web.client.RestTemplate;
 @SuppressWarnings("unchecked")
 class BidragJournalpostConsumerTest {
 
-  private static OIDCValidationContext oidcValidationContext;
   private BidragJournalpostConsumer bidragJournalpostConsumer;
 
   @Mock
-  private OIDCRequestContextHolder securityContextHolder;
-  @Mock
   private RestTemplate restTemplateMock;
-
-  @BeforeAll
-  static void prepareOidcValidationContext() {
-    var testTokenGeneratorResource = new TestTokenGeneratorResource();
-    var idToken = testTokenGeneratorResource.issueToken("localhost-idtoken");
-
-    oidcValidationContext = new OIDCValidationContext();
-    TokenContext tokenContext = new TokenContext(ISSUER, idToken);
-    SignedJWT signedJWT = testTokenGeneratorResource.jwtClaims(ISSUER);
-    OIDCClaims oidcClaims = new OIDCClaims(signedJWT);
-
-    oidcValidationContext.addValidatedToken(ISSUER, tokenContext, oidcClaims);
-  }
 
   @BeforeEach
   void setup() {
     initMocks();
     initTestClass();
-    mockOIDCValidationContext();
   }
 
   private void initMocks() {
@@ -65,11 +48,7 @@ class BidragJournalpostConsumerTest {
   }
 
   private void initTestClass() {
-    bidragJournalpostConsumer = new BidragJournalpostConsumer(securityContextHolder, restTemplateMock);
-  }
-
-  private void mockOIDCValidationContext() {
-    when(securityContextHolder.getOIDCValidationContext()).thenReturn(oidcValidationContext);
+    bidragJournalpostConsumer = new BidragJournalpostConsumer(restTemplateMock);
   }
 
   @Test
