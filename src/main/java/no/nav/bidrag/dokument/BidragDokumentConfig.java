@@ -63,6 +63,6 @@ public class BidragDokumentConfig {
 
   @Bean
   public ExceptionLogger exceptionLogger() {
-    return new ExceptionLogger("BidragDokument");
+    return new ExceptionLogger(BidragDokument.class.getSimpleName());
   }
 }
