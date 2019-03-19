@@ -2,6 +2,7 @@ package no.nav.bidrag.dokument;
 
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
+import no.nav.bidrag.dokument.security.SecuredTestRestTemplateConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
@@ -12,7 +13,7 @@ import org.springframework.context.annotation.PropertySource;
 import no.nav.security.oidc.test.support.spring.TokenGeneratorConfiguration;
 import no.nav.security.spring.oidc.api.EnableOIDCTokenValidation;
 
-@SpringBootApplication
+@SpringBootApplication()
 @PropertySource("classpath:url.properties")
 @EnableOIDCTokenValidation(ignore = {"springfox.documentation.swagger.web.ApiResourceController", "org.springframework"})
 @Import(TokenGeneratorConfiguration.class)

@@ -1,146 +1,68 @@
 package no.nav.bidrag.dokument.consumer;
 
-import static no.nav.bidrag.dokument.BidragDokumentTest.bearer;
-import static no.nav.bidrag.dokument.consumer.ConsumerUtil.addSecurityHeader;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-
-import org.junit.jupiter.api.AfterEach;
+import no.nav.bidrag.dokument.dto.JournalpostDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatcher;
-import org.mockito.ArgumentMatchers;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
-import no.nav.bidrag.dokument.dto.JournalpostDto;
-
 @DisplayName("BidragArkivConsumer")
-@SuppressWarnings("unchecked")
+@TestInstance(Lifecycle.PER_CLASS)
 class BidragArkivConsumerTest {
 
-    private BidragArkivConsumer bidragArkivConsumer;
+  private BidragArkivConsumer bidragArkivConsumer;
 
-    @Mock
-    private Appender appenderMock;
-    @Mock
-    private RestTemplate restTemplateMock;
+  @Mock
+  private RestTemplate restTemplateMock;
 
-    @BeforeEach
-    void setUp() {
-        initMocks();
-        initTestClass();
-        mockRestTemplateFactory();
-        mockLogAppender();
-    }
+  @BeforeEach
+  void setUp() {
+    initMocks();
+    initTestClass();
+  }
 
-    private void initMocks() {
-        MockitoAnnotations.initMocks(this);
-    }
+  private void initMocks() {
+    MockitoAnnotations.initMocks(this);
+  }
 
-    private void initTestClass() {
-        bidragArkivConsumer = new BidragArkivConsumer("baseUrl");
-    }
+  private void initTestClass() {
+    bidragArkivConsumer = new BidragArkivConsumer(restTemplateMock);
+  }
 
-    private void mockRestTemplateFactory() {
-        RestTemplateFactory.use(() -> restTemplateMock);
-    }
+  @Test
+  @DisplayName("skal hente en journalpost med spring sin RestTemplate")
+  void skalHenteJournalpostMedRestTemplate() {
 
-    private void mockLogAppender() {
-        ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        when(appenderMock.getName()).thenReturn("MOCK");
-        when(appenderMock.isStarted()).thenReturn(true);
-        logger.addAppender(appenderMock);
-    }
+    when(restTemplateMock.exchange(anyString(), eq(HttpMethod.GET), eq(null), eq(JournalpostDto.class)))
+        .thenReturn(new ResponseEntity<>(enJournalpostMedJournaltilstand("ENDELIG"), HttpStatus.OK));
 
-    @DisplayName("skal hente en journalpost med spring sin RestTemplate")
-    @Test
-    void skalHenteJournalpostMedRestTemplate() {
+    Optional<JournalpostDto> journalpostOptional = bidragArkivConsumer.hentJournalpost(101);
+    JournalpostDto journalpostDto = journalpostOptional
+        .orElseThrow(() -> new AssertionError("BidragArkivConsumer kunne ikke finne journalpost!"));
 
-        when(restTemplateMock.exchange(
-                anyString(),
-                any(HttpMethod.class),
-                any(HttpEntity.class),
-                ArgumentMatchers.<Class<JournalpostDto>> any()))
-                        .thenReturn(new ResponseEntity<JournalpostDto>(enJournalpostMedJournaltilstand("ENDELIG"), HttpStatus.OK));
+    assertThat(journalpostDto.getInnhold()).isEqualTo("ENDELIG");
 
-        Optional<JournalpostDto> journalpostOptional = bidragArkivConsumer.hentJournalpost(101, bearer());
-        JournalpostDto journalpostDto = journalpostOptional.orElseThrow(() -> new AssertionError("Ingen Dto fra manager!"));
+    verify(restTemplateMock).exchange("/journalpost/101", HttpMethod.GET, null, JournalpostDto.class);
+  }
 
-        assertThat(journalpostDto.getInnhold()).isEqualTo("ENDELIG");
+  private JournalpostDto enJournalpostMedJournaltilstand(@SuppressWarnings("SameParameterValue") String innhold) {
+    JournalpostDto journalpostDto = new JournalpostDto();
+    journalpostDto.setInnhold(innhold);
 
-        verify(restTemplateMock).exchange(
-                "/journalpost/101",
-                HttpMethod.GET,
-                addSecurityHeader(null, bearer()),
-                JournalpostDto.class);
-    }
-
-    private JournalpostDto enJournalpostMedJournaltilstand(@SuppressWarnings("SameParameterValue") String innhold) {
-        JournalpostDto journalpostDto = new JournalpostDto();
-        journalpostDto.setInnhold(innhold);
-
-        return journalpostDto;
-    }
-
-    @DisplayName("skalLoggeHentJournalpost")
-    @Test
-    void skalLoggeHentJournalpost() {
-
-        when(restTemplateMock.exchange(
-                anyString(),
-                any(HttpMethod.class),
-                any(HttpEntity.class),
-                ArgumentMatchers.<Class<JournalpostDto>> any()))
-                        .thenReturn(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
-
-        bidragArkivConsumer.hentJournalpost(123, bearer());
-
-        verify(appenderMock).doAppend(
-                argThat((ArgumentMatcher) argument -> {
-                    assertThat(((ILoggingEvent) argument).getFormattedMessage())
-                            .contains("Journalpost med id=123 har http status 500 INTERNAL_SERVER_ERROR");
-
-                    return true;
-                }));
-    }
-
-    @DisplayName("skalLoggeFinnJournalposter")
-    @Test
-    void skalLoggeFinnJournalposter() {
-        when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<?>) any())).thenReturn(
-                new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
-
-        bidragArkivConsumer.finnJournalposter("12345", bearer());
-
-        verify(appenderMock).doAppend(
-                argThat((ArgumentMatcher) argument -> {
-                    assertThat(((ILoggingEvent) argument).getFormattedMessage())
-                            .contains("Journalposter knyttet til gsak=12345 har http status 500 INTERNAL_SERVER_ERROR");
-
-                    return true;
-                }));
-    }
-
-    @AfterEach
-    void resetFactory() {
-        RestTemplateFactory.reset();
-    }
+    return journalpostDto;
+  }
 }

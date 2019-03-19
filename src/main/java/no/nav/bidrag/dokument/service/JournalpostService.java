@@ -1,61 +1,65 @@
 package no.nav.bidrag.dokument.service;
 
-import no.nav.bidrag.dokument.PrefixUtil;
+import static no.nav.bidrag.dokument.KildesystemIdenfikator.Kildesystem.BIDRAG;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import no.nav.bidrag.dokument.KildesystemIdenfikator;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
+import no.nav.bidrag.dokument.consumer.BidragSakConsumer;
+import no.nav.bidrag.dokument.dto.BidragSakDto;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
-import no.nav.bidrag.dokument.exception.KildesystemException;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Optional;
-
-import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_BIDRAG;
-import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_GSAK;
-import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
 
 @Component
 public class JournalpostService {
 
-    private final BidragJournalpostConsumer bidragJournalpostConsumer;
-    private final BidragArkivConsumer bidragArkivConsumer;
+  private final BidragJournalpostConsumer bidragJournalpostConsumer;
+  private final BidragSakConsumer bidragSakConsumer;
+  private final BidragArkivConsumer bidragArkivConsumer;
 
-    public JournalpostService(BidragJournalpostConsumer bidragJournalpostConsumer, BidragArkivConsumer bidragArkivConsumer) {
-        this.bidragJournalpostConsumer = bidragJournalpostConsumer;
-        this.bidragArkivConsumer = bidragArkivConsumer;
+  public JournalpostService(
+      BidragJournalpostConsumer bidragJournalpostConsumer, BidragSakConsumer bidragSakConsumer, BidragArkivConsumer bidragArkivConsumer
+  ) {
+    this.bidragJournalpostConsumer = bidragJournalpostConsumer;
+    this.bidragSakConsumer = bidragSakConsumer;
+    this.bidragArkivConsumer = bidragArkivConsumer;
+  }
+
+  public Optional<JournalpostDto> hentJournalpost(KildesystemIdenfikator kildesystemIdenfikator) {
+    if (BIDRAG.er(kildesystemIdenfikator.hentKildesystem())) {
+      Optional<JournalpostDto> muligJournalpostDto = bidragJournalpostConsumer.hentJournalpost(kildesystemIdenfikator.hentJournalpostId());
+
+      muligJournalpostDto.ifPresent(
+          journalpostDto -> journalpostDto.setBidragssaker(finnBidragssaker(journalpostDto.getGjelderBrukerId()))
+      );
+
+      return muligJournalpostDto;
     }
 
-    public Optional<JournalpostDto> hentJournalpost(String journalpostId, String bearerToken) throws KildesystemException {
-        try {
-            if (PrefixUtil.startsWith(PREFIX_BIDRAG, journalpostId)) {
-                return bidragJournalpostConsumer.hentJournalpost(PrefixUtil.tryExtraction(journalpostId), bearerToken);
-            } else if (PrefixUtil.startsWith(PREFIX_JOARK, journalpostId)) {
-                return bidragArkivConsumer.hentJournalpost(PrefixUtil.tryExtraction(journalpostId), bearerToken);
-            }
-        } catch (NumberFormatException nfe) {
-            throw new KildesystemException("Kan ikke prosesseres som et tall: " + journalpostId);
-        }
+    return bidragArkivConsumer.hentJournalpost(kildesystemIdenfikator.hentJournalpostId());
+  }
 
-        throw new KildesystemException("Kunne ikke identifisere kildesystem for id: " + journalpostId);
-    }
+  private List<BidragSakDto> finnBidragssaker(List<String> gjelderBrukerId) {
+    List<BidragSakDto> bidragssaker = new ArrayList<>();
+    gjelderBrukerId.forEach(fnr -> bidragssaker.addAll(bidragSakConsumer.finnInnvolverteSaker(fnr)));
 
-    public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade, String bearerToken) throws KildesystemException {
-        if (PrefixUtil.startsWith(PREFIX_BIDRAG, saksnummer)) {
-            return bidragJournalpostConsumer.finnJournalposter(PrefixUtil.remove(PREFIX_BIDRAG, saksnummer), fagomrade, bearerToken);
-        } else if (PrefixUtil.startsWith(PREFIX_GSAK, saksnummer)) {
-            return bidragArkivConsumer.finnJournalposter(PrefixUtil.remove(PREFIX_GSAK, saksnummer), bearerToken);
-        }
+    return bidragssaker;
+  }
 
-        throw new KildesystemException("Kunne ikke identifisere kildesystem for saksnummer: " + saksnummer);
-    }
+  public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
+    return bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade);
+  }
 
-    public Optional<JournalpostDto> registrer(NyJournalpostCommandDto nyJournalpostCommandDto, String bearerToken) {
-        return bidragJournalpostConsumer.registrer(nyJournalpostCommandDto, bearerToken);
-    }
+  public Optional<JournalpostDto> registrer(NyJournalpostCommandDto nyJournalpostCommandDto) {
+    return bidragJournalpostConsumer.registrer(nyJournalpostCommandDto);
+  }
 
-    public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto, String bearerToken) {
-        return bidragJournalpostConsumer.endre(endreJournalpostCommandDto, bearerToken);
-    }
+  public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto) {
+    return bidragJournalpostConsumer.endre(endreJournalpostCommandDto);
+  }
 }

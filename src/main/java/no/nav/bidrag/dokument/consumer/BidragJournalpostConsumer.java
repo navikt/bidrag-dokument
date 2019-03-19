@@ -1,11 +1,12 @@
 package no.nav.bidrag.dokument.consumer;
 
-import static no.nav.bidrag.dokument.consumer.ConsumerUtil.addSecurityHeader;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
+import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
+import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
+import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -16,81 +17,79 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
-import no.nav.bidrag.dokument.dto.JournalpostDto;
-import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
-
 public class BidragJournalpostConsumer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BidragJournalpostConsumer.class);
 
-    private final String baseUrlBidragJournalpost;
+  private static final Logger LOGGER = LoggerFactory.getLogger(BidragJournalpostConsumer.class);
+  private static final String PATH_JOURNALPOST = "/journalpost";
+  private static final String PATH_SAK = "/sakjournal/";
+  private static final String PARAM_FAGOMRADE = "fagomrade";
 
-    public BidragJournalpostConsumer(String baseUrlBidragJournalpost) {
-        this.baseUrlBidragJournalpost = baseUrlBidragJournalpost;
-    }
+  private final RestTemplate restTemplate;
 
-    public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade, String bearerToken) {
-        RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost, bearerToken);
-        String path = "/sak/" + saksnummer;
+  public BidragJournalpostConsumer(RestTemplate restTemplate) {
+    this.restTemplate = restTemplate;
+  }
 
-        String uri = UriComponentsBuilder.fromPath(path)
-                .queryParam("fagomrade", fagomrade)
-                .toUriString();
+  public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
+    String uri = UriComponentsBuilder.fromPath(PATH_SAK + saksnummer)
+        .queryParam(PARAM_FAGOMRADE, fagomrade)
+        .toUriString();
 
-        ResponseEntity<List<JournalpostDto>> journalposterForBidragRequest = restTemplate.exchange(
-                uri, HttpMethod.GET, addSecurityHeader(null, bearerToken), typereferansenErListeMedJournalposter());
+    var journalposterForBidragRequest = restTemplate.exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter());
 
-        HttpStatus httpStatus = journalposterForBidragRequest.getStatusCode();
-        LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} på fagområde {}", httpStatus, saksnummer, fagomrade);
-        List<JournalpostDto> journalposter = journalposterForBidragRequest.getBody();
+    HttpStatus httpStatus = journalposterForBidragRequest.getStatusCode();
+    LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} på fagområde {}", httpStatus, saksnummer, fagomrade);
+    List<JournalpostDto> journalposter = journalposterForBidragRequest.getBody();
 
-        return journalposter != null ? journalposter : Collections.emptyList();
-    }
+    return journalposter != null ? journalposter : Collections.emptyList();
+  }
 
-    private static ParameterizedTypeReference<List<JournalpostDto>> typereferansenErListeMedJournalposter() {
-        return new ParameterizedTypeReference<List<JournalpostDto>>() {
-        };
-    }
+  private static ParameterizedTypeReference<List<JournalpostDto>> typereferansenErListeMedJournalposter() {
+    return new ParameterizedTypeReference<>() {
+    };
+  }
 
-    public Optional<JournalpostDto> registrer(NyJournalpostCommandDto nyJournalpostCommandDto, String bearerToken) {
-        RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost, bearerToken);
-        String path = "/journalpost/ny";
+  public Optional<JournalpostDto> registrer(NyJournalpostCommandDto nyJournalpostCommandDto) {
+    var registrertJournalpost = restTemplate.exchange(
+        PATH_JOURNALPOST, HttpMethod.POST, new HttpEntity<>(nyJournalpostCommandDto), JournalpostDto.class
+    );
 
-        ResponseEntity<JournalpostDto> registrertJournalpost = restTemplate.exchange(
-                path, HttpMethod.POST, addSecurityHeader(new HttpEntity<>(nyJournalpostCommandDto), bearerToken),
-                JournalpostDto.class);
+    HttpStatus httpStatus = registrertJournalpost.getStatusCode();
+    LOGGER.info("Fikk http status {} fra registrer ny journalpost: {}", httpStatus, nyJournalpostCommandDto);
 
-        HttpStatus httpStatus = registrertJournalpost.getStatusCode();
-        LOGGER.info("Fikk http status {} fra registrer ny journalpost: {}", httpStatus, nyJournalpostCommandDto);
+    return Optional.ofNullable(registrertJournalpost.getBody());
+  }
 
-        return Optional.ofNullable(registrertJournalpost.getBody());
-    }
+  public Optional<JournalpostDto> hentJournalpost(Integer id) {
+    String path = PATH_JOURNALPOST + '/' + id;
 
-    public Optional<JournalpostDto> hentJournalpost(Integer id, String bearerToken) {
-        RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost, bearerToken);
-        String path = "/journalpost/" + id;
+    Optional<ResponseEntity<JournalpostDto>> possibleExchange = Optional.ofNullable(
+        restTemplate.exchange(path, HttpMethod.GET, null, JournalpostDto.class)
+    );
 
-        ResponseEntity<JournalpostDto> journalpostResponseEntity = restTemplate.exchange(
-                path, HttpMethod.GET, addSecurityHeader(null, bearerToken), JournalpostDto.class);
+    possibleExchange.ifPresent(
+        (response) -> LOGGER.info("Hent journalpost fikk http status {} fra bidrag-dokument-journalpost", response.getStatusCode())
+    );
 
-        HttpStatus httpStatus = journalpostResponseEntity.getStatusCode();
+    return possibleExchange.map(ResponseEntity::getBody);
+  }
 
-        LOGGER.info("JournalpostDto med id={} har http status {}", id, httpStatus);
+  public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto) {
+    LOGGER.info("Endre journalpost BidragDokument: " + endreJournalpostCommandDto);
 
-        return Optional.ofNullable(journalpostResponseEntity.getBody());
-    }
+    Optional<ResponseEntity<JournalpostDto>> possibleExchange = Optional.ofNullable(
+        restTemplate.exchange(
+            PATH_JOURNALPOST + '/' + endreJournalpostCommandDto.getJournalpostId(),
+            HttpMethod.PUT,
+            new HttpEntity<>(endreJournalpostCommandDto),
+            JournalpostDto.class
+        )
+    );
 
-    public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto, String bearerToken) {
-        RestTemplate restTemplate = RestTemplateFactory.create(baseUrlBidragJournalpost, bearerToken);
-        String path = "/journalpost";
+    possibleExchange.ifPresent(
+        (responseEntity) -> LOGGER.info("Endre journalpost fikk http status {}, body: ", responseEntity.getStatusCode(), endreJournalpostCommandDto)
+    );
 
-        ResponseEntity<JournalpostDto> endretJournalpost = restTemplate.exchange(
-                path, HttpMethod.POST, addSecurityHeader(new HttpEntity<>(endreJournalpostCommandDto), bearerToken),
-                JournalpostDto.class);
-
-        HttpStatus httpStatus = endretJournalpost.getStatusCode();
-        LOGGER.info("Fikk http status {} fra endre journalpost: {}", httpStatus, endreJournalpostCommandDto);
-
-        return Optional.ofNullable(endretJournalpost.getBody());
-    }
+    return possibleExchange.map(ResponseEntity::getBody);
+  }
 }
