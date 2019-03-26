@@ -1,5 +1,7 @@
 package no.nav.bidrag.dokument;
 
+import static no.nav.bidrag.dokument.BidragDokumentConfig.TEST_PROFILE;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,7 +11,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith({SpringExtension.class})
 @SpringBootTest(classes = BidragDokumentLocal.class)
-@ActiveProfiles("dev")
+@ActiveProfiles(TEST_PROFILE)
 @DisplayName("BidragDokument")
 class BidragDokumentTest {
 
@@ -17,5 +19,4 @@ class BidragDokumentTest {
   @DisplayName("skal laste spring-context")
   void shouldLoadContext() {
   }
-
 }

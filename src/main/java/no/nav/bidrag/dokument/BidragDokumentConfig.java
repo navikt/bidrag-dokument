@@ -1,10 +1,5 @@
 package no.nav.bidrag.dokument;
 
-import no.nav.bidrag.commons.ExceptionLogger;
-import no.nav.bidrag.commons.web.CorrelationIdFilter;
-import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
-import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
-import no.nav.bidrag.dokument.consumer.BidragSakConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +7,11 @@ import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
+import no.nav.bidrag.commons.ExceptionLogger;
+import no.nav.bidrag.commons.web.CorrelationIdFilter;
+import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
+import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
+import no.nav.bidrag.dokument.consumer.BidragSakConsumer;
 
 @Configuration
 public class BidragDokumentConfig {
@@ -22,12 +22,13 @@ public class BidragDokumentConfig {
   public static final String PREFIX_BIDRAG = "BID";
   public static final String PREFIX_JOARK = "JOARK";
   public static final String ISSUER = "isso";
+  public static final String LIVE_PROFILE = "live";
+  public static final String TEST_PROFILE = "test";
+  public static final String SECURE_TEST_PROFILE = "secure-test";
 
   @Bean
   public BidragJournalpostConsumer bidragJournalpostConsumer(
-      @Value("${JOURNALPOST_URL}") String journalpostBaseUrl,
-      RestTemplate restTemplate
-  ) {
+      @Value("${JOURNALPOST_URL}") String journalpostBaseUrl, RestTemplate restTemplate) {
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(journalpostBaseUrl));
     LOGGER.info("BidragJournalpostConsumer med base url: " + journalpostBaseUrl);
 
@@ -36,9 +37,7 @@ public class BidragDokumentConfig {
 
   @Bean
   public BidragSakConsumer bidragSakConsumer(
-      @Value("${BIDRAG_SAK_URL}") String sakBaseUrl,
-      RestTemplate restTemplate
-  ) {
+      @Value("${BIDRAG_SAK_URL}") String sakBaseUrl, RestTemplate restTemplate) {
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(sakBaseUrl));
     LOGGER.info("BidragSakConsumer med base url: " + sakBaseUrl);
 
@@ -47,9 +46,7 @@ public class BidragDokumentConfig {
 
   @Bean
   public BidragArkivConsumer journalforingConsumer(
-      @Value("${BIDRAG_ARKIV_URL}") String bidragArkivBaseUrl,
-      RestTemplate restTemplate
-  ) {
+      @Value("${BIDRAG_ARKIV_URL}") String bidragArkivBaseUrl, RestTemplate restTemplate) {
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(bidragArkivBaseUrl));
     LOGGER.info("BidragArkivConsumer med base url: " + bidragArkivBaseUrl);
 
