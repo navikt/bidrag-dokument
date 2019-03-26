@@ -13,13 +13,6 @@ management:
       exposure:
         include: "*"
 
-ISSO_ISSUER_URL: https://isso-q.adeo.no:443/isso/oauth2
-BIDRAG_ARKIV_URL: https://bidrag-dokument-arkiv.nais.preprod.local
-BIDRAG_SAK_URL: https://bidrag-dokument-sak.nais.preprod.local
-JOURNALPOST_URL: https://bidrag-dokument-journalpost.nais.preprod.local
-
-FASIT_ENVIRONMENT_NAME: q1
-
 ---
 
 ####################################################################
