@@ -2,6 +2,8 @@ package no.nav.bidrag.dokument.controller;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.SECURE_TEST_PROFILE;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.TEST_PROFILE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,7 +45,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = BidragDokumentLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles({"dev", "secure-test"})
+@ActiveProfiles({TEST_PROFILE, SECURE_TEST_PROFILE})
 @DisplayName("JournalpostController")
 class JournalpostControllerTest {
 

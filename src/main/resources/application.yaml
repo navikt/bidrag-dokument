@@ -1,3 +1,9 @@
+####################################################################
+# 
+# Profiles: All
+#							
+####################################################################
+
 server:
   servlet:
     context-path: /bidrag-dokument
@@ -6,8 +12,44 @@ management:
     web:
       exposure:
         include: "*"
-        
-TOKEN_OBTAINED_BY: bidrag-dokument-ui
-        
-no.nav.security.oidc.issuer.isso.acceptedaudience: ${TOKEN_OBTAINED_BY}-${FASIT_ENVIRONMENT_NAME}
-no.nav.security.oidc.issuer.isso.discoveryurl: ${ISSO_ISSUER_URL}/.well-known/openid-configuration
+
+---
+
+####################################################################
+# 
+# Profiles: live
+#							
+####################################################################
+
+spring:
+  profiles: live
+
+# OIDC          
+no.nav.security.oidc:
+  issuers: isso
+  issuer:
+    isso:
+      acceptedaudience: bidrag-ui-master-${FASIT_ENVIRONMENT_NAME}, bidrag-dokument-ui-${FASIT_ENVIRONMENT_NAME}
+      discoveryurl: ${ISSO_ISSUER_URL}/.well-known/openid-configuration
+
+---
+
+####################################################################
+# 
+# Profiles: test, secure-test
+#
+# Use test token
+#							
+####################################################################
+
+spring:
+  profiles: test, secure-test
+
+no.nav.security.oidc:
+  issuers: isso
+  issuer.isso:
+    discoveryurl: http://metadata
+    accepted_audience: aud-localhost
+    cookie_name: localhost-idtoken
+
+---
