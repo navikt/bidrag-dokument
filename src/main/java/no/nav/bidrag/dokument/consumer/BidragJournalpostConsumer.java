@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
-import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
-import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -49,17 +47,6 @@ public class BidragJournalpostConsumer {
     };
   }
 
-  public Optional<JournalpostDto> registrer(NyJournalpostCommandDto nyJournalpostCommandDto) {
-    var registrertJournalpost = restTemplate.exchange(
-        PATH_JOURNALPOST, HttpMethod.POST, new HttpEntity<>(nyJournalpostCommandDto), JournalpostDto.class
-    );
-
-    HttpStatus httpStatus = registrertJournalpost.getStatusCode();
-    LOGGER.info("Fikk http status {} fra registrer ny journalpost: {}", httpStatus, nyJournalpostCommandDto);
-
-    return Optional.ofNullable(registrertJournalpost.getBody());
-  }
-
   public Optional<JournalpostDto> hentJournalpost(Integer id) {
     String path = PATH_JOURNALPOST + '/' + id;
 
@@ -87,7 +74,7 @@ public class BidragJournalpostConsumer {
     );
 
     possibleExchange.ifPresent(
-        (responseEntity) -> LOGGER.info("Endre journalpost fikk http status {}, body: ", responseEntity.getStatusCode(), endreJournalpostCommandDto)
+        (responseEntity) -> LOGGER.info("Endre journalpost fikk http status {}, body: {}", responseEntity.getStatusCode(), responseEntity.getBody())
     );
 
     return possibleExchange.map(ResponseEntity::getBody);

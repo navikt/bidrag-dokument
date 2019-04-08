@@ -4,15 +4,16 @@ import static no.nav.bidrag.dokument.KildesystemIdenfikator.Kildesystem.BIDRAG;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import no.nav.bidrag.dokument.KildesystemIdenfikator;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.consumer.BidragSakConsumer;
+import no.nav.bidrag.dokument.dto.AktorDto;
 import no.nav.bidrag.dokument.dto.BidragSakDto;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
-import no.nav.bidrag.dokument.dto.NyJournalpostCommandDto;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -35,7 +36,7 @@ public class JournalpostService {
       Optional<JournalpostDto> muligJournalpostDto = bidragJournalpostConsumer.hentJournalpost(kildesystemIdenfikator.hentJournalpostId());
 
       muligJournalpostDto.ifPresent(
-          journalpostDto -> journalpostDto.setBidragssaker(finnBidragssaker(journalpostDto.getGjelderBrukerId()))
+          journalpostDto -> journalpostDto.setBidragssaker(finnBidragssaker(Objects.requireNonNull(journalpostDto.getGjelderAktor())))
       );
 
       return muligJournalpostDto;
@@ -44,19 +45,12 @@ public class JournalpostService {
     return bidragArkivConsumer.hentJournalpost(kildesystemIdenfikator.hentJournalpostId());
   }
 
-  private List<BidragSakDto> finnBidragssaker(List<String> gjelderBrukerId) {
-    List<BidragSakDto> bidragssaker = new ArrayList<>();
-    gjelderBrukerId.forEach(fnr -> bidragssaker.addAll(bidragSakConsumer.finnInnvolverteSaker(fnr)));
-
-    return bidragssaker;
+  private List<BidragSakDto> finnBidragssaker(AktorDto aktorDto) {
+    return new ArrayList<>(bidragSakConsumer.finnInnvolverteSaker(aktorDto.getIdent()));
   }
 
   public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
     return bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade);
-  }
-
-  public Optional<JournalpostDto> registrer(NyJournalpostCommandDto nyJournalpostCommandDto) {
-    return bidragJournalpostConsumer.registrer(nyJournalpostCommandDto);
   }
 
   public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto) {

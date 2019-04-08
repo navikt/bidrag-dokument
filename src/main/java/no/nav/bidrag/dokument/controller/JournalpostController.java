@@ -32,6 +32,7 @@ public class JournalpostController {
   private static final Logger LOGGER = LoggerFactory.getLogger(JournalpostController.class);
   private static final String ENDPOINT_JOURNALPOST = "/journalpost";
   private static final String ENDPOINT_SAKJOURNAL = "/sakjournal";
+  private static final String NON_DIGITS = "\\D+";
 
   private final JournalpostService journalpostService;
 
@@ -53,7 +54,7 @@ public class JournalpostController {
 
     KildesystemIdenfikator kildesystemIdentifikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
 
-    if (Kildesystem.UKJENT == kildesystemIdentifikator.hentKildesystem() || kildesystemIdentifikator.harIkkeJournalpostIdSomTall()) {
+    if (kildesystemIdentifikator.erUkjent() || kildesystemIdentifikator.harIkkeJournalpostIdSomTall()) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
@@ -63,14 +64,17 @@ public class JournalpostController {
   }
 
   @GetMapping(ENDPOINT_SAKJOURNAL + "/{saksnummer}")
-  @ApiOperation("Finn saksjournal for et saksnummer i en bidragssak, "
-      + "samt parameter 'fagomrade' (FAR - farskapjournal) og (BID - bidragsjournal)")
+  @ApiOperation("Finn saksjournal for et saksnummer, samt parameter 'fagomrade' (FAR - farskapsjournal) og (BID - bidragsjournal)")
   public ResponseEntity<List<JournalpostDto>> get(
       @PathVariable String saksnummer,
       @RequestParam String fagomrade
   ) {
 
     LOGGER.info("request: bidrag-dokument{}/{}?fagomrade={}", ENDPOINT_JOURNALPOST, saksnummer, fagomrade);
+
+    if (saksnummer.matches(NON_DIGITS)) {
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
 
     var journalposter = journalpostService.finnJournalposter(saksnummer, fagomrade);
 
