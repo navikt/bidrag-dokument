@@ -22,6 +22,7 @@ import no.nav.bidrag.dokument.dto.BidragSakDto;
 import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.PersonDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -114,6 +115,8 @@ class JournalpostControllerTest {
     void skalHenteJournalpostFraMidlertidigBrevlager() {
       when(restTemplateMock.exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class))
           .thenReturn(new ResponseEntity<>(enJournalpostFra("Grev Still E. Ben"), HttpStatus.I_AM_A_TEAPOT));
+      when(restTemplateMock.exchange("/person/sak/06127412345", HttpMethod.GET, null, listAvBidragssakerType()))
+          .thenReturn(new ResponseEntity<>(List.of(new BidragSakDto()), HttpStatus.I_AM_A_TEAPOT));
 
       var responseEntity = securedTestRestTemplate.exchange(url + "/bid-1", HttpMethod.GET, null, JournalpostDto.class);
 
@@ -127,16 +130,17 @@ class JournalpostControllerTest {
     private JournalpostDto enJournalpostFra(@SuppressWarnings("SameParameterValue") String setAvsenderNavn) {
       JournalpostDto jp = new JournalpostDto();
       jp.setAvsenderNavn(setAvsenderNavn);
+      jp.setGjelderAktor(new PersonDto("06127412345"));
 
       return jp;
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    @DisplayName("skal hente BidragSakDto for journalpostens gjelderBrukerId")
-    void skalHenteBidragSakDtoForJournalpostensGjelderBrukerId() {
+    @DisplayName("skal hente BidragSakDto for journalpostens gjelder aktør")
+    void skalHenteBidragSakDtoForJournalpostensGjelderAktor() {
       when(restTemplateMock.exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class))
-          .thenReturn(new ResponseEntity<>(enJournalpostFraBrukerId("06127412345"), HttpStatus.I_AM_A_TEAPOT));
+          .thenReturn(new ResponseEntity<>(enJournalpostFraAktor("06127412345"), HttpStatus.I_AM_A_TEAPOT));
 
       when(restTemplateMock.exchange("/person/sak/06127412345", HttpMethod.GET, null, listAvBidragssakerType()))
           .thenReturn(new ResponseEntity<>(List.of(new BidragSakDto()), HttpStatus.I_AM_A_TEAPOT));
@@ -149,12 +153,12 @@ class JournalpostControllerTest {
           () -> assertThat(journalpostDtoResponseEntity.getBody().getBidragssaker()).isNotEmpty()
       );
 
-      verify(restTemplateMock).exchange(eq("/person/sak/06127412345"), any(), any(), (ParameterizedTypeReference<List<BidragSakDto>>) any());
+      verify(restTemplateMock, atLeastOnce()).exchange(eq("/person/sak/06127412345"), any(), any(), (ParameterizedTypeReference<List<BidragSakDto>>) any());
     }
 
-    private JournalpostDto enJournalpostFraBrukerId(@SuppressWarnings("SameParameterValue") String brukerId) {
+    private JournalpostDto enJournalpostFraAktor(@SuppressWarnings("SameParameterValue") String brukerId) {
       JournalpostDto journalpostDto = new JournalpostDto();
-      journalpostDto.setGjelderBrukerId(List.of(brukerId));
+      journalpostDto.setGjelderAktor(new PersonDto(brukerId));
 
       return journalpostDto;
     }
@@ -203,7 +207,7 @@ class JournalpostControllerTest {
       when(restTemplateMock.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(JournalpostDto.class)))
           .thenReturn(new ResponseEntity<>(new JournalpostDtoBygger()
               .medDokumenter(singletonList(new DokumentDto()))
-              .medGjelderBrukerId("06127412345")
+              .medGjelderAktor("06127412345")
               .medJournalpostId("BID-101")
               .build(), HttpStatus.I_AM_A_TEAPOT)
           );
