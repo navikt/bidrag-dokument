@@ -253,6 +253,19 @@ class JournalpostControllerTest {
       verify(restTemplateMock)
           .exchange(eq("/sakjournal/1001?fagomrade=BID"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
     }
+
+    @Test
+    @DisplayName("skal få BAD_REQUEST(400) som statuskode når saksnummer ikke er et heltall")
+    void skalFaBadRequestNarSaksnummerIkkeErHeltall() {
+      var journalposterResponse = securedTestRestTemplate.exchange(
+          urlForFagomradeBid("/xyz"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+      );
+
+      assertThat(optional(journalposterResponse)).hasValueSatisfying(response -> assertAll(
+          () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
+          () -> assertThat(response.getBody()).isNull())
+      );
+    }
   }
 
   private ParameterizedTypeReference<List<JournalpostDto>> responseTypeErListeMedJournalposter() {
