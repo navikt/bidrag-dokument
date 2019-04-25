@@ -50,7 +50,7 @@
 
     <!-- dependent versions other than from spring-boot -->
     <bidrag-commons.version>0.0.21</bidrag-commons.version>
-    <bidrag-commons-test.version>0.0.9</bidrag-commons-test.version>
+    <bidrag-commons-test.version>0.0.10</bidrag-commons-test.version>
     <bidrag-dokument-dto.version>0.0.112</bidrag-dokument-dto.version>
     <oidc-spring-support.version>0.2.15</oidc-spring-support.version>
     <logback.encoder.version>5.3</logback.encoder.version>
