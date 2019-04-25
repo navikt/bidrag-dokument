@@ -6,7 +6,7 @@
 
   <groupId>no.nav.bidrag.dokument</groupId>
   <artifactId>bidrag-dokument</artifactId>
-  <version>1.0.224-SNAPSHOT</version>
+  <version>1.0.225-SNAPSHOT</version>
 
   <description>Backend NAIS for bidrag-dokument</description>
   <url>https://github.com/navikt/bidrag-dokument</url>
