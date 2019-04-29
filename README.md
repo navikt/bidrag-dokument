@@ -64,6 +64,10 @@ oidc-test-support-modulen kun tilgjengelig i test-scope. I tillegg er bruken av 
 
 BidragDokumentLocal brukes i stedet for BidragDokument ved lokal kjøring.
 
+AUD bidrag-q-localhost er lagt til for å støtte localhost redirect i preprod. Denne benyttes ved front-end-utvikling for å kunne kjøre tester med
+preprod-tjenester uten å måtte legge inn host-mappinger. bidrag-q-localhost-agenten er satt opp vha https://github.com/navikt/amag. Denne er ikke, 
+og skal heller ikke være tilgjengelig i prod.
+
 #### Oppskrift for kjøring med sikkerhet lokalt
  - Start BidragDokumentLocal som standard Java-applikasjon
  
