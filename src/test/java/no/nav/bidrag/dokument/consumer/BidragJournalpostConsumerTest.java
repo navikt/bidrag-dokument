@@ -1,22 +1,14 @@
 package no.nav.bidrag.dokument.consumer;
 
-import static no.nav.bidrag.dokument.BidragDokumentConfig.ISSUER;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.nimbusds.jwt.SignedJWT;
 import java.util.List;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
-import no.nav.security.oidc.context.OIDCClaims;
-import no.nav.security.oidc.context.OIDCRequestContextHolder;
-import no.nav.security.oidc.context.OIDCValidationContext;
-import no.nav.security.oidc.context.TokenContext;
-import no.nav.security.oidc.test.support.jersey.TestTokenGeneratorResource;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -85,7 +77,7 @@ class BidragJournalpostConsumerTest {
 
   private EndreJournalpostCommandDto endreJournalpostCommandMedId101() {
     return new EndreJournalpostCommandDto(
-        "101", null, null, null, null, null
+        "101", null, null, null, null, null, null
     );
   }
 }
