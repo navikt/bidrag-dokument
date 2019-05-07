@@ -25,6 +25,11 @@ public class KildesystemIdenfikator {
     return false;
   }
 
+  public boolean erUkjent() {
+    Kildesystem kildesystem = hentKildesystem();
+    return kildesystem.er(Kildesystem.UKJENT);
+  }
+
   public Kildesystem hentKildesystem() {
     if (kildesystem == null && prefiksetJournalpostId != null) {
       if (prefiksetJournalpostId.trim().toUpperCase().startsWith(BidragDokumentConfig.PREFIX_BIDRAG + DELIMTER)) {
