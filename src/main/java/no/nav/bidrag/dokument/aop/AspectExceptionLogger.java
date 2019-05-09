@@ -16,7 +16,7 @@ public class AspectExceptionLogger {
     this.exceptionLogger = exceptionLogger;
   }
 
-  @AfterThrowing(pointcut = "within (no.nav.bidrag.dokument.journalpost.controller..*)", throwing = "exception")
+  @AfterThrowing(pointcut = "within (no.nav.bidrag.dokument.controller..*)", throwing = "exception")
   public void logException(JoinPoint joinPoint, Exception exception) {
     exceptionLogger.logException(exception, String.valueOf(joinPoint.getSourceLocation().getWithinType()));
   }}

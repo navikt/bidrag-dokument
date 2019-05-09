@@ -23,11 +23,13 @@ import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.PersonDto;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,11 +38,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -153,7 +157,9 @@ class JournalpostControllerTest {
           () -> assertThat(journalpostDtoResponseEntity.getBody().getBidragssaker()).isNotEmpty()
       );
 
-      verify(restTemplateMock, atLeastOnce()).exchange(eq("/person/sak/06127412345"), any(), any(), (ParameterizedTypeReference<List<BidragSakDto>>) any());
+      verify(restTemplateMock, atLeastOnce()).exchange(
+          eq("/person/sak/06127412345"), any(), any(), (ParameterizedTypeReference<List<BidragSakDto>>) any()
+      );
     }
 
     private JournalpostDto enJournalpostFraAktor(@SuppressWarnings("SameParameterValue") String brukerId) {
@@ -227,13 +233,6 @@ class JournalpostControllerTest {
   @DisplayName("endpoint - hent: " + ENDPOINT_SAKJOURNAL)
   class EndpointJournalpost {
 
-    private String urlForFagomradeBid(@SuppressWarnings("SameParameterValue") String path) {
-      return UriComponentsBuilder
-          .fromHttpUrl(initEndpointUrl(ENDPOINT_SAKJOURNAL) + path)
-          .queryParam("fagomrade", "BID")
-          .toUriString();
-    }
-
     @Test
     @SuppressWarnings("unchecked")
     @DisplayName("skal finne Journalposter for en bidragssak")
@@ -266,6 +265,48 @@ class JournalpostControllerTest {
           () -> assertThat(response.getBody()).isNull())
       );
     }
+  }
+
+  @Nested
+  @DisplayName("all endpoints")
+  class AllEndpoints {
+
+    @Test
+    @SuppressWarnings("unchecked")
+    @DisplayName("skal returnere tom respons med advarsel og status kode fra andre rest tjenestester")
+    void skalReturnereTomResponsMedAdvarselSomHeader() {
+      when(restTemplateMock.exchange(anyString(), any(), any(), any(ParameterizedTypeReference.class)))
+          .thenThrow(new HttpClientErrorException(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED, "holy crap!"));
+
+      var errorResponse = securedTestRestTemplate.exchange(
+          urlForFagomradeBid("/1001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+      );
+
+      assertThat(Optional.of(errorResponse)).hasValueSatisfying(responseEntity -> assertAll(
+          () -> assertThat(responseEntity.getStatusCode()).as("status").isEqualTo(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED),
+          () -> assertThat(responseEntity.getBody()).as("body").isNull(),
+          () -> {
+            HttpHeaders httpHeaders = errorResponse.getHeaders();
+
+            assertAll(
+                () -> assertThat(httpHeaders.get(HttpHeaders.WARNING)).as("warning header").isNotNull(),
+                () -> assertThat(httpHeaders.get(HttpHeaders.WARNING)).as("header value").isEqualTo(List.of("Http client says: 509 holy crap!"))
+            );
+          }
+      ));
+    }
+  }
+
+  @AfterEach
+  void resetRestTemplateMock() {
+    Mockito.reset(restTemplateMock);
+  }
+
+  private String urlForFagomradeBid(@SuppressWarnings("SameParameterValue") String path) {
+    return UriComponentsBuilder
+        .fromHttpUrl(initEndpointUrl(ENDPOINT_SAKJOURNAL) + path)
+        .queryParam("fagomrade", "BID")
+        .toUriString();
   }
 
   private ParameterizedTypeReference<List<JournalpostDto>> responseTypeErListeMedJournalposter() {
