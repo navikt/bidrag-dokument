@@ -35,13 +35,13 @@ class JournalpostServiceTest {
   @Test
   void skalIkkeHenteJournalpostGittId() {
     when(bidragArkivConsumerMock.hentJournalpost(anyInt())).thenReturn(Optional.empty());
-    assertThat(journalpostService.hentJournalpost(new KildesystemIdenfikator("joark-2"))).isNotPresent();
+    assertThat(journalpostService.hentJournalpost(new KildesystemIdenfikator("joark-2")).fetchOptionalResult()).isNotPresent();
   }
 
   @DisplayName("skal hente journalpost gitt id")
   @Test
   void skalHenteJournalpostGittId() {
     when(bidragArkivConsumerMock.hentJournalpost(2)).thenReturn(Optional.of(new JournalpostDto()));
-    assertThat(journalpostService.hentJournalpost(new KildesystemIdenfikator("joark-2"))).isPresent();
+    assertThat(journalpostService.hentJournalpost(new KildesystemIdenfikator("joark-2")).fetchOptionalResult()).isPresent();
   }
 }

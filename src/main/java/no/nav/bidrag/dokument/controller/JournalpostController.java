@@ -59,9 +59,8 @@ public class JournalpostController {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    return journalpostService.hentJournalpost(kildesystemIdentifikator)
-        .map(journalpostDto -> new ResponseEntity<>(journalpostDto, HttpStatus.OK))
-        .orElse(new ResponseEntity<>(HttpStatus.NO_CONTENT));
+    var journalpostDtoResponse = journalpostService.hentJournalpost(kildesystemIdentifikator);
+    return new ResponseEntity<>(journalpostDtoResponse.getBody(), journalpostDtoResponse.getHttpStatus());
   }
 
   @GetMapping(ENDPOINT_SAKJOURNAL + "/{saksnummer}")

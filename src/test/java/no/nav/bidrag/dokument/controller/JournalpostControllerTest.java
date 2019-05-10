@@ -103,7 +103,7 @@ class JournalpostControllerTest {
       verify(restTemplateMock, atLeastOnce()).exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class);
 
       assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
-          () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
+          () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.I_AM_A_TEAPOT),
           () -> assertThat(response.getBody()).extracting(JournalpostDto::getInnhold).isEqualTo("MIDLERTIDIG")));
     }
 
@@ -120,14 +120,14 @@ class JournalpostControllerTest {
       when(restTemplateMock.exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class))
           .thenReturn(new ResponseEntity<>(enJournalpostFra("Grev Still E. Ben"), HttpStatus.I_AM_A_TEAPOT));
       when(restTemplateMock.exchange("/person/sak/06127412345", HttpMethod.GET, null, listAvBidragssakerType()))
-          .thenReturn(new ResponseEntity<>(List.of(new BidragSakDto()), HttpStatus.I_AM_A_TEAPOT));
+          .thenReturn(new ResponseEntity<>(List.of(new BidragSakDto()), HttpStatus.OK));
 
       var responseEntity = securedTestRestTemplate.exchange(url + "/bid-1", HttpMethod.GET, null, JournalpostDto.class);
 
       verify(restTemplateMock).exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class);
 
       assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
-          () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
+          () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.I_AM_A_TEAPOT),
           () -> assertThat(response.getBody()).extracting(JournalpostDto::getAvsenderNavn).isEqualTo("Grev Still E. Ben")));
     }
 
@@ -147,12 +147,12 @@ class JournalpostControllerTest {
           .thenReturn(new ResponseEntity<>(enJournalpostFraAktor("06127412345"), HttpStatus.I_AM_A_TEAPOT));
 
       when(restTemplateMock.exchange("/person/sak/06127412345", HttpMethod.GET, null, listAvBidragssakerType()))
-          .thenReturn(new ResponseEntity<>(List.of(new BidragSakDto()), HttpStatus.I_AM_A_TEAPOT));
+          .thenReturn(new ResponseEntity<>(List.of(new BidragSakDto()), HttpStatus.OK));
 
       var journalpostDtoResponseEntity = securedTestRestTemplate.exchange(url + "/bid-1", HttpMethod.GET, null, JournalpostDto.class);
 
       assertAll(
-          () -> assertThat(journalpostDtoResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK),
+          () -> assertThat(journalpostDtoResponseEntity.getStatusCode()).isEqualTo(HttpStatus.I_AM_A_TEAPOT),
           () -> assertThat(journalpostDtoResponseEntity.getBody()).isNotNull(),
           () -> assertThat(journalpostDtoResponseEntity.getBody().getBidragssaker()).isNotEmpty()
       );

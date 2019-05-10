@@ -2,7 +2,6 @@ package no.nav.bidrag.dokument.consumer;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
@@ -12,7 +11,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -38,9 +36,9 @@ public class BidragJournalpostConsumer {
 
     HttpStatus httpStatus = journalposterForBidragRequest.getStatusCode();
     LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} på fagområde {}", httpStatus, saksnummer, fagomrade);
-    List<JournalpostDto> journalposter = journalposterForBidragRequest.getBody() != null ? journalposterForBidragRequest.getBody() : Collections.emptyList();
+    List<JournalpostDto> journalposter = journalposterForBidragRequest.getBody();
 
-    return new HttpStatusResponse<>(journalposterForBidragRequest.getStatusCode(), journalposter);
+    return new HttpStatusResponse<>(journalposterForBidragRequest.getStatusCode(), journalposter != null ? journalposter : Collections.emptyList());
   }
 
   private static ParameterizedTypeReference<List<JournalpostDto>> typereferansenErListeMedJournalposter() {
@@ -48,18 +46,13 @@ public class BidragJournalpostConsumer {
     };
   }
 
-  public Optional<JournalpostDto> hentJournalpost(Integer id) {
+  public HttpStatusResponse<JournalpostDto> hentJournalpost(Integer id) {
     String path = PATH_JOURNALPOST + '/' + id;
 
-    Optional<ResponseEntity<JournalpostDto>> possibleExchange = Optional.ofNullable(
-        restTemplate.exchange(path, HttpMethod.GET, null, JournalpostDto.class)
-    );
+    var exchange = restTemplate.exchange(path, HttpMethod.GET, null, JournalpostDto.class);
 
-    possibleExchange.ifPresent(
-        (response) -> LOGGER.info("Hent journalpost fikk http status {} fra bidrag-dokument-journalpost", response.getStatusCode())
-    );
-
-    return possibleExchange.map(ResponseEntity::getBody);
+    LOGGER.info("Hent journalpost fikk http status {} fra bidrag-dokument-journalpost", exchange.getStatusCode());
+    return new HttpStatusResponse<>(exchange.getStatusCode(), exchange.getBody());
   }
 
   public HttpStatusResponse<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto) {
