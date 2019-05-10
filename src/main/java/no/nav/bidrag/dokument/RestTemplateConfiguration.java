@@ -1,12 +1,8 @@
 package no.nav.bidrag.dokument;
 
-import static no.nav.bidrag.dokument.BidragDokumentConfig.ISSUER;
-
-import java.util.Optional;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
-import no.nav.security.oidc.context.OIDCRequestContextHolder;
-import no.nav.security.oidc.context.TokenContext;
+import no.nav.bidrag.dokument.BidragDokumentConfig.OidcTokenManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -18,20 +14,12 @@ public class RestTemplateConfiguration {
 
   @Bean
   @Scope("prototype")
-  public RestTemplate restTemplate(OIDCRequestContextHolder oidcRequestContextHolder) {
+  public RestTemplate restTemplate(OidcTokenManager oidcTokenManager) {
     HttpHeaderRestTemplate httpHeaderRestTemplate = new HttpHeaderRestTemplate();
 
-    httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.AUTHORIZATION, () -> "Bearer " + fetchBearerToken(oidcRequestContextHolder));
+    httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.AUTHORIZATION, () -> "Bearer " + oidcTokenManager.fetchToken());
     httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER, CorrelationIdFilter::fetchCorrelationIdForThread);
 
     return httpHeaderRestTemplate;
-  }
-
-  private String fetchBearerToken(OIDCRequestContextHolder oidcRequestContextHolder) {
-    return Optional.ofNullable(oidcRequestContextHolder)
-        .map(OIDCRequestContextHolder::getOIDCValidationContext)
-        .map(oidcValidationContext -> oidcValidationContext.getToken(ISSUER))
-        .map(TokenContext::getIdToken)
-        .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));
   }
 }

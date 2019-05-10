@@ -1,5 +1,14 @@
 package no.nav.bidrag.dokument;
 
+import java.util.Optional;
+import no.nav.bidrag.commons.ExceptionLogger;
+import no.nav.bidrag.commons.web.CorrelationIdFilter;
+import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
+import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
+import no.nav.bidrag.dokument.consumer.BidragSakConsumer;
+import no.nav.bidrag.dokument.consumer.SecurityTokenConsumer;
+import no.nav.security.oidc.context.OIDCRequestContextHolder;
+import no.nav.security.oidc.context.TokenContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,11 +16,6 @@ import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
-import no.nav.bidrag.commons.ExceptionLogger;
-import no.nav.bidrag.commons.web.CorrelationIdFilter;
-import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
-import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
-import no.nav.bidrag.dokument.consumer.BidragSakConsumer;
 
 @Configuration
 public class BidragDokumentConfig {
@@ -54,6 +58,19 @@ public class BidragDokumentConfig {
   }
 
   @Bean
+  public SecurityTokenConsumer securityTokenConsumer(
+      @Value("${SECURITY_TOKEN_URL}") String securityTokenBaseUrl,
+      @Value("${SRVBISYS_USERNAME}") String systemUser,
+      @Value("${SRVBISYS_PASSWORD}") String systemPassword,
+      OidcTokenManager oidcTokenManager,
+      RestTemplate restTemplate) {
+    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler( securityTokenBaseUrl));
+    LOGGER.info("SecurityTokenConsumer med base url: " + securityTokenBaseUrl);
+
+    return new SecurityTokenConsumer(restTemplate, systemUser, systemPassword, oidcTokenManager);
+  }
+
+  @Bean
   public CorrelationIdFilter correlationIdFilter() {
     return new CorrelationIdFilter();
   }
@@ -61,5 +78,19 @@ public class BidragDokumentConfig {
   @Bean
   public ExceptionLogger exceptionLogger() {
     return new ExceptionLogger(BidragDokument.class.getSimpleName());
+  }
+
+  @Bean
+  public OidcTokenManager oidcTokenManager(OIDCRequestContextHolder oidcRequestContextHolder) {
+    return () -> Optional.ofNullable(oidcRequestContextHolder)
+        .map(OIDCRequestContextHolder::getOIDCValidationContext)
+        .map(oidcValidationContext -> oidcValidationContext.getToken(ISSUER))
+        .map(TokenContext::getIdToken)
+        .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));
+  }
+
+  @FunctionalInterface
+  public interface OidcTokenManager {
+    String fetchToken();
   }
 }
