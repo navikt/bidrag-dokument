@@ -14,7 +14,6 @@ import no.nav.bidrag.dokument.dto.AktorDto;
 import no.nav.bidrag.dokument.dto.BidragSakDto;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -43,9 +42,7 @@ public class JournalpostService {
       return journalpostResponse;
     }
 
-    return bidragArkivConsumer.hentJournalpost(kildesystemIdenfikator.hentJournalpostId())
-        .map(journalpostDto -> new HttpStatusResponse<>(HttpStatus.I_AM_A_TEAPOT, journalpostDto))
-        .orElseGet(() -> new HttpStatusResponse<>(HttpStatus.NO_CONTENT, null));
+    return bidragArkivConsumer.hentJournalpost(kildesystemIdenfikator.hentJournalpostId());
   }
 
   private List<BidragSakDto> finnBidragssaker(AktorDto aktorDto) {

@@ -81,7 +81,7 @@ class JournalpostControllerTest {
     @DisplayName("skal mangle body når journalpost ikke finnes")
     void skalMangleBodyNarJournalpostIkkeFinnes() {
       when(restTemplateMock.exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class))
-          .thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
+          .thenReturn(new ResponseEntity<>(HttpStatus.NO_CONTENT));
 
       var journalpostResponseEntity = securedTestRestTemplate.exchange(url + "/joark-1", HttpMethod.GET, null, JournalpostDto.class);
 
