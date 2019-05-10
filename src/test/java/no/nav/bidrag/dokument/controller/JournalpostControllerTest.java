@@ -215,7 +215,7 @@ class JournalpostControllerTest {
               .medDokumenter(singletonList(new DokumentDto()))
               .medGjelderAktor("06127412345")
               .medJournalpostId("BID-101")
-              .build(), HttpStatus.I_AM_A_TEAPOT)
+              .build(), HttpStatus.ACCEPTED)
           );
 
       var endretJournalpostResponse = securedTestRestTemplate.exchange(

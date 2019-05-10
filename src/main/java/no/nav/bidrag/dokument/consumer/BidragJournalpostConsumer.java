@@ -3,6 +3,7 @@ package no.nav.bidrag.dokument.consumer;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import org.slf4j.Logger;
@@ -61,22 +62,17 @@ public class BidragJournalpostConsumer {
     return possibleExchange.map(ResponseEntity::getBody);
   }
 
-  public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto) {
+  public HttpStatusResponse<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto) {
     LOGGER.info("Endre journalpost BidragDokument: " + endreJournalpostCommandDto);
 
-    Optional<ResponseEntity<JournalpostDto>> possibleExchange = Optional.ofNullable(
-        restTemplate.exchange(
-            PATH_JOURNALPOST + '/' + endreJournalpostCommandDto.getJournalpostId(),
-            HttpMethod.PUT,
-            new HttpEntity<>(endreJournalpostCommandDto),
-            JournalpostDto.class
-        )
+    var endretJournalpostResponse = restTemplate.exchange(
+        PATH_JOURNALPOST + '/' + endreJournalpostCommandDto.getJournalpostId(),
+        HttpMethod.PUT,
+        new HttpEntity<>(endreJournalpostCommandDto),
+        JournalpostDto.class
     );
 
-    possibleExchange.ifPresent(
-        (responseEntity) -> LOGGER.info("Endre journalpost fikk http status {}, body: {}", responseEntity.getStatusCode(), responseEntity.getBody())
-    );
-
-    return possibleExchange.map(ResponseEntity::getBody);
+    LOGGER.info("Endre journalpost fikk http status {}, body: {}", endretJournalpostResponse.getStatusCode(), endretJournalpostResponse.getBody());
+    return new HttpStatusResponse<>(endretJournalpostResponse.getStatusCode(), endretJournalpostResponse.getBody());
   }
 }

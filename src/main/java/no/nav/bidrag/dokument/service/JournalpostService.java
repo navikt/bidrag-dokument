@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.dokument.KildesystemIdenfikator;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
@@ -53,7 +54,7 @@ public class JournalpostService {
     return bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade);
   }
 
-  public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto) {
+  public HttpStatusResponse<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto) {
     return bidragJournalpostConsumer.endre(endreJournalpostCommandDto);
   }
 }

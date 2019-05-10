@@ -7,6 +7,7 @@ import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
 
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
+import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.dokument.KildesystemIdenfikator;
 import no.nav.bidrag.dokument.KildesystemIdenfikator.Kildesystem;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
@@ -96,8 +97,7 @@ public class JournalpostController {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    return journalpostService.endre(endreJournalpostCommandDto)
-        .map(journalpost -> new ResponseEntity<>(journalpost, HttpStatus.ACCEPTED))
-        .orElseGet(() -> new ResponseEntity<>(HttpStatus.OK));
+    HttpStatusResponse<JournalpostDto> endreResponse = journalpostService.endre(endreJournalpostCommandDto);
+    return new ResponseEntity<>(endreResponse.getBody(), endreResponse.getHttpStatus());
   }
 }
