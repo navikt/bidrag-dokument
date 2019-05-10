@@ -77,9 +77,9 @@ public class JournalpostController {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    var journalposter = journalpostService.finnJournalposter(saksnummer, fagomrade);
+    var journalposterResponse = journalpostService.finnJournalposter(saksnummer, fagomrade);
 
-    return new ResponseEntity<>(journalposter, journalposter.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK);
+    return new ResponseEntity<>(journalposterResponse.getBody(), journalposterResponse.getHttpStatus());
   }
 
   @PutMapping(ENDPOINT_JOURNALPOST + "/{journalpostIdForKildesystem}")

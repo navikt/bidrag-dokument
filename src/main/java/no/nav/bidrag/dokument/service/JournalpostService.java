@@ -50,7 +50,7 @@ public class JournalpostService {
     return new ArrayList<>(bidragSakConsumer.finnInnvolverteSaker(aktorDto.getIdent()));
   }
 
-  public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
+  public HttpStatusResponse<List<JournalpostDto>> finnJournalposter(String saksnummer, String fagomrade) {
     return bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade);
   }
 

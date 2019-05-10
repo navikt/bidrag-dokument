@@ -29,7 +29,7 @@ public class BidragJournalpostConsumer {
     this.restTemplate = restTemplate;
   }
 
-  public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
+  public HttpStatusResponse<List<JournalpostDto>> finnJournalposter(String saksnummer, String fagomrade) {
     String uri = UriComponentsBuilder.fromPath(PATH_SAK + saksnummer)
         .queryParam(PARAM_FAGOMRADE, fagomrade)
         .toUriString();
@@ -38,9 +38,9 @@ public class BidragJournalpostConsumer {
 
     HttpStatus httpStatus = journalposterForBidragRequest.getStatusCode();
     LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} på fagområde {}", httpStatus, saksnummer, fagomrade);
-    List<JournalpostDto> journalposter = journalposterForBidragRequest.getBody();
+    List<JournalpostDto> journalposter = journalposterForBidragRequest.getBody() != null ? journalposterForBidragRequest.getBody() : Collections.emptyList();
 
-    return journalposter != null ? journalposter : Collections.emptyList();
+    return new HttpStatusResponse<>(journalposterForBidragRequest.getStatusCode(), journalposter);
   }
 
   private static ParameterizedTypeReference<List<JournalpostDto>> typereferansenErListeMedJournalposter() {
