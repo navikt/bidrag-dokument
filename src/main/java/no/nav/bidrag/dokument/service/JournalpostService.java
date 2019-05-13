@@ -47,7 +47,7 @@ public class JournalpostService {
   private HttpStatusResponse<JournalpostDto> hentJournalpostFraMidlertidigBrevlager(KildesystemIdenfikator kildesystemIdenfikator) {
     var journalpostResponse = bidragJournalpostConsumer.hentJournalpost(kildesystemIdenfikator.hentJournalpostId());
     var muligJournalpost = journalpostResponse.fetchOptionalResult();
-    var muligSamlToken = securityTokenConsumer.konverterOidcTokenTilSamlToken();
+    // var muligSamlToken = securityTokenConsumer.konverterOidcTokenTilSamlToken();
 
     muligJournalpost.ifPresent(
         journalpostDto -> {

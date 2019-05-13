@@ -16,6 +16,7 @@ import no.nav.bidrag.dokument.consumer.SecurityTokenConsumer;
 import no.nav.bidrag.dokument.dto.AktorDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -54,6 +55,7 @@ class JournalpostServiceTest {
     assertThat(journalpostService.hentJournalpost(new KildesystemIdenfikator("joark-2")).fetchOptionalResult()).isPresent();
   }
 
+  @Disabled
   @Test
   @DisplayName("skal hente ut OIDC token som skal konverteres til SAML token")
   void skalHenteOidcTokenSomSkalKonverteresTilSamlToken() {
