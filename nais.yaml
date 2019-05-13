@@ -59,6 +59,15 @@ fasitResources: # resources fetched from Fasit
     resourceType: restservice
     propertyMap:
       url: BIDRAG_SAK_URL # map the "url" property of restservice to BIDRAG_SAK_URL
+  - alias: security-token-service-token
+    resourceType: restservice
+    propertyMap:
+      url: SECURITY_TOKEN_URL # map the "url" property of restservice to SECURITY_TOKEN_URL
+  - alias: srvbisys
+    resourceType: credential
+    propertyMap:
+      username: SRVBISYS_USERNAME
+      password: SRVBISYS_PASSWORD
   exposed: # Will be registered as exposed services on an application instane in Fasit
   - alias: bidragDokument
     resourceType: restservice
