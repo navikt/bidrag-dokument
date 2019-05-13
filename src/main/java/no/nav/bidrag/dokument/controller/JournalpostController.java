@@ -7,6 +7,7 @@ import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
 
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
+import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.dokument.KildesystemIdenfikator;
 import no.nav.bidrag.dokument.KildesystemIdenfikator.Kildesystem;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
@@ -58,9 +59,8 @@ public class JournalpostController {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    return journalpostService.hentJournalpost(kildesystemIdentifikator)
-        .map(journalpostDto -> new ResponseEntity<>(journalpostDto, HttpStatus.OK))
-        .orElse(new ResponseEntity<>(HttpStatus.NO_CONTENT));
+    var journalpostDtoResponse = journalpostService.hentJournalpost(kildesystemIdentifikator);
+    return new ResponseEntity<>(journalpostDtoResponse.getBody(), journalpostDtoResponse.getHttpStatus());
   }
 
   @GetMapping(ENDPOINT_SAKJOURNAL + "/{saksnummer}")
@@ -76,9 +76,9 @@ public class JournalpostController {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    var journalposter = journalpostService.finnJournalposter(saksnummer, fagomrade);
+    var journalposterResponse = journalpostService.finnJournalposter(saksnummer, fagomrade);
 
-    return new ResponseEntity<>(journalposter, journalposter.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK);
+    return new ResponseEntity<>(journalposterResponse.getBody(), journalposterResponse.getHttpStatus());
   }
 
   @PutMapping(ENDPOINT_JOURNALPOST + "/{journalpostIdForKildesystem}")
@@ -96,8 +96,7 @@ public class JournalpostController {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    return journalpostService.endre(endreJournalpostCommandDto)
-        .map(journalpost -> new ResponseEntity<>(journalpost, HttpStatus.ACCEPTED))
-        .orElseGet(() -> new ResponseEntity<>(HttpStatus.OK));
+    HttpStatusResponse<JournalpostDto> endreResponse = journalpostService.endre(endreJournalpostCommandDto);
+    return new ResponseEntity<>(endreResponse.getBody(), endreResponse.getHttpStatus());
   }
 }

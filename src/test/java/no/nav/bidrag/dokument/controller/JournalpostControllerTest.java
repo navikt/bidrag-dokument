@@ -81,7 +81,7 @@ class JournalpostControllerTest {
     @DisplayName("skal mangle body når journalpost ikke finnes")
     void skalMangleBodyNarJournalpostIkkeFinnes() {
       when(restTemplateMock.exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class))
-          .thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
+          .thenReturn(new ResponseEntity<>(HttpStatus.NO_CONTENT));
 
       var journalpostResponseEntity = securedTestRestTemplate.exchange(url + "/joark-1", HttpMethod.GET, null, JournalpostDto.class);
 
@@ -103,7 +103,7 @@ class JournalpostControllerTest {
       verify(restTemplateMock, atLeastOnce()).exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class);
 
       assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
-          () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
+          () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.I_AM_A_TEAPOT),
           () -> assertThat(response.getBody()).extracting(JournalpostDto::getInnhold).isEqualTo("MIDLERTIDIG")));
     }
 
@@ -120,14 +120,14 @@ class JournalpostControllerTest {
       when(restTemplateMock.exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class))
           .thenReturn(new ResponseEntity<>(enJournalpostFra("Grev Still E. Ben"), HttpStatus.I_AM_A_TEAPOT));
       when(restTemplateMock.exchange("/person/sak/06127412345", HttpMethod.GET, null, listAvBidragssakerType()))
-          .thenReturn(new ResponseEntity<>(List.of(new BidragSakDto()), HttpStatus.I_AM_A_TEAPOT));
+          .thenReturn(new ResponseEntity<>(List.of(new BidragSakDto()), HttpStatus.OK));
 
       var responseEntity = securedTestRestTemplate.exchange(url + "/bid-1", HttpMethod.GET, null, JournalpostDto.class);
 
       verify(restTemplateMock).exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class);
 
       assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
-          () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
+          () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.I_AM_A_TEAPOT),
           () -> assertThat(response.getBody()).extracting(JournalpostDto::getAvsenderNavn).isEqualTo("Grev Still E. Ben")));
     }
 
@@ -147,12 +147,12 @@ class JournalpostControllerTest {
           .thenReturn(new ResponseEntity<>(enJournalpostFraAktor("06127412345"), HttpStatus.I_AM_A_TEAPOT));
 
       when(restTemplateMock.exchange("/person/sak/06127412345", HttpMethod.GET, null, listAvBidragssakerType()))
-          .thenReturn(new ResponseEntity<>(List.of(new BidragSakDto()), HttpStatus.I_AM_A_TEAPOT));
+          .thenReturn(new ResponseEntity<>(List.of(new BidragSakDto()), HttpStatus.OK));
 
       var journalpostDtoResponseEntity = securedTestRestTemplate.exchange(url + "/bid-1", HttpMethod.GET, null, JournalpostDto.class);
 
       assertAll(
-          () -> assertThat(journalpostDtoResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK),
+          () -> assertThat(journalpostDtoResponseEntity.getStatusCode()).isEqualTo(HttpStatus.I_AM_A_TEAPOT),
           () -> assertThat(journalpostDtoResponseEntity.getBody()).isNotNull(),
           () -> assertThat(journalpostDtoResponseEntity.getBody().getBidragssaker()).isNotEmpty()
       );
@@ -215,7 +215,7 @@ class JournalpostControllerTest {
               .medDokumenter(singletonList(new DokumentDto()))
               .medGjelderAktor("06127412345")
               .medJournalpostId("BID-101")
-              .build(), HttpStatus.I_AM_A_TEAPOT)
+              .build(), HttpStatus.ACCEPTED)
           );
 
       var endretJournalpostResponse = securedTestRestTemplate.exchange(
@@ -238,7 +238,7 @@ class JournalpostControllerTest {
     @DisplayName("skal finne Journalposter for en bidragssak")
     void skalFinneJournalposterForEnBidragssak() {
       when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
-          .thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
+          .thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.OK));
 
       var listeMedJournalposterResponse = securedTestRestTemplate.exchange(
           urlForFagomradeBid("/1001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()

@@ -4,9 +4,11 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.dokument.BidragDokumentConfig.OidcTokenManager;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -32,19 +34,24 @@ public class SecurityTokenConsumer {
     this.oidcTokenManager = oidcTokenManager;
   }
 
-  public Optional<String> konverterOidcTokenTilSamlToken() {
-    HttpEntity<Map<String, String>> request = new HttpEntity<>(byggRequestBody(), byggRequestHeader());
+  public HttpStatusResponse<String> konverterOidcTokenTilSamlToken() {
+    var requestEntity = new HttpEntity<>(byggJsonRequest(), byggAuthHeader());
 
-    return Optional.ofNullable(restTemplate.postForEntity(PATH_SECURITY_TOKEN, request, Map.class))
-        .map(ResponseEntity::getBody)
-        .map(this::hentUtSamlToken);
+    return Optional.ofNullable(restTemplate.postForEntity(PATH_SECURITY_TOKEN, requestEntity, Map.class))
+        .map(this::konverterMottattToken)
+        .orElseGet(() -> new HttpStatusResponse<>(HttpStatus.I_AM_A_TEAPOT, null));
+  }
+
+  private HttpStatusResponse<String> konverterMottattToken(ResponseEntity<Map> tokenResponseEntity) {
+    @SuppressWarnings("unchecked") Map<String, String> body = tokenResponseEntity.getBody();
+    return new HttpStatusResponse<>(tokenResponseEntity.getStatusCode(), hentUtSamlToken(body));
   }
 
   private String hentUtSamlToken(Map<String, String> map) {
-    return map.get(ACCESS_TOKEN_URI);
+    return map != null ? map.get(ACCESS_TOKEN_URI) : "ingen response body tilgjengelig";
   }
 
-  private Map<String, String> byggRequestBody() {
+  private Map<String, String> byggJsonRequest() {
     Map<String, String> requestBodyMap = new HashMap<>();
     requestBodyMap.put("grant_type", GRANT_TYPE_PARAM);
     requestBodyMap.put("requested_token_type", REQUESTED_TOKEN_TYPE_PARAM);
@@ -54,7 +61,7 @@ public class SecurityTokenConsumer {
     return requestBodyMap;
   }
 
-  private HttpHeaders byggRequestHeader() {
+  private HttpHeaders byggAuthHeader() {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 

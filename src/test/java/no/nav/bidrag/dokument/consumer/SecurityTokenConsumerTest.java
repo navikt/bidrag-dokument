@@ -100,8 +100,8 @@ class SecurityTokenConsumerTest {
     jsonAsMap.put("access_token", SAML_TOKEN);
     when(restTemplateMock.postForEntity(anyString(), any(), eq(Map.class))).thenReturn(new ResponseEntity<>(jsonAsMap, HttpStatus.OK));
 
-    var muligSamlToken = securityTokenConsumer.konverterOidcTokenTilSamlToken();
+    var samlTokenResponse = securityTokenConsumer.konverterOidcTokenTilSamlToken();
 
-    assertThat(muligSamlToken).hasValueSatisfying(token -> assertThat(token).isEqualTo(SAML_TOKEN));
+    assertThat(samlTokenResponse.fetchOptionalResult()).hasValueSatisfying(token -> assertThat(token).isEqualTo(SAML_TOKEN));
   }
 }
