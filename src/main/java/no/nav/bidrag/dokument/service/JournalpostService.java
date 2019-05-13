@@ -4,8 +4,7 @@ import static no.nav.bidrag.dokument.KildesystemIdenfikator.Kildesystem.BIDRAG;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.dokument.KildesystemIdenfikator;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
@@ -26,15 +25,18 @@ public class JournalpostService {
   private final SecurityTokenConsumer securityTokenConsumer;
 
   public JournalpostService(
-      BidragJournalpostConsumer bidragJournalpostConsumer, BidragSakConsumer bidragSakConsumer, BidragArkivConsumer bidragArkivConsumer,
-      SecurityTokenConsumer securityTokenConsumer) {
+      BidragArkivConsumer bidragArkivConsumer,
+      BidragJournalpostConsumer bidragJournalpostConsumer,
+      BidragSakConsumer bidragSakConsumer,
+      SecurityTokenConsumer securityTokenConsumer
+  ) {
+    this.bidragArkivConsumer = bidragArkivConsumer;
     this.bidragJournalpostConsumer = bidragJournalpostConsumer;
     this.bidragSakConsumer = bidragSakConsumer;
-    this.bidragArkivConsumer = bidragArkivConsumer;
     this.securityTokenConsumer = securityTokenConsumer;
   }
 
-  public Optional<JournalpostDto> hentJournalpost(KildesystemIdenfikator kildesystemIdenfikator) {
+  public HttpStatusResponse<JournalpostDto> hentJournalpost(KildesystemIdenfikator kildesystemIdenfikator) {
     if (BIDRAG.er(kildesystemIdenfikator.hentKildesystem())) {
       return hentJournalpostFraMidlertidigBrevlager(kildesystemIdenfikator);
     }
@@ -42,47 +44,50 @@ public class JournalpostService {
     return hentJournalpostFraJoark(kildesystemIdenfikator);
   }
 
-  private Optional<JournalpostDto> hentJournalpostFraMidlertidigBrevlager(KildesystemIdenfikator kildesystemIdenfikator) {
-    var muligJournalpostDto = bidragJournalpostConsumer.hentJournalpost(kildesystemIdenfikator.hentJournalpostId());
-
+  private HttpStatusResponse<JournalpostDto> hentJournalpostFraMidlertidigBrevlager(KildesystemIdenfikator kildesystemIdenfikator) {
+    var journalpostResponse = bidragJournalpostConsumer.hentJournalpost(kildesystemIdenfikator.hentJournalpostId());
+    var muligJournalpost = journalpostResponse.fetchOptionalResult();
     var muligSamlToken = securityTokenConsumer.konverterOidcTokenTilSamlToken();
 
-    muligJournalpostDto.ifPresent(
+    muligJournalpost.ifPresent(
         journalpostDto -> {
-          journalpostDto.setBidragssaker(finnBidragssaker(Objects.requireNonNull(journalpostDto.getGjelderAktor())));
-          hentPersonInformasjon(journalpostDto);
+          if (journalpostDto.getGjelderAktor() != null) {
+            journalpostDto.setBidragssaker(finnBidragssaker(journalpostDto.getGjelderAktor()));
+            journalpostDto.setGjelderAktor(hentPersonInformasjon(journalpostDto.getGjelderAktor()));
+          }
         }
     );
 
-    return muligJournalpostDto;
+    return journalpostResponse;
   }
 
-  private Optional<JournalpostDto> hentJournalpostFraJoark(KildesystemIdenfikator kildesystemIdenfikator) {
+  private HttpStatusResponse<JournalpostDto> hentJournalpostFraJoark(KildesystemIdenfikator kildesystemIdenfikator) {
     return bidragArkivConsumer.hentJournalpost(kildesystemIdenfikator.hentJournalpostId());
   }
 
-  private void hentPersonInformasjon(JournalpostDto journalpostDto) {
+  private AktorDto hentPersonInformasjon(AktorDto gjelderAktor) {
 
 //TODO implement
-//
-//    var gjelderAktor = journalpostDto.getGjelderAktor();
-//
 //    if (gjelderAktor != null && gjelderAktor.erPerson()) {
 //      var muligPerson = personConsumer.hentPersonInfo(gjelderAktor.getIdent());
 //
 //      muligPerson.ifPresent(person -> berikPerson(new PersonDto(gjelderAktor.getIdent()), person));
+//
+//      return muligPerson.get();
 //    }
+
+    return gjelderAktor;
   }
 
   private List<BidragSakDto> finnBidragssaker(AktorDto aktorDto) {
     return new ArrayList<>(bidragSakConsumer.finnInnvolverteSaker(aktorDto.getIdent()));
   }
 
-  public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
+  public HttpStatusResponse<List<JournalpostDto>> finnJournalposter(String saksnummer, String fagomrade) {
     return bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade);
   }
 
-  public Optional<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto) {
+  public HttpStatusResponse<JournalpostDto> endre(EndreJournalpostCommandDto endreJournalpostCommandDto) {
     return bidragJournalpostConsumer.endre(endreJournalpostCommandDto);
   }
 }
