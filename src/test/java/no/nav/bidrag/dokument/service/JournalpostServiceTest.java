@@ -2,6 +2,8 @@ package no.nav.bidrag.dokument.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -9,6 +11,7 @@ import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.dokument.KildesystemIdenfikator;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
+import no.nav.bidrag.dokument.consumer.SecurityTokenConsumer;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,6 +28,8 @@ class JournalpostServiceTest {
   private BidragArkivConsumer bidragArkivConsumerMock;
   @Mock
   private BidragJournalpostConsumer bidragJournalpostConsumerMock;
+  @Mock
+  private SecurityTokenConsumer securityTokenConsumerMock;
   @InjectMocks
   private JournalpostService journalpostService;
 
@@ -45,5 +50,12 @@ class JournalpostServiceTest {
   void skalHenteJournalpostGittId() {
     when(bidragArkivConsumerMock.hentJournalpost(2)).thenReturn(new HttpStatusResponse<>(HttpStatus.OK, new JournalpostDto()));
     assertThat(journalpostService.hentJournalpost(new KildesystemIdenfikator("joark-2")).fetchOptionalResult()).isPresent();
+  }
+
+  @Test
+  @DisplayName("skal hente ut OIDC token som skal konverteres til SAML token")
+  void skalHenteOidcTokenSomSkalKonverteresTilSamlToken() {
+    journalpostService.hentJournalpost(new KildesystemIdenfikator("bid-69"));
+    verify(securityTokenConsumerMock, times(1)).konverterOidcTokenTilSamlToken();
   }
 }
