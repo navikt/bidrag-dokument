@@ -1,6 +1,6 @@
 package no.nav.bidrag.dokument.aop;
 
-import com.google.common.net.HttpHeaders;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
