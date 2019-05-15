@@ -66,11 +66,6 @@ class JournalpostControllerTest {
   @Autowired
   private SecuredTestRestTemplate securedTestRestTemplate;
 
-  @BeforeEach
-  void initMocks() {
-    MockitoAnnotations.initMocks(this);
-  }
-
   @Nested
   @DisplayName("endpoint - hent: " + ENDPOINT_JOURNALPOST)
   class EndpointHentJournalpost {
