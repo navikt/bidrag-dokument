@@ -98,11 +98,6 @@ public class JournalpostDtoBygger {
     return this;
   }
 
-  public JournalpostDtoBygger medSaksnummer(String saksnummer) {
-    journalpostDto.setSaksnummer(saksnummer);
-    return this;
-  }
-
   public JournalpostDtoBygger medDokumenter(List<DokumentDto> dokumenter) {
     journalpostDto.setDokumenter(dokumenter);
     return this;
