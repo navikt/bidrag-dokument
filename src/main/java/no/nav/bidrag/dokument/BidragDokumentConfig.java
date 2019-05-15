@@ -26,9 +26,8 @@ public class BidragDokumentConfig {
   public static final String PREFIX_BIDRAG = "BID";
   public static final String PREFIX_JOARK = "JOARK";
   public static final String ISSUER = "isso";
+
   static final String LIVE_PROFILE = "live";
-  public static final String TEST_PROFILE = "test";
-  public static final String SECURE_TEST_PROFILE = "secure-test";
 
   @Bean
   public BidragJournalpostConsumer bidragJournalpostConsumer(

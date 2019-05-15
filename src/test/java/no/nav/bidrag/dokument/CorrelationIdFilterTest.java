@@ -1,7 +1,7 @@
 package no.nav.bidrag.dokument;
 
-import static no.nav.bidrag.dokument.BidragDokumentConfig.SECURE_TEST_PROFILE;
-import static no.nav.bidrag.dokument.BidragDokumentConfig.TEST_PROFILE;
+import static no.nav.bidrag.dokument.BidragDokumentLocal.SECURE_TEST_PROFILE;
+import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
