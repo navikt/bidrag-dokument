@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 import no.nav.bidrag.commons.web.test.SecuredTestRestTemplate;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
+import no.nav.bidrag.dokument.dto.DokumentTilgangRequest;
 import no.nav.bidrag.dokument.dto.DokumentUrlDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,7 +47,7 @@ class DokumentControllerTest {
     var dokumentUrlResponse = Optional.of(securedTestRestTemplate.exchange(
         localhostUrl("/bidrag-dokument/tilgang/url"),
         HttpMethod.POST,
-        new HttpEntity<>(new DokumentUrlDto("url", "BREVLAGER")),
+        new HttpEntity<>(new DokumentTilgangRequest("dok-ref", "bjarne")),
         DokumentUrlDto.class
     ));
 

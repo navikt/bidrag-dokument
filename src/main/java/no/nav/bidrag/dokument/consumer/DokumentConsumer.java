@@ -1,6 +1,7 @@
 package no.nav.bidrag.dokument.consumer;
 
 import no.nav.bidrag.commons.web.HttpStatusResponse;
+import no.nav.bidrag.dokument.dto.DokumentTilgangRequest;
 import no.nav.bidrag.dokument.dto.DokumentUrlDto;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -14,8 +15,8 @@ public class DokumentConsumer {
     this.restTemplate = restTemplate;
   }
 
-  public HttpStatusResponse<DokumentUrlDto> hentTilgangUrl(DokumentUrlDto dokumentUrlDto) {
-    var response = restTemplate.exchange("/tilgang/url", HttpMethod.POST, new HttpEntity<>(dokumentUrlDto), DokumentUrlDto.class);
+  public HttpStatusResponse<DokumentUrlDto> hentTilgangUrl(DokumentTilgangRequest dokumentTilgangRequest) {
+    var response = restTemplate.exchange("/tilgang/url", HttpMethod.POST, new HttpEntity<>(dokumentTilgangRequest), DokumentUrlDto.class);
     return new HttpStatusResponse<>(response.getStatusCode(), response.getBody());
   }
 }
