@@ -26,13 +26,13 @@ public class BidragDokumentConfig {
   public static final String PREFIX_BIDRAG = "BID";
   public static final String PREFIX_JOARK = "JOARK";
   public static final String ISSUER = "isso";
-  public static final String LIVE_PROFILE = "live";
-  public static final String TEST_PROFILE = "test";
-  public static final String SECURE_TEST_PROFILE = "secure-test";
+
+  static final String LIVE_PROFILE = "live";
 
   @Bean
   public BidragJournalpostConsumer bidragJournalpostConsumer(
-      @Value("${JOURNALPOST_URL}") String journalpostBaseUrl, RestTemplate restTemplate) {
+      @Value("${JOURNALPOST_URL}") String journalpostBaseUrl, RestTemplate restTemplate
+  ) {
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(journalpostBaseUrl));
     LOGGER.info("BidragJournalpostConsumer med base url: " + journalpostBaseUrl);
 
@@ -41,7 +41,8 @@ public class BidragDokumentConfig {
 
   @Bean
   public BidragSakConsumer bidragSakConsumer(
-      @Value("${BIDRAG_SAK_URL}") String sakBaseUrl, RestTemplate restTemplate) {
+      @Value("${BIDRAG_SAK_URL}") String sakBaseUrl, RestTemplate restTemplate
+  ) {
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(sakBaseUrl));
     LOGGER.info("BidragSakConsumer med base url: " + sakBaseUrl);
 
@@ -50,7 +51,8 @@ public class BidragDokumentConfig {
 
   @Bean
   public BidragArkivConsumer journalforingConsumer(
-      @Value("${BIDRAG_ARKIV_URL}") String bidragArkivBaseUrl, RestTemplate restTemplate) {
+      @Value("${BIDRAG_ARKIV_URL}") String bidragArkivBaseUrl, RestTemplate restTemplate
+  ) {
     restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(bidragArkivBaseUrl));
     LOGGER.info("BidragArkivConsumer med base url: " + bidragArkivBaseUrl);
 
@@ -63,8 +65,9 @@ public class BidragDokumentConfig {
       @Value("${SRVBISYS_USERNAME}") String systemUser,
       @Value("${SRVBISYS_PASSWORD}") String systemPassword,
       OidcTokenManager oidcTokenManager,
-      RestTemplate restTemplate) {
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler( securityTokenBaseUrl));
+      RestTemplate restTemplate
+  ) {
+    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(securityTokenBaseUrl));
     LOGGER.info("SecurityTokenConsumer med base url: " + securityTokenBaseUrl);
 
     return new SecurityTokenConsumer(restTemplate, systemUser, systemPassword, oidcTokenManager);
@@ -91,6 +94,7 @@ public class BidragDokumentConfig {
 
   @FunctionalInterface
   public interface OidcTokenManager {
+
     String fetchToken();
   }
 }

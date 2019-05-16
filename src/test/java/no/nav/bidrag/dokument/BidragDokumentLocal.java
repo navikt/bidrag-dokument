@@ -1,6 +1,5 @@
 package no.nav.bidrag.dokument;
 
-import static no.nav.bidrag.dokument.BidragDokumentConfig.TEST_PROFILE;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
 import no.nav.security.oidc.test.support.spring.TokenGeneratorConfiguration;
@@ -18,6 +17,9 @@ import org.springframework.context.annotation.PropertySource;
 @Import(TokenGeneratorConfiguration.class)
 @ComponentScan(excludeFilters = {@Filter(type = ASSIGNABLE_TYPE, value = BidragDokument.class)})
 public class BidragDokumentLocal {
+
+  public static final String SECURE_TEST_PROFILE = "secure-test";
+  public static final String TEST_PROFILE = "test";
 
   public static void main(String[] args) {
     String profile = args.length < 1 ? TEST_PROFILE : args[0];
