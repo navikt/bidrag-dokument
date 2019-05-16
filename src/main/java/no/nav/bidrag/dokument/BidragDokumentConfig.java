@@ -6,6 +6,7 @@ import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.consumer.BidragSakConsumer;
+import no.nav.bidrag.dokument.consumer.DokumentConsumer;
 import no.nav.bidrag.dokument.consumer.SecurityTokenConsumer;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.security.oidc.context.TokenContext;
@@ -57,6 +58,16 @@ public class BidragDokumentConfig {
     LOGGER.info("BidragArkivConsumer med base url: " + bidragArkivBaseUrl);
 
     return new BidragArkivConsumer(restTemplate);
+  }
+
+  @Bean
+  public DokumentConsumer dokumentConsumer(
+      @Value("${JOURNALPOST_URL}") String journalpostBaseUrl, RestTemplate restTemplate
+  ) {
+    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(journalpostBaseUrl));
+    LOGGER.info("DokumentConsumer med base url: " + journalpostBaseUrl);
+
+    return new DokumentConsumer(restTemplate);
   }
 
   @Bean
