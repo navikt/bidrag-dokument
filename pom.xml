@@ -250,12 +250,12 @@
       <artifactId>saaj-impl</artifactId>
     </dependency>
 
-    <!-- NAV-Tjenester
+    <!-- NAV-Tjenester -->
     <dependency>
       <groupId>no.nav.tjenester</groupId>
       <artifactId>nav-person-v3-tjenestespesifikasjon</artifactId>
       <version>${person-v3.version}</version>
-    </dependency> -->
+    </dependency>
 
   </dependencies>
 
