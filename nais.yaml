@@ -59,6 +59,10 @@ fasitResources: # resources fetched from Fasit
     resourceType: restservice
     propertyMap:
       url: BIDRAG_SAK_URL # map the "url" property of restservice to BIDRAG_SAK_URL
+  - alias: virksomhet:PersonV3
+    resourceType: soapservice
+    propertyMap:
+      url: PERSON_V3_URL # map the "url" property of soapservice to PERSON_V3_URL
   - alias: security-token-service-token
     resourceType: restservice
     propertyMap:
