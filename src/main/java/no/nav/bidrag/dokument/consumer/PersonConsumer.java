@@ -18,10 +18,8 @@ import org.springframework.ws.client.core.support.WebServiceGatewaySupport;
 
 public class PersonConsumer extends WebServiceGatewaySupport {
 
-  private String personV3BaseUrl;
-
-  public void setPersonV3BaseUrl(String personV3BaseUrl) {
-    this.personV3BaseUrl = personV3BaseUrl;
+  public PersonConsumer(String baseUrl) {
+    setDefaultUri(baseUrl);
   }
 
   public Optional<PersonDto> hentPersonInfo(String id) {
@@ -31,16 +29,19 @@ public class PersonConsumer extends WebServiceGatewaySupport {
     norskIdent.setIdent(id);
     aktoer.setIdent(norskIdent);
     request.setAktoer(aktoer);
-    HentPersonResponse response = byggDummyResponse();
 
     //HentPersonResponse response = (HentPersonResponse) getWebServiceTemplate()
     //   .marshalSendAndReceive(request);
-    return mapResponseToDto(response);
+    //return mapResponseToDto(response);
+
+    return Optional.ofNullable(byggDummyResponse())
+        .map(HentPersonResponse::getPerson)
+        .map(this::mapResponseToDto)
+        .orElse(Optional.empty());
   }
 
-  private Optional<PersonDto> mapResponseToDto (HentPersonResponse personResponse) {
+  private Optional<PersonDto> mapResponseToDto(Person person) {
     PersonDto dto = new PersonDto();
-    Person person = personResponse.getPerson();
     dto.setDiskresjonskode(person.getDiskresjonskode() != null ? person.getDiskresjonskode().getValue() : null);
     dto.setDoedsdato(dodsdato(person));
     dto.setNavn(person.getPersonnavn() != null ? person.getPersonnavn().getSammensattNavn() : null);

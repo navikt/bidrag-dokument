@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 @DisplayName("PersonConsumer")
 class PersonConsumerTest {
 
-  private PersonConsumer personConsumer = new PersonConsumer();
+  private PersonConsumer personConsumer = new PersonConsumer("dummyUrl");
 
   @Test
   @DisplayName("hent person")

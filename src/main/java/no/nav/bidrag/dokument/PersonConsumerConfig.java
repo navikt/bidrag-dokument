@@ -20,11 +20,10 @@ public class PersonConsumerConfig {
 
   @Bean
   public PersonConsumer personConsumer(@Value("${PERSON_V3_URL}") String personV3BaseUrl, Jaxb2Marshaller marshaller) {
-    PersonConsumer client = new PersonConsumer();
+    PersonConsumer client = new PersonConsumer(personV3BaseUrl);
     client.setDefaultUri(personV3BaseUrl+"/tpsws/ws");
     client.setMarshaller(marshaller);
     client.setUnmarshaller(marshaller);
-    client.setPersonV3BaseUrl(personV3BaseUrl);
     return client;
   }
 }
