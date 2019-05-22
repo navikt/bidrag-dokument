@@ -9,11 +9,13 @@ import no.nav.bidrag.dokument.KildesystemIdenfikator;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.consumer.BidragSakConsumer;
+import no.nav.bidrag.dokument.consumer.PersonConsumer;
 import no.nav.bidrag.dokument.consumer.SecurityTokenConsumer;
 import no.nav.bidrag.dokument.dto.AktorDto;
 import no.nav.bidrag.dokument.dto.BidragSakDto;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.PersonDto;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -23,17 +25,19 @@ public class JournalpostService {
   private final BidragSakConsumer bidragSakConsumer;
   private final BidragArkivConsumer bidragArkivConsumer;
   private final SecurityTokenConsumer securityTokenConsumer;
+  private final PersonConsumer personConsumer;
 
   public JournalpostService(
       BidragArkivConsumer bidragArkivConsumer,
       BidragJournalpostConsumer bidragJournalpostConsumer,
       BidragSakConsumer bidragSakConsumer,
-      SecurityTokenConsumer securityTokenConsumer
-  ) {
+      SecurityTokenConsumer securityTokenConsumer,
+      PersonConsumer personConsumer) {
     this.bidragArkivConsumer = bidragArkivConsumer;
     this.bidragJournalpostConsumer = bidragJournalpostConsumer;
     this.bidragSakConsumer = bidragSakConsumer;
     this.securityTokenConsumer = securityTokenConsumer;
+    this.personConsumer = personConsumer;
   }
 
   public HttpStatusResponse<JournalpostDto> hentJournalpost(KildesystemIdenfikator kildesystemIdenfikator) {
@@ -47,7 +51,7 @@ public class JournalpostService {
   private HttpStatusResponse<JournalpostDto> hentJournalpostFraMidlertidigBrevlager(KildesystemIdenfikator kildesystemIdenfikator) {
     var journalpostResponse = bidragJournalpostConsumer.hentJournalpost(kildesystemIdenfikator.hentJournalpostId());
     var muligJournalpost = journalpostResponse.fetchOptionalResult();
-    // var muligSamlToken = securityTokenConsumer.konverterOidcTokenTilSamlToken();
+//    var muligSamlToken = securityTokenConsumer.konverterOidcTokenTilSamlToken();
 
     muligJournalpost.ifPresent(
         journalpostDto -> {
@@ -66,17 +70,20 @@ public class JournalpostService {
   }
 
   private AktorDto hentPersonInformasjon(AktorDto gjelderAktor) {
-
-//TODO implement
-//    if (gjelderAktor != null && gjelderAktor.erPerson()) {
-//      var muligPerson = personConsumer.hentPersonInfo(gjelderAktor.getIdent());
-//
-//      muligPerson.ifPresent(person -> berikPerson(new PersonDto(gjelderAktor.getIdent()), person));
-//
-//      return muligPerson.get();
-//    }
-
+    if (gjelderAktor != null && gjelderAktor.erPerson()) {
+      //TODO Hvordan legge på saml token før kall til personConsumer?
+      var muligPersonV3 = personConsumer.hentPersonInfo(gjelderAktor.getIdent());
+      muligPersonV3.ifPresent(personV3 -> berikPerson(new PersonDto(gjelderAktor.getIdent()), personV3));
+    }
     return gjelderAktor;
+  }
+
+  private void berikPerson(PersonDto personDtoJournalpost, PersonDto personV3) {
+    if (personV3.fetchPersonIdentType().equals("NorskIdent")) {
+      personDtoJournalpost.setDiskresjonskode(personV3.getDiskresjonskode());
+      personDtoJournalpost.setDoedsdato(personV3.getDoedsdato());
+      personDtoJournalpost.setNavn(personV3.getNavn());
+    }
   }
 
   private List<BidragSakDto> finnBidragssaker(AktorDto aktorDto) {

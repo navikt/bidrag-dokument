@@ -56,12 +56,18 @@
     <oidc-spring-support.version>0.2.18</oidc-spring-support.version>
     <logback.encoder.version>5.3</logback.encoder.version>
     <springfox-swagger.version>2.9.2</springfox-swagger.version>
+    <person-v3.version>3.6.1</person-v3.version>
 
     <!-- build -->
     <maven.compiler.version>3.8.0</maven.compiler.version>
     <maven.surefire.version>2.22.0</maven.surefire.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <!-- build -->
+
+    <!-- JAXB -->
+    <jaxb-impl.version>2.3.2</jaxb-impl.version>
+    <jaxb-core.version>2.3.0</jaxb-core.version>
 
   </properties>
 
@@ -209,6 +215,34 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.ws</groupId>
+      <artifactId>spring-ws-core</artifactId>
+    </dependency>
+
+    <!-- JAXB -->
+    <dependency>
+      <groupId>com.sun.xml.bind</groupId>
+      <artifactId>jaxb-impl</artifactId>
+      <version>${jaxb-impl.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.xml.bind</groupId>
+      <artifactId>jaxb-core</artifactId>
+      <version>${jaxb-core.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.xml.messaging.saaj</groupId>
+      <artifactId>saaj-impl</artifactId>
+    </dependency>
+
+    <!-- NAV-Tjenester -->
+    <dependency>
+      <groupId>no.nav.tjenester</groupId>
+      <artifactId>nav-person-v3-tjenestespesifikasjon</artifactId>
+      <version>${person-v3.version}</version>
     </dependency>
 
   </dependencies>
