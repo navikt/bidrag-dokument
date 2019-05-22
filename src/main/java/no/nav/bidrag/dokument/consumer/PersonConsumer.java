@@ -36,11 +36,11 @@ public class PersonConsumer extends WebServiceGatewaySupport {
 
     return Optional.ofNullable(byggDummyResponse())
         .map(HentPersonResponse::getPerson)
-        .map(this::mapResponseToDto)
+        .map(this::mapPersonToDto)
         .orElse(Optional.empty());
   }
 
-  private Optional<PersonDto> mapResponseToDto(Person person) {
+  private Optional<PersonDto> mapPersonToDto(Person person) {
     PersonDto dto = new PersonDto();
     dto.setDiskresjonskode(person.getDiskresjonskode() != null ? person.getDiskresjonskode().getValue() : null);
     dto.setDoedsdato(dodsdato(person));
