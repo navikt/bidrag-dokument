@@ -3,6 +3,7 @@ package no.nav.bidrag.dokument.controller;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.ISSUER;
 
 import no.nav.bidrag.commons.web.HttpStatusResponse;
+import no.nav.bidrag.dokument.dto.DokumentTilgangRequest;
 import no.nav.bidrag.dokument.dto.DokumentUrlDto;
 import no.nav.bidrag.dokument.service.DokumentService;
 import no.nav.security.oidc.api.ProtectedWithClaims;
@@ -25,16 +26,16 @@ public class DokumentController {
   }
 
   @PostMapping("/tilgang/url")
-  public ResponseEntity<DokumentUrlDto> giTilgangTilDokument(DokumentUrlDto dokumentUrlDto) {
-    LOGGER.info("Spør om tilgang til dokument: " + dokumentUrlDto);
+  public ResponseEntity<DokumentUrlDto> giTilgangTilDokument(DokumentTilgangRequest dokumentTilgangRequest) {
+    LOGGER.info("Spør om tilgang til dokument: " + dokumentTilgangRequest);
 
-    HttpStatusResponse<DokumentUrlDto> response = dokumentService.hentTilgangUrl(dokumentUrlDto);
+    var dokumentUrlResponse = dokumentService.hentTilgangUrl(dokumentTilgangRequest);
 
     LOGGER.info(String.format(
-        "tilgang til dokument: %s, status: %s", response.getBody(), response.getHttpStatus()
+        "tilgang til dokument: %s, status: %s", dokumentUrlResponse.getBody(), dokumentUrlResponse.getHttpStatus()
     ));
 
-    return new ResponseEntity<>(response.getBody(), response.getHttpStatus());
+    return new ResponseEntity<>(dokumentUrlResponse.getBody(), dokumentUrlResponse.getHttpStatus());
   }
 
 }
