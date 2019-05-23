@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import no.nav.bidrag.dokument.dto.AktorDto;
 import no.nav.bidrag.dokument.dto.PersonDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,9 +16,9 @@ class PersonConsumerTest {
   private PersonConsumer personConsumer = new PersonConsumer("dummyUrl");
 
   @Test
-  @DisplayName("hent person")
-  void skalHentePerson() {
-    Optional<PersonDto> muligPersonDto = personConsumer.hentPersonInfo("11111898765");
+  @DisplayName("hent person med dummy data")
+  void skalHentePersonMedDummyData() {
+    Optional<PersonDto> muligPersonDto = personConsumer.hentPersonInfo(new AktorDto("11111898765"));
 
     assertAll(
         () -> assertThat(muligPersonDto).hasValueSatisfying(personDto -> assertAll(
@@ -26,5 +27,13 @@ class PersonConsumerTest {
             () -> assertThat(personDto.getNavn()).isEqualTo("Bjarne Bidrag")
         ))
     );
+  }
+
+  @Test
+  @DisplayName("skal ikke hente personinfo når aktør er organisasjon")
+  void skalIkkeHentePersonInfoNarAktorErOrganaisasjon() {
+    var muligPersonDto = personConsumer.hentPersonInfo(new AktorDto("123456789"));
+
+    assertThat(muligPersonDto).isEmpty();
   }
 }

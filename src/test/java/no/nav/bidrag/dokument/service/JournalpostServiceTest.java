@@ -66,7 +66,7 @@ class JournalpostServiceTest {
   @Test
   void skalHenteJournalpostOgBerikePerson() {
     JournalpostDto journalpost = new JournalpostDto();
-    journalpost.setGjelderAktor(new AktorDto("06127412345", "NorskIdent", "person"));
+    journalpost.setGjelderAktor(new AktorDto("06127412345"));
     when(bidragJournalpostConsumerMock.hentJournalpost(69)).thenReturn(new HttpStatusResponse<>(HttpStatus.OK, journalpost));
     when(bidragSakConsumerMock.finnInnvolverteSaker("06127412345")).thenReturn(Collections.emptyList());
 
@@ -75,7 +75,7 @@ class JournalpostServiceTest {
     assertThat(journalpostBeriket.fetchOptionalResult()).hasValueSatisfying(journalpostDto -> assertAll(
         () -> assertThat(journalpostDto).extracting(JournalpostDto::getGjelderAktor).isNotNull(),
         () -> assertThat(journalpostDto.getGjelderAktor()).extracting(AktorDto::erPerson).isEqualTo(true),
-        () -> verify(personConsumerMock).hentPersonInfo("06127412345")
+        () -> verify(personConsumerMock).hentPersonInfo(new AktorDto("06127412345"))
     ));
   }
 

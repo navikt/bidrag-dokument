@@ -72,18 +72,10 @@ public class JournalpostService {
   private AktorDto hentPersonInformasjon(AktorDto gjelderAktor) {
     if (gjelderAktor != null && gjelderAktor.erPerson()) {
       //TODO Hvordan legge på saml token før kall til personConsumer?
-      var muligPersonV3 = personConsumer.hentPersonInfo(gjelderAktor.getIdent());
-      muligPersonV3.ifPresent(personV3 -> berikPerson(new PersonDto(gjelderAktor.getIdent()), personV3));
+      var muligPersonV3 = personConsumer.hentPersonInfo(gjelderAktor);
+      muligPersonV3.ifPresent(gjelderAktor::setPersoninfo);
     }
     return gjelderAktor;
-  }
-
-  private void berikPerson(PersonDto personDtoJournalpost, PersonDto personV3) {
-    if (personV3.fetchPersonIdentType().equals("NorskIdent")) {
-      personDtoJournalpost.setDiskresjonskode(personV3.getDiskresjonskode());
-      personDtoJournalpost.setDoedsdato(personV3.getDoedsdato());
-      personDtoJournalpost.setNavn(personV3.getNavn());
-    }
   }
 
   private List<BidragSakDto> finnBidragssaker(AktorDto aktorDto) {
