@@ -21,7 +21,7 @@ public class JournalpostDtoBygger {
     }
 
     if (journalpostDto.getGjelderAktor() == null && medBrukerId) {
-      journalpostDto.setGjelderAktor(new AktorDto("aktor", "ukjent", "ukjent"));
+      journalpostDto.setGjelderAktor(new AktorDto("aktor"));
     }
 
     return journalpostDto;
@@ -69,7 +69,7 @@ public class JournalpostDtoBygger {
   }
 
   public JournalpostDtoBygger medGjelderAktor(String ident) {
-    journalpostDto.setGjelderAktor(new PersonDto(ident));
+    journalpostDto.setGjelderAktor(new AktorDto(ident));
     return this;
   }
 

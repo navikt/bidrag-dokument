@@ -5,6 +5,7 @@ import java.util.Optional;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import no.nav.bidrag.dokument.dto.AktorDto;
 import no.nav.bidrag.dokument.dto.PersonDto;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Diskresjonskoder;
 import no.nav.tjeneste.virksomhet.person.v3.informasjon.Doedsdato;
@@ -22,11 +23,15 @@ public class PersonConsumer extends WebServiceGatewaySupport {
     setDefaultUri(baseUrl);
   }
 
-  public Optional<PersonDto> hentPersonInfo(String id) {
+  public Optional<PersonDto> hentPersonInfo(AktorDto aktorDto) {
+    if (aktorDto.erIkkePerson()) {
+      return Optional.empty();
+    }
+
     HentPersonRequest request = new HentPersonRequest();
     PersonIdent aktoer = new PersonIdent();
     NorskIdent norskIdent = new NorskIdent();
-    norskIdent.setIdent(id);
+    norskIdent.setIdent(aktorDto.getIdent());
     aktoer.setIdent(norskIdent);
     request.setAktoer(aktoer);
 
@@ -36,16 +41,15 @@ public class PersonConsumer extends WebServiceGatewaySupport {
 
     return Optional.ofNullable(byggDummyResponse())
         .map(HentPersonResponse::getPerson)
-        .map(this::mapPersonToDto)
-        .orElse(Optional.empty());
+        .map(this::mapPersonToDto);
   }
 
-  private Optional<PersonDto> mapPersonToDto(Person person) {
-    PersonDto dto = new PersonDto();
-    dto.setDiskresjonskode(person.getDiskresjonskode() != null ? person.getDiskresjonskode().getValue() : null);
-    dto.setDoedsdato(dodsdato(person));
-    dto.setNavn(person.getPersonnavn() != null ? person.getPersonnavn().getSammensattNavn() : null);
-    return Optional.of(dto);
+  private PersonDto mapPersonToDto(Person person) {
+    return new PersonDto(
+        person.getPersonnavn() != null ? person.getPersonnavn().getSammensattNavn() : null,
+        dodsdato(person),
+        person.getDiskresjonskode() != null ? person.getDiskresjonskode().getValue() : null
+    );
   }
 
   private LocalDate dodsdato(Person person) {
@@ -85,8 +89,10 @@ public class PersonConsumer extends WebServiceGatewaySupport {
       try {
         return DatatypeFactory.newInstance().newXMLGregorianCalendar(localDate.toString());
       } catch (DatatypeConfigurationException dce) {
+        return null;
       }
     }
+
     return null;
   }
 }
