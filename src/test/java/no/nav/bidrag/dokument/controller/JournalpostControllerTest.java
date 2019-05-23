@@ -24,7 +24,6 @@ import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -66,7 +65,6 @@ class JournalpostControllerTest {
   private SecuredTestRestTemplate securedTestRestTemplate;
 
   @Nested
-  @Disabled
   @DisplayName("endpoint - hent: " + ENDPOINT_JOURNALPOST)
   class EndpointHentJournalpost {
 
@@ -110,7 +108,6 @@ class JournalpostControllerTest {
     }
 
     @Test
-    @Disabled
     @DisplayName("skal hente journalpost fra midlertidig brevlager")
     void skalHenteJournalpostFraMidlertidigBrevlager() {
       when(restTemplateMock.exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class))
@@ -136,7 +133,6 @@ class JournalpostControllerTest {
     }
 
     @Test
-    @Disabled
     @SuppressWarnings("unchecked")
     @DisplayName("skal hente BidragSakDto for journalpostens gjelder aktør")
     void skalHenteBidragSakDtoForJournalpostensGjelderAktor() {
@@ -205,7 +201,6 @@ class JournalpostControllerTest {
     }
 
     @Test
-    @Disabled
     @DisplayName("skal endre journalpost")
     void skalEndreJournalpost() {
       when(restTemplateMock.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(JournalpostDto.class)))

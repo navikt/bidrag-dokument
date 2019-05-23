@@ -24,7 +24,7 @@ public class PersonConsumer extends WebServiceGatewaySupport {
   }
 
   public Optional<PersonDto> hentPersonInfo(AktorDto aktorDto) {
-    if (!aktorDto.erPerson()) {
+    if (aktorDto.erIkkePerson()) {
       return Optional.empty();
     }
 
@@ -40,7 +40,8 @@ public class PersonConsumer extends WebServiceGatewaySupport {
     //return mapResponseToDto(response);
 
     return Optional.ofNullable(byggDummyResponse())
-        .map(HentPersonResponse::getPerson).map(this::mapPersonToDto);
+        .map(HentPersonResponse::getPerson)
+        .map(this::mapPersonToDto);
   }
 
   private PersonDto mapPersonToDto(Person person) {
