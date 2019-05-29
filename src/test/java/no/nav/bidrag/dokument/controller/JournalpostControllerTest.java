@@ -132,36 +132,6 @@ class JournalpostControllerTest {
       return jp;
     }
 
-    @Test
-    @SuppressWarnings("unchecked")
-    @DisplayName("skal hente BidragSakDto for journalpostens gjelder aktør")
-    void skalHenteBidragSakDtoForJournalpostensGjelderAktor() {
-      when(restTemplateMock.exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class))
-          .thenReturn(new ResponseEntity<>(enJournalpostFraAktor("06127412345"), HttpStatus.I_AM_A_TEAPOT));
-
-      when(restTemplateMock.exchange("/person/sak/06127412345", HttpMethod.GET, null, listAvBidragssakerType()))
-          .thenReturn(new ResponseEntity<>(List.of(new BidragSakDto()), HttpStatus.OK));
-
-      var journalpostDtoResponseEntity = securedTestRestTemplate.exchange(url + "/bid-1", HttpMethod.GET, null, JournalpostDto.class);
-
-      assertAll(
-          () -> assertThat(journalpostDtoResponseEntity.getStatusCode()).isEqualTo(HttpStatus.I_AM_A_TEAPOT),
-          () -> assertThat(journalpostDtoResponseEntity.getBody()).isNotNull(),
-          () -> assertThat(journalpostDtoResponseEntity.getBody().getBidragssaker()).isNotEmpty()
-      );
-
-      verify(restTemplateMock, atLeastOnce()).exchange(
-          eq("/person/sak/06127412345"), any(), any(), (ParameterizedTypeReference<List<BidragSakDto>>) any()
-      );
-    }
-
-    private JournalpostDto enJournalpostFraAktor(@SuppressWarnings("SameParameterValue") String brukerId) {
-      JournalpostDto journalpostDto = new JournalpostDto();
-      journalpostDto.setGjelderAktor(new AktorDto(brukerId));
-
-      return journalpostDto;
-    }
-
     private ParameterizedTypeReference<List<BidragSakDto>> listAvBidragssakerType() {
       return new ParameterizedTypeReference<>() {
       };
