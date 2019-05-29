@@ -41,16 +41,6 @@ public class BidragDokumentConfig {
   }
 
   @Bean
-  public BidragSakConsumer bidragSakConsumer(
-      @Value("${BIDRAG_SAK_URL}") String sakBaseUrl, RestTemplate restTemplate
-  ) {
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(sakBaseUrl));
-    LOGGER.info("BidragSakConsumer med base url: " + sakBaseUrl);
-
-    return new BidragSakConsumer(restTemplate);
-  }
-
-  @Bean
   public BidragArkivConsumer journalforingConsumer(
       @Value("${BIDRAG_ARKIV_URL}") String bidragArkivBaseUrl, RestTemplate restTemplate
   ) {
@@ -68,20 +58,6 @@ public class BidragDokumentConfig {
     LOGGER.info("DokumentConsumer med base url: " + journalpostBaseUrl);
 
     return new DokumentConsumer(restTemplate);
-  }
-
-  @Bean
-  public SecurityTokenConsumer securityTokenConsumer(
-      @Value("${SECURITY_TOKEN_URL}") String securityTokenBaseUrl,
-      @Value("${SRVBISYS_USERNAME}") String systemUser,
-      @Value("${SRVBISYS_PASSWORD}") String systemPassword,
-      OidcTokenManager oidcTokenManager,
-      RestTemplate restTemplate
-  ) {
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(securityTokenBaseUrl));
-    LOGGER.info("SecurityTokenConsumer med base url: " + securityTokenBaseUrl);
-
-    return new SecurityTokenConsumer(restTemplate, systemUser, systemPassword, oidcTokenManager);
   }
 
   @Bean
