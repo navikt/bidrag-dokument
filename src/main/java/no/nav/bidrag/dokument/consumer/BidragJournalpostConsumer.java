@@ -49,6 +49,7 @@ public class BidragJournalpostConsumer {
 
   public Optional<JournalpostDto> hentJournalpost(Integer id) {
     String path = PATH_JOURNALPOST + '/' + id;
+    LOGGER.info("Hent journalpost med id {} fra bidrag-dokument-journalpost", id);
 
     Optional<ResponseEntity<JournalpostDto>> possibleExchange = Optional.ofNullable(
         restTemplate.exchange(path, HttpMethod.GET, null, JournalpostDto.class)
