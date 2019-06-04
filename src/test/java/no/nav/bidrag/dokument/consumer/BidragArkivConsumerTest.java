@@ -50,8 +50,8 @@ class BidragArkivConsumerTest {
     when(restTemplateMock.exchange(anyString(), eq(HttpMethod.GET), eq(null), eq(JournalpostDto.class)))
         .thenReturn(new ResponseEntity<>(enJournalpostMedJournaltilstand("ENDELIG"), HttpStatus.OK));
 
-    Optional<JournalpostDto> journalpostOptional = bidragArkivConsumer.hentJournalpost(101);
-    JournalpostDto journalpostDto = journalpostOptional
+    var journalpostResponse = bidragArkivConsumer.hentJournalpost(101);
+    JournalpostDto journalpostDto = journalpostResponse.fetchOptionalResult()
         .orElseThrow(() -> new AssertionError("BidragArkivConsumer kunne ikke finne journalpost!"));
 
     assertThat(journalpostDto.getInnhold()).isEqualTo("ENDELIG");

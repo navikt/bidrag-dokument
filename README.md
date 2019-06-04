@@ -9,7 +9,6 @@ kaller andre mikrotjenester og blir kontrollert av `bidrag-dokument-ui`. Andre
 tjenester som blir "rutet" via denne:
 * `bidrag-dokument-arkiv`
 * `bidrag-dokument-journalpost`
-* `bidrag-dokument-sak`
 
 ### bygg og kjør applikasjon
 

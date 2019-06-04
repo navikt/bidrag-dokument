@@ -1,9 +1,10 @@
 package no.nav.bidrag.dokument;
 
-import static no.nav.bidrag.dokument.BidragDokumentConfig.SECURE_TEST_PROFILE;
-import static no.nav.bidrag.dokument.BidragDokumentConfig.TEST_PROFILE;
+import static no.nav.bidrag.dokument.BidragDokumentLocal.SECURE_TEST_PROFILE;
+import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
@@ -13,6 +14,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import java.util.HashSet;
 import java.util.Set;
+import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.commons.web.test.SecuredTestRestTemplate;
 import no.nav.bidrag.dokument.service.JournalpostService;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,6 +61,8 @@ class CorrelationIdFilterTest {
   @SuppressWarnings("unchecked")
   @DisplayName("skal logge requests mot applikasjonen")
   void skalLoggeRequestsMotApplikasjonen() {
+    when(journalpostServiceMock.hentJournalpost(any())).thenReturn(new HttpStatusResponse<>(HttpStatus.I_AM_A_TEAPOT, null));
+
     var response = securedTestRestTemplate.exchange(
         "http://localhost:" + port + "/bidrag-dokument/journalpost/BID-123",
         HttpMethod.GET,
@@ -67,7 +71,7 @@ class CorrelationIdFilterTest {
     );
 
     assertAll(
-        () -> assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.NO_CONTENT),
+        () -> assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.I_AM_A_TEAPOT),
         () -> verify(appenderMock, atLeastOnce()).doAppend(
             argThat((ArgumentMatcher) argument -> {
               logMeldinger.add(((ILoggingEvent) argument).getFormattedMessage());

@@ -2,8 +2,8 @@ package no.nav.bidrag.dokument.controller;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static no.nav.bidrag.dokument.BidragDokumentConfig.SECURE_TEST_PROFILE;
-import static no.nav.bidrag.dokument.BidragDokumentConfig.TEST_PROFILE;
+import static no.nav.bidrag.dokument.BidragDokumentLocal.SECURE_TEST_PROFILE;
+import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
@@ -18,17 +18,17 @@ import java.util.Optional;
 import no.nav.bidrag.commons.web.test.SecuredTestRestTemplate;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
 import no.nav.bidrag.dokument.JournalpostDtoBygger;
+import no.nav.bidrag.dokument.dto.AktorDto;
 import no.nav.bidrag.dokument.dto.BidragSakDto;
 import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
-import no.nav.bidrag.dokument.dto.PersonDto;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockitoAnnotations;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,11 +36,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -62,11 +64,6 @@ class JournalpostControllerTest {
   @Autowired
   private SecuredTestRestTemplate securedTestRestTemplate;
 
-  @BeforeEach
-  void initMocks() {
-    MockitoAnnotations.initMocks(this);
-  }
-
   @Nested
   @DisplayName("endpoint - hent: " + ENDPOINT_JOURNALPOST)
   class EndpointHentJournalpost {
@@ -77,7 +74,7 @@ class JournalpostControllerTest {
     @DisplayName("skal mangle body når journalpost ikke finnes")
     void skalMangleBodyNarJournalpostIkkeFinnes() {
       when(restTemplateMock.exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class))
-          .thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
+          .thenReturn(new ResponseEntity<>(HttpStatus.NO_CONTENT));
 
       var journalpostResponseEntity = securedTestRestTemplate.exchange(url + "/joark-1", HttpMethod.GET, null, JournalpostDto.class);
 
@@ -99,7 +96,7 @@ class JournalpostControllerTest {
       verify(restTemplateMock, atLeastOnce()).exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class);
 
       assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
-          () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
+          () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.I_AM_A_TEAPOT),
           () -> assertThat(response.getBody()).extracting(JournalpostDto::getInnhold).isEqualTo("MIDLERTIDIG")));
     }
 
@@ -116,51 +113,23 @@ class JournalpostControllerTest {
       when(restTemplateMock.exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class))
           .thenReturn(new ResponseEntity<>(enJournalpostFra("Grev Still E. Ben"), HttpStatus.I_AM_A_TEAPOT));
       when(restTemplateMock.exchange("/person/sak/06127412345", HttpMethod.GET, null, listAvBidragssakerType()))
-          .thenReturn(new ResponseEntity<>(List.of(new BidragSakDto()), HttpStatus.I_AM_A_TEAPOT));
+          .thenReturn(new ResponseEntity<>(List.of(new BidragSakDto()), HttpStatus.OK));
 
       var responseEntity = securedTestRestTemplate.exchange(url + "/bid-1", HttpMethod.GET, null, JournalpostDto.class);
 
       verify(restTemplateMock).exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class);
 
       assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
-          () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
+          () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.I_AM_A_TEAPOT),
           () -> assertThat(response.getBody()).extracting(JournalpostDto::getAvsenderNavn).isEqualTo("Grev Still E. Ben")));
     }
 
     private JournalpostDto enJournalpostFra(@SuppressWarnings("SameParameterValue") String setAvsenderNavn) {
       JournalpostDto jp = new JournalpostDto();
       jp.setAvsenderNavn(setAvsenderNavn);
-      jp.setGjelderAktor(new PersonDto("06127412345"));
+      jp.setGjelderAktor(new AktorDto("06127412345"));
 
       return jp;
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
-    @DisplayName("skal hente BidragSakDto for journalpostens gjelder aktør")
-    void skalHenteBidragSakDtoForJournalpostensGjelderAktor() {
-      when(restTemplateMock.exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class))
-          .thenReturn(new ResponseEntity<>(enJournalpostFraAktor("06127412345"), HttpStatus.I_AM_A_TEAPOT));
-
-      when(restTemplateMock.exchange("/person/sak/06127412345", HttpMethod.GET, null, listAvBidragssakerType()))
-          .thenReturn(new ResponseEntity<>(List.of(new BidragSakDto()), HttpStatus.I_AM_A_TEAPOT));
-
-      var journalpostDtoResponseEntity = securedTestRestTemplate.exchange(url + "/bid-1", HttpMethod.GET, null, JournalpostDto.class);
-
-      assertAll(
-          () -> assertThat(journalpostDtoResponseEntity.getStatusCode()).isEqualTo(HttpStatus.OK),
-          () -> assertThat(journalpostDtoResponseEntity.getBody()).isNotNull(),
-          () -> assertThat(journalpostDtoResponseEntity.getBody().getBidragssaker()).isNotEmpty()
-      );
-
-      verify(restTemplateMock, atLeastOnce()).exchange(eq("/person/sak/06127412345"), any(), any(), (ParameterizedTypeReference<List<BidragSakDto>>) any());
-    }
-
-    private JournalpostDto enJournalpostFraAktor(@SuppressWarnings("SameParameterValue") String brukerId) {
-      JournalpostDto journalpostDto = new JournalpostDto();
-      journalpostDto.setGjelderAktor(new PersonDto(brukerId));
-
-      return journalpostDto;
     }
 
     private ParameterizedTypeReference<List<BidragSakDto>> listAvBidragssakerType() {
@@ -209,7 +178,7 @@ class JournalpostControllerTest {
               .medDokumenter(singletonList(new DokumentDto()))
               .medGjelderAktor("06127412345")
               .medJournalpostId("BID-101")
-              .build(), HttpStatus.I_AM_A_TEAPOT)
+              .build(), HttpStatus.ACCEPTED)
           );
 
       var endretJournalpostResponse = securedTestRestTemplate.exchange(
@@ -227,19 +196,12 @@ class JournalpostControllerTest {
   @DisplayName("endpoint - hent: " + ENDPOINT_SAKJOURNAL)
   class EndpointJournalpost {
 
-    private String urlForFagomradeBid(@SuppressWarnings("SameParameterValue") String path) {
-      return UriComponentsBuilder
-          .fromHttpUrl(initEndpointUrl(ENDPOINT_SAKJOURNAL) + path)
-          .queryParam("fagomrade", "BID")
-          .toUriString();
-    }
-
     @Test
     @SuppressWarnings("unchecked")
     @DisplayName("skal finne Journalposter for en bidragssak")
     void skalFinneJournalposterForEnBidragssak() {
       when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
-          .thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.I_AM_A_TEAPOT));
+          .thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.OK));
 
       var listeMedJournalposterResponse = securedTestRestTemplate.exchange(
           urlForFagomradeBid("/1001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
@@ -266,6 +228,48 @@ class JournalpostControllerTest {
           () -> assertThat(response.getBody()).isNull())
       );
     }
+  }
+
+  @Nested
+  @DisplayName("all endpoints")
+  class AllEndpoints {
+
+    @Test
+    @SuppressWarnings("unchecked")
+    @DisplayName("skal returnere tom respons med advarsel og status kode fra andre rest tjenestester")
+    void skalReturnereTomResponsMedAdvarselSomHeader() {
+      when(restTemplateMock.exchange(anyString(), any(), any(), any(ParameterizedTypeReference.class)))
+          .thenThrow(new HttpClientErrorException(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED, "holy crap!"));
+
+      var errorResponse = securedTestRestTemplate.exchange(
+          urlForFagomradeBid("/1001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+      );
+
+      assertThat(Optional.of(errorResponse)).hasValueSatisfying(responseEntity -> assertAll(
+          () -> assertThat(responseEntity.getStatusCode()).as("status").isEqualTo(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED),
+          () -> assertThat(responseEntity.getBody()).as("body").isNull(),
+          () -> {
+            HttpHeaders httpHeaders = errorResponse.getHeaders();
+
+            assertAll(
+                () -> assertThat(httpHeaders.get(HttpHeaders.WARNING)).as("warning header").isNotNull(),
+                () -> assertThat(httpHeaders.get(HttpHeaders.WARNING)).as("header value").isEqualTo(List.of("Http client says: 509 holy crap!"))
+            );
+          }
+      ));
+    }
+  }
+
+  @AfterEach
+  void resetRestTemplateMock() {
+    Mockito.reset(restTemplateMock);
+  }
+
+  private String urlForFagomradeBid(@SuppressWarnings("SameParameterValue") String path) {
+    return UriComponentsBuilder
+        .fromHttpUrl(initEndpointUrl(ENDPOINT_SAKJOURNAL) + path)
+        .queryParam("fagomrade", "BID")
+        .toUriString();
   }
 
   private ParameterizedTypeReference<List<JournalpostDto>> responseTypeErListeMedJournalposter() {

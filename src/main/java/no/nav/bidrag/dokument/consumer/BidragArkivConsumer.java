@@ -1,11 +1,10 @@
 package no.nav.bidrag.dokument.consumer;
 
-import java.util.Optional;
+import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 public class BidragArkivConsumer {
@@ -19,15 +18,11 @@ public class BidragArkivConsumer {
     this.restTemplate = restTemplate;
   }
 
-  public Optional<JournalpostDto> hentJournalpost(Integer id) {
-    Optional<ResponseEntity<JournalpostDto>> possibleExchange = Optional.ofNullable(
-        restTemplate.exchange(PATH_JOURNALPOST + id, HttpMethod.GET, null, JournalpostDto.class)
-    );
+  public HttpStatusResponse<JournalpostDto> hentJournalpost(Integer id) {
+    var journalpostExchange = restTemplate.exchange(PATH_JOURNALPOST + id, HttpMethod.GET, null, JournalpostDto.class);
 
-    possibleExchange.ifPresent(
-        (responseEntity) -> LOGGER.info("Hent journalpost fikk http status {} fra joark", responseEntity.getStatusCode())
-    );
+    LOGGER.info("Hent journalpost fikk http status {} fra joark", journalpostExchange.getStatusCode());
 
-    return possibleExchange.map(ResponseEntity::getBody);
+    return new HttpStatusResponse<>(journalpostExchange.getStatusCode(), journalpostExchange.getBody());
   }
 }
