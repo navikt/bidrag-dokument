@@ -41,7 +41,7 @@ no.nav.security.oidc:
   issuers: isso
   issuer:
     isso:
-      acceptedaudience: bisys-${FASIT_ENVIRONMENT_NAME}, bidrag-ui-master-${FASIT_ENVIRONMENT_NAME}, bidrag-dokument-ui-${FASIT_ENVIRONMENT_NAME}, bidrag-q-localhost
+      acceptedaudience: bisys-${FASIT_ENVIRONMENT_NAME}, bidrag-ui-${FASIT_ENVIRONMENT_NAME}, bidrag-dokument-ui-${FASIT_ENVIRONMENT_NAME}, bidrag-q-localhost
       discoveryurl: ${ISSO_ISSUER_URL}/.well-known/openid-configuration
 
 ---
