@@ -19,30 +19,6 @@
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
-  <repositories>
-    <repository>
-      <id>local-releases</id>
-      <name>Local stuff</name>
-      <url>https://repo.adeo.no/repository/maven-releases</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-  <distributionManagement>
-    <repository>
-      <id>m2internal</id>
-      <name>NAV Maven2 Internal Repository</name>
-      <url>http://maven.adeo.no/nexus/content/repositories/m2internal</url>
-    </repository>
-    <snapshotRepository>
-      <id>m2snapshot</id>
-      <name>NAV Maven2 Snapshot Repository</name>
-      <url>http://maven.adeo.no/nexus/content/repositories/m2snapshot</url>
-      <uniqueVersion>false</uniqueVersion>
-    </snapshotRepository>
-  </distributionManagement>
-
   <properties>
 
     <!-- language -->
@@ -266,6 +242,31 @@
       <version>2.9.9</version>
     </dependency>
   </dependencies>
+
+  <repositories>
+    <repository>
+      <id>local-releases</id>
+      <name>Local stuff</name>
+      <url>https://repo.adeo.no/repository/maven-releases</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>m2internal</id>
+      <name>NAV Maven2 Internal Repository</name>
+      <url>http://maven.adeo.no/nexus/content/repositories/m2internal</url>
+    </repository>
+    <snapshotRepository>
+      <id>m2snapshot</id>
+      <name>NAV Maven2 Snapshot Repository</name>
+      <url>http://maven.adeo.no/nexus/content/repositories/m2snapshot</url>
+      <uniqueVersion>false</uniqueVersion>
+    </snapshotRepository>
+  </distributionManagement>
 
   <build>
     <plugins>
