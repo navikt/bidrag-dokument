@@ -58,10 +58,6 @@
     <springfox-swagger.version>2.9.2</springfox-swagger.version>
     <person-v3.version>3.6.1</person-v3.version>
 
-    <!-- JAXB -->
-    <jaxb-impl.version>2.3.2</jaxb-impl.version>
-    <jaxb-core.version>2.3.0.1</jaxb-core.version>
-
     <!-- build -->
     <maven.compiler.version>3.8.0</maven.compiler.version>
     <maven.surefire.version>2.22.0</maven.surefire.version>
@@ -210,29 +206,6 @@
     <dependency>
       <groupId>org.springframework.ws</groupId>
       <artifactId>spring-ws-core</artifactId>
-    </dependency>
-
-    <!-- xml and JAXB -->
-    <dependency>
-      <groupId>javax.xml.bind</groupId>
-      <artifactId>jaxb-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.sun.xml.bind</groupId>
-      <artifactId>jaxb-impl</artifactId>
-      <version>${jaxb-impl.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.sun.xml.bind</groupId>
-      <artifactId>jaxb-core</artifactId>
-      <version>${jaxb-core.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.sun.xml.messaging.saaj</groupId>
-      <artifactId>saaj-impl</artifactId>
     </dependency>
 
     <!-- NAV-Tjenester -->
