@@ -19,7 +19,6 @@ import no.nav.bidrag.commons.web.test.SecuredTestRestTemplate;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
 import no.nav.bidrag.dokument.JournalpostDtoBygger;
 import no.nav.bidrag.dokument.dto.AktorDto;
-import no.nav.bidrag.dokument.dto.BidragSakDto;
 import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
@@ -112,8 +111,6 @@ class JournalpostControllerTest {
     void skalHenteJournalpostFraMidlertidigBrevlager() {
       when(restTemplateMock.exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class))
           .thenReturn(new ResponseEntity<>(enJournalpostFra("Grev Still E. Ben"), HttpStatus.I_AM_A_TEAPOT));
-      when(restTemplateMock.exchange("/person/sak/06127412345", HttpMethod.GET, null, listAvBidragssakerType()))
-          .thenReturn(new ResponseEntity<>(List.of(new BidragSakDto()), HttpStatus.OK));
 
       var responseEntity = securedTestRestTemplate.exchange(url + "/bid-1", HttpMethod.GET, null, JournalpostDto.class);
 
@@ -130,11 +127,6 @@ class JournalpostControllerTest {
       jp.setGjelderAktor(new AktorDto("06127412345"));
 
       return jp;
-    }
-
-    private ParameterizedTypeReference<List<BidragSakDto>> listAvBidragssakerType() {
-      return new ParameterizedTypeReference<>() {
-      };
     }
   }
 
