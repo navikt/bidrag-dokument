@@ -6,7 +6,6 @@ import java.util.List;
 import no.nav.bidrag.dokument.dto.AktorDto;
 import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
-import no.nav.bidrag.dokument.dto.PersonDto;
 
 @SuppressWarnings("SameParameterValue")
 public class JournalpostDtoBygger {

@@ -13,14 +13,14 @@ healthcheck: #Optional
     timeout: 1
     periodSeconds: 5     # How often (in seconds) to perform the probe. Default to 10 seconds
     failureThreshold: 10 # when a Pod starts and the probe fails,
-                         # nais will try failureThreshold times before giving up and restarting the Pod
-                         # Defaults to 3
+      # nais will try failureThreshold times before giving up and restarting the Pod
+    # Defaults to 3
   readiness:
     path: /bidrag-dokument/actuator/health
     initialDelay: 20
     timeout: 1
 leaderElection: false # if true, a http endpoint will be available at $ELECTOR_PATH that return the current leader
-                      # Compare this value with the $HOSTNAME to see if the current instance is the leader
+# Compare this value with the $HOSTNAME to see if the current instance is the leader
 #See https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/
 preStopHookPath: "" # A HTTP GET will be issued to this endpoint at least once before the pod is terminated.
 prometheus: #Optional
@@ -39,39 +39,39 @@ ingress:
   disabled: false # if true, no ingress will be created and application can only be reached from inside cluster
 fasitResources: # resources fetched from Fasit
   used: # this will be injected into the application as environment variables
-  - alias: bidragDokumentJournalpost
-    resourceType: restservice
-    # use propertyMap to map properties to custom environment variables
-    # env vars should be UPPERCASED_AND_UNDERSCORED
-    propertyMap:
-      url: JOURNALPOST_URL # map the "url" property of restservice to JOURNALPOST_URL
-  - alias: bidragDokumentArkiv
-    resourceType: restservice
-    # use propertyMap to map properties to custom environment variables
-    # env vars should be UPPERCASED_AND_UNDERSCORED
-    propertyMap:
-      url: BIDRAG_ARKIV_URL # map the "url" property of restservice to BIDRAG_ARKIV_URL
-  - alias: isso-issuer
-    resourceType: baseUrl
-    propertyMap: 
-      url: ISSO_ISSUER_URL
-  - alias: bidragSak
-    resourceType: restservice
-    propertyMap:
-      url: BIDRAG_SAK_URL # map the "url" property of restservice to BIDRAG_SAK_URL
-  - alias: security-token-service-token
-    resourceType: restservice
-    propertyMap:
-      url: SECURITY_TOKEN_URL # map the "url" property of restservice to SECURITY_TOKEN_URL
-  - alias: srvbisys
-    resourceType: credential
-    propertyMap:
-      username: SRVBISYS_USERNAME
-      password: SRVBISYS_PASSWORD
+    - alias: bidragDokumentJournalpost
+      resourceType: restservice
+      # use propertyMap to map properties to custom environment variables
+      # env vars should be UPPERCASED_AND_UNDERSCORED
+      propertyMap:
+        url: JOURNALPOST_URL # map the "url" property of restservice to JOURNALPOST_URL
+    - alias: bidragDokumentArkiv
+      resourceType: restservice
+      # use propertyMap to map properties to custom environment variables
+      # env vars should be UPPERCASED_AND_UNDERSCORED
+      propertyMap:
+        url: BIDRAG_ARKIV_URL # map the "url" property of restservice to BIDRAG_ARKIV_URL
+    - alias: isso-issuer
+      resourceType: baseUrl
+      propertyMap:
+        url: ISSO_ISSUER_URL
+    - alias: bidragSak
+      resourceType: restservice
+      propertyMap:
+        url: BIDRAG_SAK_URL # map the "url" property of restservice to BIDRAG_SAK_URL
+    - alias: security-token-service-token
+      resourceType: restservice
+      propertyMap:
+        url: SECURITY_TOKEN_URL # map the "url" property of restservice to SECURITY_TOKEN_URL
+    - alias: srvbisys
+      resourceType: credential
+      propertyMap:
+        username: SRVBISYS_USERNAME
+        password: SRVBISYS_PASSWORD
   exposed: # Will be registered as exposed services on an application instane in Fasit
-  - alias: bidragDokument
-    resourceType: restservice
-    path: /bidrag-dokument
+    - alias: bidragDokument
+      resourceType: restservice
+      path: /bidrag-dokument
 resourceType: restservice
 logformat: accesslog # Optional. The format of the logs from the container if the logs should be handled differently than plain text or json
 logtransform: dns_loglevel # Optional. The transformation of the logs, if they should be handled differently than plain text or json
