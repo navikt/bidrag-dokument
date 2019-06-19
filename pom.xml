@@ -32,7 +32,6 @@
     <oidc-spring-support.version>0.2.18</oidc-spring-support.version>
     <logback.encoder.version>6.1</logback.encoder.version>
     <springfox-swagger.version>2.9.2</springfox-swagger.version>
-    <person-v3.version>3.6.1</person-v3.version>
 
     <!-- build -->
     <maven.compiler.version>3.8.0</maven.compiler.version>
@@ -182,13 +181,6 @@
     <dependency>
       <groupId>org.springframework.ws</groupId>
       <artifactId>spring-ws-core</artifactId>
-    </dependency>
-
-    <!-- NAV-Tjenester -->
-    <dependency>
-      <groupId>no.nav.tjenester</groupId>
-      <artifactId>nav-person-v3-tjenestespesifikasjon</artifactId>
-      <version>${person-v3.version}</version>
     </dependency>
 
     <!-- runtime dependencies -->
