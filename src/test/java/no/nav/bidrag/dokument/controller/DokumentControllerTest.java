@@ -11,15 +11,13 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 import no.nav.bidrag.commons.web.test.SecuredTestRestTemplate;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
-import no.nav.bidrag.dokument.dto.DokumentTilgangRequest;
-import no.nav.bidrag.dokument.dto.DokumentUrlDto;
+import no.nav.bidrag.dokument.dto.DokumentTilgangResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,20 +39,20 @@ class DokumentControllerTest {
   @Test
   @DisplayName("skal spørre brevserver om tilgang til dokument")
   void skalVideresendeRequestOmTilgangTilDokument() {
-    when(restTemplateMock.exchange(eq("/tilgang/url"), eq(HttpMethod.POST), any(), eq(DokumentUrlDto.class)))
-        .thenReturn(new ResponseEntity<>(new DokumentUrlDto("urlWithToken", "BREVLAGER"), HttpStatus.I_AM_A_TEAPOT));
+    when(restTemplateMock.exchange(eq("/tilgang/dokref"), eq(HttpMethod.GET), any(), eq(DokumentTilgangResponse.class)))
+        .thenReturn(new ResponseEntity<>(new DokumentTilgangResponse("urlWithToken", "BREVLAGER"), HttpStatus.I_AM_A_TEAPOT));
 
     var dokumentUrlResponse = Optional.of(securedTestRestTemplate.exchange(
-        localhostUrl("/bidrag-dokument/tilgang/url"),
-        HttpMethod.POST,
-        new HttpEntity<>(new DokumentTilgangRequest("dok-ref", "bjarne")),
-        DokumentUrlDto.class
+        localhostUrl("/bidrag-dokument/tilgang/BID-123/dokref"),
+        HttpMethod.GET,
+        null,
+        DokumentTilgangResponse.class
     ));
 
     assertThat(dokumentUrlResponse).hasValueSatisfying(response -> assertAll(
         () -> assertThat(response.getStatusCode()).as("status").isEqualTo(HttpStatus.I_AM_A_TEAPOT),
         () -> assertThat(response).extracting(ResponseEntity::getBody).as("url")
-            .isEqualTo(new DokumentUrlDto("urlWithToken", "BREVLAGER")))
+            .isEqualTo(new DokumentTilgangResponse("urlWithToken", "BREVLAGER")))
     );
   }
 
