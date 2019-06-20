@@ -2,6 +2,7 @@ package no.nav.bidrag.dokument.consumer;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
@@ -27,18 +28,18 @@ public class BidragJournalpostConsumer {
     this.restTemplate = restTemplate;
   }
 
-  public HttpStatusResponse<List<JournalpostDto>> finnJournalposter(String saksnummer, String fagomrade) {
-    String uri = UriComponentsBuilder.fromPath(PATH_SAK + saksnummer)
+  public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
+    var uri = UriComponentsBuilder.fromPath(PATH_SAK + saksnummer)
         .queryParam(PARAM_FAGOMRADE, fagomrade)
         .toUriString();
 
     var journalposterForBidragRequest = restTemplate.exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter());
+    var httpStatus = journalposterForBidragRequest.getStatusCode();
 
-    HttpStatus httpStatus = journalposterForBidragRequest.getStatusCode();
     LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} på fagområde {}", httpStatus, saksnummer, fagomrade);
-    List<JournalpostDto> journalposter = journalposterForBidragRequest.getBody();
+    var journalposter = journalposterForBidragRequest.getBody();
 
-    return new HttpStatusResponse<>(journalposterForBidragRequest.getStatusCode(), journalposter != null ? journalposter : Collections.emptyList());
+    return Optional.ofNullable(journalposter).orElse(Collections.emptyList());
   }
 
   private static ParameterizedTypeReference<List<JournalpostDto>> typereferansenErListeMedJournalposter() {
@@ -47,7 +48,7 @@ public class BidragJournalpostConsumer {
   }
 
   public HttpStatusResponse<JournalpostDto> hentJournalpost(Integer id) {
-    String path = PATH_JOURNALPOST + '/' + id;
+    var path = PATH_JOURNALPOST + '/' + id;
     LOGGER.info("Hent journalpost med id {} fra bidrag-dokument-journalpost", id);
 
     var exchange = restTemplate.exchange(path, HttpMethod.GET, null, JournalpostDto.class);

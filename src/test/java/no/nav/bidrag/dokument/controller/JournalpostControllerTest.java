@@ -1,6 +1,5 @@
 package no.nav.bidrag.dokument.controller;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.SECURE_TEST_PROFILE;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
@@ -10,6 +9,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -193,32 +193,45 @@ class JournalpostControllerTest {
     @DisplayName("skal finne Journalposter for en bidragssak")
     void skalFinneJournalposterForEnBidragssak() {
       when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
-          .thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.OK));
+          .thenReturn(new ResponseEntity<>(singletonList(new JournalpostDto()), HttpStatus.OK)); // blir kalla en gang i arkiv og en gang i brevlager
 
       var listeMedJournalposterResponse = securedTestRestTemplate.exchange(
-          urlForFagomradeBid("/1001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+          lagSakjournalUrlForFagomradeBid("/1001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
       );
 
       assertThat(optional(listeMedJournalposterResponse)).hasValueSatisfying(response -> assertAll(
           () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-          () -> assertThat(response.getBody()).hasSize(2))
-      );
-
-      verify(restTemplateMock)
-          .exchange(eq("/sakjournal/1001?fagomrade=BID"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
+          () -> assertThat(response.getBody()).hasSize(2),
+          () -> verify(restTemplateMock, times(2))
+              .exchange(eq("/sakjournal/1001?fagomrade=BID"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any())
+      ));
     }
 
     @Test
     @DisplayName("skal få BAD_REQUEST(400) som statuskode når saksnummer ikke er et heltall")
     void skalFaBadRequestNarSaksnummerIkkeErHeltall() {
       var journalposterResponse = securedTestRestTemplate.exchange(
-          urlForFagomradeBid("/xyz"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+          lagSakjournalUrlForFagomradeBid("/xyz"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
       );
 
       assertThat(optional(journalposterResponse)).hasValueSatisfying(response -> assertAll(
           () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
           () -> assertThat(response.getBody()).isNull())
       );
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    @DisplayName("skal hente sakjournal fra bidrag-dokument-arkiv såfremt bidrag-dokument-journalpost")
+    void skalHenteSakJournalFraBidragDokumentArkiv() {
+      when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
+          .thenReturn(new ResponseEntity<>(singletonList(new JournalpostDto()), HttpStatus.OK));
+
+      var listeMedJournalposterResponse = securedTestRestTemplate.exchange(
+          lagSakjournalUrlForFagomradeBid("/2020001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+      );
+
+      assertThat(listeMedJournalposterResponse.getBody()).hasSize(2);
     }
   }
 
@@ -234,7 +247,7 @@ class JournalpostControllerTest {
           .thenThrow(new HttpClientErrorException(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED, "holy crap!"));
 
       var errorResponse = securedTestRestTemplate.exchange(
-          urlForFagomradeBid("/1001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+          lagSakjournalUrlForFagomradeBid("/1001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
       );
 
       assertThat(Optional.of(errorResponse)).hasValueSatisfying(responseEntity -> assertAll(
@@ -257,7 +270,7 @@ class JournalpostControllerTest {
     Mockito.reset(restTemplateMock);
   }
 
-  private String urlForFagomradeBid(@SuppressWarnings("SameParameterValue") String path) {
+  private String lagSakjournalUrlForFagomradeBid(String path) {
     return UriComponentsBuilder
         .fromHttpUrl(initEndpointUrl(ENDPOINT_SAKJOURNAL) + path)
         .queryParam("fagomrade", "BID")
