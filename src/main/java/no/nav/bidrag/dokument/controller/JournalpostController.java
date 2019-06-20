@@ -76,9 +76,9 @@ public class JournalpostController {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    var journalposterResponse = journalpostService.finnJournalposter(saksnummer, fagomrade);
+    var journalposter = journalpostService.finnJournalposter(saksnummer, fagomrade);
 
-    return new ResponseEntity<>(journalposterResponse.getBody(), journalposterResponse.getHttpStatus());
+    return new ResponseEntity<>(journalposter, journalposter.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK);
   }
 
   @PutMapping(ENDPOINT_JOURNALPOST + "/{journalpostIdForKildesystem}")
@@ -90,13 +90,13 @@ public class JournalpostController {
 
     LOGGER.info("put endret: bidrag-dokument{}/{}\n \\-> {}", ENDPOINT_JOURNALPOST, journalpostIdForKildesystem, endreJournalpostCommandDto);
 
-    KildesystemIdenfikator kildesystemIdentifikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
+    var kildesystemIdentifikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
 
     if (Kildesystem.UKJENT == kildesystemIdentifikator.hentKildesystem()) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    HttpStatusResponse<JournalpostDto> endreResponse = journalpostService.endre(endreJournalpostCommandDto);
+    var endreResponse = journalpostService.endre(endreJournalpostCommandDto);
     return new ResponseEntity<>(endreResponse.getBody(), endreResponse.getHttpStatus());
   }
 }

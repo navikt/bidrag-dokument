@@ -30,7 +30,7 @@ public class JournalpostService {
     return bidragArkivConsumer.hentJournalpost(kildesystemIdenfikator.hentJournalpostId());
   }
 
-  public HttpStatusResponse<List<JournalpostDto>> finnJournalposter(String saksnummer, String fagomrade) {
+  public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
     return bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade);
   }
 
