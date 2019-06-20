@@ -38,17 +38,15 @@ public class BidragArkivConsumer {
         .queryParam(PARAM_FAGOMRADE, fagomrade)
         .toUriString();
 
-    var journalposterForBidragRequest = restTemplate.exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter());
-    var httpStatus = journalposterForBidragRequest.getStatusCode();
+    var journalposterFraArkiv = restTemplate.exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter());
+    var httpStatus = journalposterFraArkiv.getStatusCode();
 
     LOGGER.info(
         "Fikk http status {} fra journalposter i bidragssak med saksnummer {} på fagområde {} fra bidrag-dokuemnt-arkiv",
         httpStatus, saksnummer, fagomrade
     );
 
-    var journalposter = journalposterForBidragRequest.getBody();
-
-    return Optional.ofNullable(journalposter).orElse(Collections.emptyList());
+    return Optional.ofNullable(journalposterFraArkiv.getBody()).orElse(Collections.emptyList());
   }
 
   private static ParameterizedTypeReference<List<JournalpostDto>> typereferansenErListeMedJournalposter() {
