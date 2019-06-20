@@ -29,7 +29,7 @@ public class BidragJournalpostConsumer {
   }
 
   public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
-    String uri = UriComponentsBuilder.fromPath(PATH_SAK + saksnummer)
+    var uri = UriComponentsBuilder.fromPath(PATH_SAK + saksnummer)
         .queryParam(PARAM_FAGOMRADE, fagomrade)
         .toUriString();
 
@@ -48,7 +48,7 @@ public class BidragJournalpostConsumer {
   }
 
   public HttpStatusResponse<JournalpostDto> hentJournalpost(Integer id) {
-    String path = PATH_JOURNALPOST + '/' + id;
+    var path = PATH_JOURNALPOST + '/' + id;
     LOGGER.info("Hent journalpost med id {} fra bidrag-dokument-journalpost", id);
 
     var exchange = restTemplate.exchange(path, HttpMethod.GET, null, JournalpostDto.class);

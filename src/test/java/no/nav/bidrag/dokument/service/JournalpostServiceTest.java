@@ -1,9 +1,13 @@
 package no.nav.bidrag.dokument.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
+import java.util.List;
 import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.dokument.KildesystemIdenfikator;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
@@ -32,17 +36,34 @@ class JournalpostServiceTest {
     MockitoAnnotations.initMocks(this);
   }
 
-  @DisplayName("skal ikke hente journalpost")
   @Test
+  @DisplayName("skal ikke hente journalpost")
   void skalIkkeHenteJournalpostGittId() {
     when(bidragArkivConsumerMock.hentJournalpost(anyInt())).thenReturn(new HttpStatusResponse<>(HttpStatus.NO_CONTENT, null));
     assertThat(journalpostService.hentJournalpost(new KildesystemIdenfikator("joark-2")).fetchOptionalResult()).isNotPresent();
   }
 
-  @DisplayName("skal hente journalpost gitt id")
   @Test
+  @DisplayName("skal hente journalpost gitt id")
   void skalHenteJournalpostGittId() {
     when(bidragArkivConsumerMock.hentJournalpost(2)).thenReturn(new HttpStatusResponse<>(HttpStatus.OK, new JournalpostDto()));
     assertThat(journalpostService.hentJournalpost(new KildesystemIdenfikator("joark-2")).fetchOptionalResult()).isPresent();
+  }
+
+  @Test
+  @DisplayName("skal kombinere resultat fra BidragDokumentJournalpostConsumer samt BidragDokumentArkivConsumer")
+  void skalKobinereResultaterFraJournalpostOgArkiv() {
+    when(bidragJournalpostConsumerMock.finnJournalposter("1", "FAG"))
+        .thenReturn(Collections.singletonList(new JournalpostDto()));
+    when(bidragArkivConsumerMock.finnJournalposter("1", "FAG"))
+        .thenReturn(Collections.singletonList(new JournalpostDto()));
+
+    var journalposter = journalpostService.finnJournalposter("1", "FAG");
+
+    assertAll(
+        () -> assertThat(journalposter).hasSize(2),
+        () -> verify(bidragArkivConsumerMock).finnJournalposter("1", "FAG"),
+        () -> verify(bidragJournalpostConsumerMock).finnJournalposter("1", "FAG")
+    );
   }
 }
