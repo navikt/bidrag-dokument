@@ -1,11 +1,15 @@
 package no.nav.bidrag.dokument;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.util.Optional;
 import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.consumer.DokumentConsumer;
+import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.security.oidc.context.OIDCRequestContextHolder;
 import no.nav.security.oidc.context.TokenContext;
 import org.slf4j.Logger;
@@ -75,6 +79,17 @@ public class BidragDokumentConfig {
         .map(oidcValidationContext -> oidcValidationContext.getToken(ISSUER))
         .map(TokenContext::getIdToken)
         .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));
+  }
+
+  @Bean
+  public AvvikshendelseDeserializer avvikshendelseDeserializer(ObjectMapper objectMapper) {
+    var avvikshendelseDeserializer = new AvvikshendelseDeserializer();
+    var simpleModule = new SimpleModule();
+
+    simpleModule.addDeserializer(Avvikshendelse.class, avvikshendelseDeserializer);
+    objectMapper.registerModule(simpleModule);
+
+    return avvikshendelseDeserializer;
   }
 
   @FunctionalInterface

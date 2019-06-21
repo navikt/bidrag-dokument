@@ -15,10 +15,13 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import no.nav.bidrag.commons.web.test.SecuredTestRestTemplate;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
 import no.nav.bidrag.dokument.JournalpostDtoBygger;
 import no.nav.bidrag.dokument.dto.AktorDto;
+import no.nav.bidrag.dokument.dto.Avvikshendelse;
+import no.nav.bidrag.dokument.dto.BestillOrginal;
 import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
@@ -236,6 +239,45 @@ class JournalpostControllerTest {
   }
 
   @Nested
+  @DisplayName("endpoint - avvik: " + ENDPOINT_JOURNALPOST)
+  class Avvik {
+    @Test
+    @DisplayName("skal feile når man henter avvikshendelser uten å prefikse journalpostId med kildesystem")
+    void skalFeileVedHentingAvAvvikshendelserForJournalpostNarJournalpostIdIkkeErPrefiksetMedKildesystem() {
+      var responseEntity = securedTestRestTemplate.exchange(initUrl("/avvik/1"), HttpMethod.GET, null, responseTypeErListeMedAvvikshendelser());
+
+      assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    @DisplayName("skal hente avvikshendelser for en journalpost")
+    void skalHenteAvvikshendelserForJournalpost() {
+      var responseEntity = securedTestRestTemplate.exchange(initUrl("/avvik/BID-1"), HttpMethod.GET, null, responseTypeErListeMedAvvikshendelser());
+
+      assertAll(
+          () -> assertThat(responseEntity.getStatusCode()).as("status").isEqualTo(HttpStatus.OK),
+          () -> assertThat(responseEntity.getBody()).as("avvik").hasSize(1),
+          () -> {
+            assertThat(responseEntity.getBody()).as("avvik").isNotNull();
+
+            Avvikshendelse avvikshendelse = responseEntity.getBody().get(0);
+
+            assertThat(avvikshendelse).as("bestill orginal").isEqualTo(new BestillOrginal());
+          }
+      );
+    }
+
+    private String initUrl(String relative) {
+      return initEndpointUrl(ENDPOINT_JOURNALPOST + relative);
+    }
+
+    private ParameterizedTypeReference<List<Avvikshendelse>> responseTypeErListeMedAvvikshendelser() {
+      return new ParameterizedTypeReference<>() {
+      };
+    }
+  }
+
+  @Nested
   @DisplayName("all endpoints")
   class AllEndpoints {
 
@@ -286,7 +328,7 @@ class JournalpostControllerTest {
     return Optional.ofNullable(responseEntity);
   }
 
-  private String initEndpointUrl(@SuppressWarnings("SameParameterValue") String endpoint) {
+  private String initEndpointUrl(String endpoint) {
     return "http://localhost:" + port + contextPath + endpoint;
   }
 }
