@@ -1,5 +1,6 @@
 package no.nav.bidrag.dokument.controller;
 
+import static java.util.Collections.singletonList;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.DELIMTER;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.ISSUER;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_BIDRAG;
@@ -9,6 +10,8 @@ import io.swagger.annotations.ApiOperation;
 import java.util.List;
 import no.nav.bidrag.dokument.KildesystemIdenfikator;
 import no.nav.bidrag.dokument.KildesystemIdenfikator.Kildesystem;
+import no.nav.bidrag.dokument.dto.Avvikshendelse;
+import no.nav.bidrag.dokument.dto.BestillOrginal;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.service.JournalpostService;
@@ -60,6 +63,20 @@ public class JournalpostController {
 
     var journalpostDtoResponse = journalpostService.hentJournalpost(kildesystemIdentifikator);
     return new ResponseEntity<>(journalpostDtoResponse.getBody(), journalpostDtoResponse.getHttpStatus());
+  }
+
+  @GetMapping(ENDPOINT_JOURNALPOST + "/avvik/{journalpostIdForKildesystem}")
+  @ApiOperation("Henter mulige avvik for en journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
+  public ResponseEntity<List<Avvikshendelse>> hentAvvik(@PathVariable String journalpostIdForKildesystem) {
+    LOGGER.info("request: bidrag-dokument{}/avvik/{}", ENDPOINT_JOURNALPOST, journalpostIdForKildesystem);
+
+    KildesystemIdenfikator kildesystemIdentifikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
+
+    if (kildesystemIdentifikator.erUkjent() || kildesystemIdentifikator.harIkkeJournalpostIdSomTall()) {
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    return new ResponseEntity<>(singletonList(new BestillOrginal()), HttpStatus.OK);
   }
 
   @GetMapping(ENDPOINT_SAKJOURNAL + "/{saksnummer}")
