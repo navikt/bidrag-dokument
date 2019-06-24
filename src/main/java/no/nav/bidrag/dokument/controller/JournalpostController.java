@@ -9,8 +9,8 @@ import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
 import no.nav.bidrag.dokument.KildesystemIdenfikator;
+import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
-import no.nav.bidrag.dokument.dto.BestillOrginal;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.service.JournalpostService;
@@ -65,14 +65,14 @@ public class JournalpostController {
 
   @GetMapping(ENDPOINT_JOURNALPOST + "/avvik/{journalpostIdForKildesystem}")
   @ApiOperation("Henter mulige avvik for en journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
-  public ResponseEntity<List<Avvikshendelse>> hentAvvik(@PathVariable String journalpostIdForKildesystem) {
+  public ResponseEntity<List<AvvikType>> hentAvvik(@PathVariable String journalpostIdForKildesystem) {
     LOGGER.info("request: bidrag-dokument{}/avvik/{}", ENDPOINT_JOURNALPOST, journalpostIdForKildesystem);
 
     if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    return new ResponseEntity<>(singletonList(new BestillOrginal()), HttpStatus.I_AM_A_TEAPOT);
+    return new ResponseEntity<>(singletonList(AvvikType.BESTILL_ORGINAL), HttpStatus.I_AM_A_TEAPOT);
   }
 
   @PostMapping(ENDPOINT_JOURNALPOST + "/avvik/{journalpostIdForKildesystem}")

@@ -19,8 +19,8 @@ import no.nav.bidrag.commons.web.test.SecuredTestRestTemplate;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
 import no.nav.bidrag.dokument.JournalpostDtoBygger;
 import no.nav.bidrag.dokument.dto.AktorDto;
+import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
-import no.nav.bidrag.dokument.dto.BestillOrginal;
 import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
@@ -244,7 +244,7 @@ class JournalpostControllerTest {
     @Test
     @DisplayName("skal feile når man henter avvikshendelser uten å prefikse journalpostId med kildesystem")
     void skalFeileVedHentingAvAvvikshendelserForJournalpostNarJournalpostIdIkkeErPrefiksetMedKildesystem() {
-      var responseEntity = securedTestRestTemplate.exchange(initUrl("/avvik/1"), HttpMethod.GET, null, responseTypeErListeMedAvvikshendelser());
+      var responseEntity = securedTestRestTemplate.exchange(initUrl("/avvik/1"), HttpMethod.GET, null, responseTypeErListeMedAvvikType());
 
       assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -252,7 +252,7 @@ class JournalpostControllerTest {
     @Test
     @DisplayName("skal hente avvikshendelser for en journalpost")
     void skalHenteAvvikshendelserForJournalpost() {
-      var responseEntity = securedTestRestTemplate.exchange(initUrl("/avvik/BID-1"), HttpMethod.GET, null, responseTypeErListeMedAvvikshendelser());
+      var responseEntity = securedTestRestTemplate.exchange(initUrl("/avvik/BID-1"), HttpMethod.GET, null, responseTypeErListeMedAvvikType());
 
       assertAll(
           () -> assertThat(responseEntity.getStatusCode()).as("status").isEqualTo(HttpStatus.I_AM_A_TEAPOT),
@@ -260,9 +260,9 @@ class JournalpostControllerTest {
           () -> {
             assertThat(responseEntity.getBody()).as("avvik").isNotNull();
 
-            Avvikshendelse avvikshendelse = responseEntity.getBody().get(0);
+            AvvikType avvikType = responseEntity.getBody().get(0);
 
-            assertThat(avvikshendelse).as("bestill orginal").isEqualTo(new BestillOrginal());
+            assertThat(avvikType).as("bestill orginal").isEqualTo(AvvikType.BESTILL_ORGINAL);
           }
       );
     }
@@ -270,7 +270,7 @@ class JournalpostControllerTest {
     @Test
     @DisplayName("skal opprette et avvik på en journalpost")
     void skalOppretteAvvikPaJournalpost() {
-      var bestillOrginalEntity = new HttpEntity<>(new BestillOrginal());
+      var bestillOrginalEntity = new HttpEntity<>(new Avvikshendelse(AvvikType.BESTILL_ORGINAL));
       var responseEntity = securedTestRestTemplate.exchange(initUrl("/avvik/BID-1"), HttpMethod.POST, bestillOrginalEntity, Void.class);
 
       assertAll(
@@ -283,7 +283,7 @@ class JournalpostControllerTest {
       return initEndpointUrl(ENDPOINT_JOURNALPOST + relative);
     }
 
-    private ParameterizedTypeReference<List<Avvikshendelse>> responseTypeErListeMedAvvikshendelser() {
+    private ParameterizedTypeReference<List<AvvikType>> responseTypeErListeMedAvvikType() {
       return new ParameterizedTypeReference<>() {
       };
     }
