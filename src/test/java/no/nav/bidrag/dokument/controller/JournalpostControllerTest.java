@@ -15,7 +15,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 import no.nav.bidrag.commons.web.test.SecuredTestRestTemplate;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
 import no.nav.bidrag.dokument.JournalpostDtoBygger;
@@ -241,6 +240,7 @@ class JournalpostControllerTest {
   @Nested
   @DisplayName("endpoint - avvik: " + ENDPOINT_JOURNALPOST)
   class Avvik {
+
     @Test
     @DisplayName("skal feile når man henter avvikshendelser uten å prefikse journalpostId med kildesystem")
     void skalFeileVedHentingAvAvvikshendelserForJournalpostNarJournalpostIdIkkeErPrefiksetMedKildesystem() {
@@ -255,7 +255,7 @@ class JournalpostControllerTest {
       var responseEntity = securedTestRestTemplate.exchange(initUrl("/avvik/BID-1"), HttpMethod.GET, null, responseTypeErListeMedAvvikshendelser());
 
       assertAll(
-          () -> assertThat(responseEntity.getStatusCode()).as("status").isEqualTo(HttpStatus.OK),
+          () -> assertThat(responseEntity.getStatusCode()).as("status").isEqualTo(HttpStatus.I_AM_A_TEAPOT),
           () -> assertThat(responseEntity.getBody()).as("avvik").hasSize(1),
           () -> {
             assertThat(responseEntity.getBody()).as("avvik").isNotNull();
@@ -264,6 +264,18 @@ class JournalpostControllerTest {
 
             assertThat(avvikshendelse).as("bestill orginal").isEqualTo(new BestillOrginal());
           }
+      );
+    }
+
+    @Test
+    @DisplayName("skal opprette et avvik på en journalpost")
+    void skalOppretteAvvikPaJournalpost() {
+      var bestillOrginalEntity = new HttpEntity<>(new BestillOrginal());
+      var responseEntity = securedTestRestTemplate.exchange(initUrl("/avvik/BID-1"), HttpMethod.POST, bestillOrginalEntity, Void.class);
+
+      assertAll(
+          () -> assertThat(responseEntity.getStatusCode()).as("status").isEqualTo(HttpStatus.I_AM_A_TEAPOT),
+          () -> assertThat(responseEntity.getBody()).as("body").isNull()
       );
     }
 
