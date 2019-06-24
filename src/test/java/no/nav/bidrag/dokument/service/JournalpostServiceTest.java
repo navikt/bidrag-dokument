@@ -40,14 +40,16 @@ class JournalpostServiceTest {
   @DisplayName("skal ikke hente journalpost")
   void skalIkkeHenteJournalpostGittId() {
     when(bidragArkivConsumerMock.hentJournalpost(anyInt())).thenReturn(new HttpStatusResponse<>(HttpStatus.NO_CONTENT, null));
-    assertThat(journalpostService.hentJournalpost(new KildesystemIdenfikator("joark-2")).fetchOptionalResult()).isNotPresent();
+    KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix("joark-2");
+    assertThat(journalpostService.hentJournalpost(KildesystemIdenfikator.hent()).fetchOptionalResult()).isNotPresent();
   }
 
   @Test
   @DisplayName("skal hente journalpost gitt id")
   void skalHenteJournalpostGittId() {
     when(bidragArkivConsumerMock.hentJournalpost(2)).thenReturn(new HttpStatusResponse<>(HttpStatus.OK, new JournalpostDto()));
-    assertThat(journalpostService.hentJournalpost(new KildesystemIdenfikator("joark-2")).fetchOptionalResult()).isPresent();
+    KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix("joark-2");
+    assertThat(journalpostService.hentJournalpost(KildesystemIdenfikator.hent()).fetchOptionalResult()).isPresent();
   }
 
   @Test
