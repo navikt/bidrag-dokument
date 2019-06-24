@@ -9,7 +9,6 @@ import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
 import no.nav.bidrag.dokument.KildesystemIdenfikator;
-import no.nav.bidrag.dokument.KildesystemIdenfikator.Kildesystem;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.BestillOrginal;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
@@ -22,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -55,13 +55,11 @@ public class JournalpostController {
 
     LOGGER.info("request: bidrag-dokument{}/{}", ENDPOINT_JOURNALPOST, journalpostIdForKildesystem);
 
-    KildesystemIdenfikator kildesystemIdentifikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
-
-    if (kildesystemIdentifikator.erUkjent() || kildesystemIdentifikator.harIkkeJournalpostIdSomTall()) {
+    if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    var journalpostDtoResponse = journalpostService.hentJournalpost(kildesystemIdentifikator);
+    var journalpostDtoResponse = journalpostService.hentJournalpost(KildesystemIdenfikator.hent());
     return new ResponseEntity<>(journalpostDtoResponse.getBody(), journalpostDtoResponse.getHttpStatus());
   }
 
@@ -70,13 +68,23 @@ public class JournalpostController {
   public ResponseEntity<List<Avvikshendelse>> hentAvvik(@PathVariable String journalpostIdForKildesystem) {
     LOGGER.info("request: bidrag-dokument{}/avvik/{}", ENDPOINT_JOURNALPOST, journalpostIdForKildesystem);
 
-    KildesystemIdenfikator kildesystemIdentifikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
-
-    if (kildesystemIdentifikator.erUkjent() || kildesystemIdentifikator.harIkkeJournalpostIdSomTall()) {
+    if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    return new ResponseEntity<>(singletonList(new BestillOrginal()), HttpStatus.OK);
+    return new ResponseEntity<>(singletonList(new BestillOrginal()), HttpStatus.I_AM_A_TEAPOT);
+  }
+
+  @PostMapping(ENDPOINT_JOURNALPOST + "/avvik/{journalpostIdForKildesystem}")
+  @ApiOperation("Lagrer et avvik for en journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
+  public ResponseEntity<Void> postAvvik(@PathVariable String journalpostIdForKildesystem, @RequestBody Avvikshendelse avvikshendelse) {
+    LOGGER.info("create: bidrag-dokument{}/avvik/{} - {}", ENDPOINT_JOURNALPOST, journalpostIdForKildesystem, avvikshendelse);
+
+    if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
   }
 
   @GetMapping(ENDPOINT_SAKJOURNAL + "/{saksnummer}")
@@ -106,9 +114,7 @@ public class JournalpostController {
 
     LOGGER.info("put endret: bidrag-dokument{}/{}\n \\-> {}", ENDPOINT_JOURNALPOST, journalpostIdForKildesystem, endreJournalpostCommandDto);
 
-    var kildesystemIdentifikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
-
-    if (Kildesystem.UKJENT == kildesystemIdentifikator.hentKildesystem()) {
+    if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
