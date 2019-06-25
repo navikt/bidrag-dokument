@@ -4,14 +4,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import no.nav.bidrag.commons.web.HttpStatusResponse;
+import no.nav.bidrag.dokument.dto.AvvikType;
+import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -68,5 +70,26 @@ public class BidragJournalpostConsumer {
 
     LOGGER.info("Endre journalpost fikk http status {}, body: {}", endretJournalpostResponse.getStatusCode(), endretJournalpostResponse.getBody());
     return new HttpStatusResponse<>(endretJournalpostResponse.getStatusCode(), endretJournalpostResponse.getBody());
+  }
+
+  public HttpStatusResponse<List<AvvikType>> finnAvvik(Integer journalpostId) {
+    var path = PATH_JOURNALPOST + "/avvik/" + journalpostId;
+    LOGGER.info("Finner avvik på journalpost med id {} fra bidrag-dokument-journalpost", journalpostId);
+
+    var avviksResponse = restTemplate.exchange(path, HttpMethod.GET, null, typereferansenErListeMedAvvikstyper());
+    return new HttpStatusResponse<>(avviksResponse.getStatusCode(), avviksResponse.getBody());
+  }
+
+  private ParameterizedTypeReference<List<AvvikType>> typereferansenErListeMedAvvikstyper() {
+    return new ParameterizedTypeReference<>() {
+    };
+  }
+
+  public HttpStatusResponse<OpprettAvvikshendelseResponse> opprettAvvik(Integer journalpostId, Avvikshendelse avvikshendelse) {
+    var path = PATH_JOURNALPOST + "/avvik/" + journalpostId;
+    LOGGER.info("Oppretter {} på journalpost med id {} fra bidrag-dokument-journalpost", avvikshendelse, journalpostId);
+
+    var avviksResponse = restTemplate.exchange(path, HttpMethod.POST, new HttpEntity<>(avvikshendelse), OpprettAvvikshendelseResponse.class);
+    return new HttpStatusResponse<>(avviksResponse.getStatusCode(), avviksResponse.getBody());
   }
 }

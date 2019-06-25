@@ -1,6 +1,5 @@
 package no.nav.bidrag.dokument.controller;
 
-import static java.util.Collections.singletonList;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.DELIMTER;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.ISSUER;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_BIDRAG;
@@ -13,6 +12,7 @@ import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
 import no.nav.bidrag.dokument.service.JournalpostService;
 import no.nav.security.oidc.api.ProtectedWithClaims;
 import org.slf4j.Logger;
@@ -65,26 +65,31 @@ public class JournalpostController {
 
   @GetMapping(ENDPOINT_JOURNALPOST + "/avvik/{journalpostIdForKildesystem}")
   @ApiOperation("Henter mulige avvik for en journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
-  public ResponseEntity<List<AvvikType>> hentAvvik(@PathVariable String journalpostIdForKildesystem) {
+  public ResponseEntity<List<AvvikType>> finnAvvik(@PathVariable String journalpostIdForKildesystem) {
     LOGGER.info("request: bidrag-dokument{}/avvik/{}", ENDPOINT_JOURNALPOST, journalpostIdForKildesystem);
 
     if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    return new ResponseEntity<>(singletonList(AvvikType.BESTILL_ORGINAL), HttpStatus.I_AM_A_TEAPOT);
+    var avvikslisteRespnse = journalpostService.finnAvvik(KildesystemIdenfikator.hent());
+    return new ResponseEntity<>(avvikslisteRespnse.getBody(), avvikslisteRespnse.getHttpStatus());
   }
 
   @PostMapping(ENDPOINT_JOURNALPOST + "/avvik/{journalpostIdForKildesystem}")
   @ApiOperation("Lagrer et avvik for en journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
-  public ResponseEntity<Void> postAvvik(@PathVariable String journalpostIdForKildesystem, @RequestBody Avvikshendelse avvikshendelse) {
+  public ResponseEntity<OpprettAvvikshendelseResponse> opprettAvvik(
+      @PathVariable String journalpostIdForKildesystem,
+      @RequestBody Avvikshendelse avvikshendelse
+  ) {
     LOGGER.info("create: bidrag-dokument{}/avvik/{} - {}", ENDPOINT_JOURNALPOST, journalpostIdForKildesystem, avvikshendelse);
 
     if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    return new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT);
+    var opprettAvvikResponse = journalpostService.opprettAvvik(KildesystemIdenfikator.hent(), avvikshendelse);
+    return new ResponseEntity<>(opprettAvvikResponse.getBody(), opprettAvvikResponse.getHttpStatus());
   }
 
   @GetMapping(ENDPOINT_SAKJOURNAL + "/{saksnummer}")
