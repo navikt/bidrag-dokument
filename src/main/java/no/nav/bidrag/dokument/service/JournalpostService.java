@@ -10,8 +10,12 @@ import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.dokument.KildesystemIdenfikator;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
+import no.nav.bidrag.dokument.dto.AvvikType;
+import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -37,6 +41,25 @@ public class JournalpostService {
     }
 
     return bidragArkivConsumer.hentJournalpost(kildesystemIdenfikator.hentJournalpostId());
+  }
+
+  public HttpStatusResponse<List<AvvikType>> finnAvvik(KildesystemIdenfikator kildesystemIdenfikator) {
+    if (BIDRAG.er(kildesystemIdenfikator.hentKildesystem())) {
+      return bidragJournalpostConsumer.finnAvvik(kildesystemIdenfikator.hentJournalpostId());
+    }
+
+    return new HttpStatusResponse<>(HttpStatus.BAD_REQUEST, Collections.emptyList());
+  }
+
+  public HttpStatusResponse<OpprettAvvikshendelseResponse> opprettAvvik(
+      KildesystemIdenfikator kildesystemIdenfikator,
+      Avvikshendelse avvikshendelse
+  ) {
+    if (BIDRAG.er(kildesystemIdenfikator.hentKildesystem())) {
+      return bidragJournalpostConsumer.opprettAvvik(kildesystemIdenfikator.hentJournalpostId(), avvikshendelse);
+    }
+
+    return new HttpStatusResponse<>(HttpStatus.BAD_REQUEST, null);
   }
 
   public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
