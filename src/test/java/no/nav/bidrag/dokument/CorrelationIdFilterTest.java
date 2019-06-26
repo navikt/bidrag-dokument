@@ -61,7 +61,7 @@ class CorrelationIdFilterTest {
   @SuppressWarnings("unchecked")
   @DisplayName("skal logge requests mot applikasjonen")
   void skalLoggeRequestsMotApplikasjonen() {
-    when(journalpostServiceMock.hentJournalpost(any())).thenReturn(new HttpStatusResponse<>(HttpStatus.I_AM_A_TEAPOT, null));
+    when(journalpostServiceMock.hentJournalpost(any())).thenReturn(new HttpStatusResponse<>(HttpStatus.I_AM_A_TEAPOT));
 
     var response = securedTestRestTemplate.exchange(
         "http://localhost:" + port + "/bidrag-dokument/journalpost/BID-123",

@@ -39,7 +39,7 @@ class JournalpostServiceTest {
   @Test
   @DisplayName("skal ikke hente journalpost")
   void skalIkkeHenteJournalpostGittId() {
-    when(bidragArkivConsumerMock.hentJournalpost(anyInt())).thenReturn(new HttpStatusResponse<>(HttpStatus.NO_CONTENT, null));
+    when(bidragArkivConsumerMock.hentJournalpost(anyInt())).thenReturn(new HttpStatusResponse<>(HttpStatus.NO_CONTENT));
     KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix("joark-2");
     assertThat(journalpostService.hentJournalpost(KildesystemIdenfikator.hent()).fetchOptionalResult()).isNotPresent();
   }

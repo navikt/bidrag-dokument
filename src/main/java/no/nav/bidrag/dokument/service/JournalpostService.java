@@ -59,7 +59,7 @@ public class JournalpostService {
       return bidragJournalpostConsumer.opprettAvvik(kildesystemIdenfikator.hentJournalpostId(), avvikshendelse);
     }
 
-    return new HttpStatusResponse<>(HttpStatus.BAD_REQUEST, null);
+    return new HttpStatusResponse<>(HttpStatus.BAD_REQUEST);
   }
 
   public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
