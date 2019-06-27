@@ -5,17 +5,18 @@ import static no.nav.bidrag.dokument.BidragDokumentConfig.DELIMTER;
 public class KildesystemIdenfikator {
 
   private static final String NON_DIGITS = "\\D+";
+  private static final ThreadLocal<KildesystemIdenfikator> KILDESYSTEM_IDENFIKATOR_THREAD_LOCAL = ThreadLocal.withInitial(() -> null);
 
   private final String prefiksetJournalpostId;
 
   private Kildesystem kildesystem;
   private Integer journalpostId;
 
-  public KildesystemIdenfikator(String prefiksetJournalpostId) {
+  private KildesystemIdenfikator(String prefiksetJournalpostId) {
     this.prefiksetJournalpostId = prefiksetJournalpostId;
   }
 
-  public boolean harIkkeJournalpostIdSomTall() {
+  private boolean harIkkeJournalpostIdSomTall() {
     try {
       journalpostId = Integer.valueOf(prefiksetJournalpostId.replaceAll(NON_DIGITS, ""));
     } catch (NumberFormatException | NullPointerException e) {
@@ -25,9 +26,9 @@ public class KildesystemIdenfikator {
     return false;
   }
 
-  public boolean erUkjent() {
+  private boolean erUkjent() {
     Kildesystem kildesystem = hentKildesystem();
-    return kildesystem.er(Kildesystem.UKJENT);
+    return kildesystem == null || kildesystem.er(Kildesystem.UKJENT);
   }
 
   public Kildesystem hentKildesystem() {
@@ -50,6 +51,23 @@ public class KildesystemIdenfikator {
     }
 
     return journalpostId;
+  }
+
+  public static boolean erUkjentPrefixEllerHarIkkeTallEtterPrefix(String journalpostIdMedPrefix) {
+    KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdMedPrefix);
+    KILDESYSTEM_IDENFIKATOR_THREAD_LOCAL.set(kildesystemIdenfikator);
+
+    return kildesystemIdenfikator.erUkjent() || kildesystemIdenfikator.harIkkeJournalpostIdSomTall();
+  }
+
+  public static KildesystemIdenfikator hent() {
+    KildesystemIdenfikator kildesystemIdenfikator = KILDESYSTEM_IDENFIKATOR_THREAD_LOCAL.get();
+
+    if (kildesystemIdenfikator == null) {
+      throw new IllegalStateException("Prefix på journalpostId er ikke validert");
+    }
+
+    return kildesystemIdenfikator;
   }
 
   public enum Kildesystem {

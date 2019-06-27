@@ -1,12 +1,12 @@
 package no.nav.bidrag.dokument;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import no.nav.bidrag.dokument.dto.AktorDto;
-import no.nav.bidrag.dokument.dto.PersonDto;
+import no.nav.bidrag.dokument.dto.AvvikType;
+import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,23 +32,15 @@ class DtoMapperTest {
   }
 
   @Test
-  @DisplayName("skal mappe aktør med personinfo til json og tilbake")
-  void skalMappeAktorMedPersoninfoTilJson() throws IOException {
-    String json = objectMapper.writeValueAsString(new AktorDto("06127412345", new PersonDto(
-        "Dr. A. Cula", null, "SVADA"
-    )));
+  @DisplayName("skal mappe BestillOrginal til json og tilbake")
+  void skalMappeBestillOrginalTilJson() throws IOException {
+    String json = objectMapper.writeValueAsString(new Avvikshendelse(AvvikType.BESTILL_ORGINAL));
 
-    assertAll(
-        () -> assertThat(json).as("ident").contains("\"ident\":\"06127412345\""),
-        () -> assertThat(json).as("navn").contains("\"navn\":\"Dr. A. Cula\""),
-        () -> assertThat(json).as("doedsdato").contains("\"doedsdato\":null"),
-        () -> assertThat(json).as("diskresjonskode").contains("\"diskresjonskode\":\"SVADA\"")
-    );
+    assertThat(json).contains("\"avvikType\":\"BESTILL_ORGINAL\"");
 
-    AktorDto deserialisert = objectMapper.readValue(json, AktorDto.class);
+    System.out.println(json);
+    Avvikshendelse deserialisert = objectMapper.readValue(json, Avvikshendelse.class);
 
-    assertThat(deserialisert).isEqualTo(new AktorDto("06127412345", new PersonDto(
-        "Dr. A. Cula", null, "SVADA"
-    )));
+    assertThat(deserialisert).isEqualTo(new Avvikshendelse(AvvikType.BESTILL_ORGINAL));
   }
 }

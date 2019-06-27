@@ -1,10 +1,8 @@
 FASIT_ENVIRONMENT_NAME: q1
 ISSO_ISSUER_URL: https://isso-q.adeo.no:443/isso/oauth2
 BIDRAG_ARKIV_URL: https://bidrag-dokument-arkiv-q1.nais.preprod.local
-BIDRAG_SAK_URL: https://bidrag-dokument-sak-q1.nais.preprod.local
 JOURNALPOST_URL: https://bidrag-dokument-journalpost-q1.nais.preprod.local
 SECURITY_TOKEN_URL: https://security-token-service-nais-preprod.local
-PERSON_V3_URL: https://wasapp-q1.adeo.no
 SRVBISYS_USERNAME: srvbisys
 SRVBISYS_PASSWORD: bareForTest
 

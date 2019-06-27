@@ -1,6 +1,5 @@
 package no.nav.bidrag.dokument.controller;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.SECURE_TEST_PROFILE;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
@@ -10,6 +9,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,10 +19,12 @@ import no.nav.bidrag.commons.web.test.SecuredTestRestTemplate;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
 import no.nav.bidrag.dokument.JournalpostDtoBygger;
 import no.nav.bidrag.dokument.dto.AktorDto;
-import no.nav.bidrag.dokument.dto.BidragSakDto;
+import no.nav.bidrag.dokument.dto.AvvikType;
+import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -112,8 +114,6 @@ class JournalpostControllerTest {
     void skalHenteJournalpostFraMidlertidigBrevlager() {
       when(restTemplateMock.exchange("/journalpost/1", HttpMethod.GET, null, JournalpostDto.class))
           .thenReturn(new ResponseEntity<>(enJournalpostFra("Grev Still E. Ben"), HttpStatus.I_AM_A_TEAPOT));
-      when(restTemplateMock.exchange("/person/sak/06127412345", HttpMethod.GET, null, listAvBidragssakerType()))
-          .thenReturn(new ResponseEntity<>(List.of(new BidragSakDto()), HttpStatus.OK));
 
       var responseEntity = securedTestRestTemplate.exchange(url + "/bid-1", HttpMethod.GET, null, JournalpostDto.class);
 
@@ -130,11 +130,6 @@ class JournalpostControllerTest {
       jp.setGjelderAktor(new AktorDto("06127412345"));
 
       return jp;
-    }
-
-    private ParameterizedTypeReference<List<BidragSakDto>> listAvBidragssakerType() {
-      return new ParameterizedTypeReference<>() {
-      };
     }
   }
 
@@ -201,32 +196,101 @@ class JournalpostControllerTest {
     @DisplayName("skal finne Journalposter for en bidragssak")
     void skalFinneJournalposterForEnBidragssak() {
       when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
-          .thenReturn(new ResponseEntity<>(asList(new JournalpostDto(), new JournalpostDto()), HttpStatus.OK));
+          .thenReturn(new ResponseEntity<>(singletonList(new JournalpostDto()), HttpStatus.OK)); // blir kalla en gang i arkiv og en gang i brevlager
 
       var listeMedJournalposterResponse = securedTestRestTemplate.exchange(
-          urlForFagomradeBid("/1001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+          lagSakjournalUrlForFagomradeBid("/1001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
       );
 
       assertThat(optional(listeMedJournalposterResponse)).hasValueSatisfying(response -> assertAll(
           () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-          () -> assertThat(response.getBody()).hasSize(2))
-      );
-
-      verify(restTemplateMock)
-          .exchange(eq("/sakjournal/1001?fagomrade=BID"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
+          () -> assertThat(response.getBody()).hasSize(2),
+          () -> verify(restTemplateMock, times(2))
+              .exchange(eq("/sakjournal/1001?fagomrade=BID"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any())
+      ));
     }
 
     @Test
     @DisplayName("skal få BAD_REQUEST(400) som statuskode når saksnummer ikke er et heltall")
     void skalFaBadRequestNarSaksnummerIkkeErHeltall() {
       var journalposterResponse = securedTestRestTemplate.exchange(
-          urlForFagomradeBid("/xyz"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+          lagSakjournalUrlForFagomradeBid("/xyz"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
       );
 
       assertThat(optional(journalposterResponse)).hasValueSatisfying(response -> assertAll(
           () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
           () -> assertThat(response.getBody()).isNull())
       );
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    @DisplayName("skal hente sakjournal fra bidrag-dokument-arkiv såfremt bidrag-dokument-journalpost")
+    void skalHenteSakJournalFraBidragDokumentArkiv() {
+      when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
+          .thenReturn(new ResponseEntity<>(singletonList(new JournalpostDto()), HttpStatus.OK));
+
+      var listeMedJournalposterResponse = securedTestRestTemplate.exchange(
+          lagSakjournalUrlForFagomradeBid("/2020001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+      );
+
+      assertThat(listeMedJournalposterResponse.getBody()).hasSize(2);
+    }
+  }
+
+  @Nested
+  @DisplayName("endpoint - avvik: " + ENDPOINT_JOURNALPOST)
+  class Avvik {
+
+    @Test
+    @DisplayName("skal feile når man henter avvikshendelser uten å prefikse journalpostId med kildesystem")
+    void skalFeileVedHentingAvAvvikshendelserForJournalpostNarJournalpostIdIkkeErPrefiksetMedKildesystem() {
+      var responseEntity = securedTestRestTemplate.exchange(initUrl("/avvik/1"), HttpMethod.GET, null, responseTypeErListeMedAvvikType());
+
+      assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    @DisplayName("skal finne avvikshendelser på en journalpost")
+    void skalFinneAvvikshendelserForJournalpost() {
+      when(restTemplateMock.exchange("/journalpost/avvik/1", HttpMethod.GET, null, responseTypeErListeMedAvvikType()))
+          .thenReturn(new ResponseEntity<>(List.of(AvvikType.BESTILL_ORGINAL), HttpStatus.OK));
+
+      var responseEntity = securedTestRestTemplate.exchange(initUrl("/avvik/BID-1"), HttpMethod.GET, null, responseTypeErListeMedAvvikType());
+
+      assertAll(
+          () -> assertThat(responseEntity.getStatusCode()).as("status").isEqualTo(HttpStatus.OK),
+          () -> assertThat(responseEntity.getBody()).as("avvik").hasSize(1),
+          () -> assertThat(responseEntity.getBody()).as("avvik").contains(AvvikType.BESTILL_ORGINAL)
+      );
+    }
+
+    @Test
+    @DisplayName("skal opprette et avvik på en journalpost")
+    void skalOppretteAvvikPaJournalpost() {
+      when(restTemplateMock.exchange(eq("/journalpost/avvik/1"), eq(HttpMethod.POST), any(), eq(OpprettAvvikshendelseResponse.class)))
+          .thenReturn(new ResponseEntity<>(new OpprettAvvikshendelseResponse(AvvikType.BESTILL_ORGINAL), HttpStatus.CREATED));
+
+      var bestillOrginalEntity = new HttpEntity<>(new Avvikshendelse(AvvikType.BESTILL_ORGINAL));
+      var responseEntity = securedTestRestTemplate.exchange(
+          initUrl("/avvik/BID-1"), HttpMethod.POST, bestillOrginalEntity, OpprettAvvikshendelseResponse.class
+      );
+
+      assertAll(
+          () -> assertThat(responseEntity.getStatusCode()).as("status").isEqualTo(HttpStatus.CREATED),
+          () -> assertThat(responseEntity.getBody()).as("body").isEqualTo(
+              new OpprettAvvikshendelseResponse(AvvikType.BESTILL_ORGINAL)
+          )
+      );
+    }
+
+    private String initUrl(String relative) {
+      return initEndpointUrl(ENDPOINT_JOURNALPOST + relative);
+    }
+
+    private ParameterizedTypeReference<List<AvvikType>> responseTypeErListeMedAvvikType() {
+      return new ParameterizedTypeReference<>() {
+      };
     }
   }
 
@@ -242,7 +306,7 @@ class JournalpostControllerTest {
           .thenThrow(new HttpClientErrorException(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED, "holy crap!"));
 
       var errorResponse = securedTestRestTemplate.exchange(
-          urlForFagomradeBid("/1001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+          lagSakjournalUrlForFagomradeBid("/1001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
       );
 
       assertThat(Optional.of(errorResponse)).hasValueSatisfying(responseEntity -> assertAll(
@@ -265,7 +329,7 @@ class JournalpostControllerTest {
     Mockito.reset(restTemplateMock);
   }
 
-  private String urlForFagomradeBid(@SuppressWarnings("SameParameterValue") String path) {
+  private String lagSakjournalUrlForFagomradeBid(String path) {
     return UriComponentsBuilder
         .fromHttpUrl(initEndpointUrl(ENDPOINT_SAKJOURNAL) + path)
         .queryParam("fagomrade", "BID")
@@ -281,7 +345,7 @@ class JournalpostControllerTest {
     return Optional.ofNullable(responseEntity);
   }
 
-  private String initEndpointUrl(@SuppressWarnings("SameParameterValue") String endpoint) {
+  private String initEndpointUrl(String endpoint) {
     return "http://localhost:" + port + contextPath + endpoint;
   }
 }

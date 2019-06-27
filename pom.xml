@@ -6,7 +6,7 @@
 
   <groupId>no.nav.bidrag.dokument</groupId>
   <artifactId>bidrag-dokument</artifactId>
-  <version>1.0.251-SNAPSHOT</version>
+  <version>1.0.264-SNAPSHOT</version>
 
   <description>Backend NAIS for bidrag-dokument</description>
   <url>https://github.com/navikt/bidrag-dokument</url>
@@ -15,52 +15,23 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.1.5.RELEASE</version>
+    <version>2.1.6.RELEASE</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
-
-  <repositories>
-    <repository>
-      <id>local-releases</id>
-      <name>Local stuff</name>
-      <url>https://repo.adeo.no/repository/maven-releases</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-  <distributionManagement>
-    <repository>
-      <id>m2internal</id>
-      <name>NAV Maven2 Internal Repository</name>
-      <url>http://maven.adeo.no/nexus/content/repositories/m2internal</url>
-    </repository>
-    <snapshotRepository>
-      <id>m2snapshot</id>
-      <name>NAV Maven2 Snapshot Repository</name>
-      <url>http://maven.adeo.no/nexus/content/repositories/m2snapshot</url>
-      <uniqueVersion>false</uniqueVersion>
-    </snapshotRepository>
-  </distributionManagement>
 
   <properties>
 
     <!-- language -->
     <java.version>12</java.version>
-    <kotlin.version>1.3.31</kotlin.version> <!-- to synkronise runtime being presented by spring-boot -->
+    <kotlin.version>1.3.40</kotlin.version> <!-- to synkronise runtime being presented by spring-boot -->
 
     <!-- dependent versions other than from spring-boot -->
-    <bidrag-commons.version>0.0.27</bidrag-commons.version>
+    <bidrag-commons.version>0.0.29</bidrag-commons.version>
     <bidrag-commons-test.version>0.0.11</bidrag-commons-test.version>
-    <bidrag-dokument-dto.version>0.0.125</bidrag-dokument-dto.version>
+    <bidrag-dokument-dto.version>0.2.9</bidrag-dokument-dto.version>
     <oidc-spring-support.version>0.2.18</oidc-spring-support.version>
-    <logback.encoder.version>5.3</logback.encoder.version>
+    <logback.encoder.version>6.1</logback.encoder.version>
     <springfox-swagger.version>2.9.2</springfox-swagger.version>
-    <person-v3.version>3.6.1</person-v3.version>
-
-    <!-- JAXB -->
-    <jaxb-impl.version>2.3.2</jaxb-impl.version>
-    <jaxb-core.version>2.3.0.1</jaxb-core.version>
 
     <!-- build -->
     <maven.compiler.version>3.8.0</maven.compiler.version>
@@ -75,12 +46,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-databind</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
@@ -212,36 +177,6 @@
       <artifactId>spring-ws-core</artifactId>
     </dependency>
 
-    <!-- xml and JAXB -->
-    <dependency>
-      <groupId>javax.xml.bind</groupId>
-      <artifactId>jaxb-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.sun.xml.bind</groupId>
-      <artifactId>jaxb-impl</artifactId>
-      <version>${jaxb-impl.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.sun.xml.bind</groupId>
-      <artifactId>jaxb-core</artifactId>
-      <version>${jaxb-core.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.sun.xml.messaging.saaj</groupId>
-      <artifactId>saaj-impl</artifactId>
-    </dependency>
-
-    <!-- NAV-Tjenester -->
-    <dependency>
-      <groupId>no.nav.tjenester</groupId>
-      <artifactId>nav-person-v3-tjenestespesifikasjon</artifactId>
-      <version>${person-v3.version}</version>
-    </dependency>
-
     <!-- runtime dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -285,14 +220,32 @@
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
-
-    <!-- overwrite vulnerable dependency of jackson-databind -->
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>2.9.9</version>
-    </dependency>
   </dependencies>
+
+  <repositories>
+    <repository>
+      <id>local-releases</id>
+      <name>Local stuff</name>
+      <url>https://repo.adeo.no/repository/maven-releases</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>m2internal</id>
+      <name>NAV Maven2 Internal Repository</name>
+      <url>http://maven.adeo.no/nexus/content/repositories/m2internal</url>
+    </repository>
+    <snapshotRepository>
+      <id>m2snapshot</id>
+      <name>NAV Maven2 Snapshot Repository</name>
+      <url>http://maven.adeo.no/nexus/content/repositories/m2snapshot</url>
+      <uniqueVersion>false</uniqueVersion>
+    </snapshotRepository>
+  </distributionManagement>
 
   <build>
     <plugins>
