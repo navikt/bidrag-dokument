@@ -5,6 +5,7 @@ import static no.nav.bidrag.dokument.KildesystemIdenfikator.Kildesystem.BIDRAG;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.dokument.KildesystemIdenfikator;
@@ -63,20 +64,10 @@ public class JournalpostService {
   }
 
   public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
-    List<JournalpostDto> sakjournal = new ArrayList<>(bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade));
-    sakjournal.addAll(bidragArkivConsumer.finnJournalposter(saksnummer, fagomrade));
-
-    return sakjournal;
-
-//    CompletableFuture<List<JournalpostDto>> sakjournal = CompletableFuture.completedFuture((List<JournalpostDto>) new ArrayList<JournalpostDto>())
-//        .thenApplyAsync(journalposter -> journalposterFraArkiv(journalposter, saksnummer, fagomrade)).exceptionally(this::handle)
-//        .thenApplyAsync(journalposter -> journalposterFraBrevlager(journalposter, saksnummer, fagomrade)).exceptionally(this::handle);
-//
-//    try {
-//      return sakjournal.get();
-//    } catch (InterruptedException | ExecutionException e) {
-//      throw new IllegalStateException("Kunne ikke hente sakjournal fra arkiv og brevlager", e);
-//    }
+    return CompletableFuture.completedFuture((List<JournalpostDto>) new ArrayList<JournalpostDto>())
+        .thenApplyAsync(journalposter -> journalposterFraArkiv(journalposter, saksnummer, fagomrade)).exceptionally(this::handle)
+        .thenApplyAsync(journalposter -> journalposterFraBrevlager(journalposter, saksnummer, fagomrade)).exceptionally(this::handle)
+        .join();
   }
 
   private List<JournalpostDto> journalposterFraArkiv(List<JournalpostDto> journalposter, String saksnummer, String fagomrade) {
