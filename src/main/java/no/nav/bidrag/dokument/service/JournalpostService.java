@@ -67,16 +67,6 @@ public class JournalpostService {
     sakjournal.addAll(bidragArkivConsumer.finnJournalposter(saksnummer, fagomrade));
 
     return sakjournal;
-
-//    CompletableFuture<List<JournalpostDto>> sakjournal = CompletableFuture.completedFuture((List<JournalpostDto>) new ArrayList<JournalpostDto>())
-//        .thenApplyAsync(journalposter -> journalposterFraArkiv(journalposter, saksnummer, fagomrade)).exceptionally(this::handle)
-//        .thenApplyAsync(journalposter -> journalposterFraBrevlager(journalposter, saksnummer, fagomrade)).exceptionally(this::handle);
-//
-//    try {
-//      return sakjournal.get();
-//    } catch (InterruptedException | ExecutionException e) {
-//      throw new IllegalStateException("Kunne ikke hente sakjournal fra arkiv og brevlager", e);
-//    }
   }
 
   private List<JournalpostDto> journalposterFraArkiv(List<JournalpostDto> journalposter, String saksnummer, String fagomrade) {
