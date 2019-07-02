@@ -5,22 +5,20 @@ import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.stream.Collectors;
 import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.commons.web.test.SecuredTestRestTemplate;
 import no.nav.bidrag.dokument.service.JournalpostService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatcher;
+import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +44,6 @@ class CorrelationIdFilterTest {
   @LocalServerPort
   private int port;
 
-  private Set<String> logMeldinger = new HashSet<>();
-
   @BeforeEach
   @SuppressWarnings("unchecked")
   void mockLogAppender() {
@@ -72,13 +68,13 @@ class CorrelationIdFilterTest {
 
     assertAll(
         () -> assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.I_AM_A_TEAPOT),
-        () -> verify(appenderMock, atLeastOnce()).doAppend(
-            argThat((ArgumentMatcher) argument -> {
-              logMeldinger.add(((ILoggingEvent) argument).getFormattedMessage());
-
-              return true;
-            })),
-        () -> assertThat(String.join("\n", logMeldinger)).contains("Prosessing GET /bidrag-dokument/journalpost/BID-123")
+        () -> {
+          var loggingEventCaptor = ArgumentCaptor.forClass(ILoggingEvent.class);
+          verify(appenderMock, atLeastOnce()).doAppend(loggingEventCaptor.capture());
+          var loggingEvents = loggingEventCaptor.getAllValues();
+          var allMsgs = loggingEvents.stream().map(ILoggingEvent::getFormattedMessage).collect(Collectors.joining("\n"));
+          assertThat(allMsgs).contains("Prosessing GET /bidrag-dokument/journalpost/BID-123");
+        }
     );
   }
 
@@ -95,13 +91,13 @@ class CorrelationIdFilterTest {
 
     assertAll(
         () -> assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK),
-        () -> verify(appenderMock, atLeastOnce()).doAppend(
-            argThat((ArgumentMatcher) argument -> {
-              logMeldinger.add(((ILoggingEvent) argument).getFormattedMessage());
-
-              return true;
-            })),
-        () -> assertThat(String.join("\n", logMeldinger)).doesNotContain("Processing").doesNotContain("/actuator/")
+        () -> {
+          var loggingEventCaptor = ArgumentCaptor.forClass(ILoggingEvent.class);
+          verify(appenderMock, atLeastOnce()).doAppend(loggingEventCaptor.capture());
+          var loggingEvents = loggingEventCaptor.getAllValues();
+          var allMsgs = loggingEvents.stream().map(ILoggingEvent::getFormattedMessage).collect(Collectors.joining("\n"));
+          assertThat(allMsgs).doesNotContain("Processing").doesNotContain("/actuator/");
+        }
     );
   }
 }

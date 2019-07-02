@@ -3,6 +3,7 @@ package no.nav.bidrag.dokument;
 import java.util.Optional;
 import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
+import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.consumer.DokumentConsumer;
@@ -75,6 +76,11 @@ public class BidragDokumentConfig {
         .map(oidcValidationContext -> oidcValidationContext.getToken(ISSUER))
         .map(TokenContext::getIdToken)
         .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));
+  }
+
+  @Bean
+  public EnhetFilter enhetFilter() {
+    return new EnhetFilter();
   }
 
   @FunctionalInterface
