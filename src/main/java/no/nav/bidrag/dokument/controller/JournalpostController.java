@@ -18,6 +18,7 @@ import no.nav.security.oidc.api.ProtectedWithClaims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -76,7 +77,7 @@ public class JournalpostController {
     return new ResponseEntity<>(avvikslisteRespnse.getBody(), avvikslisteRespnse.getHttpStatus());
   }
 
-  @PostMapping(value = ENDPOINT_JOURNALPOST + "/avvik/{journalpostIdForKildesystem}", consumes = {"application/json"})
+  @PostMapping(value = ENDPOINT_JOURNALPOST + "/avvik/{journalpostIdForKildesystem}", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ApiOperation("Lagrer et avvik for en journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
   public ResponseEntity<OpprettAvvikshendelseResponse> opprettAvvik(
       @PathVariable String journalpostIdForKildesystem,
