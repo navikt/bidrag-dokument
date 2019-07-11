@@ -85,6 +85,7 @@ public class JournalpostController {
     LOGGER.info("create: bidrag-dokument{}/avvik/{} - {}", ENDPOINT_JOURNALPOST, journalpostIdForKildesystem, avvikshendelse);
 
     if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
+      LOGGER.warn("Logic: Ukjent Prefix Eller Har ikke Tall Etter Prefix for JournalpostId {}. Returnerer derfor BAD REQUEST.", journalpostIdForKildesystem);
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
