@@ -34,13 +34,14 @@ class DtoMapperTest {
   @Test
   @DisplayName("skal mappe BestillOriginal til json og tilbake")
   void skalMappeBestillOriginalTilJson() throws IOException {
-    String json = objectMapper.writeValueAsString(new Avvikshendelse(AvvikType.BESTILL_ORIGINAL));
+    final String enhentsnummer = "4806";
+    String json = objectMapper.writeValueAsString(new Avvikshendelse(AvvikType.BESTILL_ORIGINAL.name(), enhentsnummer));
 
     assertThat(json).contains("\"avvikType\":\"BESTILL_ORIGINAL\"");
 
     System.out.println(json);
     Avvikshendelse deserialisert = objectMapper.readValue(json, Avvikshendelse.class);
 
-    assertThat(deserialisert).isEqualTo(new Avvikshendelse(AvvikType.BESTILL_ORIGINAL));
+    assertThat(deserialisert).isEqualTo(new Avvikshendelse(AvvikType.BESTILL_ORIGINAL.name(), enhentsnummer));
   }
 }

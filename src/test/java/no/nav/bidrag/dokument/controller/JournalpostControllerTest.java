@@ -271,7 +271,7 @@ class JournalpostControllerTest {
       when(restTemplateMock.exchange(eq("/journalpost/avvik/1"), eq(HttpMethod.POST), any(), eq(OpprettAvvikshendelseResponse.class)))
           .thenReturn(new ResponseEntity<>(new OpprettAvvikshendelseResponse(AvvikType.BESTILL_ORIGINAL), HttpStatus.CREATED));
 
-      var bestillOriginalEntity = new HttpEntity<>(new Avvikshendelse(AvvikType.BESTILL_ORIGINAL));
+      var bestillOriginalEntity = new HttpEntity<>(new Avvikshendelse(AvvikType.BESTILL_ORIGINAL.name(),""));
       var responseEntity = securedTestRestTemplate.exchange(
           initUrl("/avvik/BID-1"), HttpMethod.POST, bestillOriginalEntity, OpprettAvvikshendelseResponse.class
       );
