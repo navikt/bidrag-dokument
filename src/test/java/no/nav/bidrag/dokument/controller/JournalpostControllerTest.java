@@ -15,6 +15,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+
+import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.commons.web.test.SecuredTestRestTemplate;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
 import no.nav.bidrag.dokument.JournalpostDtoBygger;
@@ -270,8 +272,13 @@ class JournalpostControllerTest {
     void skalOppretteAvvikPaJournalpost() {
       when(restTemplateMock.exchange(eq("/journalpost/avvik/1"), eq(HttpMethod.POST), any(), eq(OpprettAvvikshendelseResponse.class)))
           .thenReturn(new ResponseEntity<>(new OpprettAvvikshendelseResponse(AvvikType.BESTILL_ORIGINAL), HttpStatus.CREATED));
+      final String enhetsnummer = "4806";
+      final Avvikshendelse avvikshendelse = new Avvikshendelse(AvvikType.BESTILL_ORIGINAL.name(),enhetsnummer);
 
-      var bestillOriginalEntity = new HttpEntity<>(new Avvikshendelse(AvvikType.BESTILL_ORIGINAL.name(),""));
+      HttpHeaders headers = new HttpHeaders();
+      headers.set(EnhetFilter.X_ENHETSNR_HEADER, enhetsnummer);
+
+      HttpEntity bestillOriginalEntity = new HttpEntity<>(avvikshendelse, headers);
       var responseEntity = securedTestRestTemplate.exchange(
           initUrl("/avvik/BID-1"), HttpMethod.POST, bestillOriginalEntity, OpprettAvvikshendelseResponse.class
       );
