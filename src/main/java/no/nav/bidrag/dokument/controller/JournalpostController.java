@@ -77,7 +77,7 @@ public class JournalpostController {
     return new ResponseEntity<>(avvikslisteRespnse.getBody(), avvikslisteRespnse.getHttpStatus());
   }
 
-  @PostMapping(value = ENDPOINT_JOURNALPOST + "/avvik/{journalpostIdForKildesystem}", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(value = ENDPOINT_JOURNALPOST + "/avvik/{journalpostIdForKildesystem}")
   @ApiOperation("Lagrer et avvik for en journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
   public ResponseEntity<OpprettAvvikshendelseResponse> opprettAvvik(
       @PathVariable String journalpostIdForKildesystem,
