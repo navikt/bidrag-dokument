@@ -33,6 +33,9 @@
     <logback.encoder.version>6.1</logback.encoder.version>
     <springfox-swagger.version>2.9.2</springfox-swagger.version>
 
+    <!-- vulnerable dependencies -->
+    <jackson-databind.version>2.9.9.1</jackson-databind.version>
+
     <!-- build -->
     <maven.compiler.version>3.8.0</maven.compiler.version>
     <maven.surefire.version>2.22.0</maven.surefire.version>
@@ -219,6 +222,13 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
+    </dependency>
+
+    <!-- overridden vulnerable dependencies -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson-databind.version}</version>
     </dependency>
   </dependencies>
 
