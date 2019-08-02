@@ -131,7 +131,7 @@ public class JournalpostController {
   @PutMapping(ENDPOINT_JOURNALPOST + "/{journalpostIdForKildesystem}")
   @ApiOperation("Endre eksisterende journalpost")
   @ApiResponses(value = {
-      @ApiResponse(code = 203, message = "Journalpost er opprettet"),
+      @ApiResponse(code = 203, message = "Journalpost er endret"),
       @ApiResponse(code = 400, message = "EndreJournalpostCommandDto.gjelder er ikke satt eller det ikke finnes en journalpost på gitt id"),
       @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"),
       @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig, eller du har ikke adgang til kode 6 og 7 (nav-ansatt)")
