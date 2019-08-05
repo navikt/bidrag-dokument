@@ -90,7 +90,7 @@ public class JournalpostController {
   @ApiOperation("Lagrer et avvik for en journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
   @ApiResponses(value = {
       @ApiResponse(code = 201, message = "Avvik på journalpost er opprettet"),
-      @ApiResponse(code = 400, message = "Avvikstype mangler i avvikshendelsen eller enhetsnummer mangler/ugyldig (fra header)"),
+      @ApiResponse(code = 400, message = "Avvikstype mangler/ugyldig i avvikshendelsen eller enhetsnummer mangler/ugyldig (fra header)"),
       @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"),
       @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig"),
       @ApiResponse(code = 404, message = "Fant ikke journalpost som det skal lages avvik på")
@@ -100,6 +100,13 @@ public class JournalpostController {
       @RequestBody Avvikshendelse avvikshendelse
   ) {
     LOGGER.info("create: bidrag-dokument{}/avvik/{} - {}", ENDPOINT_JOURNALPOST, journalpostIdForKildesystem, avvikshendelse);
+
+    try {
+      AvvikType.valueOf(avvikshendelse.getAvvikType());
+    } catch (Exception e) {
+      LOGGER.warn("Ukjent avvikstype: " + avvikshendelse.getAvvikType());
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
 
     if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
       LOGGER.warn("Logic: Ukjent Prefix Eller Har ikke Tall Etter Prefix for JournalpostId {}. Returnerer derfor BAD REQUEST.", journalpostIdForKildesystem);
