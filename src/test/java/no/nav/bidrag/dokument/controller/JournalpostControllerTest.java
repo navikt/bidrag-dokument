@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.commons.web.test.SecuredTestRestTemplate;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
 import no.nav.bidrag.dokument.JournalpostDtoBygger;
@@ -254,14 +255,14 @@ class JournalpostControllerTest {
     @DisplayName("skal finne avvikshendelser på en journalpost")
     void skalFinneAvvikshendelserForJournalpost() {
       when(restTemplateMock.exchange("/journalpost/avvik/1", HttpMethod.GET, null, responseTypeErListeMedAvvikType()))
-          .thenReturn(new ResponseEntity<>(List.of(AvvikType.BESTILL_ORGINAL), HttpStatus.OK));
+          .thenReturn(new ResponseEntity<>(List.of(AvvikType.BESTILL_ORIGINAL), HttpStatus.OK));
 
       var responseEntity = securedTestRestTemplate.exchange(initUrl("/avvik/BID-1"), HttpMethod.GET, null, responseTypeErListeMedAvvikType());
 
       assertAll(
           () -> assertThat(responseEntity.getStatusCode()).as("status").isEqualTo(HttpStatus.OK),
           () -> assertThat(responseEntity.getBody()).as("avvik").hasSize(1),
-          () -> assertThat(responseEntity.getBody()).as("avvik").contains(AvvikType.BESTILL_ORGINAL)
+          () -> assertThat(responseEntity.getBody()).as("avvik").contains(AvvikType.BESTILL_ORIGINAL)
       );
     }
 
@@ -269,19 +270,41 @@ class JournalpostControllerTest {
     @DisplayName("skal opprette et avvik på en journalpost")
     void skalOppretteAvvikPaJournalpost() {
       when(restTemplateMock.exchange(eq("/journalpost/avvik/1"), eq(HttpMethod.POST), any(), eq(OpprettAvvikshendelseResponse.class)))
-          .thenReturn(new ResponseEntity<>(new OpprettAvvikshendelseResponse(AvvikType.BESTILL_ORGINAL), HttpStatus.CREATED));
+          .thenReturn(new ResponseEntity<>(new OpprettAvvikshendelseResponse(AvvikType.BESTILL_ORIGINAL), HttpStatus.CREATED));
+      final String enhetsnummer = "4806";
+      final Avvikshendelse avvikshendelse = new Avvikshendelse(AvvikType.BESTILL_ORIGINAL.name(), enhetsnummer);
 
-      var bestillOrginalEntity = new HttpEntity<>(new Avvikshendelse(AvvikType.BESTILL_ORGINAL));
+      HttpHeaders headers = new HttpHeaders();
+      headers.set(EnhetFilter.X_ENHETSNR_HEADER, enhetsnummer);
+
+      HttpEntity bestillOriginalEntity = new HttpEntity<>(avvikshendelse, headers);
       var responseEntity = securedTestRestTemplate.exchange(
-          initUrl("/avvik/BID-1"), HttpMethod.POST, bestillOrginalEntity, OpprettAvvikshendelseResponse.class
+          initUrl("/avvik/BID-1"), HttpMethod.POST, bestillOriginalEntity, OpprettAvvikshendelseResponse.class
       );
 
       assertAll(
           () -> assertThat(responseEntity.getStatusCode()).as("status").isEqualTo(HttpStatus.CREATED),
           () -> assertThat(responseEntity.getBody()).as("body").isEqualTo(
-              new OpprettAvvikshendelseResponse(AvvikType.BESTILL_ORGINAL)
+              new OpprettAvvikshendelseResponse(AvvikType.BESTILL_ORIGINAL)
           )
       );
+    }
+
+    @Test
+    @DisplayName("skal få bad request når avvikstype er ugyldig")
+    void skalFaBadRequest() {
+      final String enhetsnummer = "4806";
+      final Avvikshendelse avvikshendelse = new Avvikshendelse("UGYLDIG", enhetsnummer);
+      var headers = new HttpHeaders();
+
+      headers.set(EnhetFilter.X_ENHETSNR_HEADER, enhetsnummer);
+
+      var ugyldigAvvikEntity = new HttpEntity<>(avvikshendelse, headers);
+      var responseEntity = securedTestRestTemplate.exchange(
+          initUrl("/avvik/BID-1"), HttpMethod.POST, ugyldigAvvikEntity, OpprettAvvikshendelseResponse.class
+      );
+
+      assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     private String initUrl(String relative) {

@@ -3,6 +3,8 @@ package no.nav.bidrag.dokument.consumer;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
@@ -13,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -89,7 +92,10 @@ public class BidragJournalpostConsumer {
     var path = PATH_JOURNALPOST + "/avvik/" + journalpostId;
     LOGGER.info("Oppretter {} på journalpost med id {} fra bidrag-dokument-journalpost", avvikshendelse, journalpostId);
 
-    var avviksResponse = restTemplate.exchange(path, HttpMethod.POST, new HttpEntity<>(avvikshendelse), OpprettAvvikshendelseResponse.class);
+    HttpHeaders requestHeaders = new HttpHeaders();
+    requestHeaders.add(EnhetFilter.X_ENHETSNR_HEADER, "4806");
+
+    var avviksResponse = restTemplate.exchange(path, HttpMethod.POST, new HttpEntity<>(avvikshendelse,requestHeaders), OpprettAvvikshendelseResponse.class);
     return new HttpStatusResponse<>(avviksResponse.getStatusCode(), avviksResponse.getBody());
   }
 }

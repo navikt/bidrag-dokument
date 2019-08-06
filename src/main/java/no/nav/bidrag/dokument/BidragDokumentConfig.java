@@ -3,6 +3,7 @@ package no.nav.bidrag.dokument;
 import java.util.Optional;
 import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
+import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.consumer.DokumentConsumer;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
@@ -75,6 +77,23 @@ public class BidragDokumentConfig {
         .map(oidcValidationContext -> oidcValidationContext.getToken(ISSUER))
         .map(TokenContext::getIdToken)
         .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));
+  }
+
+  @Bean
+  public EnhetFilter enhetFilter() {
+    return new EnhetFilter();
+  }
+
+
+  @Bean
+  public FilterRegistrationBean<EnhetFilter> filterRegistrationBean() {
+    FilterRegistrationBean <EnhetFilter> registrationBean = new FilterRegistrationBean<EnhetFilter>();
+    EnhetFilter enhetFlter = new EnhetFilter();
+
+    registrationBean.setFilter(enhetFlter);
+    registrationBean.addUrlPatterns("/journalpost/avvik/*");
+    registrationBean.setOrder(2); //set precedence
+    return registrationBean;
   }
 
   @FunctionalInterface
