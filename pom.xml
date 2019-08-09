@@ -6,7 +6,7 @@
 
   <groupId>no.nav.bidrag.dokument</groupId>
   <artifactId>bidrag-dokument</artifactId>
-  <version>1.0.289-SNAPSHOT</version>
+  <version>1.0.292-SNAPSHOT</version>
 
   <description>Backend NAIS for bidrag-dokument</description>
   <url>https://github.com/navikt/bidrag-dokument</url>
@@ -15,7 +15,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.1.6.RELEASE</version>
+    <version>2.1.7.RELEASE</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
@@ -28,7 +28,7 @@
     <!-- dependent versions other than from spring-boot -->
     <bidrag-commons.version>0.1.7</bidrag-commons.version>
     <bidrag-commons-test.version>0.0.11</bidrag-commons-test.version>
-    <bidrag-dokument-dto.version>0.2.22</bidrag-dokument-dto.version>
+    <bidrag-dokument-dto.version>0.2.23</bidrag-dokument-dto.version>
     <oidc-spring-support.version>0.2.18</oidc-spring-support.version>
     <logback.encoder.version>6.1</logback.encoder.version>
     <springfox-swagger.version>2.9.2</springfox-swagger.version>
