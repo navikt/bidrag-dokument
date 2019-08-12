@@ -27,6 +27,7 @@ import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -205,8 +206,11 @@ class JournalpostControllerTest {
 
       assertThat(optional(listeMedJournalposterResponse)).hasValueSatisfying(response -> assertAll(
           () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK),
-          () -> assertThat(response.getBody()).hasSize(2),
-          () -> verify(restTemplateMock, times(2))
+          () -> assertThat(response.getBody()).hasSize(1),
+//          () -> assertThat(response.getBody()).hasSize(2),
+//          () -> verify(restTemplateMock, times(2))
+//              .exchange(eq("/sakjournal/1001?fagomrade=BID"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any())
+          () -> verify(restTemplateMock)
               .exchange(eq("/sakjournal/1001?fagomrade=BID"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any())
       ));
     }
@@ -226,6 +230,7 @@ class JournalpostControllerTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    @Disabled("ingen kall mot bidrag-dokument-arkiv per dags dato")
     @DisplayName("skal hente sakjournal fra bidrag-dokument-arkiv såfremt bidrag-dokument-journalpost")
     void skalHenteSakJournalFraBidragDokumentArkiv() {
       when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))

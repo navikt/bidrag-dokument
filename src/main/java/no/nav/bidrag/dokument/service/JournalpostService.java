@@ -63,10 +63,11 @@ public class JournalpostService {
   }
 
   public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
-    List<JournalpostDto> sakjournal = new ArrayList<>(bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade));
-    sakjournal.addAll(bidragArkivConsumer.finnJournalposter(saksnummer, fagomrade));
+    return bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade);
+//    List<JournalpostDto> sakjournal = new ArrayList<>(bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade));
+//    sakjournal.addAll(bidragArkivConsumer.finnJournalposter(saksnummer, fagomrade)); ingen kall mot bidrag-dokument-arkiv gjøres per dato
 
-    return sakjournal;
+//    return sakjournal;
   }
 
   private List<JournalpostDto> journalposterFraArkiv(List<JournalpostDto> journalposter, String saksnummer, String fagomrade) {
