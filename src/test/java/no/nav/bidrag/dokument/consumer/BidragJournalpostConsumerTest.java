@@ -12,36 +12,26 @@ import no.nav.bidrag.dokument.dto.JournalpostDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+@ExtendWith(MockitoExtension.class)
 @DisplayName("BidragJournalpostConsumer")
 @SuppressWarnings("unchecked")
 class BidragJournalpostConsumerTest {
 
+  @InjectMocks
   private BidragJournalpostConsumer bidragJournalpostConsumer;
 
   @Mock
   private RestTemplate restTemplateMock;
-
-  @BeforeEach
-  void setup() {
-    initMocks();
-    initTestClass();
-  }
-
-  private void initMocks() {
-    MockitoAnnotations.initMocks(this);
-  }
-
-  private void initTestClass() {
-    bidragJournalpostConsumer = new BidragJournalpostConsumer(restTemplateMock);
-  }
 
   @Test
   @DisplayName("skal bruke bidragssakens saksnummer i sti til tjeneste")
