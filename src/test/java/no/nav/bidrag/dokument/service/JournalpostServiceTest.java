@@ -16,12 +16,15 @@ import no.nav.bidrag.dokument.dto.JournalpostDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
 @DisplayName("JournalpostService")
+@ExtendWith(MockitoExtension.class)
 class JournalpostServiceTest {
 
   @Mock
@@ -30,11 +33,6 @@ class JournalpostServiceTest {
   private BidragJournalpostConsumer bidragJournalpostConsumerMock;
   @InjectMocks
   private JournalpostService journalpostService;
-
-  @BeforeEach
-  void initMocksAndService() {
-    MockitoAnnotations.initMocks(this);
-  }
 
   @Test
   @DisplayName("skal ikke hente journalpost")
@@ -54,11 +52,11 @@ class JournalpostServiceTest {
 
   @Test
   @DisplayName("skal kombinere resultat fra BidragDokumentJournalpostConsumer samt BidragDokumentArkivConsumer")
-  void skalKobinereResultaterFraJournalpostOgArkiv() {
+  void skalKombinereResultaterFraJournalpostOgArkiv() {
     when(bidragJournalpostConsumerMock.finnJournalposter("1", "FAG"))
         .thenReturn(Collections.singletonList(new JournalpostDto()));
-    when(bidragArkivConsumerMock.finnJournalposter("1", "FAG"))
-        .thenReturn(Collections.singletonList(new JournalpostDto()));
+//    when(bidragArkivConsumerMock.finnJournalposter("1", "FAG"))
+//        .thenReturn(Collections.singletonList(new JournalpostDto()));
 
     var journalposter = journalpostService.finnJournalposter("1", "FAG");
 

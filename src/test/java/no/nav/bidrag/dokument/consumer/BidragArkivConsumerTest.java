@@ -12,35 +12,26 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 @DisplayName("BidragArkivConsumer")
+@ExtendWith(MockitoExtension.class)
 @TestInstance(Lifecycle.PER_CLASS)
 class BidragArkivConsumerTest {
 
+  @InjectMocks
   private BidragArkivConsumer bidragArkivConsumer;
 
   @Mock
   private RestTemplate restTemplateMock;
-
-  @BeforeEach
-  void setUp() {
-    initMocks();
-    initTestClass();
-  }
-
-  private void initMocks() {
-    MockitoAnnotations.initMocks(this);
-  }
-
-  private void initTestClass() {
-    bidragArkivConsumer = new BidragArkivConsumer(restTemplateMock);
-  }
 
   @Test
   @DisplayName("skal hente en journalpost med spring sin RestTemplate")
@@ -65,3 +56,4 @@ class BidragArkivConsumerTest {
     return journalpostDto;
   }
 }
+
