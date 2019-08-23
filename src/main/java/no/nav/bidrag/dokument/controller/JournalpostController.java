@@ -104,12 +104,12 @@ public class JournalpostController {
     try {
       AvvikType.valueOf(avvikshendelse.getAvvikType());
     } catch (Exception e) {
-      LOGGER.warn("Ukjent avvikstype: " + avvikshendelse.getAvvikType());
+      LOGGER.warn("Ukjent avvikstype: {}, exception: {}: {}", avvikshendelse.getAvvikType(), e.getClass().getSimpleName(), e.getMessage());
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
-      LOGGER.warn("Logic: Ukjent Prefix Eller Har ikke Tall Etter Prefix for JournalpostId {}. Returnerer derfor BAD REQUEST.", journalpostIdForKildesystem);
+      LOGGER.warn("Ugyldig prefiks på journalpostId: " + journalpostIdForKildesystem);
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
