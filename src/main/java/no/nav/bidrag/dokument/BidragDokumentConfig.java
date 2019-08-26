@@ -87,11 +87,11 @@ public class BidragDokumentConfig {
 
   @Bean
   public FilterRegistrationBean<EnhetFilter> filterRegistrationBean() {
-    FilterRegistrationBean <EnhetFilter> registrationBean = new FilterRegistrationBean<EnhetFilter>();
+    FilterRegistrationBean <EnhetFilter> registrationBean = new FilterRegistrationBean<>();
     EnhetFilter enhetFlter = new EnhetFilter();
 
     registrationBean.setFilter(enhetFlter);
-    registrationBean.addUrlPatterns("/journalpost/avvik/*");
+    registrationBean.addUrlPatterns("/sak/*/journal/*/avvik");
     registrationBean.setOrder(2); //set precedence
     return registrationBean;
   }

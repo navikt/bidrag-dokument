@@ -5,6 +5,7 @@ import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,6 +13,7 @@ import static org.mockito.Mockito.when;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import java.util.stream.Collectors;
+import no.nav.bidrag.commons.KildesystemIdenfikator;
 import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.commons.web.test.SecuredTestRestTemplate;
 import no.nav.bidrag.dokument.service.JournalpostService;
@@ -57,10 +59,11 @@ class CorrelationIdFilterTest {
   @SuppressWarnings("unchecked")
   @DisplayName("skal logge requests mot applikasjonen")
   void skalLoggeRequestsMotApplikasjonen() {
-    when(journalpostServiceMock.hentJournalpost(any())).thenReturn(new HttpStatusResponse<>(HttpStatus.I_AM_A_TEAPOT));
+    when(journalpostServiceMock.hentJournalpost(anyString(), any(KildesystemIdenfikator.class)))
+        .thenReturn(new HttpStatusResponse<>(HttpStatus.I_AM_A_TEAPOT));
 
     var response = securedTestRestTemplate.exchange(
-        "http://localhost:" + port + "/bidrag-dokument/journalpost/BID-123",
+        "http://localhost:" + port + "/bidrag-dokument/sak/777/journal/BID-123",
         HttpMethod.GET,
         null,
         String.class
@@ -71,9 +74,11 @@ class CorrelationIdFilterTest {
         () -> {
           var loggingEventCaptor = ArgumentCaptor.forClass(ILoggingEvent.class);
           verify(appenderMock, atLeastOnce()).doAppend(loggingEventCaptor.capture());
+
           var loggingEvents = loggingEventCaptor.getAllValues();
           var allMsgs = loggingEvents.stream().map(ILoggingEvent::getFormattedMessage).collect(Collectors.joining("\n"));
-          assertThat(allMsgs).contains("Prosessing GET /bidrag-dokument/journalpost/BID-123");
+
+          assertThat(allMsgs).contains("Prosessing GET /bidrag-dokument/sak/777/journal/BID-123");
         }
     );
   }
@@ -94,8 +99,10 @@ class CorrelationIdFilterTest {
         () -> {
           var loggingEventCaptor = ArgumentCaptor.forClass(ILoggingEvent.class);
           verify(appenderMock, atLeastOnce()).doAppend(loggingEventCaptor.capture());
+
           var loggingEvents = loggingEventCaptor.getAllValues();
           var allMsgs = loggingEvents.stream().map(ILoggingEvent::getFormattedMessage).collect(Collectors.joining("\n"));
+
           assertThat(allMsgs).doesNotContain("Processing").doesNotContain("/actuator/");
         }
     );

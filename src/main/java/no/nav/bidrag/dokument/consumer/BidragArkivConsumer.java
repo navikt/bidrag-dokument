@@ -15,7 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class BidragArkivConsumer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(BidragArkivConsumer.class);
-  private static final String PATH_JOURNALPOST = "/journalpost/";
+  private static final String PATH_JOURNALPOST = "/sak/%s/journal/%s";
   private static final String PATH_SAKJOURNAL = "/sakjournal/";
   private static final String PARAM_FAGOMRADE = "fagomrade";
 
@@ -25,8 +25,9 @@ public class BidragArkivConsumer {
     this.restTemplate = restTemplate;
   }
 
-  public HttpStatusResponse<JournalpostDto> hentJournalpost(Integer id) {
-    var journalpostExchange = restTemplate.exchange(PATH_JOURNALPOST + id, HttpMethod.GET, null, JournalpostDto.class);
+  public HttpStatusResponse<JournalpostDto> hentJournalpost(String saksnummer, String id) {
+    var url = String.format(PATH_JOURNALPOST, saksnummer, id);
+    var journalpostExchange = restTemplate.exchange(url, HttpMethod.GET, null, JournalpostDto.class);
 
     LOGGER.info("Hent journalpost fikk http status {} fra bidrag-dokument-arkiv", journalpostExchange.getStatusCode());
 

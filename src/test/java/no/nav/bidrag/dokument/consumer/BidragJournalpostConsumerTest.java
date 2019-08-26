@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,10 +54,11 @@ class BidragJournalpostConsumerTest {
     when(restTemplateMock.exchange(anyString(), any(), any(), (Class<Object>) any()))
         .thenReturn(new ResponseEntity<>(HttpStatus.ACCEPTED));
 
-    bidragJournalpostConsumer.endre(endreJournalpostCommandMedId101());
+    bidragJournalpostConsumer.endre("007", endreJournalpostCommandMedId101());
+
     verify(restTemplateMock)
         .exchange(
-            eq("/journalpost/101"),
+            eq("/sak/007/journal/BID-101"),
             eq(HttpMethod.PUT),
             any(),
             eq(JournalpostDto.class)
@@ -67,7 +67,7 @@ class BidragJournalpostConsumerTest {
 
   private EndreJournalpostCommandDto endreJournalpostCommandMedId101() {
     return new EndreJournalpostCommandDto(
-        "101", null, null, null, null, null, null
+        "BID-101", null, null, null, null, null, null
     );
   }
 }

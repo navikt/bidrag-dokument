@@ -9,7 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.util.List;
-import no.nav.bidrag.dokument.KildesystemIdenfikator;
+import no.nav.bidrag.commons.KildesystemIdenfikator;
 import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
@@ -27,8 +27,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -36,9 +34,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class JournalpostController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(JournalpostController.class);
-  private static final String ENDPOINT_JOURNALPOST = "/journalpost";
-  private static final String ENDPOINT_SAKJOURNAL = "/sakjournal";
-  private static final String NON_DIGITS = "\\D+";
 
   private final JournalpostService journalpostService;
 
@@ -46,27 +41,21 @@ public class JournalpostController {
     this.journalpostService = journalpostService;
   }
 
-  @GetMapping("/status")
-  @ResponseBody
-  public String get() {
-    return "OK";
-  }
-
-  @GetMapping(ENDPOINT_JOURNALPOST + "/{journalpostIdForKildesystem}")
+  @GetMapping("/sak/{saksnummer}/journal/{journalpostIdForKildesystem}")
   @ApiOperation("Hent en journalpost for en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
-  public ResponseEntity<JournalpostDto> hent(@PathVariable String journalpostIdForKildesystem) {
+  public ResponseEntity<JournalpostDto> hent(@PathVariable String saksnummer, @PathVariable String journalpostIdForKildesystem) {
 
-    LOGGER.info("request: bidrag-dokument{}/{}", ENDPOINT_JOURNALPOST, journalpostIdForKildesystem);
+    LOGGER.info("request: bidrag-dokument/sak/{}/journal/{}", saksnummer, journalpostIdForKildesystem);
 
     if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    var journalpostDtoResponse = journalpostService.hentJournalpost(KildesystemIdenfikator.hent());
+    var journalpostDtoResponse = journalpostService.hentJournalpost(saksnummer, KildesystemIdenfikator.hent());
     return new ResponseEntity<>(journalpostDtoResponse.getBody(), journalpostDtoResponse.getHttpStatus());
   }
 
-  @GetMapping(ENDPOINT_JOURNALPOST + "/avvik/{journalpostIdForKildesystem}")
+  @GetMapping("/sak/{saksnummer}/journal/{journalpostIdForKildesystem}/avvik")
   @ApiOperation("Henter mulige avvik for en journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "Tilgjengelig avvik for journalpost er hentet"),
@@ -75,18 +64,18 @@ public class JournalpostController {
       @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig"),
       @ApiResponse(code = 404, message = "Fant ikke journalpost som det skal hentes avvik på")
   })
-  public ResponseEntity<List<AvvikType>> finnAvvik(@PathVariable String journalpostIdForKildesystem) {
-    LOGGER.info("request: bidrag-dokument{}/avvik/{}", ENDPOINT_JOURNALPOST, journalpostIdForKildesystem);
+  public ResponseEntity<List<AvvikType>> finnAvvik(@PathVariable String saksnummer, @PathVariable String journalpostIdForKildesystem) {
+    LOGGER.info("request: bidrag-dokument/sak/{}/journal/{}/avvik", saksnummer, journalpostIdForKildesystem);
 
     if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    var avvikslisteRespnse = journalpostService.finnAvvik(KildesystemIdenfikator.hent());
+    var avvikslisteRespnse = journalpostService.finnAvvik(saksnummer, KildesystemIdenfikator.hent());
     return new ResponseEntity<>(avvikslisteRespnse.getBody(), avvikslisteRespnse.getHttpStatus());
   }
 
-  @PostMapping(value = ENDPOINT_JOURNALPOST + "/avvik/{journalpostIdForKildesystem}", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(value = "/sak/{saksnummer}/journal/{journalpostIdForKildesystem}/avvik/", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
   @ApiOperation("Lagrer et avvik for en journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
   @ApiResponses(value = {
       @ApiResponse(code = 201, message = "Avvik på journalpost er opprettet"),
@@ -96,10 +85,11 @@ public class JournalpostController {
       @ApiResponse(code = 404, message = "Fant ikke journalpost som det skal lages avvik på")
   })
   public ResponseEntity<OpprettAvvikshendelseResponse> opprettAvvik(
+      @PathVariable String saksnummer,
       @PathVariable String journalpostIdForKildesystem,
       @RequestBody Avvikshendelse avvikshendelse
   ) {
-    LOGGER.info("create: bidrag-dokument{}/avvik/{} - {}", ENDPOINT_JOURNALPOST, journalpostIdForKildesystem, avvikshendelse);
+    LOGGER.info("create: bidrag-dokument/sak/{}/journal/{}/avvik - {}", saksnummer, journalpostIdForKildesystem, avvikshendelse);
 
     try {
       AvvikType.valueOf(avvikshendelse.getAvvikType());
@@ -113,29 +103,11 @@ public class JournalpostController {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    var opprettAvvikResponse = journalpostService.opprettAvvik(KildesystemIdenfikator.hent(), avvikshendelse);
+    var opprettAvvikResponse = journalpostService.opprettAvvik(saksnummer, KildesystemIdenfikator.hent(), avvikshendelse);
     return new ResponseEntity<>(opprettAvvikResponse.getBody(), opprettAvvikResponse.getHttpStatus());
   }
 
-  @GetMapping(ENDPOINT_SAKJOURNAL + "/{saksnummer}")
-  @ApiOperation("Finn saksjournal for et saksnummer, samt parameter 'fagomrade' (FAR - farskapsjournal) og (BID - bidragsjournal)")
-  public ResponseEntity<List<JournalpostDto>> get(
-      @PathVariable String saksnummer,
-      @RequestParam String fagomrade
-  ) {
-
-    LOGGER.info("request: bidrag-dokument{}/{}?fagomrade={}", ENDPOINT_JOURNALPOST, saksnummer, fagomrade);
-
-    if (saksnummer.matches(NON_DIGITS)) {
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
-
-    var journalposter = journalpostService.finnJournalposter(saksnummer, fagomrade);
-
-    return new ResponseEntity<>(journalposter, journalposter.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK);
-  }
-
-  @PutMapping(ENDPOINT_JOURNALPOST + "/{journalpostIdForKildesystem}")
+  @PutMapping("/sak/{saksnummer}/journal/{journalpostIdForKildesystem}")
   @ApiOperation("Endre eksisterende journalpost")
   @ApiResponses(value = {
       @ApiResponse(code = 203, message = "Journalpost er endret"),
@@ -144,17 +116,20 @@ public class JournalpostController {
       @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig, eller du har ikke adgang til kode 6 og 7 (nav-ansatt)")
   })
   public ResponseEntity<JournalpostDto> put(
+      @PathVariable String saksnummer,
       @RequestBody EndreJournalpostCommandDto endreJournalpostCommandDto,
       @PathVariable String journalpostIdForKildesystem
   ) {
 
-    LOGGER.info("put endret: bidrag-dokument{}/{}\n \\-> {}", ENDPOINT_JOURNALPOST, journalpostIdForKildesystem, endreJournalpostCommandDto);
+    LOGGER.info("put endret: bidrag-dokument/sak/{}/journal/{}\n \\-> {}", saksnummer, journalpostIdForKildesystem, endreJournalpostCommandDto);
 
     if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    var endreResponse = journalpostService.endre(endreJournalpostCommandDto);
+    endreJournalpostCommandDto.setJournalpostId(journalpostIdForKildesystem);
+
+    var endreResponse = journalpostService.endre(saksnummer, endreJournalpostCommandDto);
     return new ResponseEntity<>(endreResponse.getBody(), endreResponse.getHttpStatus());
   }
 }
