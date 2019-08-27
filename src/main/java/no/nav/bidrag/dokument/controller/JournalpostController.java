@@ -75,7 +75,7 @@ public class JournalpostController {
     return new ResponseEntity<>(avvikslisteRespnse.getBody(), avvikslisteRespnse.getHttpStatus());
   }
 
-  @PostMapping(value = "/sak/{saksnummer}/journal/{journalpostIdForKildesystem}/avvik/", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  @PostMapping(value = "/sak/{saksnummer}/journal/{journalpostIdForKildesystem}/avvik", consumes = MediaType.APPLICATION_JSON_VALUE)
   @ApiOperation("Lagrer et avvik for en journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
   @ApiResponses(value = {
       @ApiResponse(code = 201, message = "Avvik på journalpost er opprettet"),
