@@ -84,15 +84,12 @@ public class BidragDokumentConfig {
     return new EnhetFilter();
   }
 
-
   @Bean
-  public FilterRegistrationBean<EnhetFilter> filterRegistrationBean() {
+  public FilterRegistrationBean<EnhetFilter> filterRegistrationBean(EnhetFilter enhetFilter) {
     FilterRegistrationBean <EnhetFilter> registrationBean = new FilterRegistrationBean<>();
-    EnhetFilter enhetFlter = new EnhetFilter();
-
-    registrationBean.setFilter(enhetFlter);
-    registrationBean.addUrlPatterns("/sak/*/journal/*/avvik");
+    registrationBean.setFilter(enhetFilter);
     registrationBean.setOrder(2); //set precedence
+
     return registrationBean;
   }
 
