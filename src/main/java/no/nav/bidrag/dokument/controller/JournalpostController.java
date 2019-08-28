@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.util.List;
 import no.nav.bidrag.commons.KildesystemIdenfikator;
+import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -85,6 +87,7 @@ public class JournalpostController {
       @ApiResponse(code = 404, message = "Fant ikke journalpost som det skal lages avvik på")
   })
   public ResponseEntity<OpprettAvvikshendelseResponse> opprettAvvik(
+      @SuppressWarnings("unused") @RequestHeader(EnhetFilter.X_ENHETSNR_HEADER) String enhetsnummer, // ikke brukt direkte, kun for validering
       @PathVariable String saksnummer,
       @PathVariable String journalpostIdForKildesystem,
       @RequestBody Avvikshendelse avvikshendelse

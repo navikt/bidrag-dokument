@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
+import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.commons.web.test.SecuredTestRestTemplate;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
 import no.nav.bidrag.dokument.JournalpostDtoBygger;
@@ -36,6 +37,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -226,7 +228,7 @@ class JournalpostControllerTest {
       final var enhetsnummer = "4806";
       final var avvikshendelse = new Avvikshendelse(AvvikType.BESTILL_ORIGINAL.name(), enhetsnummer);
 
-      var bestillOriginalEntity = new HttpEntity<>(avvikshendelse, null);
+      var bestillOriginalEntity = initHttpEntity(avvikshendelse, new CustomHeader(EnhetFilter.X_ENHETSNR_HEADER, "1234"));
       var url = initEndpointUrl("/sak/1001/journal/BID-4/avvik");
       var responseEntity = securedTestRestTemplate.exchange(url, HttpMethod.POST, bestillOriginalEntity, OpprettAvvikshendelseResponse.class);
 
@@ -240,10 +242,21 @@ class JournalpostControllerTest {
     }
 
     @Test
+    @DisplayName("skal få bad request uten header value")
+    void skalFaBadRequestUtenHeaderValue() {
+      final var avvikshendelse = new Avvikshendelse("BESTILL_ORIGINAL", "4806");
+      var ukjentAvvikEntity = initHttpEntity(avvikshendelse);
+      var url = initEndpointUrl("/sak/1001/journal/BID-1/avvik");
+      var responseEntity = securedTestRestTemplate.exchange(url, HttpMethod.POST, ukjentAvvikEntity, OpprettAvvikshendelseResponse.class);
+
+      assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
     @DisplayName("skal få bad request når avvikstype ikke kan parses")
     void skalFaBadRequest() {
       final var avvikshendelse = new Avvikshendelse("AVVIK_IKKE_BLANT_KJENTE_AVVIKSTYPER", "4806");
-      var ukjentAvvikEntity = new HttpEntity<>(avvikshendelse, null);
+      var ukjentAvvikEntity = initHttpEntity(avvikshendelse, new CustomHeader(EnhetFilter.X_ENHETSNR_HEADER, "1234"));
       var url = initEndpointUrl("/sak/1001/journal/BID-1/avvik");
       var responseEntity = securedTestRestTemplate.exchange(url, HttpMethod.POST, ukjentAvvikEntity, OpprettAvvikshendelseResponse.class);
 
@@ -258,6 +271,28 @@ class JournalpostControllerTest {
     private ParameterizedTypeReference<List<AvvikType>> responseTypeErListeMedAvvikType() {
       return new ParameterizedTypeReference<>() {
       };
+    }
+
+    private <T> HttpEntity<T> initHttpEntity(T body,CustomHeader ... customHeaders) {
+      var httpHeaders = new HttpHeaders();
+
+      if (customHeaders != null) {
+        for (CustomHeader customHeader : customHeaders) {
+          httpHeaders.add(customHeader.name, customHeader.value);
+        }
+      }
+
+      return new HttpEntity<>(body, httpHeaders);
+    }
+
+    private class CustomHeader {
+      final String name;
+      final String value;
+
+      private CustomHeader(String name, String value) {
+        this.name = name;
+        this.value = value;
+      }
     }
   }
 
