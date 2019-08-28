@@ -84,15 +84,6 @@ public class BidragDokumentConfig {
     return new EnhetFilter();
   }
 
-  @Bean
-  public FilterRegistrationBean<EnhetFilter> filterRegistrationBean(EnhetFilter enhetFilter) {
-    FilterRegistrationBean <EnhetFilter> registrationBean = new FilterRegistrationBean<>();
-    registrationBean.setFilter(enhetFilter);
-    registrationBean.setOrder(2); //set precedence
-
-    return registrationBean;
-  }
-
   @FunctionalInterface
   public interface OidcTokenManager {
 
