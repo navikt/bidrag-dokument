@@ -13,7 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
-import no.nav.bidrag.commons.web.test.SecuredTestRestTemplate;
+import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import org.junit.jupiter.api.DisplayName;
@@ -40,7 +40,7 @@ class BidragSakControllerTest {
   @MockBean
   private RestTemplate restTemplateMock;
   @Autowired
-  private SecuredTestRestTemplate securedTestRestTemplate;
+  private HttpHeaderTestRestTemplate securedTestRestTemplate;
 
   @Test
   @SuppressWarnings("unchecked")

@@ -9,7 +9,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-import no.nav.bidrag.commons.web.test.SecuredTestRestTemplate;
+import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
 import no.nav.bidrag.dokument.dto.DokumentTilgangResponse;
 import org.junit.jupiter.api.DisplayName;
@@ -30,7 +30,7 @@ import org.springframework.web.client.RestTemplate;
 class DokumentControllerTest {
 
   @Autowired
-  private SecuredTestRestTemplate securedTestRestTemplate;
+  private HttpHeaderTestRestTemplate securedTestRestTemplate;
   @LocalServerPort
   private int port;
   @MockBean

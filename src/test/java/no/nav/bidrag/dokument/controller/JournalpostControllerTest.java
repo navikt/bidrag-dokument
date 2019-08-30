@@ -15,7 +15,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 import no.nav.bidrag.commons.web.EnhetFilter;
-import no.nav.bidrag.commons.web.test.SecuredTestRestTemplate;
+import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
 import no.nav.bidrag.dokument.JournalpostDtoBygger;
 import no.nav.bidrag.dokument.dto.AktorDto;
@@ -56,7 +56,7 @@ class JournalpostControllerTest {
   @Value("${server.servlet.context-path}")
   private String contextPath;
   @Autowired
-  private SecuredTestRestTemplate securedTestRestTemplate;
+  private HttpHeaderTestRestTemplate securedTestRestTemplate;
 
   @Nested
   @DisplayName("hent journalpost")
