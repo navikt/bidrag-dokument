@@ -15,7 +15,7 @@ import ch.qos.logback.core.Appender;
 import java.util.stream.Collectors;
 import no.nav.bidrag.commons.KildesystemIdenfikator;
 import no.nav.bidrag.commons.web.HttpStatusResponse;
-import no.nav.bidrag.commons.web.test.SecuredTestRestTemplate;
+import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.bidrag.dokument.service.JournalpostService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,7 +38,7 @@ import org.springframework.test.context.ActiveProfiles;
 class CorrelationIdFilterTest {
 
   @Autowired
-  private SecuredTestRestTemplate securedTestRestTemplate;
+  private HttpHeaderTestRestTemplate securedTestRestTemplate;
   @MockBean
   private Appender appenderMock;
   @MockBean
