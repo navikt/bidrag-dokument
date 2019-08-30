@@ -1,13 +1,13 @@
 package no.nav.bidrag.dokument.consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import no.nav.bidrag.dokument.dto.JournalpostDto;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -15,7 +15,6 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -37,16 +36,16 @@ class BidragArkivConsumerTest {
   @DisplayName("skal hente en journalpost med spring sin RestTemplate")
   void skalHenteJournalpostMedRestTemplate() {
 
-    when(restTemplateMock.exchange(anyString(), eq(HttpMethod.GET), eq(null), eq(JournalpostDto.class)))
+    when(restTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(JournalpostDto.class)))
         .thenReturn(new ResponseEntity<>(enJournalpostMedJournaltilstand("ENDELIG"), HttpStatus.OK));
 
-    var journalpostResponse = bidragArkivConsumer.hentJournalpost(101);
+    var journalpostResponse = bidragArkivConsumer.hentJournalpost("69", "BID-101");
     JournalpostDto journalpostDto = journalpostResponse.fetchOptionalResult()
         .orElseThrow(() -> new AssertionError("BidragArkivConsumer kunne ikke finne journalpost!"));
 
     assertThat(journalpostDto.getInnhold()).isEqualTo("ENDELIG");
 
-    verify(restTemplateMock).exchange("/journalpost/101", HttpMethod.GET, null, JournalpostDto.class);
+    verify(restTemplateMock).exchange("/sak/69/journal/BID-101", HttpMethod.GET, null, JournalpostDto.class);
   }
 
   private JournalpostDto enJournalpostMedJournaltilstand(@SuppressWarnings("SameParameterValue") String innhold) {
