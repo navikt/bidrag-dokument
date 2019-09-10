@@ -22,7 +22,7 @@ import no.nav.bidrag.dokument.dto.AktorDto;
 import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.DokumentDto;
-import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
+import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
 import org.junit.jupiter.api.AfterEach;
@@ -157,7 +157,7 @@ class JournalpostControllerTest {
     void skalFaBadRequestMedUkjentPrefixVedEndringAvJournalpost() {
       var lagreJournalpostUrl = initEndpointUrl("/sak/69/journal/svada-en");
       var badRequestResponse = securedTestRestTemplate.exchange(
-          lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommandDto()), JournalpostDto.class
+          lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommand()), JournalpostDto.class
       );
 
       assertThat(badRequestResponse).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -176,7 +176,7 @@ class JournalpostControllerTest {
 
       var lagreJournalpostUrl = initEndpointUrl("/sak/69/journal/bid-1");
       var endretJournalpostResponse = securedTestRestTemplate.exchange(
-          lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommandDto()), JournalpostDto.class
+          lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommand()), JournalpostDto.class
       );
 
       assertThat(optional(endretJournalpostResponse)).hasValueSatisfying(response -> assertAll(

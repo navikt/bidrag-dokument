@@ -13,7 +13,7 @@ import no.nav.bidrag.commons.KildesystemIdenfikator;
 import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
-import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
+import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
 import no.nav.bidrag.dokument.service.JournalpostService;
@@ -114,25 +114,25 @@ public class JournalpostController {
   @ApiOperation("Endre eksisterende journalpost")
   @ApiResponses(value = {
       @ApiResponse(code = 203, message = "Journalpost er endret"),
-      @ApiResponse(code = 400, message = "EndreJournalpostCommandDto.gjelder er ikke satt eller det ikke finnes en journalpost på gitt id"),
+      @ApiResponse(code = 400, message = "EndreJournalpostCommand.gjelder er ikke satt eller det finnes ikke en journalpost på gitt id"),
       @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"),
       @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig, eller du har ikke adgang til kode 6 og 7 (nav-ansatt)")
   })
   public ResponseEntity<JournalpostDto> put(
       @PathVariable String saksnummer,
-      @RequestBody EndreJournalpostCommandDto endreJournalpostCommandDto,
+      @RequestBody EndreJournalpostCommand endreJournalpostCommand,
       @PathVariable String journalpostIdForKildesystem
   ) {
 
-    LOGGER.info("put endret: bidrag-dokument/sak/{}/journal/{}\n \\-> {}", saksnummer, journalpostIdForKildesystem, endreJournalpostCommandDto);
+    LOGGER.info("put endret: bidrag-dokument/sak/{}/journal/{}\n \\-> {}", saksnummer, journalpostIdForKildesystem, endreJournalpostCommand);
 
     if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    endreJournalpostCommandDto.setJournalpostId(journalpostIdForKildesystem);
+    endreJournalpostCommand.setJournalpostId(journalpostIdForKildesystem);
 
-    var endreResponse = journalpostService.endre(saksnummer, endreJournalpostCommandDto);
+    var endreResponse = journalpostService.endre(saksnummer, endreJournalpostCommand);
     return new ResponseEntity<>(endreResponse.getBody(), endreResponse.getHttpStatus());
   }
 }

@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
+import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -65,9 +65,10 @@ class BidragJournalpostConsumerTest {
         );
   }
 
-  private EndreJournalpostCommandDto endreJournalpostCommandMedId101() {
-    return new EndreJournalpostCommandDto(
-        "BID-101", null, null, null, null, null, null
-    );
+  private EndreJournalpostCommand endreJournalpostCommandMedId101() {
+    EndreJournalpostCommand endreJournalpostCommand = new EndreJournalpostCommand();
+    endreJournalpostCommand.setJournalpostId("BID-101");
+
+    return endreJournalpostCommand;
   }
 }

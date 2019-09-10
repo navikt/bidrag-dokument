@@ -6,7 +6,7 @@ import java.util.Optional;
 import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
-import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
+import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
 import org.slf4j.Logger;
@@ -58,11 +58,11 @@ public class BidragJournalpostConsumer {
     return new HttpStatusResponse<>(exchange.getStatusCode(), exchange.getBody());
   }
 
-  public HttpStatusResponse<JournalpostDto> endre(String saksnummer, EndreJournalpostCommandDto endreJournalpostCommandDto) {
-    var path = String.format(PATH_JOURNALPOST, saksnummer, endreJournalpostCommandDto.getJournalpostId());
-    LOGGER.info("Endre journalpost BidragDokument: {}, path {}", endreJournalpostCommandDto, path);
+  public HttpStatusResponse<JournalpostDto> endre(String saksnummer, EndreJournalpostCommand endreJournalpostCommand) {
+    var path = String.format(PATH_JOURNALPOST, saksnummer, endreJournalpostCommand.getJournalpostId());
+    LOGGER.info("Endre journalpost BidragDokument: {}, path {}", endreJournalpostCommand, path);
 
-    var endretJournalpostResponse = restTemplate.exchange(path, HttpMethod.PUT, new HttpEntity<>(endreJournalpostCommandDto), JournalpostDto.class);
+    var endretJournalpostResponse = restTemplate.exchange(path, HttpMethod.PUT, new HttpEntity<>(endreJournalpostCommand), JournalpostDto.class);
 
     LOGGER.info("Endre journalpost fikk http status {}, body: {}", endretJournalpostResponse.getStatusCode(), endretJournalpostResponse.getBody());
     return new HttpStatusResponse<>(endretJournalpostResponse.getStatusCode(), endretJournalpostResponse.getBody());

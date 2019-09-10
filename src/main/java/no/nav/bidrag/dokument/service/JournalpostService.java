@@ -11,7 +11,7 @@ import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
-import no.nav.bidrag.dokument.dto.EndreJournalpostCommandDto;
+import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
 import org.springframework.http.HttpStatus;
@@ -89,7 +89,7 @@ public class JournalpostService {
     return Collections.emptyList();
   }
 
-  public HttpStatusResponse<JournalpostDto> endre(String saksnummer, EndreJournalpostCommandDto endreJournalpostCommandDto) {
-    return bidragJournalpostConsumer.endre(saksnummer, endreJournalpostCommandDto);
+  public HttpStatusResponse<JournalpostDto> endre(String saksnummer, EndreJournalpostCommand endreJournalpostCommand) {
+    return bidragJournalpostConsumer.endre(saksnummer, endreJournalpostCommand);
   }
 }
