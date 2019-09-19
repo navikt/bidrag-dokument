@@ -89,7 +89,7 @@ public class JournalpostService {
     return Collections.emptyList();
   }
 
-  public HttpStatusResponse<JournalpostDto> endre(String saksnummer, EndreJournalpostCommand endreJournalpostCommand) {
+  public HttpStatusResponse<Void> endre(String saksnummer, EndreJournalpostCommand endreJournalpostCommand) {
     return bidragJournalpostConsumer.endre(saksnummer, endreJournalpostCommand);
   }
 }
