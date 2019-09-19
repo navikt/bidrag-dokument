@@ -14,6 +14,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import java.util.stream.Collectors;
 import no.nav.bidrag.commons.KildesystemIdenfikator;
+import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.bidrag.dokument.service.JournalpostService;
@@ -27,6 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,8 +37,8 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(classes = BidragDokumentLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({TEST_PROFILE, SECURE_TEST_PROFILE})
-@DisplayName("CorrelationIdFilter")
-class CorrelationIdFilterTest {
+@DisplayName("EnhetFilter")
+class EnhetFilterFilterTest {
 
   @Autowired
   private HttpHeaderTestRestTemplate securedTestRestTemplate;
@@ -57,8 +60,8 @@ class CorrelationIdFilterTest {
 
   @Test
   @SuppressWarnings("unchecked")
-  @DisplayName("skal logge requests mot applikasjonen")
-  void skalLoggeRequestsMotApplikasjonen() {
+  @DisplayName("skal logge requests mot applikasjonen som ikke inneholder enhetsinformasjon i header")
+  void skalLoggeRequestsMotApplikasjonenUtenHeaderInformasjon() {
     when(journalpostServiceMock.hentJournalpost(anyString(), any(KildesystemIdenfikator.class)))
         .thenReturn(new HttpStatusResponse<>(HttpStatus.I_AM_A_TEAPOT));
 
@@ -78,24 +81,31 @@ class CorrelationIdFilterTest {
           var loggingEvents = loggingEventCaptor.getAllValues();
           var allMsgs = loggingEvents.stream().map(ILoggingEvent::getFormattedMessage).collect(Collectors.joining("\n"));
 
-          assertThat(allMsgs).contains("Prosessing GET /bidrag-dokument/sak/777/journal/BID-123");
+          assertThat(allMsgs).contains("Behandler request '/bidrag-dokument/sak/777/journal/BID-123' uten informasjon om enhetsnummer.");
         }
     );
   }
 
   @Test
   @SuppressWarnings("unchecked")
-  @DisplayName("skal ikke logge requests mot actuator endpoints")
-  void skalIkkeLoggeRequestsMotActuatorEndpoints() {
+  @DisplayName("skal logge requests mot applikasjonen som ikke inneholder enhetsinformasjon i header")
+  void skalLoggeRequestsMotApplikasjonenMedHeaderInformasjon() {
+    when(journalpostServiceMock.hentJournalpost(anyString(), any(KildesystemIdenfikator.class)))
+        .thenReturn(new HttpStatusResponse<>(HttpStatus.I_AM_A_TEAPOT));
+
+    var headers = new HttpHeaders();
+    headers.add(EnhetFilter.X_ENHETSNR_HEADER, "1234");
+
+    var htpEntity = new HttpEntity<Void>(null, headers);
     var response = securedTestRestTemplate.exchange(
-        "http://localhost:" + port + "/bidrag-dokument/actuator/health",
+        "http://localhost:" + port + "/bidrag-dokument/sak/777/journal/BID-123",
         HttpMethod.GET,
-        null,
+        htpEntity,
         String.class
     );
 
     assertAll(
-        () -> assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK),
+        () -> assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.I_AM_A_TEAPOT),
         () -> {
           var loggingEventCaptor = ArgumentCaptor.forClass(ILoggingEvent.class);
           verify(appenderMock, atLeastOnce()).doAppend(loggingEventCaptor.capture());
@@ -103,7 +113,7 @@ class CorrelationIdFilterTest {
           var loggingEvents = loggingEventCaptor.getAllValues();
           var allMsgs = loggingEvents.stream().map(ILoggingEvent::getFormattedMessage).collect(Collectors.joining("\n"));
 
-          assertThat(allMsgs).doesNotContain("Processing").doesNotContain("/actuator/");
+          assertThat(allMsgs).contains("Behandler request '/bidrag-dokument/sak/777/journal/BID-123' for enhet med enhetsnummer 1234");
         }
     );
   }
