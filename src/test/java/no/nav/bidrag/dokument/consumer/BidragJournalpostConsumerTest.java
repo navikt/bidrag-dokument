@@ -61,7 +61,7 @@ class BidragJournalpostConsumerTest {
             eq("/sak/007/journal/BID-101"),
             eq(HttpMethod.PUT),
             any(),
-            eq(JournalpostDto.class)
+            eq(Void.class)
         );
   }
 

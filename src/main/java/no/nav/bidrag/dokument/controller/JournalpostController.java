@@ -118,7 +118,7 @@ public class JournalpostController {
       @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"),
       @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig, eller du har ikke adgang til kode 6 og 7 (nav-ansatt)")
   })
-  public ResponseEntity<JournalpostDto> put(
+  public ResponseEntity<Void> put(
       @PathVariable String saksnummer,
       @RequestBody EndreJournalpostCommand endreJournalpostCommand,
       @PathVariable String journalpostIdForKildesystem
@@ -133,6 +133,6 @@ public class JournalpostController {
     endreJournalpostCommand.setJournalpostId(journalpostIdForKildesystem);
 
     var endreResponse = journalpostService.endre(saksnummer, endreJournalpostCommand);
-    return new ResponseEntity<>(endreResponse.getBody(), endreResponse.getHttpStatus());
+    return new ResponseEntity<>(endreResponse.getHttpStatus());
   }
 }

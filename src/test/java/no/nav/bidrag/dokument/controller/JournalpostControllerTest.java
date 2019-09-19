@@ -1,6 +1,5 @@
 package no.nav.bidrag.dokument.controller;
 
-import static java.util.Collections.singletonList;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.SECURE_TEST_PROFILE;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,11 +16,9 @@ import java.util.Optional;
 import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
-import no.nav.bidrag.dokument.JournalpostDtoBygger;
 import no.nav.bidrag.dokument.dto.AktorDto;
 import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
-import no.nav.bidrag.dokument.dto.DokumentDto;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
@@ -166,23 +163,17 @@ class JournalpostControllerTest {
     @Test
     @DisplayName("skal endre journalpost")
     void skalEndreJournalpost() {
-      when(restTemplateMock.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(JournalpostDto.class)))
-          .thenReturn(new ResponseEntity<>(new JournalpostDtoBygger()
-              .medDokumenter(singletonList(new DokumentDto()))
-              .medGjelderAktor("06127412345")
-              .medJournalpostId("BID-101")
-              .build(), HttpStatus.ACCEPTED)
-          );
+      when(restTemplateMock.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(Void.class)))
+          .thenReturn(new ResponseEntity<>(HttpStatus.ACCEPTED));
 
       var lagreJournalpostUrl = initEndpointUrl("/sak/69/journal/bid-1");
       var endretJournalpostResponse = securedTestRestTemplate.exchange(
-          lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommand()), JournalpostDto.class
+          lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommand()), Void.class
       );
 
       assertThat(optional(endretJournalpostResponse)).hasValueSatisfying(response -> assertAll(
           () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED),
-          () -> assertThat(response.getBody()).extracting(JournalpostDto::getJournalpostId).isEqualTo("BID-101"),
-          () -> verify(restTemplateMock).exchange(eq("/sak/69/journal/bid-1"), eq(HttpMethod.PUT), any(), eq(JournalpostDto.class))
+          () -> verify(restTemplateMock).exchange(eq("/sak/69/journal/bid-1"), eq(HttpMethod.PUT), any(), eq(Void.class))
       ));
     }
   }
@@ -273,7 +264,7 @@ class JournalpostControllerTest {
       };
     }
 
-    private <T> HttpEntity<T> initHttpEntity(T body,CustomHeader ... customHeaders) {
+    private <T> HttpEntity<T> initHttpEntity(T body, CustomHeader... customHeaders) {
       var httpHeaders = new HttpHeaders();
 
       if (customHeaders != null) {
@@ -286,6 +277,7 @@ class JournalpostControllerTest {
     }
 
     private class CustomHeader {
+
       final String name;
       final String value;
 
