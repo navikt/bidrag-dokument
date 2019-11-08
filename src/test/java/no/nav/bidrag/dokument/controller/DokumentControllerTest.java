@@ -39,7 +39,7 @@ class DokumentControllerTest {
   @Test
   @DisplayName("skal spørre brevserver om tilgang til dokument")
   void skalVideresendeRequestOmTilgangTilDokument() {
-    when(restTemplateMock.exchange(eq("/tilgang/dokref"), eq(HttpMethod.GET), any(), eq(DokumentTilgangResponse.class)))
+    when(restTemplateMock.exchange(eq("/tilgang/BID-123/dokref"), eq(HttpMethod.GET), any(), eq(DokumentTilgangResponse.class)))
         .thenReturn(new ResponseEntity<>(new DokumentTilgangResponse("urlWithToken", "BREVLAGER"), HttpStatus.I_AM_A_TEAPOT));
 
     var dokumentUrlResponse = Optional.of(securedTestRestTemplate.exchange(

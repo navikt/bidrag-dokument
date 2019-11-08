@@ -14,7 +14,7 @@ public class DokumentService {
     this.dokumentConsumer = dokumentConsumer;
   }
 
-  public HttpStatusResponse<DokumentTilgangResponse> hentTilgangUrl(String dokumentreferanse) {
-    return dokumentConsumer.hentTilgangUrl(dokumentreferanse);
+  public HttpStatusResponse<DokumentTilgangResponse> hentTilgangUrl(String journalpostId, String dokumentreferanse) {
+    return dokumentConsumer.hentTilgangUrl(journalpostId, dokumentreferanse);
   }
 }
