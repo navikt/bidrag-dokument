@@ -30,11 +30,11 @@ istio:
   enabled: false # when true, envoy-proxy sidecar will be injected into pod and https urls envvars will be rewritten
 resources: # Optional. See: http://kubernetes.io/docs/user-guide/compute-resources/
   limits:
-    cpu: 500m # app will have its cpu usage throttled if exceeding this limit
-    memory: 512Mi  # app will be killed if exceeding these limits
+    cpu: 1000m # app will have its cpu usage throttled if exceeding this limit
+    memory: 1024Mi  # app will be killed if exceeding these limits
   requests: # App is guaranteed the requested resources and  will be scheduled on nodes with at least this amount of resources available
-    cpu: 200m
-    memory: 256Mi
+    cpu: 500m
+    memory: 512Mi
 ingress:
   disabled: false # if true, no ingress will be created and application can only be reached from inside cluster
 fasitResources: # resources fetched from Fasit
