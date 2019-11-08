@@ -1,5 +1,5 @@
 @Library('bidrag-jenkins') _
-   naisPipeline {
+   naisMavenPipeline {
       gitHubProjectName = "bidrag-dokument"
-      buildImage = "maven:3.6.1-jdk-12"
+      buildImage = "maven:3.6.2-jdk-12"
     }

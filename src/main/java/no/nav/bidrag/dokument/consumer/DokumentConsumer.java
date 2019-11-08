@@ -13,8 +13,14 @@ public class DokumentConsumer {
     this.restTemplate = restTemplate;
   }
 
-  public HttpStatusResponse<DokumentTilgangResponse> hentTilgangUrl(String dokumentreferanse) {
-    var response = restTemplate.exchange("/tilgang/" + dokumentreferanse, HttpMethod.GET, null, DokumentTilgangResponse.class);
+  public HttpStatusResponse<DokumentTilgangResponse> hentTilgangUrl(String journalpostId, String dokumentreferanse) {
+    var response = restTemplate.exchange(
+        String.format("/tilgang/%s/%s", journalpostId, dokumentreferanse),
+        HttpMethod.GET,
+        null,
+        DokumentTilgangResponse.class
+    );
+
     return new HttpStatusResponse<>(response.getStatusCode(), response.getBody());
   }
 }
