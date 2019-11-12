@@ -15,7 +15,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.2.0.RELEASE</version>
+    <version>2.2.1.RELEASE</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
@@ -33,9 +33,6 @@
     <oidc-spring-support.version>0.2.18</oidc-spring-support.version>
     <mockito.version>3.1.0</mockito.version>
     <springfox-swagger.version>2.9.2</springfox-swagger.version>
-
-    <!-- vulnerable dependencies -->
-    <jackson.version>2.10.0.pr3</jackson.version>
 
     <!-- build -->
     <maven.compiler.version>3.8.0</maven.compiler.version>
@@ -108,12 +105,6 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-databind</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <!-- swagger -->
@@ -229,13 +220,6 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
-    </dependency>
-
-    <!-- overridden vulnerable dependencies -->
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>${jackson.version}</version>
     </dependency>
   </dependencies>
 
