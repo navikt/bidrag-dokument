@@ -23,7 +23,6 @@
 
     <!-- language -->
     <java.version>12</java.version>
-    <kotlin.version>1.3.60</kotlin.version> <!-- to synkronise runtime being presented by spring-boot -->
 
     <!-- dependent versions other than from spring-boot -->
     <bidrag-commons.version>0.1.15</bidrag-commons.version>
