@@ -27,7 +27,7 @@
     <!-- dependent versions other than from spring-boot -->
     <bidrag-commons.version>0.1.27-e4cca6c2bc46</bidrag-commons.version>
     <bidrag-commons-test.version>0.1.0</bidrag-commons-test.version>
-    <bidrag-dokument-dto.version>0.5.1</bidrag-dokument-dto.version>
+    <bidrag-dokument-dto.version>0.5.19-b757d738535e</bidrag-dokument-dto.version>
     <logback.encoder.version>6.2</logback.encoder.version>
     <oidc-spring-support.version>0.2.18</oidc-spring-support.version>
     <mockito.version>3.1.0</mockito.version>
