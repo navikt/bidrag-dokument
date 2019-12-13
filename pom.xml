@@ -28,9 +28,8 @@
     <bidrag-commons.version>0.1.18</bidrag-commons.version>
     <bidrag-commons-test.version>0.1.0</bidrag-commons-test.version>
     <bidrag-dokument-dto.version>0.5.1</bidrag-dokument-dto.version>
-    <logback.encoder.version>6.2</logback.encoder.version>
+    <logback.encoder.version>6.3</logback.encoder.version>
     <oidc-spring-support.version>0.2.18</oidc-spring-support.version>
-    <mockito.version>3.1.0</mockito.version>
     <springfox-swagger.version>2.9.2</springfox-swagger.version>
 
     <!-- build -->
@@ -206,7 +205,6 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>${mockito.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
