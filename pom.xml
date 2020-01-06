@@ -220,6 +220,14 @@
     </dependency>
   </dependencies>
 
+  <repositories>
+    <repository>
+      <id>fp-felles</id>
+      <name>GitHub felles Apache Maven Packages</name>
+      <url>https://maven.pkg.github.com/navikt/fp-felles/</url>
+    </repository>
+  </repositories>
+
   <build>
     <plugins>
 
