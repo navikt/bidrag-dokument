@@ -220,13 +220,13 @@
     </dependency>
   </dependencies>
 
-  <repositories>
-    <repository>
+  <distributionManagement>
+  <repository>
       <id>fp-felles</id>
-      <name>GitHub felles Apache Maven Packages</name>
+      <name>GitHub felles Apache Maven Packages for navikt</name>
       <url>https://maven.pkg.github.com/navikt/fp-felles/</url>
     </repository>
-  </repositories>
+  </distributionManagement>
 
   <build>
     <plugins>
