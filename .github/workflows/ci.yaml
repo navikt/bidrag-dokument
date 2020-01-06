@@ -26,12 +26,14 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
+      - name: setup maven
+        uses: navikt/bidrag-actions/setup-mvn@feature-mvn-app
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Verify that no dependencies are of type SNAPSHOT
         uses: navikt/bidrag-actions/verify-mvn-dependencies@master
       - name: build & test with maven
-        uses: navikt/bidrag-actions/build-mvn-app-on-github@feature-mvn-app
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: mvn -B install
       - name: prepare release of nais application
         if: github.ref == 'refs/heads/master'
         uses: navikt/bidrag-actions/release-prepare-mvn-pkg@master
