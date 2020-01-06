@@ -34,7 +34,7 @@ jobs:
 #        uses: navikt/bidrag-actions/verify-mvn-dependencies@master
       - name: build & test with maven
         run: |
-          cat ~/.m2/setings.xml
+          cat ~/.m2/settings.xml
           mvn -B install
       - name: prepare release of nais application
         if: github.ref == 'refs/heads/master'
