@@ -1,0 +1,26 @@
+name: verify pull request
+on: [pull_request]
+
+jobs:
+  build-pull-request:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: init
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '13'
+      - name: debug
+        run: env
+      - name: cache maven dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: build & test with maven
+        run: mvn -B install
