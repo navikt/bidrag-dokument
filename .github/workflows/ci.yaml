@@ -27,7 +27,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: setup maven
-        uses: navikt/bidrag-actions/setup-mvn@feature-mvn-app
+        uses: navikt/bidrag-actions/setup-maven@feature-mvn-app
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Verify that no dependencies are of type SNAPSHOT
