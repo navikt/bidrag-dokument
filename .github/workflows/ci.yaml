@@ -29,7 +29,9 @@ jobs:
       - name: Verify that no dependencies are of type SNAPSHOT
         uses: navikt/bidrag-actions/verify-mvn-dependencies@master
       - name: build & test with maven
-        run: mvn -B install
+        uses: navikt/bidrag-actions/build-mvn-app-on-github@feature-mvn-app
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: prepare release of nais application
         if: github.ref == 'refs/heads/master'
         uses: navikt/bidrag-actions/release-prepare-mvn-pkg@master
