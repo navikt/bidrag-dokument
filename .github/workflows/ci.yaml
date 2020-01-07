@@ -30,8 +30,8 @@ jobs:
         uses: navikt/bidrag-actions/setup-maven@feature-mvn-app
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#      - name: Verify that no dependencies are of type SNAPSHOT
-#        uses: navikt/bidrag-actions/verify-mvn-dependencies@master
+      - name: Verify that no dependencies are of type SNAPSHOT
+        uses: navikt/bidrag-actions/verify-mvn-dependencies@master
       - name: build & test with maven
         run: |
           cat ~/.m2/settings.xml
