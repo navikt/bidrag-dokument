@@ -27,10 +27,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: setup maven
-        uses: navikt/bidrag-actions/setup-maven@master
+        uses: navikt/bidrag-actions/setup-maven@v1.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Verify that no dependencies are of type SNAPSHOT
-        uses: navikt/bidrag-actions/verify-mvn-dependencies@master
+        uses: navikt/bidrag-actions/verify-mvn-dependencies@v1.0.0
       - name: build & test with maven
         run: mvn -B install
