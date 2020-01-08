@@ -34,18 +34,3 @@ jobs:
         uses: navikt/bidrag-actions/verify-mvn-dependencies@master
       - name: build & test with maven
         run: mvn -B install
-      - name: prepare release of nais application
-        if: github.ref == 'refs/heads/master'
-        uses: navikt/bidrag-actions/release-prepare-mvn-pkg@master
-        with:
-          new_snapshot_version_file_name: .new-snapshot-version
-          release_version_file_name: .release-version
-      - name: commit new version
-        if: github.ref == 'refs/heads/master'
-        uses: navikt/bidrag-actions/tag-and-commit@master
-        with:
-          message: Bumped to new version after release of version {}
-          pattern: pom.xml
-          tag_file: .release-version
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
