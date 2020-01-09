@@ -7,6 +7,7 @@ on:
 jobs:
 
   build:
+    name: Build maven jar and docker image
     runs-on: ubuntu-latest
 
     steps:
@@ -30,14 +31,15 @@ jobs:
         run: mvn -B install
       - name: Create Docker tag & image
         run: |
-          NAME=echo $GITHUB_REPOSITORY | sed 's;^.*/;;'
+          export NAME=echo $GITHUB_REPOSITORY | sed 's;^.*/;;'
           echo "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$NAME" > .docker-image
           echo "$(date "+%Y.%m.%d")-$(git rev-parse --short HEAD)" > .docker-tag
       - name: Build Docker image
         run: docker build -t $(cat .docker-image):$(cat .docker-tag) .
+
   deploy:
     runs-on: ubuntu-latest
-    name: deploy docker-image as nais application
+    name: Deploy docker-image as nais application
     needs: build
 
     steps:
