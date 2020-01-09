@@ -26,16 +26,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Verify that no dependencies are of type SNAPSHOT
         uses: navikt/bidrag-actions/verify-mvn-dependencies@v1.0.0
-      - name: build & test with maven
+      - name: Build & test with maven
         run: mvn -B install
       - name: Create Docker tag & image
         run: |
           NAME=echo $GITHUB_REPOSITORY | sed 's;^.*/;;'
           echo "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$NAME" > .docker-image
           echo "$(date "+%Y.%m.%d")-$(git rev-parse --short HEAD)" > .docker-tag
-
-          echo "For docker - tag: $(cat .docker-tag) - image: $(cat .docker-image)"
-
+      - name: Build Docker image
+        run: docker build -t $(cat .docker-image):$(cat .docker-tag) .
   deploy:
     runs-on: ubuntu-latest
     name: deploy docker-image as nais application
