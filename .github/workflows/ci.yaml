@@ -8,7 +8,7 @@ on:
 jobs:
 
   build:
-    name: Build maven jar and docker image
+    name: Build with maven and docker
     runs-on: ubuntu-latest
 
     steps:
@@ -30,7 +30,7 @@ jobs:
         uses: navikt/bidrag-actions/verify-mvn-dependencies@v1.0.0
       - name: Build & test with maven
         run: mvn -B install
-      - name: Create Docker tag & build docker image
+      - name: Create docker tag & build docker image
         run: |
           echo "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$(echo $GITHUB_REPOSITORY | sed 's;^.*/;;')" > .docker-image
           echo "$(date "+%Y.%m.%d")-$(git rev-parse --short HEAD)" > .docker-tag
@@ -38,9 +38,8 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    name: Deploy docker-image as nais application
+    name: Deploy docker image
     needs: build
 
     steps:
       - run: echo "todo"
-
