@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - '**'
+      - '!release'
 
 jobs:
 
@@ -29,12 +30,11 @@ jobs:
         uses: navikt/bidrag-actions/verify-mvn-dependencies@v1.0.0
       - name: Build & test with maven
         run: mvn -B install
-      - name: Create Docker tag & image
+      - name: Create Docker tag & build docker image
         run: |
           echo "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$(echo $GITHUB_REPOSITORY | sed 's;^.*/;;')" > .docker-image
           echo "$(date "+%Y.%m.%d")-$(git rev-parse --short HEAD)" > .docker-tag
-      - name: Build Docker image
-        run: docker build -t $(cat .docker-image):$(cat .docker-tag) .
+          docker build -t $(cat .docker-image):$(cat .docker-tag) .
 
   deploy:
     runs-on: ubuntu-latest
