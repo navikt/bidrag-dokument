@@ -35,6 +35,12 @@ jobs:
           echo "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$(echo $GITHUB_REPOSITORY | sed 's;^.*/;;')" > .docker-image
           echo "$(date "+%Y.%m.%d")-$(git rev-parse --short HEAD)" > .docker-tag
           docker build -t $(cat .docker-image):$(cat .docker-tag) .
+      - name: Login to Github Package Registry
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
+      - name: Push Docker image
+        run: docker push $IMAGE
 
   deploy:
     runs-on: ubuntu-latest
@@ -42,4 +48,15 @@ jobs:
     needs: build
 
     steps:
-      - run: echo "todo"
+      - name: Deploy to prod
+        if: github.ref == 'refs/heads/release'
+        run: echo "todo - deploy to prod"
+      - name: Deploy to pre-prod (q4)
+        if: github.ref == 'refs/heads/master'
+        run: echo "todo - deplot to preprod (q4)"
+      - name: Deploy to pre-prod (q0 - default)
+        if: github.ref == 'refs/heads/develop'
+        run: echo "todo - deplot to preprod (q0 - default)"
+      - name: Deploy to pre-prod (q1)
+        if: github.ref != 'refs/heads/develop' && github.ref != 'refs/heads/master' && github.ref != 'refs/heads/release'
+        run: echo "todo - deplot to preprod (q1)"
