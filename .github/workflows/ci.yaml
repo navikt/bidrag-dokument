@@ -7,7 +7,7 @@ on:
 jobs:
 
   buildmaven:
-    name: Build maven component
+    name: Test maven component
     runs-on: ubuntu-latest
 
     steps:
@@ -27,8 +27,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Verify that no dependencies are of type SNAPSHOT
         uses: navikt/bidrag-actions/verify-mvn-dependencies@v1.0.0
-      - name: Build & test with maven
-        run: mvn -B install
+      - name: Test with maven
+        run: mvn -B test
 
   builddocker:
     runs-on: ubuntu-latest
@@ -37,6 +37,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - run: mvn -B install -DskipTests
       - name: Build docker image
         run: |
           echo "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$(echo $GITHUB_REPOSITORY | sed 's;^.*/;;')" > .docker-image
