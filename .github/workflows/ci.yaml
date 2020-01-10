@@ -6,8 +6,8 @@ on:
 
 jobs:
 
-  buildmaven:
-    name: Test maven component
+  build:
+    name: Build with maven and docker
     runs-on: ubuntu-latest
 
     steps:
@@ -27,27 +27,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Verify that no dependencies are of type SNAPSHOT
         uses: navikt/bidrag-actions/verify-mvn-dependencies@v1.0.0
-      - name: Test with maven
-        run: mvn -B test
-
-  builddocker:
-    runs-on: ubuntu-latest
-    name: Build docker image
-    needs: buildmaven
-
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - uses: navikt/bidrag-actions/setup-maven@v1.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: mvn -B install -DskipTests
-      - name: Build docker image
+      - name: Build & test with maven
+        run: mvn -B install
+      - name: Create docker tag & build docker image
         run: |
           echo "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$(echo $GITHUB_REPOSITORY | sed 's;^.*/;;')" > .docker-image
           docker build -t $(cat .docker-image):$(git rev-parse --short HEAD) .
@@ -61,9 +43,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     name: Deploy docker image
-    needs: builddocker
+    needs: build
 
     steps:
+      - uses: actions/checkout@v2
       - name: Deploy to prod
         if: github.ref == 'refs/heads/release'
         run: echo "todo - deploy to prod"
