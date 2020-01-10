@@ -4,6 +4,9 @@ on:
     branches:
       - '**'
 
+env:
+  IMAGE: docker.pkg.github.com/${{ github.repository }}/bidrag-dokument:${{ github.sha }}
+
 jobs:
 
   build:
@@ -29,16 +32,13 @@ jobs:
         uses: navikt/bidrag-actions/verify-mvn-dependencies@v1.0.0
       - name: Build & test with maven
         run: mvn -B install
-      - name: Build docker image
-        run: |
-          echo "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$(echo $GITHUB_REPOSITORY | sed 's;^.*/;;')" > .docker-image
-          docker build -t $(cat .docker-image):$(git rev-parse --short HEAD) .
-      - name: Login to Github Package Registry
+      - name: Build and publish Docker image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
-      - name: Push Docker image
-        run: docker push "$(cat .docker-image):$(git rev-parse --short HEAD)"
+        run: |
+          docker build --tag ${IMAGE} .
+          docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
+          docker push ${IMAGE}
 
   deploy:
     runs-on: ubuntu-latest
@@ -46,16 +46,30 @@ jobs:
     needs: build
 
     steps:
-      - uses: actions/checkout@v2
       - name: Deploy to prodfss
         if: github.ref == 'refs/heads/release'
         run: echo "todo - deploy to prodfss"
       - name: Deploy to devfss - namespace q4
         if: github.ref == 'refs/heads/master'
-        run: echo todo - Deploy to devfss, namespace q4
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-fss
+          RESOURCE: nais.yml
+          VAR: namespace=q4
       - name: Deploy to devfss, default namespace
         if: github.ref == 'refs/heads/develop'
-        run: echo todo - Deploy to devfss, default namespace
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-fss
+          RESOURCE: nais.yml
+          VAR: namespace=default
       - name: Deploy to devfss, namespace q1
         if: github.ref != 'refs/heads/develop' && github.ref != 'refs/heads/master' && github.ref != 'refs/heads/release'
-        run: echo "todo - deploy to devfss, namespace q1)
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: dev-fss
+          RESOURCE: nais.yml
+          VAR: namespace=q1

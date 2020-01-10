@@ -2,11 +2,11 @@ apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
   name: bidrag-dokument
+  namespace: {{ namespace }}
   labels:
     team: teambidrag
 spec:
-  image: repo.adeo.no:5443/bidrag-dokument:{{version}}
-  port: 8080
+  image: {{ image }}
   liveness:
     path: /bidrag-dokument/actuator/health
     initialDelay: 20
