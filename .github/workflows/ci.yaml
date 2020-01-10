@@ -3,34 +3,60 @@ on:
   push:
     branches:
       - '**'
+      - '!release'
 
 jobs:
 
   build:
+    name: Build with maven and docker
     runs-on: ubuntu-latest
 
     steps:
-      - name: init
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 1
+      - uses: actions/checkout@v2
       - uses: actions/setup-java@v1
         with:
           java-version: '13'
-      - name: debug
-        run: env
-      - name: cache maven dependencies
-        uses: actions/cache@v1
+      - run: env
+      - uses: actions/cache@v1
         with:
           path: ~/.m2
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: setup maven
-        uses: navikt/bidrag-actions/setup-maven@v1.0.0
+      - uses: navikt/bidrag-actions/setup-maven@v1.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Verify that no dependencies are of type SNAPSHOT
         uses: navikt/bidrag-actions/verify-mvn-dependencies@v1.0.0
-      - name: build & test with maven
+      - name: Build & test with maven
         run: mvn -B install
+      - name: Create docker tag & build docker image
+        run: |
+          echo "docker.pkg.github.com"/"$GITHUB_REPOSITORY"/"$(echo $GITHUB_REPOSITORY | sed 's;^.*/;;')" > .docker-image
+          echo "$(date "+%Y.%m.%d")-$(git rev-parse --short HEAD)" > .docker-tag
+          docker build -t $(cat .docker-image):$(cat .docker-tag) .
+      - name: Login to Github Package Registry
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
+      - name: Push Docker image
+        run: docker push "$(cat .docker-image):$(cat .docker-tag)"
+
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy docker image
+    needs: build
+
+    steps:
+      - name: Deploy to prod
+        if: github.ref == 'refs/heads/release'
+        run: echo "todo - deploy to prod"
+      - name: Deploy to pre-prod (q4)
+        if: github.ref == 'refs/heads/master'
+        run: echo "todo - deplot to preprod (q4)"
+      - name: Deploy to pre-prod (q0 - default)
+        if: github.ref == 'refs/heads/develop'
+        run: echo "todo - deplot to preprod (q0 - default)"
+      - name: Deploy to pre-prod (q1)
+        if: github.ref != 'refs/heads/develop' && github.ref != 'refs/heads/master' && github.ref != 'refs/heads/release'
+        run: echo "todo - deplot to preprod (q1)"
