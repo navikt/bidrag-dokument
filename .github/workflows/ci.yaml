@@ -47,15 +47,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Deploy to prod
+      - name: Deploy to prodfss
         if: github.ref == 'refs/heads/release'
-        run: echo "todo - deploy to prod"
-      - name: Deploy to pre-prod (q4)
+        run: echo "todo - deploy to prodfss"
+      - name: Deploy to devfss - namespace q4
         if: github.ref == 'refs/heads/master'
-        run: echo "todo - deplot to preprod (q4)"
-      - name: Deploy to pre-prod (q0 - default)
+        run: echo todo - Deploy to devfss, namespace q4
+      - name: Deploy to devfss, default namespace
         if: github.ref == 'refs/heads/develop'
-        run: echo "todo - deplot to preprod (q0 - default)"
-      - name: Deploy to pre-prod (q1)
+        run: echo todo - Deploy to devfss, default namespace
+      - name: Deploy to devfss, namespace q1
         if: github.ref != 'refs/heads/develop' && github.ref != 'refs/heads/master' && github.ref != 'refs/heads/release'
-        run: echo "todo - deplot to preprod (q1)"
+        run: echo "todo - deploy to devfss, namespace q1)
