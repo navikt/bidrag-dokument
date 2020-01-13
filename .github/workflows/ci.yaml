@@ -57,7 +57,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-fss
-          RESOURCE: deploy/nais.yml
+          RESOURCE: deploy/nais.yaml
           VAR: namespace=q4,ingress=q4
       - name: Deploy to devfss, default namespace
         if: github.ref == 'refs/heads/develop'
@@ -65,7 +65,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-fss
-          RESOURCE: deploy/nais.yml
+          RESOURCE: deploy/nais.yaml
           VAR: namespace=default,ingress=''
       - name: Deploy to devfss, namespace q1
         if: github.ref != 'refs/heads/develop' && github.ref != 'refs/heads/master'
@@ -73,7 +73,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-fss
-          RESOURCE: deploy/nais.yml
+          RESOURCE: deploy/nais.yaml
           VAR: namespace=q1,ingress=q1
       - name: Bump version
         if: github.ref == 'refs/heads/develop'
@@ -93,7 +93,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prodfss
-          RESOURCE: deploy/nais.yml
+          RESOURCE: deploy/nais.yaml
           VAR: namespace=default,ingress=''
       - name: tag release
         if: github.ref == 'refs/heads/release'
