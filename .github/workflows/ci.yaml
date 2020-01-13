@@ -46,6 +46,7 @@ jobs:
     needs: build
 
     steps:
+      - uses: actions/checkout@v2
       - name: Deploy to prodfss
         if: github.ref == 'refs/heads/release'
         run: echo "todo - deploy to prodfss"
@@ -56,7 +57,7 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-fss
           RESOURCE: nais.yml
-          VAR: namespace=q4
+          VAR: namespace=q4,ingress=q4
       - name: Deploy to devfss, default namespace
         if: github.ref == 'refs/heads/develop'
         uses: nais/deploy/actions/deploy@v1
@@ -64,7 +65,7 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-fss
           RESOURCE: nais.yml
-          VAR: namespace=default
+          VAR: namespace=default,ingress=
       - name: Deploy to devfss, namespace q1
         if: github.ref != 'refs/heads/develop' && github.ref != 'refs/heads/master' && github.ref != 'refs/heads/release'
         uses: nais/deploy/actions/deploy@v1
@@ -72,4 +73,10 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-fss
           RESOURCE: nais.yml
-          VAR: namespace=q1
+          VAR: namespace=q1,ingress==q1
+      - name: Bump version
+        if: github.ref == 'refs/heads/develop'
+        run: echo "todo - bump version"
+      - name: tag release
+        if: github.ref == 'refs/heads/release'
+        run: echo "todo - tag release"
