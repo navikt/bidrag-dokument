@@ -48,6 +48,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          path: deploy
       - run: env && ls -all deploy/
       - name: Deploy to dev-fss - namespace q4
         if: github.ref == 'refs/heads/master'
