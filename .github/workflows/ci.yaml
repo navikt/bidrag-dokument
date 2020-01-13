@@ -48,10 +48,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        with:
-          path: deploy
       - run: env && ls -all deploy/
-      - name: Deploy to devfss - namespace q4
+      - name: Deploy to dev-fss - namespace q4
         if: github.ref == 'refs/heads/master'
         uses: nais/deploy/actions/deploy@v1
         env:
@@ -59,7 +57,7 @@ jobs:
           CLUSTER: dev-fss
           RESOURCE: deploy/nais.yaml
           VAR: namespace=q4,ingress=q4
-      - name: Deploy to devfss, default namespace
+      - name: Deploy to dev-fss, default namespace
         if: github.ref == 'refs/heads/develop'
         uses: nais/deploy/actions/deploy@v1
         env:
@@ -67,7 +65,7 @@ jobs:
           CLUSTER: dev-fss
           RESOURCE: deploy/nais.yaml
           VAR: namespace=default,ingress=''
-      - name: Deploy to devfss, namespace q1
+      - name: Deploy to dev-fss, namespace q1
         if: github.ref != 'refs/heads/develop' && github.ref != 'refs/heads/master'
         uses: nais/deploy/actions/deploy@v1
         env:
