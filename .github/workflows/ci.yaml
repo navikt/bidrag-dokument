@@ -65,7 +65,7 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-fss
           RESOURCE: nais.yml
-          VAR: namespace=default,ingress=
+          VAR: namespace=default,ingress=''
       - name: Deploy to devfss, namespace q1
         if: github.ref != 'refs/heads/develop' && github.ref != 'refs/heads/master' && github.ref != 'refs/heads/release'
         uses: nais/deploy/actions/deploy@v1
@@ -73,7 +73,7 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-fss
           RESOURCE: nais.yml
-          VAR: namespace=q1,ingress==q1
+          VAR: namespace=q1,ingress=q1
       - name: Bump version
         if: github.ref == 'refs/heads/develop'
         run: echo "todo - bump version"
