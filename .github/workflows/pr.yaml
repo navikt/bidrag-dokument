@@ -1,4 +1,4 @@
-name: verify pull request
+name: test build on pull request
 on: [pull_request]
 
 jobs:
