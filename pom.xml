@@ -6,7 +6,7 @@
 
   <groupId>no.nav.bidrag.dokument</groupId>
   <artifactId>bidrag-dokument</artifactId>
-  <version>1.0.342-SNAPSHOT</version>
+  <version>1.0.347-SNAPSHOT</version>
 
   <description>Backend NAIS for bidrag-dokument</description>
   <url>https://github.com/navikt/bidrag-dokument</url>
@@ -15,9 +15,37 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.2.2.RELEASE</version>
+    <version>2.2.3.RELEASE</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
+
+  <repositories>
+    <!-- Mirror foran Maven Central (brukes kun internt) -->
+    <repository>
+      <id>nexus-internal-mirror</id>
+      <url>https://repo.adeo.no/repository/maven-public</url>
+    </repository>
+    <!-- Det generelle interne Nexus-repoet til NAV (brukes kun internt) -->
+    <repository>
+      <id>nexus-internal-releases</id>
+      <url>https://repo.adeo.no/repository/maven-releases</url>
+    </repository>
+    <!-- Skal brukes hvis bygget kjører internt (f.eks. Jenkins, fra utviklerimage, eller via ScaleFT) -->
+    <repository>
+      <id>internal-mirror-github-navikt</id>
+      <url>https://repo.adeo.no/repository/github-package-registry-navikt/</url>
+    </repository>
+    <!-- Skal brukes hvis bygget kjøres fra en Github Action -->
+    <repository>
+      <id>github-package-registry-navikt</id>
+      <url>https://maven.pkg.github.com/navikt/maven-release</url>
+    </repository>
+    <!-- Skal brukes hvis bygget kjører utenfor NAV (f.eks. en ekstern maskin, eller Circle CI) -->
+    <repository>
+      <id>external-mirror-github-navikt</id>
+      <url>https://github-package-registry-mirror-sr4qwz23da-ew.a.run.app/cached/maven-release</url>
+    </repository>
+  </repositories>
 
   <properties>
 
@@ -27,7 +55,7 @@
     <!-- dependent versions other than from spring-boot -->
     <bidrag-commons.version>0.2.1</bidrag-commons.version>
     <bidrag-commons-test.version>0.2.1</bidrag-commons-test.version>
-    <bidrag-dokument-dto.version>0.6.0</bidrag-dokument-dto.version>
+    <bidrag-dokument-dto.version>0.7.0</bidrag-dokument-dto.version>
     <logback.encoder.version>6.3</logback.encoder.version>
     <oidc-spring-support.version>0.2.18</oidc-spring-support.version>
     <springfox-swagger.version>2.9.2</springfox-swagger.version>
@@ -50,6 +78,17 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-aop</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.tomcat.embed</groupId>
+          <artifactId>tomcat-embed-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -98,11 +137,6 @@
     <dependency>
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-registry-prometheus</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
 
     <!-- swagger -->
@@ -177,6 +211,13 @@
       <scope>runtime</scope>
     </dependency>
 
+    <!-- vulnerable dependencies -->
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-core</artifactId>
+      <version>9.0.30</version>
+    </dependency>
+
     <!-- test dependencies -->
     <dependency>
       <groupId>org.assertj</groupId>
@@ -219,6 +260,17 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Override version of json-smart -->
+      <dependency>
+        <groupId>net.minidev</groupId>
+        <artifactId>json-smart</artifactId>
+        <version>2.3</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <distributionManagement>
   <repository>
