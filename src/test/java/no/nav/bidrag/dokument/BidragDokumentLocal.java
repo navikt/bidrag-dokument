@@ -2,8 +2,8 @@ package no.nav.bidrag.dokument;
 
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
-import no.nav.security.oidc.test.support.spring.TokenGeneratorConfiguration;
-import no.nav.security.spring.oidc.api.EnableOIDCTokenValidation;
+import no.nav.security.token.support.test.spring.TokenGeneratorConfiguration;
+import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
@@ -13,7 +13,7 @@ import org.springframework.context.annotation.PropertySource;
 
 @SpringBootApplication()
 @PropertySource({"classpath:url.properties", "classpath:secret.properties"})
-@EnableOIDCTokenValidation(ignore = {"springfox.documentation.swagger.web.ApiResourceController", "org.springframework"})
+@EnableJwtTokenValidation(ignore = {"springfox.documentation.swagger.web.ApiResourceController"})
 @Import(TokenGeneratorConfiguration.class)
 @ComponentScan(excludeFilters = {@Filter(type = ASSIGNABLE_TYPE, value = BidragDokument.class)})
 public class BidragDokumentLocal {
