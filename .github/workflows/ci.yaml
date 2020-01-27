@@ -31,7 +31,7 @@ jobs:
       - name: Verify that no dependencies are of type SNAPSHOT
         uses: navikt/bidrag-actions/verify-mvn-dependencies@v1.0.1
       - name: Build & test with maven
-        run: mvn -B install
+        run: mvn install -B -e
       - name: Build and publish Docker image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
