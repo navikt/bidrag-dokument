@@ -10,3 +10,5 @@
 .project
 .settings/
 .vscode/
+
+.DS_Store

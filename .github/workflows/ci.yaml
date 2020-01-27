@@ -77,7 +77,15 @@ jobs:
           VAR: namespace=q1,ingress=https://bidrag-dokument-q1.nais.preprod.local/
       - name: Bump version
         if: github.ref == 'refs/heads/develop'
-        run: echo "todo - bump version"
+        run: mvn release:update-versions
+      - name: Commit bump version
+        if: github.ref == 'refs/heads/develop'
+        uses: navikt/bidrag-actions/tag-and-commit@v3.0.0
+        with:
+          author_email: ${{ github.head_commit.author.email }}
+          author_name: ${{ github.head_commit.author.name }}
+          commit_message: Bumped to new SNAPSHOT version after release of version {}
+          pattern: "pom.xml"
 
   deploy_prod:
     runs-on: ubuntu-latest
