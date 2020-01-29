@@ -50,7 +50,6 @@ jobs:
       - uses: actions/checkout@v2
         with:
           path: deploy
-      - run: env && ls -all deploy/
       - name: Deploy to dev-fss - namespace q4
         if: github.ref == 'refs/heads/master'
         uses: nais/deploy/actions/deploy@v1
@@ -58,7 +57,7 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-fss
           RESOURCE: deploy/nais.yaml
-          VAR: namespace=q4,ingress=https://bidrag-dokument-q4''.nais.preprod.local/bidrag-dokument/
+          VAR: namespace=q4,ingress=https://bidrag-dokument-q4.nais.preprod.local/bidrag-dokument/
       - name: Deploy to dev-fss, default namespace
         if: github.ref == 'refs/heads/develop'
         uses: nais/deploy/actions/deploy@v1
@@ -78,13 +77,15 @@ jobs:
       - name: Bump version
         if: github.ref == 'refs/heads/develop'
         run: mvn release:update-versions
-      - name: Commit bump version
+      - name: Fetch new version
         if: github.ref == 'refs/heads/develop'
-        uses: navikt/bidrag-actions/tag-and-commit@v3.0.0
+        run: echo mvn help:evaluate -Dexpression=project.version -q -DforceStdout > .new-version
+      - name: Commit bumped version
+        if: github.ref == 'refs/heads/develop'
+        uses: navikt/bidrag-actions/git-commit@v3.0.0
         with:
-          author_email: ${{ github.head_commit.author.email }}
-          author_name: ${{ github.head_commit.author.name }}
-          commit_message: Bumped to new SNAPSHOT version after release of version {}
+          commit_message: Bumped to new SNAPSHOT version {}
+          commit_message_file: .new-version
           pattern: "pom.xml"
 
   deploy_prod:
