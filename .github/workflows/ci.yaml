@@ -60,6 +60,9 @@ jobs:
     needs: build
 
     steps:
+      - uses: actions/checkout@v2
+        with:
+          path: deploy
       - name: Deploy to dev-fss - namespace q4
         if: github.ref == 'refs/heads/master'
         uses: nais/deploy/actions/deploy@v1
@@ -101,8 +104,9 @@ jobs:
 #          CLUSTER: prod-fss
 #          RESOURCE: deploy/nais-p.yaml
 #          VAR: namespace=default
-      - name: Fetch tag version
-        run: echo mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//' > .tag-version
+      - run: pwd
+      - run: ls -all
+      - run: echo mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//' > .tag-version
       - name: tag release
         uses: navikt/bidrag-actions/git-tag@v4.0.0
         with:
