@@ -105,8 +105,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
       - run: mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//' > .tag-version
-      - run: ls -all
       - uses: navikt/bidrag-actions/git-tag@v4.0.2
         with:
           tag_message: Releasing version {}
