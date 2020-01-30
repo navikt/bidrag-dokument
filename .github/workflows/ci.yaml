@@ -87,17 +87,16 @@ jobs:
   deploy_prod:
     runs-on: ubuntu-latest
     name: Deploy docker image to prod
-    if: github.ref == 'refs/heads/feature-tag'
+    if: github.ref == 'refs/heads/release'
     needs: build
 
     steps:
-      - run: echo "is deployed :)"
-#      - uses: nais/deploy/actions/deploy@v1
-#        env:
-#          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-#          CLUSTER: prod-fss
-#          RESOURCE: deploy/nais-p.yaml
-#          VAR: namespace=default
+      - uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-fss
+          RESOURCE: deploy/nais-p.yaml
+          VAR: namespace=default
 
   tag_prod_deploy:
     runs-on: ubuntu-latest
