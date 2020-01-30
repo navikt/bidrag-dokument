@@ -35,11 +35,11 @@ spring:
   profiles: live
 
 # OIDC          
-no.nav.security.oidc:
+no.nav.security.jwt:
   issuers: isso
   issuer:
     isso:
-      acceptedaudience: bisys-${FASIT_ENVIRONMENT_NAME}, bidrag-ui-${FASIT_ENVIRONMENT_NAME}, bidrag-dokument-ui-${FASIT_ENVIRONMENT_NAME}, bidrag-q-localhost
+      accepted_audience: bisys-${FASIT_ENVIRONMENT_NAME}, bidrag-ui-${FASIT_ENVIRONMENT_NAME}, bidrag-dokument-ui-${FASIT_ENVIRONMENT_NAME}, bidrag-q-localhost
       discoveryurl: ${ISSO_ISSUER_URL}/.well-known/openid-configuration
 
 ---
@@ -55,7 +55,7 @@ no.nav.security.oidc:
 spring:
   profiles: test, secure-test
 
-no.nav.security.oidc:
+no.nav.security.jwt:
   issuers: isso
   issuer.isso:
     discoveryurl: http://metadata
