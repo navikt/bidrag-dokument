@@ -30,8 +30,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Verify that no dependencies are of type SNAPSHOT
         uses: navikt/bidrag-actions/verify-mvn-dependencies@v1.0.1
-      - name: Build & test with maven
-        run: mvn install -B -e
+      - run: mvn install -B -e
       - name: Build and publish Docker image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -39,14 +38,11 @@ jobs:
           docker build --tag ${IMAGE} .
           docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
           docker push ${IMAGE}
-      - name: Bump version
-        if: github.ref == 'refs/heads/develop'
+      - if: github.ref == 'refs/heads/develop'
         run: mvn release:update-versions
-      - name: Fetch new version
-        if: github.ref == 'refs/heads/develop'
+      - if: github.ref == 'refs/heads/develop'
         run: echo mvn help:evaluate -Dexpression=project.version -q -DforceStdout > .new-version
-      - name: Commit bumped version
-        if: github.ref == 'refs/heads/develop'
+      - if: github.ref == 'refs/heads/develop'
         uses: navikt/bidrag-actions/git-commit@v4.0.0
         with:
           commit_message: Bumped to new SNAPSHOT version {}
@@ -107,8 +103,7 @@ jobs:
       - run: pwd
       - run: ls -all
       - run: echo mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//' > .tag-version
-      - name: tag release
-        uses: navikt/bidrag-actions/git-tag@v4.0.0
+      - uses: navikt/bidrag-actions/git-tag@v4.0.1
         with:
           tag_message: Releasing version {}
           tag_file: .tag-version
