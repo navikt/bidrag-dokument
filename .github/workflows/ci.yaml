@@ -106,10 +106,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - run: pwd
-      - run: ls -all
       - run: echo mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//' > .tag-version
-      - uses: navikt/bidrag-actions/git-tag@v4.0.1
+      - run: ls -all
+      - uses: navikt/bidrag-actions/git-tag@v4.0.2
         with:
           tag_message: Releasing version {}
           tag_file: .tag-version
