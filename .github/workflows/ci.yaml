@@ -105,5 +105,6 @@ jobs:
       - run: echo mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//' > .tag-version
       - uses: navikt/bidrag-actions/git-tag@v4.0.1
         with:
+          src_folder: deploy
           tag_message: Releasing version {}
           tag_file: .tag-version
