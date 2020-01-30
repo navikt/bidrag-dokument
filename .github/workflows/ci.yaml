@@ -91,20 +91,24 @@ jobs:
     needs: build
 
     steps:
-      - uses: actions/checkout@v2
-        with:
-          path: deploy
 #      - uses: nais/deploy/actions/deploy@v1
 #        env:
 #          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
 #          CLUSTER: prod-fss
 #          RESOURCE: deploy/nais-p.yaml
 #          VAR: namespace=default
+
+  tag_prod_deploy:
+    runs-on: ubuntu-latest
+    name: Tag latest deploy to prod
+    needs: deploy_prod
+
+    steps:
+      - uses: actions/checkout@v2
       - run: pwd
       - run: ls -all
       - run: echo mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//' > .tag-version
       - uses: navikt/bidrag-actions/git-tag@v4.0.1
         with:
-          src_folder: deploy
           tag_message: Releasing version {}
           tag_file: .tag-version
