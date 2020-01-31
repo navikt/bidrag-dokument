@@ -91,6 +91,9 @@ jobs:
     needs: build
 
     steps:
+      - uses: actions/checkout@v2
+        with:
+          path: deploy
       - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
