@@ -59,16 +59,8 @@ jobs:
       - uses: actions/checkout@v2
         with:
           path: deploy
-      - name: Deploy to dev-fss - namespace q4
-        if: github.ref == 'refs/heads/master'
-        uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: dev-fss
-          RESOURCE: deploy/nais.yaml
-          VAR: namespace=q4,ingress=https://bidrag-dokument-q4.nais.preprod.local/bidrag-dokument/
       - name: Deploy to dev-fss, default namespace
-        if: github.ref == 'refs/heads/develop'
+        if: github.ref == 'refs/heads/master'
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
@@ -76,7 +68,7 @@ jobs:
           RESOURCE: deploy/nais.yaml
           VAR: namespace=default,ingress=https://bidrag-dokument.nais.preprod.local/
       - name: Deploy to dev-fss, namespace q1
-        if: github.ref != 'refs/heads/develop' && github.ref != 'refs/heads/master'
+        if: github.ref != 'refs/heads/master'
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
