@@ -6,7 +6,7 @@
 
   <groupId>no.nav.bidrag.dokument</groupId>
   <artifactId>bidrag-dokument</artifactId>
-  <version>1.0.350-SNAPSHOT</version>
+  <version>1.0.351-SNAPSHOT</version>
 
   <description>Backend NAIS for bidrag-dokument</description>
   <url>https://github.com/navikt/bidrag-dokument</url>
@@ -57,7 +57,7 @@
     <bidrag-commons-test.version>0.2.1</bidrag-commons-test.version>
     <bidrag-dokument-dto.version>0.7.0</bidrag-dokument-dto.version>
     <logback.encoder.version>6.3</logback.encoder.version>
-    <oidc-spring-support.version>0.2.18</oidc-spring-support.version>
+    <token-support.version>1.1.4</token-support.version>
     <springfox-swagger.version>2.9.2</springfox-swagger.version>
 
     <!-- build -->
@@ -99,8 +99,8 @@
 
     <dependency>
       <groupId>no.nav.security</groupId>
-      <artifactId>oidc-spring-support</artifactId>
-      <version>${oidc-spring-support.version}</version>
+      <artifactId>token-validation-spring</artifactId>
+      <version>${token-support.version}</version>
       <exclusions>
         <exclusion>
           <groupId>com.fasterxml.jackson.core</groupId>
@@ -117,8 +117,8 @@
 
     <dependency>
       <groupId>no.nav.security</groupId>
-      <artifactId>oidc-test-support</artifactId>
-      <version>${oidc-spring-support.version}</version>
+      <artifactId>token-validation-test-support</artifactId>
+      <version>${token-support.version}</version>
       <scope>test</scope>
     </dependency>
 

@@ -4,7 +4,7 @@ import static no.nav.bidrag.dokument.BidragDokumentConfig.ISSUER;
 
 import no.nav.bidrag.dokument.dto.DokumentTilgangResponse;
 import no.nav.bidrag.dokument.service.DokumentService;
-import no.nav.security.oidc.api.ProtectedWithClaims;
+import no.nav.security.token.support.core.api.ProtectedWithClaims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;

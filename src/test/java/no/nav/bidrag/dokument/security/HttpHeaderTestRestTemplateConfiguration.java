@@ -3,7 +3,7 @@ package no.nav.bidrag.dokument.security;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.SECURE_TEST_PROFILE;
 
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
-import no.nav.security.oidc.test.support.jersey.TestTokenGeneratorResource;
+import no.nav.security.token.support.test.jersey.TestTokenGeneratorResource;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

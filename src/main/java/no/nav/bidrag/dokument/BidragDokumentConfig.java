@@ -7,8 +7,8 @@ import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.consumer.DokumentConsumer;
-import no.nav.security.oidc.context.OIDCRequestContextHolder;
-import no.nav.security.oidc.context.TokenContext;
+import no.nav.security.token.support.core.context.TokenValidationContextHolder;
+import no.nav.security.token.support.core.jwt.JwtToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,11 +70,12 @@ public class BidragDokumentConfig {
   }
 
   @Bean
-  public OidcTokenManager oidcTokenManager(OIDCRequestContextHolder oidcRequestContextHolder) {
-    return () -> Optional.ofNullable(oidcRequestContextHolder)
-        .map(OIDCRequestContextHolder::getOIDCValidationContext)
-        .map(oidcValidationContext -> oidcValidationContext.getToken(ISSUER))
-        .map(TokenContext::getIdToken)
+  public OidcTokenManager oidcTokenManager(TokenValidationContextHolder tokenValidationContextHolder) {
+    return () -> Optional.ofNullable(tokenValidationContextHolder)
+        .map(TokenValidationContextHolder::getTokenValidationContext)
+        .map(tokenValidationContext -> tokenValidationContext.getJwtTokenAsOptional(ISSUER))
+        .map(Optional<JwtToken>::get)
+        .map(JwtToken::getTokenAsString)
         .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));
   }
 
