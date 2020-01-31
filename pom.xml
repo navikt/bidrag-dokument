@@ -272,7 +272,7 @@
 
   <distributionManagement>
   <repository>
-      <id>fp-felles</id>
+      <id>maven-release</id>
       <name>GitHub felles Apache Maven Packages for navikt</name>
       <url>https://maven.pkg.github.com/navikt/fp-felles/</url>
     </repository>

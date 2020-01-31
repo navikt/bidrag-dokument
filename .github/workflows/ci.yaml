@@ -45,7 +45,7 @@ jobs:
       - if: github.ref == 'refs/heads/master'
         uses: navikt/bidrag-actions/git-commit@v4.0.2
         with:
-          commit_message: Bumped to new version {}
+          commit_message: "Bumped to new version: {}"
           commit_message_file: .new-version
           pattern: "pom.xml"
 
