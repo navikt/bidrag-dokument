@@ -41,7 +41,7 @@ jobs:
       - if: github.ref == 'refs/heads/master'
         run: mvn release:update-versions
       - if: github.ref == 'refs/heads/master'
-        run: echo mvn help:evaluate -Dexpression=project.version -q -DforceStdout > .new-version
+        run: mvn help:evaluate -Dexpression=project.version -q -DforceStdout > .new-version
       - if: github.ref == 'refs/heads/master'
         uses: navikt/bidrag-actions/git-commit@v4.0.2
         with:
