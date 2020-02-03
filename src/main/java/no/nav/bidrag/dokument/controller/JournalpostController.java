@@ -135,4 +135,32 @@ public class JournalpostController {
     var endreResponse = journalpostService.endre(saksnummer, endreJournalpostCommand);
     return new ResponseEntity<>(endreResponse.getHttpStatus());
   }
+
+  @PutMapping("/journal/{journalpostIdForKildesystem}")
+  @ApiOperation("Registrere journalpost")
+  @ApiResponses(value = {
+      @ApiResponse(code = 203, message = "Journalpost er registrert"),
+      @ApiResponse(code = 400, message = "Det finnes ikke en journalpost på gitt id"),
+      @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"),
+      @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig, eller du har ikke adgang til kode 6 og 7 (nav-ansatt)")
+  })
+  public ResponseEntity<Void> registrerOpprettetJournalpost(
+      @PathVariable String journalpostIdForKildesystem
+  ) {
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
+  @PutMapping("/journal/{journalpostIdForKildesystem}/avvik")
+  @ApiOperation("Registrere avvik på journalpost uten sakstilknytning")
+  @ApiResponses(value = {
+      @ApiResponse(code = 203, message = "Avviket på journalposten er registrert"),
+      @ApiResponse(code = 400, message = "Det finnes ikke en journalpost på gitt id"),
+      @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"),
+      @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig, eller du har ikke adgang til kode 6 og 7 (nav-ansatt)")
+  })
+  public ResponseEntity<Void> registrerAvvikPaJournalpostUtenSak(
+      @PathVariable String journalpostIdForKildesystem
+  ) {
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
 }
