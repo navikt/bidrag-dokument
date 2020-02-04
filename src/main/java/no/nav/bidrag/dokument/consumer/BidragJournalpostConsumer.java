@@ -77,8 +77,15 @@ public class BidragJournalpostConsumer {
   }
 
   public HttpStatusResponse<List<AvvikType>> finnAvvik(String saksnummer, String journalpostId) {
-    var path = String.format(PATH_JOURNALPOST, saksnummer, journalpostId) + "/avvik";
-    LOGGER.info("Finner avvik på journalpost med id {} fra bidrag-dokument-journalpost", journalpostId);
+    String path;
+
+    if (saksnummer != null) {
+      path = String.format(PATH_JOURNALPOST, saksnummer, journalpostId) + "/avvik";
+    } else {
+      path = String.format(PATH_JOURNALPOST_UTEN_SAKSTILGANG, journalpostId) + "/avvik";
+    }
+
+    LOGGER.info("Finner avvik på journalpost fra bidrag-dokument-journalpost{}", path);
 
     var avviksResponse = restTemplate.exchange(path, HttpMethod.GET, null, typereferansenErListeMedAvvikstyper());
     return new HttpStatusResponse<>(avviksResponse.getStatusCode(), avviksResponse.getBody());
