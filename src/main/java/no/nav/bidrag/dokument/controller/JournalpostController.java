@@ -148,13 +148,14 @@ public class JournalpostController {
   })
   public ResponseEntity<JournalpostDto> hentJournalpostUtenSakstilknytning(@PathVariable String journalpostIdForKildesystem) {
 
-    LOGGER.info("get: bidrag-dokument/journal/{}", journalpostIdForKildesystem);
+    LOGGER.info("GET: /journal/{}", journalpostIdForKildesystem);
 
     if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    return new ResponseEntity<>(HttpStatus.OK);
+    var journalpostDtoResponse = journalpostService.hentJournalpost(KildesystemIdenfikator.hent());
+    return new ResponseEntity<>(journalpostDtoResponse.getBody(), journalpostDtoResponse.getHttpStatus());
   }
 
   @GetMapping("/journal/{journalpostIdForKildesystem}/avvik")
