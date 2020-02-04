@@ -138,6 +138,13 @@ public class JournalpostController {
 
   @GetMapping("/journal/{journalpostIdForKildesystem}")
   @ApiOperation("Hent en journalpost for en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
+  @ApiResponses(value = {
+      @ApiResponse(code = 200, message = "Journalpost er hentet"),
+      @ApiResponse(code = 400, message = "Det finnes ikke en journalpost på gitt id eller ukjent prefix for journalpostId"),
+      @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
+      @ApiResponse(code = 403, message = "Saksbehandler har ikke tilgang til aktuell journalpost"),
+      @ApiResponse(code = 404, message = "Journalposten som skal hentes eksisterer ikke eller er koblet mot annet saksnummer")
+  })
   public ResponseEntity<JournalpostDto> hentJournalpostUtenSakstilknytning(@PathVariable String journalpostIdForKildesystem) {
 
     LOGGER.info("get: bidrag-dokument/journal/{}", journalpostIdForKildesystem);
