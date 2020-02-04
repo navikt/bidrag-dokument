@@ -136,31 +136,64 @@ public class JournalpostController {
     return new ResponseEntity<>(endreResponse.getHttpStatus());
   }
 
+  @GetMapping("/journal/{journalpostIdForKildesystem}")
+  @ApiOperation("Hent en journalpost for en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
+  public ResponseEntity<JournalpostDto> hentJournalpostUtenSakstilknytning(@PathVariable String journalpostIdForKildesystem) {
+
+    LOGGER.info("get: bidrag-dokument/journal/{}", journalpostIdForKildesystem);
+
+    if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
   @PutMapping("/journal/{journalpostIdForKildesystem}")
-  @ApiOperation("Registrere journalpost")
+  @ApiOperation("Registrere journalpost med en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
   @ApiResponses(value = {
       @ApiResponse(code = 203, message = "Journalpost er registrert"),
-      @ApiResponse(code = 400, message = "Det finnes ikke en journalpost på gitt id"),
+      @ApiResponse(code = 400, message = "Det finnes ikke en journalpost på gitt id eller ukjent prefix for journalpostId"),
       @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"),
       @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig, eller du har ikke adgang til kode 6 og 7 (nav-ansatt)")
   })
   public ResponseEntity<Void> registrerOpprettetJournalpost(
-      @PathVariable String journalpostIdForKildesystem
+      @PathVariable String journalpostIdForKildesystem,
+      @RequestBody EndreJournalpostCommand endreJournalpostCommand
   ) {
+
+    LOGGER.info("put: bidrag-dokument/journal/{} - {}", journalpostIdForKildesystem, endreJournalpostCommand);
+
+    if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  @PutMapping("/journal/{journalpostIdForKildesystem}/avvik")
-  @ApiOperation("Registrere avvik på journalpost uten sakstilknytning")
+  @PostMapping(value = "/journal/{journalpostIdForKildesystem}/avvik", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @ApiOperation(
+      "Registrere avvik på journalpost uten sakstilknytning for en journalpost med id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']'
+          + DELIMTER + "<journalpostId>"
+  )
   @ApiResponses(value = {
       @ApiResponse(code = 203, message = "Avviket på journalposten er registrert"),
-      @ApiResponse(code = 400, message = "Det finnes ikke en journalpost på gitt id"),
+      @ApiResponse(code = 400, message = "Det finnes ikke en journalpost på gitt id eller ukjent prefix for journalpostId"),
       @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"),
       @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig, eller du har ikke adgang til kode 6 og 7 (nav-ansatt)")
   })
   public ResponseEntity<Void> registrerAvvikPaJournalpostUtenSak(
-      @PathVariable String journalpostIdForKildesystem
+      @SuppressWarnings("unused") @RequestHeader(EnhetFilter.X_ENHETSNR_HEADER) String enhetsnummer, // ikke brukt direkte, kun for validering
+      @PathVariable String journalpostIdForKildesystem,
+      @RequestBody Avvikshendelse avvikshendelse
   ) {
+
+    LOGGER.info("put: bidrag-dokument/journal/{}/avvik - {}", journalpostIdForKildesystem, avvikshendelse);
+
+    if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
     return new ResponseEntity<>(HttpStatus.OK);
   }
 }
