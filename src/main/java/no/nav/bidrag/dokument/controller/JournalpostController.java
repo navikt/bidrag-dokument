@@ -140,6 +140,7 @@ public class JournalpostController {
   @ApiOperation("Hent en journalpost for en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "Journalpost er hentet"),
+      @ApiResponse(code = 204, message = "Journalpost er tilknyttet sak og er derfor ikke tilgangelig"),
       @ApiResponse(code = 400, message = "Det finnes ikke en journalpost på gitt id eller ukjent prefix for journalpostId"),
       @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(code = 403, message = "Saksbehandler har ikke tilgang til aktuell journalpost"),
