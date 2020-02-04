@@ -157,7 +157,7 @@ public class JournalpostController {
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
-  @GetMapping("/sak/{saksnummer}/journal/{journalpostIdForKildesystem}/avvik")
+  @GetMapping("/journal/{journalpostIdForKildesystem}/avvik")
   @ApiOperation("Henter mulige avvik for en journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "Tilgjengelig avvik for journalpost er hentet"),
@@ -167,11 +167,8 @@ public class JournalpostController {
       @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig"),
       @ApiResponse(code = 404, message = "Fant ikke journalpost som det skal hentes avvik på")
   })
-  public ResponseEntity<List<AvvikType>> finnAvvikPaJournalpostUtenSakstilknytning(
-      @PathVariable String saksnummer,
-      @PathVariable String journalpostIdForKildesystem
-  ) {
-    LOGGER.info("request: bidrag-dokument/sak/{}/journal/{}/avvik", saksnummer, journalpostIdForKildesystem);
+  public ResponseEntity<List<AvvikType>> finnAvvikPaJournalpostUtenSakstilknytning(@PathVariable String journalpostIdForKildesystem) {
+    LOGGER.info("GET: /journal/{}/avvik", journalpostIdForKildesystem);
 
     if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
