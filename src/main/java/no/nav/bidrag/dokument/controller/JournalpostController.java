@@ -113,7 +113,7 @@ public class JournalpostController {
   @PutMapping("/sak/{saksnummer}/journal/{journalpostIdForKildesystem}")
   @ApiOperation("Endre eksisterende journalpost")
   @ApiResponses(value = {
-      @ApiResponse(code = 203, message = "Journalpost er endret"),
+      @ApiResponse(code = 202, message = "Journalpost er endret"),
       @ApiResponse(code = 400, message = "EndreJournalpostCommand.gjelder er ikke satt eller det finnes ikke en journalpost på gitt id"),
       @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"),
       @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig, eller du har ikke adgang til kode 6 og 7 (nav-ansatt)")
@@ -157,11 +157,34 @@ public class JournalpostController {
     return new ResponseEntity<>(HttpStatus.OK);
   }
 
+  @GetMapping("/sak/{saksnummer}/journal/{journalpostIdForKildesystem}/avvik")
+  @ApiOperation("Henter mulige avvik for en journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
+  @ApiResponses(value = {
+      @ApiResponse(code = 200, message = "Tilgjengelig avvik for journalpost er hentet"),
+      @ApiResponse(code = 204, message = "Ingen tilgjengelige avvik for journalpost"),
+      @ApiResponse(code = 400, message = "Ukjent prefix på id eller journalposten som det skal hentes avvik på har sakstilknytning"),
+      @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"),
+      @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig"),
+      @ApiResponse(code = 404, message = "Fant ikke journalpost som det skal hentes avvik på")
+  })
+  public ResponseEntity<List<AvvikType>> finnAvvikPaJournalpostUtenSakstilknytning(
+      @PathVariable String saksnummer,
+      @PathVariable String journalpostIdForKildesystem
+  ) {
+    LOGGER.info("request: bidrag-dokument/sak/{}/journal/{}/avvik", saksnummer, journalpostIdForKildesystem);
+
+    if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
   @PutMapping("/journal/{journalpostIdForKildesystem}")
   @ApiOperation("Registrere journalpost med en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
   @ApiResponses(value = {
-      @ApiResponse(code = 203, message = "Journalpost er registrert"),
-      @ApiResponse(code = 400, message = "Det finnes ikke en journalpost på gitt id eller ukjent prefix for journalpostId"),
+      @ApiResponse(code = 202, message = "Journalpost er registrert"),
+      @ApiResponse(code = 400, message = "Det er ukjent prefix for journalpostId, det finnes ikke en journalpost på gitt id, eller journalposten er tilknyttet en sak"),
       @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"),
       @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig, eller du har ikke adgang til kode 6 og 7 (nav-ansatt)")
   })
@@ -176,7 +199,7 @@ public class JournalpostController {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    return new ResponseEntity<>(HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
   @PostMapping(value = "/journal/{journalpostIdForKildesystem}/avvik", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -185,8 +208,9 @@ public class JournalpostController {
           + DELIMTER + "<journalpostId>"
   )
   @ApiResponses(value = {
-      @ApiResponse(code = 203, message = "Avviket på journalposten er registrert"),
-      @ApiResponse(code = 400, message = "Det finnes ikke en journalpost på gitt id eller ukjent prefix for journalpostId"),
+      @ApiResponse(code = 201, message = "Avvik på journalpost er opprettet"),
+      @ApiResponse(code = 400, message = "Avvikstype mangler/ugyldig i avvikshendelsen eller enhetsnummer mangler/ugyldig (fra header)"),
+      @ApiResponse(code = 400, message = "Det er ukjent prefix for journalpostId, det finnes ikke en journalpost på gitt id, eller journalposten er tilknyttet en sak"),
       @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"),
       @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig, eller du har ikke adgang til kode 6 og 7 (nav-ansatt)")
   })
@@ -202,6 +226,6 @@ public class JournalpostController {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    return new ResponseEntity<>(HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.CREATED);
   }
 }
