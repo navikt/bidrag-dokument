@@ -162,8 +162,8 @@ public class JournalpostController {
   @ApiOperation("Henter mulige avvik for en journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "Tilgjengelig avvik for journalpost er hentet"),
-      @ApiResponse(code = 204, message = "Ingen tilgjengelige avvik for journalpost"),
-      @ApiResponse(code = 400, message = "Ukjent prefix på id eller journalposten som det skal hentes avvik på har sakstilknytning"),
+      @ApiResponse(code = 204, message = "Ingen tilgjengelige avvik for journalpost eller journalposten som det skal hentes avvik på har sakstilknytning"),
+      @ApiResponse(code = 400, message = "Ukjent prefix på journalpost id"),
       @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"),
       @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig"),
       @ApiResponse(code = 404, message = "Fant ikke journalpost som det skal hentes avvik på")
