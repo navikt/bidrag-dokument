@@ -34,12 +34,20 @@ public class JournalpostService {
     this.exceptionLogger = exceptionLogger;
   }
 
+  public HttpStatusResponse<JournalpostDto> hentJournalpost(KildesystemIdenfikator kildesystemIdenfikator) {
+    return hentJournalpost(null, kildesystemIdenfikator);
+  }
+
   public HttpStatusResponse<JournalpostDto> hentJournalpost(String saksnummer, KildesystemIdenfikator kildesystemIdenfikator) {
     if (BIDRAG.er(kildesystemIdenfikator.hentKildesystem())) {
       return bidragJournalpostConsumer.hentJournalpost(saksnummer, kildesystemIdenfikator.getPrefiksetJournalpostId());
     }
 
     return bidragArkivConsumer.hentJournalpost(saksnummer, kildesystemIdenfikator.getPrefiksetJournalpostId());
+  }
+
+  public HttpStatusResponse<List<AvvikType>> finnAvvik(KildesystemIdenfikator kildesystemIdenfikator) {
+    return finnAvvik(null, kildesystemIdenfikator);
   }
 
   public HttpStatusResponse<List<AvvikType>> finnAvvik(String saksnummer, KildesystemIdenfikator kildesystemIdenfikator) {

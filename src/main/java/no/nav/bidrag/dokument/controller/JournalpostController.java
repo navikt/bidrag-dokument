@@ -148,13 +148,14 @@ public class JournalpostController {
   })
   public ResponseEntity<JournalpostDto> hentJournalpostUtenSakstilknytning(@PathVariable String journalpostIdForKildesystem) {
 
-    LOGGER.info("get: bidrag-dokument/journal/{}", journalpostIdForKildesystem);
+    LOGGER.info("GET: /journal/{}", journalpostIdForKildesystem);
 
     if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    return new ResponseEntity<>(HttpStatus.OK);
+    var journalpostDtoResponse = journalpostService.hentJournalpost(KildesystemIdenfikator.hent());
+    return new ResponseEntity<>(journalpostDtoResponse.getBody(), journalpostDtoResponse.getHttpStatus());
   }
 
   @GetMapping("/journal/{journalpostIdForKildesystem}/avvik")
@@ -174,7 +175,8 @@ public class JournalpostController {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    return new ResponseEntity<>(HttpStatus.OK);
+    var avvikslisteResponse = journalpostService.finnAvvik(KildesystemIdenfikator.hent());
+    return new ResponseEntity<>(avvikslisteResponse.getBody(), avvikslisteResponse.getHttpStatus());
   }
 
   @PutMapping("/journal/{journalpostIdForKildesystem}")
@@ -217,7 +219,7 @@ public class JournalpostController {
       @RequestBody Avvikshendelse avvikshendelse
   ) {
 
-    LOGGER.info("put: bidrag-dokument/journal/{}/avvik - {}", journalpostIdForKildesystem, avvikshendelse);
+    LOGGER.info("post: bidrag-dokument/journal/{}/avvik - {}", journalpostIdForKildesystem, avvikshendelse);
 
     if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

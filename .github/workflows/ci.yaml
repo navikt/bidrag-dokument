@@ -111,3 +111,5 @@ jobs:
         with:
           tag_message: Releasing version {}
           tag_file: .tag-version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -54,7 +54,7 @@ class JournalpostControllerTest {
   @Value("${server.servlet.context-path}")
   private String contextPath;
   @Autowired
-  private HttpHeaderTestRestTemplate securedTestRestTemplate;
+  private HttpHeaderTestRestTemplate httpHeaderTestRestTemplate;
 
   @Nested
   @DisplayName("hent journalpost")
@@ -67,7 +67,7 @@ class JournalpostControllerTest {
           .thenReturn(new ResponseEntity<>(HttpStatus.NO_CONTENT));
 
       var url = initEndpointUrl("/sak/007/journal/joark-1");
-      var journalpostResponseEntity = securedTestRestTemplate.exchange(url, HttpMethod.GET, null, JournalpostDto.class);
+      var journalpostResponseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.GET, null, JournalpostDto.class);
 
       assertThat(Optional.of(journalpostResponseEntity)).hasValueSatisfying(response -> assertAll(
           () -> assertThat(response.getBody()).isNull(),
@@ -83,7 +83,7 @@ class JournalpostControllerTest {
           .thenReturn(new ResponseEntity<>(enJournalpostMedInnhold("MIDLERTIDIG"), HttpStatus.I_AM_A_TEAPOT));
 
       var url = initEndpointUrl("/sak/007/journal/joark-2");
-      var responseEntity = securedTestRestTemplate.exchange(url, HttpMethod.GET, null, JournalpostDto.class);
+      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.GET, null, JournalpostDto.class);
 
       verify(restTemplateMock, atLeastOnce()).exchange("/sak/007/journal/joark-2", HttpMethod.GET, null, JournalpostDto.class);
 
@@ -110,7 +110,7 @@ class JournalpostControllerTest {
           .thenReturn(new ResponseEntity<>(enJournalpostFra("Grev Still E. Ben"), HttpStatus.I_AM_A_TEAPOT));
 
       var url = initEndpointUrl("/sak/007/journal/bid-1");
-      var responseEntity = securedTestRestTemplate.exchange(url, HttpMethod.GET, null, JournalpostDto.class);
+      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.GET, null, JournalpostDto.class);
 
       assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
           () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.I_AM_A_TEAPOT),
@@ -136,7 +136,7 @@ class JournalpostControllerTest {
     @DisplayName("skal få BAD_REQUEST når prefix er ukjent")
     void skalFaBadRequestMedUkjentPrefix() {
       var lagreJournalpostUrl = initEndpointUrl("/sak/69/journal/svada-1");
-      var badRequestResponse = securedTestRestTemplate.exchange(lagreJournalpostUrl, HttpMethod.GET, null, JournalpostDto.class);
+      var badRequestResponse = httpHeaderTestRestTemplate.exchange(lagreJournalpostUrl, HttpMethod.GET, null, JournalpostDto.class);
 
       assertThat(badRequestResponse).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -145,7 +145,7 @@ class JournalpostControllerTest {
     @DisplayName("skal få BAD_REQUEST når journalpostId ikke er et tall")
     void skalFaBadRequestMedJournalpostIdSomIkkeErEtTall() {
       var lagreJournalpostUrl = initEndpointUrl("/sak/69/journal/bid-en");
-      var badRequestResponse = securedTestRestTemplate.exchange(lagreJournalpostUrl, HttpMethod.GET, null, JournalpostDto.class);
+      var badRequestResponse = httpHeaderTestRestTemplate.exchange(lagreJournalpostUrl, HttpMethod.GET, null, JournalpostDto.class);
 
       assertThat(badRequestResponse).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -154,7 +154,7 @@ class JournalpostControllerTest {
     @DisplayName("skal få BAD_REQUEST når prefix er ukjent ved endring av journalpost")
     void skalFaBadRequestMedUkjentPrefixVedEndringAvJournalpost() {
       var lagreJournalpostUrl = initEndpointUrl("/sak/69/journal/svada-en");
-      var badRequestResponse = securedTestRestTemplate.exchange(
+      var badRequestResponse = httpHeaderTestRestTemplate.exchange(
           lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommand()), JournalpostDto.class
       );
 
@@ -168,7 +168,7 @@ class JournalpostControllerTest {
           .thenReturn(new ResponseEntity<>(HttpStatus.ACCEPTED));
 
       var lagreJournalpostUrl = initEndpointUrl("/sak/69/journal/bid-1");
-      var endretJournalpostResponse = securedTestRestTemplate.exchange(
+      var endretJournalpostResponse = httpHeaderTestRestTemplate.exchange(
           lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommand()), Void.class
       );
 
@@ -187,7 +187,7 @@ class JournalpostControllerTest {
     @DisplayName("skal feile når man henter avvikshendelser uten å prefikse journalpostId med kildesystem")
     void skalFeileVedHentingAvAvvikshendelserForJournalpostNarJournalpostIdIkkeErPrefiksetMedKildesystem() {
       var url = initEndpointUrl("/sak/1001/journal/1/avvik");
-      var responseEntity = securedTestRestTemplate.exchange(url, HttpMethod.GET, null, responseTypeErListeMedAvvikType());
+      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.GET, null, responseTypeErListeMedAvvikType());
 
       assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -199,7 +199,7 @@ class JournalpostControllerTest {
           .thenReturn(new ResponseEntity<>(List.of(AvvikType.BESTILL_ORIGINAL), HttpStatus.OK));
 
       var url = initEndpointUrl("/sak/1001/journal/BID-1/avvik");
-      var responseEntity = securedTestRestTemplate.exchange(url, HttpMethod.GET, null, responseTypeErListeMedAvvikType());
+      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.GET, null, responseTypeErListeMedAvvikType());
 
       assertAll(
           () -> assertThat(responseEntity.getStatusCode()).as("status").isEqualTo(HttpStatus.OK),
@@ -222,7 +222,7 @@ class JournalpostControllerTest {
 
       var bestillOriginalEntity = initHttpEntity(avvikshendelse, new CustomHeader(EnhetFilter.X_ENHETSNR_HEADER, "1234"));
       var url = initEndpointUrl("/sak/1001/journal/BID-4/avvik");
-      var responseEntity = securedTestRestTemplate.exchange(url, HttpMethod.POST, bestillOriginalEntity, OpprettAvvikshendelseResponse.class);
+      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, bestillOriginalEntity, OpprettAvvikshendelseResponse.class);
 
       assertAll(
           () -> assertThat(responseEntity.getStatusCode()).as("status").isEqualTo(HttpStatus.CREATED),
@@ -240,7 +240,7 @@ class JournalpostControllerTest {
       final var avvikshendelse = new Avvikshendelse("BESTILL_ORIGINAL", "4806");
       var ukjentAvvikEntity = initHttpEntity(avvikshendelse);
       var url = initEndpointUrl("/sak/1001/journal/BID-1/avvik");
-      var responseEntity = securedTestRestTemplate.exchange(url, HttpMethod.POST, ukjentAvvikEntity, OpprettAvvikshendelseResponse.class);
+      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, ukjentAvvikEntity, OpprettAvvikshendelseResponse.class);
 
       assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_IMPLEMENTED);
     }
@@ -251,19 +251,9 @@ class JournalpostControllerTest {
       final var avvikshendelse = new Avvikshendelse("AVVIK_IKKE_BLANT_KJENTE_AVVIKSTYPER", "4806");
       var ukjentAvvikEntity = initHttpEntity(avvikshendelse, new CustomHeader(EnhetFilter.X_ENHETSNR_HEADER, "1234"));
       var url = initEndpointUrl("/sak/1001/journal/BID-1/avvik");
-      var responseEntity = securedTestRestTemplate.exchange(url, HttpMethod.POST, ukjentAvvikEntity, OpprettAvvikshendelseResponse.class);
+      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, ukjentAvvikEntity, OpprettAvvikshendelseResponse.class);
 
       assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-    }
-
-    @AfterEach
-    void resetMocking() {
-      Mockito.reset(restTemplateMock);
-    }
-
-    private ParameterizedTypeReference<List<AvvikType>> responseTypeErListeMedAvvikType() {
-      return new ParameterizedTypeReference<>() {
-      };
     }
 
     private <T> HttpEntity<T> initHttpEntity(T body, CustomHeader... customHeaders) {
@@ -288,6 +278,69 @@ class JournalpostControllerTest {
         this.value = value;
       }
     }
+  }
+
+  @Nested
+  @DisplayName("Journalpost uten sakstilknytning")
+  class JournalpostUtenSakstilknytning {
+
+    private static final String PATH_JOURNALPOST_UTEN_SAK = "/journal/";
+
+    @Test
+    @DisplayName("skal få BAD_REQUEST når man henter journalpost uten gyldig prefix på journalpost id")
+    void skalFaBadRequestVedFeilPrefixPaId() {
+      var journalpostResponseEntity = httpHeaderTestRestTemplate.exchange(
+          PATH_JOURNALPOST_UTEN_SAK + "ugyldig-id", HttpMethod.GET, null, JournalpostDto.class
+      );
+
+      assertThat(journalpostResponseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    @DisplayName("skal hente journalpost uten sakstilknytning")
+    void skalHenteJournalpostUtenSakstilknytning() {
+      when(restTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(JournalpostDto.class)))
+          .thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
+
+      httpHeaderTestRestTemplate.exchange(PATH_JOURNALPOST_UTEN_SAK + "BID-1", HttpMethod.GET, null, JournalpostDto.class);
+
+      verify(restTemplateMock).exchange(
+          PATH_JOURNALPOST_UTEN_SAK + "BID-1", HttpMethod.GET, null, JournalpostDto.class
+      );
+    }
+
+    @Test
+    @DisplayName("skal fa BAD_REQUST når man skal finne avvik på journalpost uten gyldig prefix på id")
+    void skalFaBadRequestVedFinnAvvikForJournalpostMedUgyldigPrefixPaId() {
+      var journalpostResponseEntity = httpHeaderTestRestTemplate.exchange(
+          PATH_JOURNALPOST_UTEN_SAK + "ugyldig-id/avvik", HttpMethod.GET, null, responseTypeErListeMedAvvikType()
+      );
+
+      assertThat(journalpostResponseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    @DisplayName("skal finne avvik på journalpost uten sakstilknytning")
+    void skalFinneAvvikPaJournalpostUtenSakstilknytning() {
+      when(restTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(JournalpostDto.class)))
+          .thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
+
+      httpHeaderTestRestTemplate.exchange(PATH_JOURNALPOST_UTEN_SAK + "BID-1/avvik", HttpMethod.GET, null, responseTypeErListeMedAvvikType());
+
+      verify(restTemplateMock).exchange(
+          PATH_JOURNALPOST_UTEN_SAK + "BID-1/avvik", HttpMethod.GET, null, responseTypeErListeMedAvvikType()
+      );
+    }
+  }
+
+  @AfterEach
+  void resetMocking() {
+    Mockito.reset(restTemplateMock);
+  }
+
+  private ParameterizedTypeReference<List<AvvikType>> responseTypeErListeMedAvvikType() {
+    return new ParameterizedTypeReference<>() {
+    };
   }
 
   private <T> Optional<ResponseEntity<T>> optional(ResponseEntity<T> responseEntity) {
