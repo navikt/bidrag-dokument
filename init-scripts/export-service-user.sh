@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-if test -f /var/run/secrets/nais.io/srvbisys/username;
+if test -f /var/run/secrets/nais.io/srvbidrag-dokument/username;
 then
-    export  SRVBISYS_USERNAME=$(cat /var/run/secrets/nais.io/srvbisys/username)
+    export  SRVBIDRAG_USERNAME=$(cat /var/run/secrets/nais.io/srvbidrag-dokument/username)
 fi
-if test -f /var/run/secrets/nais.io/srvbisys/password;
+if test -f /var/run/secrets/nais.io/srvbidrag-dokument/password;
 then
-    export  SRVBISYS_PASSWORD=$(cat /var/run/secrets/nais.io/srvbisys/password)
+    export  SRVBIDRAG_PASSWORD=$(cat /var/run/secrets/nais.io/srvbidrag-dokument/password)
 fi

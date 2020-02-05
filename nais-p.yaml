@@ -33,7 +33,7 @@ spec:
   vault:
     enabled: true
     paths:
-      - kvPath: /serviceuser/data/prod/srvbisys
-        mountPath: /var/run/secrets/nais.io/srvbisys
+      - kvPath: /serviceuser/data/prod/srvbidrag-dokument
+        mountPath: /var/run/secrets/nais.io/srvbidrag-dokument
       - kvPath: /kv/prod/fss/bidrag-dokument/default
         mountPath: /var/run/secrets/nais.io/vault
