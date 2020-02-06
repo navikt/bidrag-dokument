@@ -100,4 +100,8 @@ public class JournalpostService {
   public HttpStatusResponse<Void> endre(String saksnummer, EndreJournalpostCommand endreJournalpostCommand) {
     return bidragJournalpostConsumer.endre(saksnummer, endreJournalpostCommand);
   }
+
+  public HttpStatusResponse<Void> registrer(EndreJournalpostCommand endreJournalpostCommand) {
+    return bidragJournalpostConsumer.registrer(endreJournalpostCommand);
+  }
 }

@@ -287,7 +287,7 @@ class JournalpostControllerTest {
     private static final String PATH_JOURNALPOST_UTEN_SAK = "/journal/";
 
     @Test
-    @DisplayName("skal få BAD_REQUEST når man henter journalpost uten gyldig prefix på journalpost id")
+    @DisplayName("skal få httpstatus 400 (BAD_REQUEST) når man henter journalpost uten gyldig prefix på journalpost id")
     void skalFaBadRequestVedFeilPrefixPaId() {
       var journalpostResponseEntity = httpHeaderTestRestTemplate.exchange(
           PATH_JOURNALPOST_UTEN_SAK + "ugyldig-id", HttpMethod.GET, null, JournalpostDto.class
@@ -310,7 +310,7 @@ class JournalpostControllerTest {
     }
 
     @Test
-    @DisplayName("skal fa BAD_REQUST når man skal finne avvik på journalpost uten gyldig prefix på id")
+    @DisplayName("skal få httpstatus 400 (BAD_REQUST) når man skal finne avvik på journalpost uten gyldig prefix på id")
     void skalFaBadRequestVedFinnAvvikForJournalpostMedUgyldigPrefixPaId() {
       var journalpostResponseEntity = httpHeaderTestRestTemplate.exchange(
           PATH_JOURNALPOST_UTEN_SAK + "ugyldig-id/avvik", HttpMethod.GET, null, responseTypeErListeMedAvvikType()
@@ -330,6 +330,18 @@ class JournalpostControllerTest {
       verify(restTemplateMock).exchange(
           PATH_JOURNALPOST_UTEN_SAK + "BID-1/avvik", HttpMethod.GET, null, responseTypeErListeMedAvvikType()
       );
+    }
+
+    @Test
+    @DisplayName("skal registrere journalpost")
+    void skalRegistrereJournalpost() {
+      when(restTemplateMock.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(Void.class)))
+          .thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
+
+      HttpEntity<EndreJournalpostCommand> registrerEntity = new HttpEntity<>(new EndreJournalpostCommand());
+      httpHeaderTestRestTemplate.exchange(PATH_JOURNALPOST_UTEN_SAK + "BID-1", HttpMethod.PUT, registrerEntity, Void.class);
+
+      verify(restTemplateMock).exchange(eq(PATH_JOURNALPOST_UTEN_SAK + "BID-1"), eq(HttpMethod.PUT), any(), eq(Void.class));
     }
   }
 
