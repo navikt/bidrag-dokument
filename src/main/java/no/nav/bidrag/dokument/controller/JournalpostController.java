@@ -151,6 +151,7 @@ public class JournalpostController {
     LOGGER.info("GET: /journal/{}", journalpostIdForKildesystem);
 
     if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
+      LOGGER.warn("JournalpostId er ugyldig: " + journalpostIdForKildesystem);
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
@@ -172,6 +173,7 @@ public class JournalpostController {
     LOGGER.info("GET: /journal/{}/avvik", journalpostIdForKildesystem);
 
     if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
+      LOGGER.warn("JournalpostId er ugyldig: " + journalpostIdForKildesystem);
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
@@ -195,6 +197,7 @@ public class JournalpostController {
     LOGGER.info("put: bidrag-dokument/journal/{} - {}", journalpostIdForKildesystem, endreJournalpostCommand);
 
     if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
+      LOGGER.warn("JournalpostId er ugyldig: " + journalpostIdForKildesystem);
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
@@ -225,6 +228,7 @@ public class JournalpostController {
     LOGGER.info("post: bidrag-dokument/journal/{}/avvik - {}", journalpostIdForKildesystem, avvikshendelse);
 
     if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
+      LOGGER.warn("JournalpostId er ugyldig: " + journalpostIdForKildesystem);
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
