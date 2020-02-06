@@ -76,6 +76,14 @@ public class BidragJournalpostConsumer {
     return new HttpStatusResponse<>(endretJournalpostResponse.getStatusCode());
   }
 
+  public HttpStatusResponse<Void> registrer(EndreJournalpostCommand endreJournalpostCommand) {
+    var path = String.format(PATH_JOURNALPOST_UTEN_SAKSTILGANG, endreJournalpostCommand.getJournalpostId());
+    LOGGER.info("Registrer journalpost: {}, path {}", endreJournalpostCommand, path);
+
+    var endretJournalpostResponse = restTemplate.exchange(path, HttpMethod.PUT, new HttpEntity<>(endreJournalpostCommand), Void.class);
+    return new HttpStatusResponse<>(endretJournalpostResponse.getStatusCode());
+  }
+
   public HttpStatusResponse<List<AvvikType>> finnAvvik(String saksnummer, String journalpostId) {
     String path;
 

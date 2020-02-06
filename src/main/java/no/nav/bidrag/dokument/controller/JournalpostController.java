@@ -198,6 +198,9 @@ public class JournalpostController {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
+    endreJournalpostCommand.setJournalpostId(journalpostIdForKildesystem);
+    journalpostService.registrer(endreJournalpostCommand);
+
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
