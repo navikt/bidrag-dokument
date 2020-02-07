@@ -49,11 +49,12 @@ public class JournalpostController {
 
     LOGGER.info("request: bidrag-dokument/sak/{}/journal/{}", saksnummer, journalpostIdForKildesystem);
 
-    if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
+    KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
+    if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    var journalpostDtoResponse = journalpostService.hentJournalpost(saksnummer, KildesystemIdenfikator.hent());
+    var journalpostDtoResponse = journalpostService.hentJournalpost(saksnummer, kildesystemIdenfikator);
     return new ResponseEntity<>(journalpostDtoResponse.getBody(), journalpostDtoResponse.getHttpStatus());
   }
 
@@ -69,11 +70,12 @@ public class JournalpostController {
   public ResponseEntity<List<AvvikType>> finnAvvik(@PathVariable String saksnummer, @PathVariable String journalpostIdForKildesystem) {
     LOGGER.info("request: bidrag-dokument/sak/{}/journal/{}/avvik", saksnummer, journalpostIdForKildesystem);
 
-    if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
+    KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
+    if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    var avvikslisteRespnse = journalpostService.finnAvvik(saksnummer, KildesystemIdenfikator.hent());
+    var avvikslisteRespnse = journalpostService.finnAvvik(saksnummer, kildesystemIdenfikator);
     return new ResponseEntity<>(avvikslisteRespnse.getBody(), avvikslisteRespnse.getHttpStatus());
   }
 
@@ -101,12 +103,12 @@ public class JournalpostController {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
-      LOGGER.warn("Ugyldig prefiks på journalpostId: " + journalpostIdForKildesystem);
+    KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
+    if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    var opprettAvvikResponse = journalpostService.opprettAvvik(saksnummer, KildesystemIdenfikator.hent(), avvikshendelse);
+    var opprettAvvikResponse = journalpostService.opprettAvvik(saksnummer, kildesystemIdenfikator, avvikshendelse);
     return new ResponseEntity<>(opprettAvvikResponse.getBody(), opprettAvvikResponse.getHttpStatus());
   }
 
@@ -126,7 +128,8 @@ public class JournalpostController {
 
     LOGGER.info("put endret: bidrag-dokument/sak/{}/journal/{}\n \\-> {}", saksnummer, journalpostIdForKildesystem, endreJournalpostCommand);
 
-    if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
+    KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
+    if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
@@ -150,12 +153,12 @@ public class JournalpostController {
 
     LOGGER.info("GET: /journal/{}", journalpostIdForKildesystem);
 
-    if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
-      LOGGER.warn("JournalpostId er ugyldig: " + journalpostIdForKildesystem);
+    KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
+    if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    var journalpostDtoResponse = journalpostService.hentJournalpost(KildesystemIdenfikator.hent());
+    var journalpostDtoResponse = journalpostService.hentJournalpost(kildesystemIdenfikator);
     return new ResponseEntity<>(journalpostDtoResponse.getBody(), journalpostDtoResponse.getHttpStatus());
   }
 
@@ -172,12 +175,12 @@ public class JournalpostController {
   public ResponseEntity<List<AvvikType>> finnAvvikPaJournalpostUtenSakstilknytning(@PathVariable String journalpostIdForKildesystem) {
     LOGGER.info("GET: /journal/{}/avvik", journalpostIdForKildesystem);
 
-    if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
-      LOGGER.warn("JournalpostId er ugyldig: " + journalpostIdForKildesystem);
+    KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
+    if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    var avvikslisteResponse = journalpostService.finnAvvik(KildesystemIdenfikator.hent());
+    var avvikslisteResponse = journalpostService.finnAvvik(kildesystemIdenfikator);
     return new ResponseEntity<>(avvikslisteResponse.getBody(), avvikslisteResponse.getHttpStatus());
   }
 
@@ -196,8 +199,8 @@ public class JournalpostController {
 
     LOGGER.info("put: bidrag-dokument/journal/{} - {}", journalpostIdForKildesystem, endreJournalpostCommand);
 
-    if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
-      LOGGER.warn("JournalpostId er ugyldig: " + journalpostIdForKildesystem);
+    KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
+    if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
@@ -227,8 +230,8 @@ public class JournalpostController {
 
     LOGGER.info("post: bidrag-dokument/journal/{}/avvik - {}", journalpostIdForKildesystem, avvikshendelse);
 
-    if (KildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix(journalpostIdForKildesystem)) {
-      LOGGER.warn("JournalpostId er ugyldig: " + journalpostIdForKildesystem);
+    KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
+    if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 

@@ -72,7 +72,7 @@ class JournalpostControllerTest {
       assertThat(Optional.of(journalpostResponseEntity)).hasValueSatisfying(response -> assertAll(
           () -> assertThat(response.getBody()).isNull(),
           () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT),
-          () -> verify(restTemplateMock).exchange(eq("/sak/007/journal/joark-1"), eq(HttpMethod.GET), any(), eq(JournalpostDto.class))
+          () -> verify(restTemplateMock).exchange(eq("/sak/007/journal/JOARK-1"), eq(HttpMethod.GET), any(), eq(JournalpostDto.class))
       ));
     }
 
@@ -85,13 +85,11 @@ class JournalpostControllerTest {
       var url = initEndpointUrl("/sak/007/journal/joark-2");
       var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.GET, null, JournalpostDto.class);
 
-      verify(restTemplateMock, atLeastOnce()).exchange("/sak/007/journal/joark-2", HttpMethod.GET, null, JournalpostDto.class);
-
       assertThat(Optional.of(responseEntity)).hasValueSatisfying(
           response -> assertAll(
               () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.I_AM_A_TEAPOT),
               () -> assertThat(response.getBody()).extracting(JournalpostDto::getInnhold).isEqualTo("MIDLERTIDIG"),
-              () -> verify(restTemplateMock).exchange(eq("/sak/007/journal/joark-2"), eq(HttpMethod.GET), any(), eq(JournalpostDto.class))
+              () -> verify(restTemplateMock).exchange(eq("/sak/007/journal/JOARK-2"), eq(HttpMethod.GET), any(), eq(JournalpostDto.class))
           )
       );
     }
@@ -115,7 +113,7 @@ class JournalpostControllerTest {
       assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
           () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.I_AM_A_TEAPOT),
           () -> assertThat(response.getBody()).extracting(JournalpostDto::getAvsenderNavn).isEqualTo("Grev Still E. Ben"),
-          () -> verify(restTemplateMock).exchange("/sak/007/journal/bid-1", HttpMethod.GET, null, JournalpostDto.class)
+          () -> verify(restTemplateMock).exchange("/sak/007/journal/BID-1", HttpMethod.GET, null, JournalpostDto.class)
       ));
     }
 

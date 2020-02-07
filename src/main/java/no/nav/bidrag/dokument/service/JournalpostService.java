@@ -4,7 +4,6 @@ import static no.nav.bidrag.commons.KildesystemIdenfikator.Kildesystem.BIDRAG;
 
 import java.util.Collections;
 import java.util.List;
-import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.KildesystemIdenfikator;
 import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
@@ -22,16 +21,13 @@ public class JournalpostService {
 
   private final BidragJournalpostConsumer bidragJournalpostConsumer;
   private final BidragArkivConsumer bidragArkivConsumer;
-  private final ExceptionLogger exceptionLogger;
 
   public JournalpostService(
       BidragArkivConsumer bidragArkivConsumer,
-      BidragJournalpostConsumer bidragJournalpostConsumer,
-      ExceptionLogger exceptionLogger
+      BidragJournalpostConsumer bidragJournalpostConsumer
   ) {
     this.bidragArkivConsumer = bidragArkivConsumer;
     this.bidragJournalpostConsumer = bidragJournalpostConsumer;
-    this.exceptionLogger = exceptionLogger;
   }
 
   public HttpStatusResponse<JournalpostDto> hentJournalpost(KildesystemIdenfikator kildesystemIdenfikator) {
@@ -39,7 +35,7 @@ public class JournalpostService {
   }
 
   public HttpStatusResponse<JournalpostDto> hentJournalpost(String saksnummer, KildesystemIdenfikator kildesystemIdenfikator) {
-    if (BIDRAG.er(kildesystemIdenfikator.hentKildesystem())) {
+    if (kildesystemIdenfikator.erFor(BIDRAG)) {
       return bidragJournalpostConsumer.hentJournalpost(saksnummer, kildesystemIdenfikator.getPrefiksetJournalpostId());
     }
 
@@ -51,7 +47,7 @@ public class JournalpostService {
   }
 
   public HttpStatusResponse<List<AvvikType>> finnAvvik(String saksnummer, KildesystemIdenfikator kildesystemIdenfikator) {
-    if (BIDRAG.er(kildesystemIdenfikator.hentKildesystem())) {
+    if (kildesystemIdenfikator.erFor(BIDRAG)) {
       return bidragJournalpostConsumer.finnAvvik(saksnummer, kildesystemIdenfikator.getPrefiksetJournalpostId());
     }
 
@@ -62,7 +58,7 @@ public class JournalpostService {
       String saksnummer, KildesystemIdenfikator kildesystemIdenfikator,
       Avvikshendelse avvikshendelse
   ) {
-    if (BIDRAG.er(kildesystemIdenfikator.hentKildesystem())) {
+    if (kildesystemIdenfikator.erFor(BIDRAG)) {
       return bidragJournalpostConsumer.opprettAvvik(saksnummer, kildesystemIdenfikator.getPrefiksetJournalpostId(), avvikshendelse);
     }
 
@@ -85,16 +81,6 @@ public class JournalpostService {
   private List<JournalpostDto> journalposterFraBrevlager(List<JournalpostDto> journalposter, String saksnummer, String fagomrade) {
     journalposter.addAll(bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade));
     return journalposter;
-  }
-
-  private List<JournalpostDto> handle(Throwable throwable) {
-    if (throwable instanceof RuntimeException) {
-      throw (RuntimeException) throwable;
-    }
-
-    exceptionLogger.logException(throwable, "JournalpostService");
-
-    return Collections.emptyList();
   }
 
   public HttpStatusResponse<Void> endre(String saksnummer, EndreJournalpostCommand endreJournalpostCommand) {
