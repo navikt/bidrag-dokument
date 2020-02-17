@@ -10,18 +10,17 @@ jobs:
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-java@v1.3.0
         with:
           java-version: '13'
       - run: env
-      - uses: actions/cache@v1
+      - uses: actions/cache@v1.1.2
         with:
           path: ~/.m2
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - name: setup maven
-        uses: navikt/bidrag-actions/setup-maven@master
+      - uses: navikt/bidrag-actions/setup-maven@v4.0.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build & test with maven
