@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -36,11 +37,36 @@ import org.springframework.web.bind.annotation.RestController;
 public class JournalpostController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(JournalpostController.class);
+  private static final String NON_DIGITS = "\\D+";
 
   private final JournalpostService journalpostService;
 
   public JournalpostController(JournalpostService journalpostService) {
     this.journalpostService = journalpostService;
+  }
+
+  @GetMapping("/sak/{saksnummer}/journal")
+  @ApiOperation("Finn saksjournal for et saksnummer, samt parameter 'fagomrade' (FAR - farskapsjournal) og (BID - bidragsjournal)")
+  @ApiResponses(value = {
+      @ApiResponse(code = 200, message = "Fant journalposter for saksnummer"),
+      @ApiResponse(code = 204, message = "Ingen journalposter for saksnummer"),
+      @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"),
+      @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig")
+  })
+  public ResponseEntity<List<JournalpostDto>> get(
+      @PathVariable String saksnummer,
+      @RequestParam String fagomrade
+  ) {
+
+    LOGGER.info("request: bidrag-dokument/sak/{}?fagomrade={}", saksnummer, fagomrade);
+
+    if (saksnummer.matches(NON_DIGITS)) {
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    var journalposter = journalpostService.finnJournalposter(saksnummer, fagomrade);
+
+    return new ResponseEntity<>(journalposter, journalposter.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK);
   }
 
   @GetMapping("/sak/{saksnummer}/journal/{journalpostIdForKildesystem}")
@@ -149,7 +175,9 @@ public class JournalpostController {
   }
 
   @GetMapping("/journal/{journalpostIdForKildesystem}")
-  @ApiOperation("Hent en journalpost som er mottaksregistrert for en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
+  @ApiOperation(
+      "Hent en journalpost som er mottaksregistrert for en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>"
+  )
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "Journalpost er hentet"),
       @ApiResponse(code = 204, message = "Journalpost er tilknyttet sak og er derfor ikke tilgangelig"),
@@ -172,7 +200,9 @@ public class JournalpostController {
   }
 
   @GetMapping("/journal/{journalpostIdForKildesystem}/avvik")
-  @ApiOperation("Finner mulige avvik for en journalpost med status mottaksregistrert, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
+  @ApiOperation(
+      "Finner mulige avvik for en journalpost med status mottaksregistrert, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER
+          + "<journalpostId>")
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "Tilgjengelig avvik for journalpost er hentet"),
       @ApiResponse(code = 204, message = "Ingen tilgjengelige avvik for journalpost eller journalposten har ikke status mottaksregistrert"),
@@ -194,7 +224,10 @@ public class JournalpostController {
   }
 
   @PutMapping("/journal/{journalpostIdForKildesystem}")
-  @ApiOperation("Registrere en journalpost med status mottaksregistrert og id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
+  @ApiOperation(
+      "Registrere en journalpost med status mottaksregistrert og id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER
+          + "<journalpostId>"
+  )
   @ApiResponses(value = {
       @ApiResponse(code = 202, message = "Journalpost er registrert"),
       @ApiResponse(code = 400, message = "Det er ukjent prefix for journalpostId, det finnes ikke en journalpost på gitt id, eller journalposten ikke har status mottaksregistrert"),
