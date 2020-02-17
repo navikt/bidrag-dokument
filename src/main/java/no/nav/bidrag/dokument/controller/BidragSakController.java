@@ -36,6 +36,12 @@ public class BidragSakController {
     this.journalpostService = journalpostService;
   }
 
+  /**
+   * @deprecated bruk /sak/{saksnummer}/journal
+   * @param saksnummer som har journalposter
+   * @param fagomrade som skal hentes
+   * @return response entity med journalposter
+   */
   @GetMapping("/{saksnummer}")
   @ApiOperation("Finn saksjournal for et saksnummer, samt parameter 'fagomrade' (FAR - farskapsjournal) og (BID - bidragsjournal)")
   @ApiResponses(value = {
@@ -44,6 +50,7 @@ public class BidragSakController {
       @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"),
       @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig")
   })
+  @Deprecated(forRemoval = true)
   public ResponseEntity<List<JournalpostDto>> get(
       @PathVariable String saksnummer,
       @RequestParam String fagomrade
