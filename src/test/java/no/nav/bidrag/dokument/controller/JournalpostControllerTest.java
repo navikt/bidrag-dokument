@@ -1,5 +1,6 @@
 package no.nav.bidrag.dokument.controller;
 
+import static java.util.Collections.singletonList;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.SECURE_TEST_PROFILE;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,6 +42,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @SpringBootTest(classes = BidragDokumentLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({TEST_PROFILE, SECURE_TEST_PROFILE})
@@ -278,9 +280,9 @@ class JournalpostControllerTest {
     }
   }
 
+  @DisplayName("Journalstatus er mottaksregistrert")
   @Nested
-  @DisplayName("Journalpost uten sakstilknytning")
-  class JournalpostUtenSakstilknytning {
+  class MottaksregistrertJournalstatus {
 
     private static final String PATH_JOURNALPOST_UTEN_SAK = "/journal/";
 
@@ -340,6 +342,74 @@ class JournalpostControllerTest {
       httpHeaderTestRestTemplate.exchange(PATH_JOURNALPOST_UTEN_SAK + "BID-1", HttpMethod.PUT, registrerEntity, Void.class);
 
       verify(restTemplateMock).exchange(eq(PATH_JOURNALPOST_UTEN_SAK + "BID-1"), eq(HttpMethod.PUT), any(), eq(Void.class));
+    }
+  }
+
+  @Nested
+  @DisplayName("sak journal")
+  class SakJournal {
+
+    @Test
+    @SuppressWarnings("unchecked")
+    @DisplayName("skal finne Journalposter for en bidragssak")
+    void skalFinneJournalposterForEnBidragssak() {
+      when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
+          .thenReturn(new ResponseEntity<>(singletonList(new JournalpostDto()), HttpStatus.OK)); // blir kalla en gang i arkiv og en gang i brevlager
+
+      var listeMedJournalposterResponse = httpHeaderTestRestTemplate.exchange(
+          lagSakjournalUrlForFagomradeBid("1001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+      );
+
+      assertThat(optional(listeMedJournalposterResponse)).hasValueSatisfying(
+          response -> assertAll(
+              () -> assertThat(response.getStatusCode()).as("status").isEqualTo(HttpStatus.OK),
+              // () -> assertThat(response.getBody()).as("body").hasSize(2), skal kalle også kalle bidrag-dokument-arkiv
+              () -> assertThat(response.getBody()).as("body").hasSize(1),
+              // () -> verify(restTemplateMock, times(2)) skal kalle også kalle bidrag-dokument-arkiv
+              () -> verify(restTemplateMock)
+                  .exchange(eq("/sak/1001/journal?fagomrade=BID"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any())
+          )
+      );
+    }
+
+    @Test
+    @DisplayName("skal få BAD_REQUEST(400) som statuskode når saksnummer ikke er et heltall")
+    void skalFaBadRequestNarSaksnummerIkkeErHeltall() {
+      var journalposterResponse = httpHeaderTestRestTemplate.exchange(
+          lagSakjournalUrlForFagomradeBid("xyz"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+      );
+
+      assertThat(optional(journalposterResponse)).hasValueSatisfying(response -> assertAll(
+          () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST),
+          () -> assertThat(response.getBody()).isNull())
+      );
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    @DisplayName("skal hente sakjournal fra bidrag-dokument-arkiv såfremt bidrag-dokument-journalpost")
+    void skalHenteSakJournalFraBidragDokumentArkiv() {
+      when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
+          .thenReturn(new ResponseEntity<>(singletonList(new JournalpostDto()), HttpStatus.OK));
+
+      var listeMedJournalposterResponse = httpHeaderTestRestTemplate.exchange(
+          lagSakjournalUrlForFagomradeBid("2020001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+      );
+
+//    assertThat(listeMedJournalposterResponse.getBody()).hasSize(2); skal kalle også kalle bidrag-dokument-arkiv
+      assertThat(listeMedJournalposterResponse.getBody()).hasSize(1);
+    }
+
+    private String lagSakjournalUrlForFagomradeBid(String saksnummer) {
+      return UriComponentsBuilder
+          .fromHttpUrl("http://localhost:" + port + "/bidrag-dokument/sak/" + saksnummer + "/journal")
+          .queryParam("fagomrade", "BID")
+          .toUriString();
+    }
+
+    private ParameterizedTypeReference<List<JournalpostDto>> responseTypeErListeMedJournalposter() {
+      return new ParameterizedTypeReference<>() {
+      };
     }
   }
 

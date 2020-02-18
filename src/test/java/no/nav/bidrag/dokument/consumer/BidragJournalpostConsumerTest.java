@@ -33,15 +33,15 @@ class BidragJournalpostConsumerTest {
   private RestTemplate restTemplateMock;
 
   @Test
-  @DisplayName("skal bruke bidragssakens saksnummer i sti til tjeneste")
-  void shouldUseValueFromPath() {
+  @DisplayName("skal hente journalen til en sak")
+  void skalHenteSakJournal() {
     when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
         .thenReturn(new ResponseEntity<>(HttpStatus.NO_CONTENT));
 
     bidragJournalpostConsumer.finnJournalposter("101", "BID");
     verify(restTemplateMock)
         .exchange(
-            eq("/sakjournal/101?fagomrade=BID"),
+            eq("/sak/101/journal?fagomrade=BID"),
             eq(HttpMethod.GET),
             any(),
             (ParameterizedTypeReference<List<JournalpostDto>>) any()

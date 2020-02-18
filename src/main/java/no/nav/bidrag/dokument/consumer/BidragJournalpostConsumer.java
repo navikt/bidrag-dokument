@@ -22,7 +22,7 @@ public class BidragJournalpostConsumer {
   private static final Logger LOGGER = LoggerFactory.getLogger(BidragJournalpostConsumer.class);
   private static final String PATH_JOURNALPOST = "/sak/%s/journal/%s";
   private static final String PATH_JOURNALPOST_UTEN_SAKSTILGANG = "/journal/%s";
-  private static final String PATH_SAK = "/sakjournal/";
+  private static final String PATH_SAK_JOURNAL = "/sak/%s/journal";
   private static final String PARAM_FAGOMRADE = "fagomrade";
 
   private final RestTemplate restTemplate;
@@ -32,7 +32,7 @@ public class BidragJournalpostConsumer {
   }
 
   public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
-    var uri = UriComponentsBuilder.fromPath(PATH_SAK + saksnummer)
+    var uri = UriComponentsBuilder.fromPath(String.format(PATH_SAK_JOURNAL, saksnummer))
         .queryParam(PARAM_FAGOMRADE, fagomrade)
         .toUriString();
 
