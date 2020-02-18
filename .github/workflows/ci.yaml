@@ -43,7 +43,7 @@ jobs:
       - if: github.ref == 'refs/heads/master'
         run: mvn help:evaluate -Dexpression=project.version -q -DforceStdout > .new-version
       - if: github.ref == 'refs/heads/master'
-        uses: navikt/bidrag-actions/git-commit@v4.0.2
+        uses: navikt/bidrag-actions/git-commit@v4.0.7
         with:
           commit_message: "Bumped to new version: {}"
           commit_message_file: .new-version
