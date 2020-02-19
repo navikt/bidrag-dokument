@@ -84,8 +84,7 @@ jobs:
     steps:
       - run: echo "if failures, fix/run cucumber test suite manual"
       - uses: actions/checkout@v2
-      - run: git clone https://github.com/navikt/bidrag-cucumber-backend
-      - uses: bidrag-actions/cucumber-jvm@feature-cucumber
+      - uses: bidrag-actions/cucumber-jvm@initial-cucumber-release
         if: github.ref != 'refs/heads/master'
         with:
           cucumber_tags: bidrag-dokument
@@ -93,7 +92,7 @@ jobs:
           maven_image: maven:1.6.3-jdk13
         env:
           MAVEN_CUCUMBER_CREDENTIALS: ${{ secrets.MAVEN_CUCUMBER_CREDENTIALS }}
-      - uses: bidrag-actions/cucumber-jvm@feature-cucumber
+      - uses: bidrag-actions/cucumber-jvm@initial-cucumber-release
         if: github.ref == 'refs/heads/master'
         with:
           cucumber_tags: bidrag-dokument
