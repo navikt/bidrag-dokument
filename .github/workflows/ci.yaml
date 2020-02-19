@@ -18,14 +18,6 @@ jobs:
       - uses: actions/setup-java@v1.3.0
         with:
           java-version: '13'
-      - uses: bidrag-actions/cucumber-jvm@initial-cucumber-release
-        if: github.ref != 'refs/heads/master'
-        with:
-          cucumber_tags: bidrag-dokument
-          environment: q1
-          maven_image: maven:1.6.3-jdk13
-        env:
-          MAVEN_CUCUMBER_CREDENTIALS: ${{ secrets.MAVEN_CUCUMBER_CREDENTIALS }}
       - run: env
       - uses: actions/cache@v1.1.2
         with:
@@ -92,7 +84,7 @@ jobs:
     steps:
       - run: echo "if failures, fix/run cucumber test suite manual"
       - uses: actions/checkout@v2
-      - uses: bidrag-actions/cucumber-jvm@initial-cucumber-release
+      - uses: navikt/bidrag-actions/cucumber-jvm@master
         if: github.ref != 'refs/heads/master'
         with:
           cucumber_tags: bidrag-dokument
@@ -100,7 +92,7 @@ jobs:
           maven_image: maven:1.6.3-jdk13
         env:
           MAVEN_CUCUMBER_CREDENTIALS: ${{ secrets.MAVEN_CUCUMBER_CREDENTIALS }}
-      - uses: bidrag-actions/cucumber-jvm@initial-cucumber-release
+      - uses: navikt/bidrag-actions/cucumber-jvm@master
         if: github.ref == 'refs/heads/master'
         with:
           cucumber_tags: bidrag-dokument
