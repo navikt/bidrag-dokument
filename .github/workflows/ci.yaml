@@ -88,17 +88,17 @@ jobs:
       - uses: bidrag-actions/cucumber-jvm@feature-cucumber
         if: github.ref != 'refs/heads/master'
         with:
-          - cucumber_tags: bidrag-dokument
-          - environment: q1
-          - maven_image: maven:1.6.3-jdk13
+          cucumber_tags: bidrag-dokument
+          environment: q1
+          maven_image: maven:1.6.3-jdk13
         env:
           MAVEN_CUCUMBER_CREDENTIALS: ${{ secrets.MAVEN_CUCUMBER_CREDENTIALS }}
       - uses: bidrag-actions/cucumber-jvm@feature-cucumber
         if: github.ref == 'refs/heads/master'
         with:
-          - cucumber_tags: bidrag-dokument
-          - environment: q0
-          - maven_image: maven:1.6.3-jdk13
+          cucumber_tags: bidrag-dokument
+          environment: q0
+          maven_image: maven:1.6.3-jdk13
         env:
           MAVEN_CUCUMBER_CREDENTIALS: ${{ secrets.MAVEN_CUCUMBER_CREDENTIALS }}
 
