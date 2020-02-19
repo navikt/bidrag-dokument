@@ -18,6 +18,14 @@ jobs:
       - uses: actions/setup-java@v1.3.0
         with:
           java-version: '13'
+      - uses: bidrag-actions/cucumber-jvm@initial-cucumber-release
+        if: github.ref != 'refs/heads/master'
+        with:
+          cucumber_tags: bidrag-dokument
+          environment: q1
+          maven_image: maven:1.6.3-jdk13
+        env:
+          MAVEN_CUCUMBER_CREDENTIALS: ${{ secrets.MAVEN_CUCUMBER_CREDENTIALS }}
       - run: env
       - uses: actions/cache@v1.1.2
         with:
