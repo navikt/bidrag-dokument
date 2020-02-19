@@ -89,7 +89,7 @@ jobs:
         with:
           cucumber_tags: bidrag-dokument
           environment: q1
-          maven_image: maven:1.6.3-jdk13
+          maven_image: maven:1.6.3-jdk-13
         env:
           MAVEN_CUCUMBER_CREDENTIALS: ${{ secrets.MAVEN_CUCUMBER_CREDENTIALS }}
       - uses: navikt/bidrag-actions/cucumber-jvm@feature-maven
@@ -97,7 +97,7 @@ jobs:
         with:
           cucumber_tags: bidrag-dokument
           environment: q0
-          maven_image: maven:1.6.3-jdk13
+          maven_image: maven:1.6.3-jdk-13
         env:
           MAVEN_CUCUMBER_CREDENTIALS: ${{ secrets.MAVEN_CUCUMBER_CREDENTIALS }}
 
