@@ -80,11 +80,10 @@ jobs:
     runs-on: self-hosted
     name: Run cucumber integration tests
     needs: deploy_dev
-
     steps:
       - run: echo "If failures, then fix and run cucumber test suite manual"
-      - uses: actions/checkout@v2
-      - uses: navikt/bidrag-actions/cucumber-jvm@feature-maven
+      - name: run cucumber backend tests for q1
+        uses: navikt/bidrag-actions/cucumber-jvm@feature-maven
         if: github.ref != 'refs/heads/master'
         with:
           cucumber_tags: bidrag-dokument
@@ -92,7 +91,8 @@ jobs:
           maven_image: maven:1.6.3-jdk-13
         env:
           MAVEN_CUCUMBER_CREDENTIALS: ${{ secrets.MAVEN_CUCUMBER_CREDENTIALS }}
-      - uses: navikt/bidrag-actions/cucumber-jvm@feature-maven
+      - name: run cucumber backend tests for default namespace (q0)
+        uses: navikt/bidrag-actions/cucumber-jvm@feature-maven
         if: github.ref == 'refs/heads/master'
         with:
           cucumber_tags: bidrag-dokument
