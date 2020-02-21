@@ -64,17 +64,28 @@ jobs:
           CLUSTER: dev-fss
           RESOURCE: deploy/nais.yaml
           VAR: namespace=q1,ingress=https://bidrag-dokument-q1.nais.preprod.local/
-      - if: github.ref == 'refs/heads/master'
-        run: cd depoy && mvn release:update-versions
-      - if: github.ref == 'refs/heads/master'
-        run: cd depoy && mvn help:evaluate -Dexpression=project.version -q -DforceStdout > .new-version
-      - if: github.ref == 'refs/heads/master'
-        uses: navikt/bidrag-actions/git-commit@v4.0.7
+
+  bump_dev_version:
+    runs-on: ubuntu-latest
+    name: bump SNAPSHOT version
+    if: github.ref == 'refs/heads/master'
+    needs: deploy_dev
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v1.1.2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - run: mvn release:update-versions
+      - run: mvn help:evaluate -Dexpression=project.version -q -DforceStdout > .new-version
+      - uses: navikt/bidrag-actions/git-commit@v4.0.7
         with:
           commit_message: "Bumped to new version: {}"
           commit_message_file: .new-version
           pattern: "pom.xml"
-          src_folder: deploy
 
   deploy_prod:
     runs-on: ubuntu-latest
