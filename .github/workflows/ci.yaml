@@ -99,7 +99,7 @@ jobs:
           echo "Working directory:"
           pwd
           sudo rm -rf bidrag-cucumber-backend
-          git clone --depth 1 --branch "$GITHUB_REF" https://github.com/navikt/bidrag-cucumber-backend
+          git clone --depth 1 https://github.com/navikt/bidrag-cucumber-backend
           cd bidrag-cucumber-backend
 
           if [ "$GITHUB_REF" != "refs/heads/master" ]; then
