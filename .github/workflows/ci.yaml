@@ -96,15 +96,11 @@ jobs:
       - name: run cucumber backend tests
         if: github.ref != 'refs/heads/master'
         run: |
+          echo "Working directory:"
           pwd
-
-          if [ ! -d bidrag-cucumber-backend ]; then
-            git clone --depth 1 https://github.com/navikt/bidrag-cucumber-backend
-          else
-            cd bidrag-cucumber-backend
-          fi
-
-          git pull
+          sudo rm -rf bidrag-cucumber-backend
+          git clone --depth 1 --branch "$GITHUB_REF" https://github.com/navikt/bidrag-cucumber-backend
+          cd bidrag-cucumber-backend
 
           if [ "$GITHUB_REF" != "refs/heads/master" ]; then
             export ENVIRONMENT=q1
