@@ -87,6 +87,32 @@ jobs:
           commit_message_file: .new-version
           pattern: "pom.xml"
 
+  run_cucumber:
+    runs-on: self-hosted
+    name: Run cucumber integration tests
+    needs: deploy_dev
+    steps:
+      - run: echo "If failures, then fix and run cucumber test suite manual"
+      - name: run cucumber backend tests
+        if: github.ref != 'refs/heads/master'
+        run: |
+          echo "Working directory:"
+          pwd
+          sudo rm -rf bidrag-cucumber-backend
+          git clone --depth 1 https://github.com/navikt/bidrag-cucumber-backend
+          cd bidrag-cucumber-backend
+
+          if [ "$GITHUB_REF" != "refs/heads/master" ]; then
+            export ENVIRONMENT=q1
+          else
+            export ENVIRONMENT=q0
+          fi
+
+          docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn clean test \
+            -DENVIRONMENT="$ENVIRONMENT" \
+            ${{ secrets.MAVEN_CUCUMBER_CREDENTIALS }} \
+            -Dcucumber.options='--tags "@bidrag-dokument"'
+
   deploy_prod:
     runs-on: ubuntu-latest
     name: Deploy docker image to prod
