@@ -94,7 +94,7 @@ jobs:
     steps:
       - run: echo "If failures, then fix and run cucumber test suite manual"
       - name: run cucumber backend tests for q1
-        uses: navikt/bidrag-actions/cucumber-jvm@feature-maven
+        uses: navikt/bidrag-actions/cucumber-jvm@v5
         if: github.ref != 'refs/heads/master'
         with:
           cucumber_tags: bidrag-dokument
@@ -103,7 +103,7 @@ jobs:
         env:
           MAVEN_CUCUMBER_CREDENTIALS: ${{ secrets.MAVEN_CUCUMBER_CREDENTIALS }}
       - name: run cucumber backend tests for default namespace (q0)
-        uses: navikt/bidrag-actions/cucumber-jvm@feature-maven
+        uses: navikt/bidrag-actions/cucumber-jvm@v5
         if: github.ref == 'refs/heads/master'
         with:
           cucumber_tags: bidrag-dokument
