@@ -25,10 +25,10 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - uses: navikt/bidrag-actions/setup-maven@v4.0.3
+      - uses: navikt/bidrag-actions/maven-setup@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: navikt/bidrag-actions/maven-verify-dependencies@feature-maven
+      - uses: navikt/bidrag-actions/maven-verify-dependencies@v5
       - run: mvn install -B -e
       - name: Build and publish Docker image
         env:
