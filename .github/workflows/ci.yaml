@@ -93,15 +93,18 @@ jobs:
     needs: deploy_dev
     steps:
       - run: echo "If failures, then fix and run cucumber test suite manual"
-      - uses: actions/checkout@v2
-        with:
-          repository: navikt/bidrag-cucumber-backend
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: run cucumber backend tests
         if: github.ref != 'refs/heads/master'
         run: |
           pwd
+
+          if [ ! -d bidrag-cucumber-backend ]; then
+            git clone --depth 1 https://github.com/navikt/bidrag-cucumber-backend
+          else
+            cd bidrag-cucumber-backend
+          fi
+
+          git pull
 
           if [ "$GITHUB_REF" != "refs/heads/master" ]; then
             export ENVIRONMENT=q1
