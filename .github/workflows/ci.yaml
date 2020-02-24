@@ -93,24 +93,26 @@ jobs:
     needs: deploy_dev
     steps:
       - run: echo "If failures, then fix and run cucumber test suite manual"
-      - name: run cucumber backend tests for q1
-        uses: navikt/bidrag-actions/cucumber-jvm@v5
+      - uses: actions/checkout@v2
+        with:
+          repository: navikt/bidrag-cucumber-backend
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: run cucumber backend tests
         if: github.ref != 'refs/heads/master'
-        with:
-          cucumber_tags: bidrag-dokument
-          environment: q1
-          maven_image: maven:3.6.3-jdk-13
-        env:
-          MAVEN_CUCUMBER_CREDENTIALS: ${{ secrets.MAVEN_CUCUMBER_CREDENTIALS }}
-      - name: run cucumber backend tests for default namespace (q0)
-        uses: navikt/bidrag-actions/cucumber-jvm@v5
-        if: github.ref == 'refs/heads/master'
-        with:
-          cucumber_tags: bidrag-dokument
-          environment: q0
-          maven_image: maven:3.6.3-jdk-13
-        env:
-          MAVEN_CUCUMBER_CREDENTIALS: ${{ secrets.MAVEN_CUCUMBER_CREDENTIALS }}
+        run: |
+          pwd
+
+          if [ "$GITHUB_REF" != "refs/heads/master" ]; then
+            export ENVIRONMENT=q1
+          else
+            export ENVIRONMENT=q0
+          fi
+
+          docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn clean test \
+            -Dcucumber.options='-- tags"@bidrag-dokument"' \
+            -DENVIRONMENT="$ENVIRONMENT" \
+            ${{ secrets.MAVEN_CUCUMBER_CREDENTIALS }}
 
   deploy_prod:
     runs-on: ubuntu-latest
