@@ -92,25 +92,14 @@ jobs:
     name: Run cucumber integration tests
     needs: deploy_dev
     steps:
-      - run: echo "If failures, then fix and run cucumber test suite manual"
-      - name: run cucumber backend tests
-        run: |
-          echo "Working directory:"
-          pwd
-          sudo rm -rf bidrag-cucumber-backend
-          git clone --depth 1 https://github.com/navikt/bidrag-cucumber-backend
-          cd bidrag-cucumber-backend
+      - uses: navikt/bidrag-actions/maven-cucumber-backend@feature-cucumber
+        with:
+          maven_image: maven:3.6.3-jdk-13
+          cucumber_tag: bidrag-dokument
+        env:
+          MAVEN_USER_CREDENTIALS: ${{ secrets.MAVEN_USER_CREDENTIALS }}
+          MAVEN_TEST_USER_CREDENTIALS: ${{ secrets.MAVEN_TEST_USER_CREDENTIALS }}
 
-          if [ "$GITHUB_REF" != "refs/heads/master" ]; then
-            export ENVIRONMENT=q1
-          else
-            export ENVIRONMENT=q0
-          fi
-
-          docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn clean test \
-            -DENVIRONMENT="$ENVIRONMENT" \
-            ${{ secrets.MAVEN_CUCUMBER_CREDENTIALS }} \
-            -Dcucumber.options='--tags "@bidrag-dokument"'
 
   deploy_prod:
     runs-on: ubuntu-latest
