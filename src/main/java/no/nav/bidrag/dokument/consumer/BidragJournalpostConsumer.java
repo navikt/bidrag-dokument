@@ -9,6 +9,7 @@ import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
+import no.nav.bidrag.dokument.dto.RegistrereJournalpostCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -76,12 +77,12 @@ public class BidragJournalpostConsumer {
     return new HttpStatusResponse<>(endretJournalpostResponse.getStatusCode());
   }
 
-  public HttpStatusResponse<Void> registrer(EndreJournalpostCommand endreJournalpostCommand) {
-    var path = String.format(PATH_JOURNALPOST_UTEN_SAKSTILGANG, endreJournalpostCommand.getJournalpostId());
-    LOGGER.info("Registrer journalpost: {}, path {}", endreJournalpostCommand, path);
+  public HttpStatusResponse<Void> registrer(RegistrereJournalpostCommand registrereJournalpostCommand) {
+    var path = String.format(PATH_JOURNALPOST_UTEN_SAKSTILGANG, registrereJournalpostCommand.getJournalpostId());
+    LOGGER.info("Registrer journalpost: {}, path {}", registrereJournalpostCommand, path);
 
-    var endretJournalpostResponse = restTemplate.exchange(path, HttpMethod.PUT, new HttpEntity<>(endreJournalpostCommand), Void.class);
-    return new HttpStatusResponse<>(endretJournalpostResponse.getStatusCode());
+    var registrereJournalpostResponse = restTemplate.exchange(path, HttpMethod.PUT, new HttpEntity<>(registrereJournalpostCommand), Void.class);
+    return new HttpStatusResponse<>(registrereJournalpostResponse.getStatusCode());
   }
 
   public HttpStatusResponse<List<AvvikType>> finnAvvik(String saksnummer, String journalpostId) {
