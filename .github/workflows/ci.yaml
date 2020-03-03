@@ -94,7 +94,6 @@ jobs:
     steps:
       - run: echo "If failures, then fix and run cucumber test suite manual"
       - name: run cucumber backend tests
-        if: github.ref != 'refs/heads/master'
         run: |
           echo "Working directory:"
           pwd
