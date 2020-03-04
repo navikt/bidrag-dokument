@@ -95,7 +95,7 @@ jobs:
       - uses: navikt/bidrag-actions/maven-cucumber-backend@feature-options
         with:
           maven_image: maven:3.6.3-jdk-13
-          cucumber_options: '--tags "@bidrag-dokument"'
+          cucumber_options: \'--tags "@bidrag-dokument"'
           username: j104364
           test_user: z992903
         env:
