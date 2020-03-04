@@ -96,9 +96,11 @@ jobs:
         with:
           maven_image: maven:3.6.3-jdk-13
           cucumber_tag: bidrag-dokument
+          username: j104364
+          test_user: z992903
         env:
-          MAVEN_USER_CREDENTIALS: ${{ secrets.MAVEN_USER_CREDENTIALS }}
-          MAVEN_TEST_USER_CREDENTIALS: ${{ secrets.MAVEN_TEST_USER_CREDENTIALS }}
+          USER_AUTHENTICATION: ${{ secrets.USER_AUTHENTICATION }}
+          TEST_USER_AUTHENTICATION: ${{ secrets.TEST_USER_AUTHENTICATION }}
 
 
   deploy_prod:
