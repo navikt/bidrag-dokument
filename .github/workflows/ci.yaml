@@ -102,7 +102,6 @@ jobs:
           USER_AUTHENTICATION: ${{ secrets.USER_AUTHENTICATION }}
           TEST_USER_AUTHENTICATION: ${{ secrets.TEST_USER_AUTHENTICATION }}
 
-
   deploy_prod:
     runs-on: ubuntu-latest
     name: Deploy docker image to prod
