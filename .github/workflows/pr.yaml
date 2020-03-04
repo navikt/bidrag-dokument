@@ -13,14 +13,13 @@ jobs:
       - uses: actions/setup-java@v1.3.0
         with:
           java-version: '13'
-      - run: env
       - uses: actions/cache@v1.1.2
         with:
           path: ~/.m2
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - uses: navikt/bidrag-actions/setup-maven@v4.0.3
+      - uses: navikt/bidrag-actions/maven-setup@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: mvn -B install -e
