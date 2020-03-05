@@ -92,7 +92,7 @@ jobs:
     name: Run cucumber integration tests
     needs: deploy_dev
     steps:
-      - uses: navikt/bidrag-actions/maven-cucumber-backend@feature-cucumber
+      - uses: navikt/bidrag-actions/maven-cucumber-backend@v6
         with:
           maven_image: maven:3.6.3-jdk-13
           cucumber_tag: bidrag-dokument
@@ -101,7 +101,6 @@ jobs:
         env:
           USER_AUTHENTICATION: ${{ secrets.USER_AUTHENTICATION }}
           TEST_USER_AUTHENTICATION: ${{ secrets.TEST_USER_AUTHENTICATION }}
-
 
   deploy_prod:
     runs-on: ubuntu-latest
