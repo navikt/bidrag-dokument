@@ -68,6 +68,7 @@ jobs:
   run_cucumber:
     runs-on: self-hosted
     name: Run cucumber integration tests
+    if: github.ref != 'refs/heads/master'
     needs: deploy_dev
     steps:
       - uses: navikt/bidrag-actions/maven-cucumber-backend@v6
@@ -84,7 +85,7 @@ jobs:
     runs-on: ubuntu-latest
     name: bump SNAPSHOT version
     if: github.ref == 'refs/heads/master'
-    needs: run_cucumber
+    needs: build
 
     steps:
       - uses: actions/checkout@v2
