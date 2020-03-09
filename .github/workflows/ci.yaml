@@ -71,10 +71,10 @@ jobs:
     if: github.ref != 'refs/heads/master'
     needs: deploy_dev
     steps:
-      - uses: navikt/bidrag-actions/maven-cucumber-backend@v6
+      - uses: navikt/bidrag-actions/maven-cucumber-backend@feature-cucmber
         with:
           maven_image: maven:3.6.3-jdk-13
-          cucumber_tag: dokument
+          cucumber_tag: bidrag-dokument
           username: j104364
           test_user: z992903
         env:
