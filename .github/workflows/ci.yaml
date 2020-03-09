@@ -68,7 +68,6 @@ jobs:
   run_cucumber:
     runs-on: self-hosted
     name: Run cucumber integration tests
-    if: github.ref != 'refs/heads/master'
     needs: deploy_dev
     steps:
       - uses: navikt/bidrag-actions/maven-cucumber-backend@feature-cucumber
