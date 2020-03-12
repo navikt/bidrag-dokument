@@ -19,12 +19,12 @@ jobs:
         with:
           java-version: '13'
       - run: env
-#      - uses: actions/cache@v1.1.2
-#        with:
-#          path: ~/.m2
-#          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-#          restore-keys: |
-#            ${{ runner.os }}-maven-
+      - uses: actions/cache@v1.1.2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
       - uses: navikt/bidrag-actions/maven-setup@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
