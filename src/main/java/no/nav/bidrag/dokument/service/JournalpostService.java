@@ -13,6 +13,7 @@ import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
+import no.nav.bidrag.dokument.dto.RegistrereJournalpostCommand;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -87,7 +88,7 @@ public class JournalpostService {
     return bidragJournalpostConsumer.endre(saksnummer, endreJournalpostCommand);
   }
 
-  public HttpStatusResponse<Void> registrer(EndreJournalpostCommand endreJournalpostCommand) {
-    return bidragJournalpostConsumer.registrer(endreJournalpostCommand);
+  public HttpStatusResponse<Void> registrer(RegistrereJournalpostCommand registrereJournalpostCommand) {
+    return bidragJournalpostConsumer.registrer(registrereJournalpostCommand);
   }
 }

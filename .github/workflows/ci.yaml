@@ -65,11 +65,26 @@ jobs:
           RESOURCE: deploy/nais.yaml
           VAR: namespace=q1,ingress=https://bidrag-dokument-q1.nais.preprod.local/
 
+  run_cucumber:
+    runs-on: self-hosted
+    name: Run cucumber integration tests
+    needs: deploy_dev
+    steps:
+      - uses: navikt/bidrag-actions/maven-cucumber-backend@v1-maven
+        with:
+          maven_image: maven:3.6.3-jdk-13
+          cucumber_tag: bidrag-dokument
+          username: j104364
+          test_user: z992903
+        env:
+          USER_AUTHENTICATION: ${{ secrets.USER_AUTHENTICATION }}
+          TEST_USER_AUTHENTICATION: ${{ secrets.TEST_USER_AUTHENTICATION }}
+
   bump_dev_version:
     runs-on: ubuntu-latest
     name: bump SNAPSHOT version
     if: github.ref == 'refs/heads/master'
-    needs: deploy_dev
+    needs: run_cucumber
 
     steps:
       - uses: actions/checkout@v2
@@ -86,32 +101,6 @@ jobs:
           commit_message: "Bumped to new version: {}"
           commit_message_file: .new-version
           pattern: "pom.xml"
-
-  run_cucumber:
-    runs-on: self-hosted
-    name: Run cucumber integration tests
-    needs: deploy_dev
-    steps:
-      - run: echo "If failures, then fix and run cucumber test suite manual"
-      - name: run cucumber backend tests
-        if: github.ref != 'refs/heads/master'
-        run: |
-          echo "Working directory:"
-          pwd
-          sudo rm -rf bidrag-cucumber-backend
-          git clone --depth 1 https://github.com/navikt/bidrag-cucumber-backend
-          cd bidrag-cucumber-backend
-
-          if [ "$GITHUB_REF" != "refs/heads/master" ]; then
-            export ENVIRONMENT=q1
-          else
-            export ENVIRONMENT=q0
-          fi
-
-          docker run --rm -v $PWD:/usr/src/mymaven -v ~/.m2:/root/.m2 -w /usr/src/mymaven maven:3.6.3-jdk-13 mvn clean test \
-            -DENVIRONMENT="$ENVIRONMENT" \
-            ${{ secrets.MAVEN_CUCUMBER_CREDENTIALS }} \
-            -Dcucumber.options='--tags "@bidrag-dokument"'
 
   deploy_prod:
     runs-on: ubuntu-latest

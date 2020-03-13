@@ -23,6 +23,7 @@ import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
+import no.nav.bidrag.dokument.dto.RegistrereJournalpostCommand;
 import org.junit.Ignore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -338,7 +339,7 @@ class JournalpostControllerTest {
       when(restTemplateMock.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(Void.class)))
           .thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
 
-      HttpEntity<EndreJournalpostCommand> registrerEntity = new HttpEntity<>(new EndreJournalpostCommand());
+      HttpEntity<RegistrereJournalpostCommand> registrerEntity = new HttpEntity<>(new RegistrereJournalpostCommand());
       httpHeaderTestRestTemplate.exchange(PATH_JOURNALPOST_UTEN_SAK + "BID-1", HttpMethod.PUT, registrerEntity, Void.class);
 
       verify(restTemplateMock).exchange(eq(PATH_JOURNALPOST_UTEN_SAK + "BID-1"), eq(HttpMethod.PUT), any(), eq(Void.class));

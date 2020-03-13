@@ -16,6 +16,7 @@ import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
+import no.nav.bidrag.dokument.dto.RegistrereJournalpostCommand;
 import no.nav.bidrag.dokument.service.JournalpostService;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
 import org.slf4j.Logger;
@@ -236,18 +237,18 @@ public class JournalpostController {
   })
   public ResponseEntity<Void> registrerOpprettetJournalpost(
       @PathVariable String journalpostIdForKildesystem,
-      @RequestBody EndreJournalpostCommand endreJournalpostCommand
+      @RequestBody RegistrereJournalpostCommand registrereJournalpostCommand
   ) {
 
-    LOGGER.info("put: bidrag-dokument/journal/{} - {}", journalpostIdForKildesystem, endreJournalpostCommand);
+    LOGGER.info("put: bidrag-dokument/journal/{} - {}", journalpostIdForKildesystem, registrereJournalpostCommand);
 
     KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
     if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    endreJournalpostCommand.setJournalpostId(journalpostIdForKildesystem);
-    journalpostService.registrer(endreJournalpostCommand);
+    registrereJournalpostCommand.setJournalpostId(journalpostIdForKildesystem);
+    journalpostService.registrer(registrereJournalpostCommand);
 
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
