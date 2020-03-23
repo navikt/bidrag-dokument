@@ -95,12 +95,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - run: mvn release:update-versions
-      - run: mvn help:evaluate -Dexpression=project.version -q -DforceStdout > .new-version
-      - uses: navikt/bidrag-actions/git-commit@v4.0.7
+      - run: |
+          CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo ::set-output name=version::${CURRENT_VERSION}
+        id: snapshot
+      - uses: navikt/bidrag-actions/git-commit@v2.0.1-git
         with:
-          commit_message: "Bumped to new version: {}"
-          commit_message_file: .new-version
+          commit_message: "Bumped to new version: ${{ steps.snapshot.outputs.version }}"
           pattern: "pom.xml"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   deploy_prod:
     runs-on: ubuntu-latest
