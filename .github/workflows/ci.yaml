@@ -122,8 +122,7 @@ jobs:
   tag_prod_deploy:
     runs-on: ubuntu-latest
     name: Tag latest deploy to prod
-#    needs: deploy_prod
-    needs: build
+    needs: deploy_prod
 
     steps:
       - uses: actions/checkout@v2
@@ -135,9 +134,9 @@ jobs:
             ${{ runner.os }}-maven-
       - run: |
           TAG_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
-          echo ::set-output name=tag::test-${TAG_VERSION}
+          echo ::set-output name=tag::${TAG_VERSION}
         id: release
-      - uses: navikt/bidrag-actions/git-tag@feature-v3-git
+      - uses: navikt/bidrag-actions/git-tag@v3-git
         with:
           tag_message: Releasing version ${{ steps.release.outputs.tag }}
           tag: ${{ steps.release.outputs.tag }}
