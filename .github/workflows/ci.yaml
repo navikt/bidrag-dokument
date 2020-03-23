@@ -122,7 +122,8 @@ jobs:
   tag_prod_deploy:
     runs-on: ubuntu-latest
     name: Tag latest deploy to prod
-    needs: deploy_prod
+#    needs: deploy_prod
+    needs: build
 
     steps:
       - uses: actions/checkout@v2
@@ -132,10 +133,13 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - run: mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//' > .tag-version
-      - uses: navikt/bidrag-actions/git-tag@v4.0.2
+      - run: |
+          TAG_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
+          echo ::set-output tag-name::test-${TAG_VERSION}
+      - id: release
+      - uses: navikt/bidrag-actions/git-tag@feature-v3-git
         with:
-          tag_message: Releasing version {}
-          tag_file: .tag-version
+          tag_message: Releasing version ${{ steps.release.outputs.tag-name }}
+          tag: ${{ steps.release.outputs.tag-name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
