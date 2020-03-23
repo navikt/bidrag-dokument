@@ -135,11 +135,11 @@ jobs:
             ${{ runner.os }}-maven-
       - run: |
           TAG_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
-          echo ::set-output tag-name::test-${TAG_VERSION}
+          echo ::set-output name=tag::test-${TAG_VERSION}
         id: release
       - uses: navikt/bidrag-actions/git-tag@feature-v3-git
         with:
-          tag_message: Releasing version ${{ steps.release.outputs.tag-name }}
-          tag: ${{ steps.release.outputs.tag-name }}
+          tag_message: Releasing version ${{ steps.release.outputs.tag }}
+          tag: ${{ steps.release.outputs.tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
