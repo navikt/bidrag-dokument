@@ -132,10 +132,13 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - run: mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//' > .tag-version
-      - uses: navikt/bidrag-actions/git-tag@v4.0.2
+      - run: |
+          TAG_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
+          echo ::set-output name=tag::${TAG_VERSION}
+        id: release
+      - uses: navikt/bidrag-actions/git-tag@v3-git
         with:
-          tag_message: Releasing version {}
-          tag_file: .tag-version
+          tag_message: Releasing version ${{ steps.release.outputs.tag }}
+          tag: ${{ steps.release.outputs.tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
