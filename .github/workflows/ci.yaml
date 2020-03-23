@@ -136,7 +136,7 @@ jobs:
       - run: |
           TAG_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
           echo ::set-output tag-name::test-${TAG_VERSION}
-      - id: release
+        id: release
       - uses: navikt/bidrag-actions/git-tag@feature-v3-git
         with:
           tag_message: Releasing version ${{ steps.release.outputs.tag-name }}
