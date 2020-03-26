@@ -1,5 +1,7 @@
 package no.nav.bidrag.dokument;
 
+import static no.nav.bidrag.commons.web.EnhetFilter.X_ENHET_HEADER;
+
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
@@ -20,7 +22,7 @@ public class RestTemplateConfiguration {
 
     httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.AUTHORIZATION, () -> "Bearer " + oidcTokenManager.fetchToken());
     httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER, CorrelationIdFilter::fetchCorrelationIdForThread);
-    httpHeaderRestTemplate.addHeaderGenerator(EnhetFilter.X_ENHETSNR_HEADER, EnhetFilter::fetchForThread);
+    httpHeaderRestTemplate.addHeaderGenerator(X_ENHET_HEADER, EnhetFilter::fetchForThread);
 
     return httpHeaderRestTemplate;
   }

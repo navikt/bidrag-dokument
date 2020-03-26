@@ -1,5 +1,6 @@
 package no.nav.bidrag.dokument.controller;
 
+import static no.nav.bidrag.commons.web.EnhetFilter.X_ENHET_HEADER;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.DELIMTER;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.ISSUER;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_BIDRAG;
@@ -118,12 +119,12 @@ public class JournalpostController {
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "Avvik på journalpost er behandlet"),
       @ApiResponse(code = 201, message = "Opprettet oppgave for behandlet avvik"),
-      @ApiResponse(code = 400, message = "Avvikstype mangler i avvikshendelsen, enhetsnummer mangler/ugyldig (fra header) eller behandling av avviket er ugyldig"),
+      @ApiResponse(code = 400, message = "Avvikstype mangler i avvikshendelsen, enhet mangler/ugyldig (fra header) eller behandling av avviket er ugyldig"),
       @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(code = 404, message = "Fant ikke journalpost som det skal lages avvik på eller feil prefix/id på journalposten"),
       @ApiResponse(code = 503, message = "Oppretting av oppgave for avviket feilet")})
   public ResponseEntity<OpprettAvvikshendelseResponse> opprettAvvik(
-      @SuppressWarnings("unused") @RequestHeader(EnhetFilter.X_ENHETSNR_HEADER) String enhetsnummer, // ikke brukt direkte, kun for validering
+      @RequestHeader(X_ENHET_HEADER) String enhet,
       @PathVariable String saksnummer,
       @PathVariable String journalpostIdForKildesystem,
       @RequestBody Avvikshendelse avvikshendelse
@@ -142,7 +143,7 @@ public class JournalpostController {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    var opprettAvvikResponse = journalpostService.opprettAvvik(saksnummer, kildesystemIdenfikator, avvikshendelse);
+    var opprettAvvikResponse = journalpostService.opprettAvvik(saksnummer, enhet, kildesystemIdenfikator, avvikshendelse);
     return new ResponseEntity<>(opprettAvvikResponse.getBody(), opprettAvvikResponse.getHttpStatus());
   }
 
@@ -151,12 +152,13 @@ public class JournalpostController {
   @ApiResponses(value = {
       @ApiResponse(code = 202, message = "Journalpost er endret"),
       @ApiResponse(code = 204, message = "Journalpost funnet, men mangler relatert sak. Returnerer ikke data."),
-      @ApiResponse(code = 400, message = "Prefiks på journalpostId er ugyldig, JournalpostEndreJournalpostCommandDto.gjelder er ikke satt eller det ikke finnes en journalpost på gitt id"),
+      @ApiResponse(code = 400, message = "Prefiks på journalpostId er ugyldig, enhet mangler/ugyldig (fra header), JournalpostEndreJournalpostCommandDto.gjelder er ikke satt, eller det ikke finnes en journalpost på gitt id"),
       @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(code = 403, message = "Saksbehandler har ikke tilgang til aktuell journalpost"),
       @ApiResponse(code = 404, message = "Fant ikke journalpost som skal endres, ingen 'payload' eller feil prefix/id på journalposten")
   })
   public ResponseEntity<Void> put(
+      @RequestHeader(X_ENHET_HEADER) String enhet,
       @PathVariable String saksnummer,
       @RequestBody EndreJournalpostCommand endreJournalpostCommand,
       @PathVariable String journalpostIdForKildesystem
@@ -171,7 +173,7 @@ public class JournalpostController {
 
     endreJournalpostCommand.setJournalpostId(journalpostIdForKildesystem);
 
-    var endreResponse = journalpostService.endre(saksnummer, endreJournalpostCommand);
+    var endreResponse = journalpostService.endre(saksnummer, enhet, endreJournalpostCommand);
     return new ResponseEntity<>(endreResponse.getHttpStatus());
   }
 
@@ -231,11 +233,12 @@ public class JournalpostController {
   )
   @ApiResponses(value = {
       @ApiResponse(code = 202, message = "Journalpost er registrert"),
-      @ApiResponse(code = 400, message = "Det er ukjent prefix for journalpostId, det finnes ikke en journalpost på gitt id, eller journalposten ikke har status mottaksregistrert"),
+      @ApiResponse(code = 400, message = "Det er ukjent prefix for journalpostId, det finnes ikke en journalpost på gitt id, enhet mangler/ugyldig (fra header), eller journalposten ikke har status mottaksregistrert"),
       @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"),
       @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig, eller du har ikke adgang til kode 6 og 7 (nav-ansatt)")
   })
   public ResponseEntity<Void> registrerOpprettetJournalpost(
+      @RequestHeader(X_ENHET_HEADER) String enhet,
       @PathVariable String journalpostIdForKildesystem,
       @RequestBody RegistrereJournalpostCommand registrereJournalpostCommand
   ) {
@@ -248,37 +251,8 @@ public class JournalpostController {
     }
 
     registrereJournalpostCommand.setJournalpostId(journalpostIdForKildesystem);
-    journalpostService.registrer(registrereJournalpostCommand);
+    journalpostService.registrer(enhet, registrereJournalpostCommand);
 
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
-  }
-
-  @PostMapping(value = "/journal/{journalpostIdForKildesystem}/avvik", consumes = MediaType.APPLICATION_JSON_VALUE)
-  @ApiOperation(
-      "Registrere avvik på journalpost uten sakstilknytning for en journalpost med id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']'
-          + DELIMTER + "<journalpostId>"
-  )
-  @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Avvik på journalpost er behandlet"),
-      @ApiResponse(code = 201, message = "Opprettet oppgave for behandlet avvik"),
-      @ApiResponse(code = 400, message = "Ugyldig id, avvikstype mangler i avvikshendelsen, enhetsnummer ugyldig (i header) eller behandling er ugyldig"),
-      @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
-      @ApiResponse(code = 404, message = "Fant ikke journalpost som det skal lages avvik på eller feil prefix/id på journalposten"),
-      @ApiResponse(code = 503, message = "Oppretting av oppgave for avviket feilet")
-  })
-  public ResponseEntity<Void> opprettAvvikPaJournalpostUtenSak(
-      @SuppressWarnings("unused") @RequestHeader(EnhetFilter.X_ENHETSNR_HEADER) String enhetsnummer, // ikke brukt direkte, kun for validering
-      @PathVariable String journalpostIdForKildesystem,
-      @RequestBody Avvikshendelse avvikshendelse
-  ) {
-
-    LOGGER.info("post: bidrag-dokument/journal/{}/avvik - {}", journalpostIdForKildesystem, avvikshendelse);
-
-    KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
-    if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
-
-    return new ResponseEntity<>(HttpStatus.CREATED);
   }
 }

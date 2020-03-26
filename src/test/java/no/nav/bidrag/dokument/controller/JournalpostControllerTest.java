@@ -44,6 +44,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import static no.nav.bidrag.commons.web.EnhetFilter.X_ENHET_HEADER;
 
 @SpringBootTest(classes = BidragDokumentLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({TEST_PROFILE, SECURE_TEST_PROFILE})
@@ -155,8 +156,12 @@ class JournalpostControllerTest {
     @DisplayName("skal få BAD_REQUEST når prefix er ukjent ved endring av journalpost")
     void skalFaBadRequestMedUkjentPrefixVedEndringAvJournalpost() {
       var lagreJournalpostUrl = initEndpointUrl("/sak/69/journal/svada-en");
+
+      var headers = new HttpHeaders();
+      headers.add(X_ENHET_HEADER, "4802");
+
       var badRequestResponse = httpHeaderTestRestTemplate.exchange(
-          lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommand()), JournalpostDto.class
+          lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommand(), headers), JournalpostDto.class
       );
 
       assertThat(badRequestResponse).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -168,9 +173,12 @@ class JournalpostControllerTest {
       when(restTemplateMock.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(Void.class)))
           .thenReturn(new ResponseEntity<>(HttpStatus.ACCEPTED));
 
+      var headers = new HttpHeaders();
+      headers.add(X_ENHET_HEADER, "4802");
+
       var lagreJournalpostUrl = initEndpointUrl("/sak/69/journal/bid-1");
       var endretJournalpostResponse = httpHeaderTestRestTemplate.exchange(
-          lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommand()), Void.class
+          lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommand(), headers), Void.class
       );
 
       assertThat(optional(endretJournalpostResponse)).hasValueSatisfying(response -> assertAll(
@@ -221,7 +229,7 @@ class JournalpostControllerTest {
       final var enhetsnummer = "4806";
       final var avvikshendelse = new Avvikshendelse(AvvikType.BESTILL_ORIGINAL.name(), enhetsnummer);
 
-      var bestillOriginalEntity = initHttpEntity(avvikshendelse, new CustomHeader(EnhetFilter.X_ENHETSNR_HEADER, "1234"));
+      var bestillOriginalEntity = initHttpEntity(avvikshendelse, new CustomHeader(X_ENHET_HEADER, "1234"));
       var url = initEndpointUrl("/sak/1001/journal/BID-4/avvik");
       var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, bestillOriginalEntity, OpprettAvvikshendelseResponse.class);
 
@@ -250,7 +258,7 @@ class JournalpostControllerTest {
     @DisplayName("skal få bad request når avvikstype ikke kan parses")
     void skalFaBadRequest() {
       final var avvikshendelse = new Avvikshendelse("AVVIK_IKKE_BLANT_KJENTE_AVVIKSTYPER", "4806");
-      var ukjentAvvikEntity = initHttpEntity(avvikshendelse, new CustomHeader(EnhetFilter.X_ENHETSNR_HEADER, "1234"));
+      var ukjentAvvikEntity = initHttpEntity(avvikshendelse, new CustomHeader(EnhetFilter.X_ENHET_HEADER, "1234"));
       var url = initEndpointUrl("/sak/1001/journal/BID-1/avvik");
       var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, ukjentAvvikEntity, OpprettAvvikshendelseResponse.class);
 
@@ -339,7 +347,10 @@ class JournalpostControllerTest {
       when(restTemplateMock.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(Void.class)))
           .thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
 
-      HttpEntity<RegistrereJournalpostCommand> registrerEntity = new HttpEntity<>(new RegistrereJournalpostCommand());
+      var headers = new HttpHeaders();
+      headers.add(X_ENHET_HEADER, "4802");
+
+      HttpEntity<RegistrereJournalpostCommand> registrerEntity = new HttpEntity<>(new RegistrereJournalpostCommand(), headers);
       httpHeaderTestRestTemplate.exchange(PATH_JOURNALPOST_UTEN_SAK + "BID-1", HttpMethod.PUT, registrerEntity, Void.class);
 
       verify(restTemplateMock).exchange(eq(PATH_JOURNALPOST_UTEN_SAK + "BID-1"), eq(HttpMethod.PUT), any(), eq(Void.class));

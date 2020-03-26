@@ -1,5 +1,6 @@
 package no.nav.bidrag.dokument;
 
+import static no.nav.bidrag.commons.web.EnhetFilter.X_ENHET_HEADER;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.SECURE_TEST_PROFILE;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -94,7 +95,7 @@ class EnhetFilterFilterTest {
         .thenReturn(new HttpStatusResponse<>(HttpStatus.I_AM_A_TEAPOT));
 
     var headers = new HttpHeaders();
-    headers.add(EnhetFilter.X_ENHETSNR_HEADER, "1234");
+    headers.add(X_ENHET_HEADER, "1234");
 
     var htpEntity = new HttpEntity<Void>(null, headers);
     var response = securedTestRestTemplate.exchange(
