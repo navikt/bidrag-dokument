@@ -1,8 +1,8 @@
 package no.nav.bidrag.dokument;
 
-import static no.nav.bidrag.commons.web.EnhetFilter.X_ENHET_HEADER;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.SECURE_TEST_PROFILE;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
+import static no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer.createEnhetHeader;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
@@ -15,7 +15,6 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import java.util.stream.Collectors;
 import no.nav.bidrag.commons.KildesystemIdenfikator;
-import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.bidrag.dokument.service.JournalpostService;
@@ -30,7 +29,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -94,10 +92,7 @@ class EnhetFilterFilterTest {
     when(journalpostServiceMock.hentJournalpost(anyString(), any(KildesystemIdenfikator.class)))
         .thenReturn(new HttpStatusResponse<>(HttpStatus.I_AM_A_TEAPOT));
 
-    var headers = new HttpHeaders();
-    headers.add(X_ENHET_HEADER, "1234");
-
-    var htpEntity = new HttpEntity<Void>(null, headers);
+    var htpEntity = new HttpEntity<Void>(null, createEnhetHeader("4082"));
     var response = securedTestRestTemplate.exchange(
         "http://localhost:" + port + "/bidrag-dokument/sak/777/journal/BID-123",
         HttpMethod.GET,

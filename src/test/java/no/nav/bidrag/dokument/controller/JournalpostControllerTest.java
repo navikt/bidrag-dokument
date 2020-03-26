@@ -1,14 +1,15 @@
 package no.nav.bidrag.dokument.controller;
 
 import static java.util.Collections.singletonList;
+import static no.nav.bidrag.commons.web.EnhetFilter.X_ENHET_HEADER;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.SECURE_TEST_PROFILE;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
+import static no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer.createEnhetHeader;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -44,7 +45,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import static no.nav.bidrag.commons.web.EnhetFilter.X_ENHET_HEADER;
 
 @SpringBootTest(classes = BidragDokumentLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({TEST_PROFILE, SECURE_TEST_PROFILE})
@@ -157,11 +157,8 @@ class JournalpostControllerTest {
     void skalFaBadRequestMedUkjentPrefixVedEndringAvJournalpost() {
       var lagreJournalpostUrl = initEndpointUrl("/sak/69/journal/svada-en");
 
-      var headers = new HttpHeaders();
-      headers.add(X_ENHET_HEADER, "4802");
-
       var badRequestResponse = httpHeaderTestRestTemplate.exchange(
-          lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommand(), headers), JournalpostDto.class
+          lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommand(), createEnhetHeader("4802")), JournalpostDto.class
       );
 
       assertThat(badRequestResponse).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -173,12 +170,9 @@ class JournalpostControllerTest {
       when(restTemplateMock.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(Void.class)))
           .thenReturn(new ResponseEntity<>(HttpStatus.ACCEPTED));
 
-      var headers = new HttpHeaders();
-      headers.add(X_ENHET_HEADER, "4802");
-
       var lagreJournalpostUrl = initEndpointUrl("/sak/69/journal/bid-1");
       var endretJournalpostResponse = httpHeaderTestRestTemplate.exchange(
-          lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommand(), headers), Void.class
+          lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommand(), createEnhetHeader("4802")), Void.class
       );
 
       assertThat(optional(endretJournalpostResponse)).hasValueSatisfying(response -> assertAll(
@@ -347,10 +341,7 @@ class JournalpostControllerTest {
       when(restTemplateMock.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(Void.class)))
           .thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
 
-      var headers = new HttpHeaders();
-      headers.add(X_ENHET_HEADER, "4802");
-
-      HttpEntity<RegistrereJournalpostCommand> registrerEntity = new HttpEntity<>(new RegistrereJournalpostCommand(), headers);
+      HttpEntity<RegistrereJournalpostCommand> registrerEntity = new HttpEntity<>(new RegistrereJournalpostCommand(), createEnhetHeader("4802"));
       httpHeaderTestRestTemplate.exchange(PATH_JOURNALPOST_UTEN_SAK + "BID-1", HttpMethod.PUT, registrerEntity, Void.class);
 
       verify(restTemplateMock).exchange(eq(PATH_JOURNALPOST_UTEN_SAK + "BID-1"), eq(HttpMethod.PUT), any(), eq(Void.class));

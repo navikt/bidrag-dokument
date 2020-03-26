@@ -63,7 +63,6 @@ public class BidragJournalpostConsumer {
     }
 
     LOGGER.info("Hent journalpost fra bidrag-dokument-journalpost{}", path);
-
     var exchange = restTemplate.exchange(path, HttpMethod.GET, null, JournalpostDto.class);
 
     LOGGER.info("Hent journalpost fikk http status {} fra bidrag-dokument-journalpost", exchange.getStatusCode());
@@ -74,10 +73,8 @@ public class BidragJournalpostConsumer {
     var path = String.format(PATH_JOURNALPOST, saksnummer, endreJournalpostCommand.getJournalpostId());
     LOGGER.info("Endre journalpost BidragDokument: {}, path {}", endreJournalpostCommand, path);
 
-    var headers = new HttpHeaders();
-    headers.add(X_ENHET_HEADER, enhet);
-
-    var endretJournalpostResponse = restTemplate.exchange(path, HttpMethod.PUT, new HttpEntity<>(endreJournalpostCommand, headers), Void.class);
+    var endretJournalpostResponse = restTemplate
+        .exchange(path, HttpMethod.PUT, new HttpEntity<>(endreJournalpostCommand, createEnhetHeader(enhet)), Void.class);
 
     LOGGER.info("Endre journalpost fikk http status {}", endretJournalpostResponse.getStatusCode());
     return new HttpStatusResponse<>(endretJournalpostResponse.getStatusCode());
@@ -87,10 +84,8 @@ public class BidragJournalpostConsumer {
     var path = String.format(PATH_JOURNALPOST_UTEN_SAKSTILGANG, registrereJournalpostCommand.getJournalpostId());
     LOGGER.info("Registrer journalpost: {}, path {}", registrereJournalpostCommand, path);
 
-    var headers = new HttpHeaders();
-    headers.add(X_ENHET_HEADER, enhet);
-
-    var registrereJournalpostResponse = restTemplate.exchange(path, HttpMethod.PUT, new HttpEntity<>(registrereJournalpostCommand, headers), Void.class);
+    var registrereJournalpostResponse = restTemplate
+        .exchange(path, HttpMethod.PUT, new HttpEntity<>(registrereJournalpostCommand, createEnhetHeader(enhet)), Void.class);
     return new HttpStatusResponse<>(registrereJournalpostResponse.getStatusCode());
   }
 
@@ -119,11 +114,15 @@ public class BidragJournalpostConsumer {
     var path = String.format(PATH_JOURNALPOST, saksnummer, journalpostId) + "/avvik";
     LOGGER.info("Oppretter {} på journalpost med id {} fra bidrag-dokument-journalpost", avvikshendelse, journalpostId);
 
-    var headers = new HttpHeaders();
-    headers.add(X_ENHET_HEADER, enhet);
-
-    var avviksResponse = restTemplate.exchange(path, HttpMethod.POST, new HttpEntity<>(avvikshendelse, headers), OpprettAvvikshendelseResponse.class);
+    var avviksResponse = restTemplate
+        .exchange(path, HttpMethod.POST, new HttpEntity<>(avvikshendelse, createEnhetHeader(enhet)), OpprettAvvikshendelseResponse.class);
 
     return new HttpStatusResponse<>(avviksResponse.getStatusCode(), avviksResponse.getBody());
+  }
+
+  public static HttpHeaders createEnhetHeader(String enhet) {
+    var header = new HttpHeaders();
+    header.add(X_ENHET_HEADER, enhet);
+    return header;
   }
 }
