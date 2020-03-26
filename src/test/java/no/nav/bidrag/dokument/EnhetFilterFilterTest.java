@@ -91,8 +91,8 @@ class EnhetFilterFilterTest {
   void skalLoggeRequestsMotApplikasjonenMedHeaderInformasjon() {
     when(journalpostServiceMock.hentJournalpost(anyString(), any(KildesystemIdenfikator.class)))
         .thenReturn(new HttpStatusResponse<>(HttpStatus.I_AM_A_TEAPOT));
-
-    var htpEntity = new HttpEntity<Void>(null, createEnhetHeader("4082"));
+    var enhet = "4802";
+    var htpEntity = new HttpEntity<Void>(null, createEnhetHeader(enhet));
     var response = securedTestRestTemplate.exchange(
         "http://localhost:" + port + "/bidrag-dokument/sak/777/journal/BID-123",
         HttpMethod.GET,
@@ -109,7 +109,7 @@ class EnhetFilterFilterTest {
           var loggingEvents = loggingEventCaptor.getAllValues();
           var allMsgs = loggingEvents.stream().map(ILoggingEvent::getFormattedMessage).collect(Collectors.joining("\n"));
 
-          assertThat(allMsgs).contains("Behandler request '/bidrag-dokument/sak/777/journal/BID-123' for enhet med enhetsnummer 1234");
+          assertThat(allMsgs).contains("Behandler request '/bidrag-dokument/sak/777/journal/BID-123' for enhet med enhetsnummer " + enhet);
         }
     );
   }
