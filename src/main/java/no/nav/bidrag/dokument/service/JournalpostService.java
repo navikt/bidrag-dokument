@@ -56,11 +56,11 @@ public class JournalpostService {
   }
 
   public HttpStatusResponse<OpprettAvvikshendelseResponse> opprettAvvik(
-      String saksnummer, KildesystemIdenfikator kildesystemIdenfikator,
+      String saksnummer, String enhet, KildesystemIdenfikator kildesystemIdenfikator,
       Avvikshendelse avvikshendelse
   ) {
     if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.opprettAvvik(saksnummer, kildesystemIdenfikator.getPrefiksetJournalpostId(), avvikshendelse);
+      return bidragJournalpostConsumer.opprettAvvik(saksnummer, enhet, kildesystemIdenfikator.getPrefiksetJournalpostId(), avvikshendelse);
     }
 
     return new HttpStatusResponse<>(HttpStatus.BAD_REQUEST);
@@ -84,11 +84,11 @@ public class JournalpostService {
     return journalposter;
   }
 
-  public HttpStatusResponse<Void> endre(String saksnummer, EndreJournalpostCommand endreJournalpostCommand) {
-    return bidragJournalpostConsumer.endre(saksnummer, endreJournalpostCommand);
+  public HttpStatusResponse<Void> endre(String saksnummer, String enhet, EndreJournalpostCommand endreJournalpostCommand) {
+    return bidragJournalpostConsumer.endre(saksnummer, enhet,  endreJournalpostCommand);
   }
 
-  public HttpStatusResponse<Void> registrer(RegistrereJournalpostCommand registrereJournalpostCommand) {
-    return bidragJournalpostConsumer.registrer(registrereJournalpostCommand);
+  public HttpStatusResponse<Void> registrer(String enhet, RegistrereJournalpostCommand registrereJournalpostCommand) {
+    return bidragJournalpostConsumer.registrer(enhet, registrereJournalpostCommand);
   }
 }

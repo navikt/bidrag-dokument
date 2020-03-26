@@ -54,7 +54,7 @@ class BidragJournalpostConsumerTest {
     when(restTemplateMock.exchange(anyString(), any(), any(), (Class<Object>) any()))
         .thenReturn(new ResponseEntity<>(HttpStatus.ACCEPTED));
 
-    bidragJournalpostConsumer.endre("007", endreJournalpostCommandMedId101());
+    bidragJournalpostConsumer.endre("007", "4802", endreJournalpostCommandMedId101());
 
     verify(restTemplateMock)
         .exchange(
