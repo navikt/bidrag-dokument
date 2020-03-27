@@ -25,7 +25,7 @@ public class BidragJournalpostConsumer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(BidragJournalpostConsumer.class);
   private static final String PATH_JOURNALPOST = "/sak/%s/journal/%s";
-  private static final String PATH_JOURNALPOST_UTEN_SAKSTILGANG = "/journal/%s";
+  private static final String PATH_MOTTAKSREGISTRERT_JOURNALPOST = "/journal/%s";
   private static final String PATH_SAK_JOURNAL = "/sak/%s/journal";
   private static final String PARAM_FAGOMRADE = "fagomrade";
 
@@ -59,7 +59,7 @@ public class BidragJournalpostConsumer {
     if (saksnummer != null) {
       path = String.format(PATH_JOURNALPOST, saksnummer, id);
     } else {
-      path = String.format(PATH_JOURNALPOST_UTEN_SAKSTILGANG, id);
+      path = String.format(PATH_MOTTAKSREGISTRERT_JOURNALPOST, id);
     }
 
     LOGGER.info("Hent journalpost fra bidrag-dokument-journalpost{}", path);
@@ -81,7 +81,7 @@ public class BidragJournalpostConsumer {
   }
 
   public HttpStatusResponse<Void> registrer(String enhet, RegistrereJournalpostCommand registrereJournalpostCommand) {
-    var path = String.format(PATH_JOURNALPOST_UTEN_SAKSTILGANG, registrereJournalpostCommand.getJournalpostId());
+    var path = String.format(PATH_MOTTAKSREGISTRERT_JOURNALPOST, registrereJournalpostCommand.getJournalpostId());
     LOGGER.info("Registrer journalpost: {}, path {}", registrereJournalpostCommand, path);
 
     var registrereJournalpostResponse = restTemplate
@@ -95,7 +95,7 @@ public class BidragJournalpostConsumer {
     if (saksnummer != null) {
       path = String.format(PATH_JOURNALPOST, saksnummer, journalpostId) + "/avvik";
     } else {
-      path = String.format(PATH_JOURNALPOST_UTEN_SAKSTILGANG, journalpostId) + "/avvik";
+      path = String.format(PATH_MOTTAKSREGISTRERT_JOURNALPOST, journalpostId) + "/avvik";
     }
 
     LOGGER.info("Finner avvik på journalpost fra bidrag-dokument-journalpost{}", path);
@@ -114,8 +114,22 @@ public class BidragJournalpostConsumer {
     var path = String.format(PATH_JOURNALPOST, saksnummer, journalpostId) + "/avvik";
     LOGGER.info("Oppretter {} på journalpost med id {} fra bidrag-dokument-journalpost", avvikshendelse, journalpostId);
 
-    var avviksResponse = restTemplate
-        .exchange(path, HttpMethod.POST, new HttpEntity<>(avvikshendelse, createEnhetHeader(enhet)), OpprettAvvikshendelseResponse.class);
+    var avviksResponse = restTemplate.exchange(
+        path, HttpMethod.POST, new HttpEntity<>(avvikshendelse, createEnhetHeader(enhet)), OpprettAvvikshendelseResponse.class
+    );
+
+    return new HttpStatusResponse<>(avviksResponse.getStatusCode(), avviksResponse.getBody());
+  }
+
+  public HttpStatusResponse<OpprettAvvikshendelseResponse> opprettAvvikPaMottaksregistrertJournalpost(
+      Avvikshendelse avvikshendelse, String prefiksetJournalpostId, String enhetsnummer
+  ) {
+    var path = String.format(PATH_MOTTAKSREGISTRERT_JOURNALPOST + "/avvik", prefiksetJournalpostId);
+    LOGGER.info("bidrag-dokument-journalpost{}: {}", path, avvikshendelse);
+
+    var avviksResponse = restTemplate.exchange(
+        path, HttpMethod.POST, new HttpEntity<>(avvikshendelse, createEnhetHeader(enhetsnummer)), OpprettAvvikshendelseResponse.class
+    );
 
     return new HttpStatusResponse<>(avviksResponse.getStatusCode(), avviksResponse.getBody());
   }

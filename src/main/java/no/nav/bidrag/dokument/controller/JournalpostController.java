@@ -228,8 +228,7 @@ public class JournalpostController {
 
   @PutMapping("/journal/{journalpostIdForKildesystem}")
   @ApiOperation(
-      "Registrere en journalpost med status mottaksregistrert og id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER
-          + "<journalpostId>"
+      "Registrere en mottaksregistrert journalpost med id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>"
   )
   @ApiResponses(value = {
       @ApiResponse(code = 202, message = "Journalpost er registrert"),
@@ -254,5 +253,35 @@ public class JournalpostController {
     journalpostService.registrer(enhet, registrereJournalpostCommand);
 
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
+  }
+
+  @PostMapping(value = "/journal/{journalpostIdForKildesystem}/avvik", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @ApiOperation(
+      "Registrere avvik på mottaksregistrert journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>"
+  )
+  @ApiResponses(value = {
+      @ApiResponse(code = 200, message = "Avvik på journalpost er behandlet"),
+      @ApiResponse(code = 201, message = "Opprettet oppgave for behandlet avvik"),
+      @ApiResponse(code = 400, message = "Ugyldig id, avvikstype mangler i avvikshendelsen, enhetsnummer ugyldig (i header) eller behandling er ugyldig"),
+      @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
+      @ApiResponse(code = 404, message = "Fant ikke journalpost som det skal lages avvik på eller feil prefix/id på journalposten"),
+      @ApiResponse(code = 503, message = "Oppretting av oppgave for avviket feilet")
+  })
+  public ResponseEntity<OpprettAvvikshendelseResponse> opprettAvvikPaMottaksregistrertJournalpost(
+      @PathVariable String journalpostIdForKildesystem,
+      @RequestBody Avvikshendelse avvikshendelse,
+      @RequestHeader(EnhetFilter.X_ENHET_HEADER) String enhetsnummer
+  ) {
+
+    LOGGER.info("post: bidrag-dokument/journal/{}/avvik - {}", journalpostIdForKildesystem, avvikshendelse);
+
+    KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
+    if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    var response = journalpostService.opprettAvvikPaMottaksregistrertJournalpost(avvikshendelse, kildesystemIdenfikator, enhetsnummer);
+
+    return new ResponseEntity<>(response.getBody(), response.getHttpStatus());
   }
 }

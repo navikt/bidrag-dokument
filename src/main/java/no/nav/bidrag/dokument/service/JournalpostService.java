@@ -85,10 +85,22 @@ public class JournalpostService {
   }
 
   public HttpStatusResponse<Void> endre(String saksnummer, String enhet, EndreJournalpostCommand endreJournalpostCommand) {
-    return bidragJournalpostConsumer.endre(saksnummer, enhet,  endreJournalpostCommand);
+    return bidragJournalpostConsumer.endre(saksnummer, enhet, endreJournalpostCommand);
   }
 
-  public HttpStatusResponse<Void> registrer(String enhet, RegistrereJournalpostCommand registrereJournalpostCommand) {
-    return bidragJournalpostConsumer.registrer(enhet, registrereJournalpostCommand);
+  public void registrer(String enhet, RegistrereJournalpostCommand registrereJournalpostCommand) {
+    bidragJournalpostConsumer.registrer(enhet, registrereJournalpostCommand);
+  }
+
+  public HttpStatusResponse<OpprettAvvikshendelseResponse> opprettAvvikPaMottaksregistrertJournalpost(
+      Avvikshendelse avvikshendelse, KildesystemIdenfikator kildesystemIdenfikator, String enhetsnummer
+  ) {
+    if (kildesystemIdenfikator.erFor(BIDRAG)) {
+      return bidragJournalpostConsumer.opprettAvvikPaMottaksregistrertJournalpost(
+          avvikshendelse, kildesystemIdenfikator.getPrefiksetJournalpostId(), enhetsnummer
+      );
+    }
+
+    return new HttpStatusResponse<>(HttpStatus.BAD_REQUEST);
   }
 }

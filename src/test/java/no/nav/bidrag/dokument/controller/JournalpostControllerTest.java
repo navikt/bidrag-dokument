@@ -15,7 +15,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
-import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
 import no.nav.bidrag.dokument.dto.AktorDto;
@@ -25,7 +24,6 @@ import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
 import no.nav.bidrag.dokument.dto.RegistrereJournalpostCommand;
-import org.junit.Ignore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -236,7 +234,6 @@ class JournalpostControllerTest {
       );
     }
 
-    @Ignore
     @Test
     @DisplayName("skal få not implemented uten header value")
     void skalFaBadRequestUtenHeaderValue() {
@@ -252,34 +249,16 @@ class JournalpostControllerTest {
     @DisplayName("skal få bad request når avvikstype ikke kan parses")
     void skalFaBadRequest() {
       final var avvikshendelse = new Avvikshendelse("AVVIK_IKKE_BLANT_KJENTE_AVVIKSTYPER", "4806");
-      var ukjentAvvikEntity = initHttpEntity(avvikshendelse, new CustomHeader(EnhetFilter.X_ENHET_HEADER, "1234"));
+      var ukjentAvvikEntity = initHttpEntity(avvikshendelse, new CustomHeader(X_ENHET_HEADER, "1234"));
       var url = initEndpointUrl("/sak/1001/journal/BID-1/avvik");
       var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, ukjentAvvikEntity, OpprettAvvikshendelseResponse.class);
 
       assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
-    private <T> HttpEntity<T> initHttpEntity(T body, CustomHeader... customHeaders) {
-      var httpHeaders = new HttpHeaders();
-
-      if (customHeaders != null) {
-        for (CustomHeader customHeader : customHeaders) {
-          httpHeaders.add(customHeader.name, customHeader.value);
-        }
-      }
-
-      return new HttpEntity<>(body, httpHeaders);
-    }
-
-    private class CustomHeader {
-
-      final String name;
-      final String value;
-
-      private CustomHeader(String name, String value) {
-        this.name = name;
-        this.value = value;
-      }
+    private ParameterizedTypeReference<List<AvvikType>> responseTypeErListeMedAvvikType() {
+      return new ParameterizedTypeReference<>() {
+      };
     }
   }
 
@@ -345,6 +324,31 @@ class JournalpostControllerTest {
       httpHeaderTestRestTemplate.exchange(PATH_JOURNALPOST_UTEN_SAK + "BID-1", HttpMethod.PUT, registrerEntity, Void.class);
 
       verify(restTemplateMock).exchange(eq(PATH_JOURNALPOST_UTEN_SAK + "BID-1"), eq(HttpMethod.PUT), any(), eq(Void.class));
+    }
+
+    @Test
+    @DisplayName("skal opprette avvik")
+    void skalOppretteAvvik() {
+      when(restTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(OpprettAvvikshendelseResponse.class)))
+          .thenReturn(new ResponseEntity<>(new OpprettAvvikshendelseResponse(AvvikType.ENDRE_FAGOMRADE), HttpStatus.CREATED));
+
+      final var enhetsnummer = "4806";
+      final var avvikshendelse = new Avvikshendelse(AvvikType.ENDRE_FAGOMRADE.name(), enhetsnummer);
+
+      var bestillOriginalEntity = initHttpEntity(avvikshendelse, new CustomHeader(X_ENHET_HEADER, "1234"));
+      var url = initEndpointUrl("/journal/BID-666/avvik");
+      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, bestillOriginalEntity, OpprettAvvikshendelseResponse.class);
+
+      assertAll(
+          () -> assertThat(responseEntity.getStatusCode()).as("status").isEqualTo(HttpStatus.CREATED),
+          () -> assertThat(responseEntity.getBody()).as("body").isEqualTo(new OpprettAvvikshendelseResponse(AvvikType.ENDRE_FAGOMRADE)),
+          () -> verify(restTemplateMock).exchange(eq("/journal/BID-666/avvik"), eq(HttpMethod.POST), any(), eq(OpprettAvvikshendelseResponse.class))
+      );
+    }
+
+    private ParameterizedTypeReference<List<AvvikType>> responseTypeErListeMedAvvikType() {
+      return new ParameterizedTypeReference<>() {
+      };
     }
   }
 
@@ -421,9 +425,16 @@ class JournalpostControllerTest {
     Mockito.reset(restTemplateMock);
   }
 
-  private ParameterizedTypeReference<List<AvvikType>> responseTypeErListeMedAvvikType() {
-    return new ParameterizedTypeReference<>() {
-    };
+  private <T> HttpEntity<T> initHttpEntity(T body, CustomHeader... customHeaders) {
+    var httpHeaders = new HttpHeaders();
+
+    if (customHeaders != null) {
+      for (CustomHeader customHeader : customHeaders) {
+        httpHeaders.add(customHeader.name, customHeader.value);
+      }
+    }
+
+    return new HttpEntity<>(body, httpHeaders);
   }
 
   private <T> Optional<ResponseEntity<T>> optional(ResponseEntity<T> responseEntity) {
@@ -432,5 +443,16 @@ class JournalpostControllerTest {
 
   private String initEndpointUrl(String endpoint) {
     return "http://localhost:" + port + contextPath + endpoint;
+  }
+
+  private static class CustomHeader {
+
+    final String name;
+    final String value;
+
+    private CustomHeader(String name, String value) {
+      this.name = name;
+      this.value = value;
+    }
   }
 }
