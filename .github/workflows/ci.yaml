@@ -99,7 +99,7 @@ jobs:
           CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo ::set-output name=version::${CURRENT_VERSION}
         id: snapshot
-      - uses: navikt/bidrag-actions/git-commit@v3.0.1-git
+      - uses: navikt/bidrag-actions/git-commit@v3.0.2-git
         with:
           commit_message: "Bumped to new version: ${{ steps.snapshot.outputs.version }}"
           pattern: "pom.xml"
