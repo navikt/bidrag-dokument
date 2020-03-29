@@ -25,10 +25,10 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - uses: navikt/bidrag-actions/maven-setup@v5
+      - uses: navikt/bidrag-maven/setup@v1.0.4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: navikt/bidrag-actions/maven-verify-dependencies@v5
+      - uses: navikt/bidrag-maven/verify-dependencies@v1.0.4
       - run: mvn install -B -e
       - name: Build and publish Docker image
         env:
@@ -70,7 +70,7 @@ jobs:
     name: Run cucumber integration tests
     needs: deploy_dev
     steps:
-      - uses: navikt/bidrag-actions/maven-cucumber-backend@v1.0.3-maven
+      - uses: navikt/bidrag-maven/cucumber-backend@v1.0.4
         with:
           maven_image: maven:3.6.3-jdk-13
           cucumber_tag: bidrag-dokument
@@ -99,7 +99,7 @@ jobs:
           CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo ::set-output name=version::${CURRENT_VERSION}
         id: snapshot
-      - uses: navikt/bidrag-actions/git-commit@v3.0.2-git
+      - uses: navikt/bidrag-git/commit@v3.0.3
         with:
           commit_message: "Bumped to new version: ${{ steps.snapshot.outputs.version }}"
           pattern: "pom.xml"
@@ -140,7 +140,7 @@ jobs:
           TAG_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
           echo ::set-output name=tag::${TAG_VERSION}
         id: release
-      - uses: navikt/bidrag-actions/git-tag@v3-git
+      - uses: navikt/bidrag-git/tag@v3.0.3
         with:
           tag_message: Releasing version ${{ steps.release.outputs.tag }}
           tag: ${{ steps.release.outputs.tag }}
