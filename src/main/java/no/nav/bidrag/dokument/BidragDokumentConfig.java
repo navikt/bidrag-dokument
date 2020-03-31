@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
@@ -60,8 +61,15 @@ public class BidragDokumentConfig {
   }
 
   @Bean
+  @Order(1)
   public CorrelationIdFilter correlationIdFilter() {
     return new CorrelationIdFilter();
+  }
+
+  @Bean
+  @Order(2)
+  public EnhetFilter enhetFilter() {
+    return new EnhetFilter();
   }
 
   @Bean
@@ -74,14 +82,9 @@ public class BidragDokumentConfig {
     return () -> Optional.ofNullable(tokenValidationContextHolder)
         .map(TokenValidationContextHolder::getTokenValidationContext)
         .map(tokenValidationContext -> tokenValidationContext.getJwtTokenAsOptional(ISSUER))
-        .map(Optional<JwtToken>::get)
+        .map(Optional::get)
         .map(JwtToken::getTokenAsString)
         .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));
-  }
-
-  @Bean
-  public EnhetFilter enhetFilter() {
-    return new EnhetFilter();
   }
 
   @FunctionalInterface
