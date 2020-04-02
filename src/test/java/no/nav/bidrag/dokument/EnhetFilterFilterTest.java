@@ -109,7 +109,7 @@ class EnhetFilterFilterTest {
           var loggingEvents = loggingEventCaptor.getAllValues();
           var allMsgs = loggingEvents.stream().map(ILoggingEvent::getFormattedMessage).collect(Collectors.joining("\n"));
 
-          assertThat(allMsgs).contains("Behandler request '/bidrag-dokument/sak/777/journal/BID-123' for enhet med enhetsnummer " + enhet);
+          assertThat(allMsgs).containsIgnoringCase("Behandler request '/bidrag-dokument/sak/777/journal/BID-123' for enhet med enhetsnummer " + enhet);
         }
     );
   }
