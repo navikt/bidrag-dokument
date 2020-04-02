@@ -78,7 +78,7 @@ class CorrelationIdFilterTest {
           var loggingEvents = loggingEventCaptor.getAllValues();
           var allMsgs = loggingEvents.stream().map(ILoggingEvent::getFormattedMessage).collect(Collectors.joining("\n"));
 
-          assertThat(allMsgs).contains("Prosessing GET /bidrag-dokument/sak/777/journal/BID-123");
+          assertThat(allMsgs).containsIgnoringCase("Prosessing GET /bidrag-dokument/sak/777/journal/BID-123");
         }
     );
   }
