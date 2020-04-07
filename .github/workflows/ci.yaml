@@ -99,7 +99,7 @@ jobs:
           BUMPED_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo ::set-output name=version::${BUMPED_VERSION}
         id: snapshot
-      - uses: navikt/bidrag-git/commit@v3.0.3
+      - uses: navikt/bidrag-git/commit@v3.0.4
         with:
           commit_message: "Bumped to new version: ${{ steps.snapshot.outputs.version }}"
           pattern: "pom.xml"
