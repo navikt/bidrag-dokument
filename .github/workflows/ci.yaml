@@ -96,8 +96,8 @@ jobs:
             ${{ runner.os }}-maven-
       - run: mvn release:update-versions
       - run: |
-          CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          echo ::set-output name=version::${CURRENT_VERSION}
+          BUMPED_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo ::set-output name=version::${BUMPED_VERSION}
         id: snapshot
       - uses: navikt/bidrag-git/commit@v3.0.3
         with:
