@@ -82,7 +82,7 @@ jobs:
 
   bump_dev_version:
     runs-on: ubuntu-latest
-    name: bump SNAPSHOT version
+    name: Bump SNAPSHOT version
     if: github.ref == 'refs/heads/master'
     needs: run_cucumber
 
