@@ -99,7 +99,7 @@ jobs:
           BUMPED_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo ::set-output name=version::${BUMPED_VERSION}
         id: snapshot
-      - uses: navikt/bidrag-git/commit@v3.0.4
+      - uses: navikt/bidrag-git/commit@v3
         with:
           commit_message: "Bumped to new version: ${{ steps.snapshot.outputs.version }}"
           pattern: "pom.xml"
@@ -140,7 +140,7 @@ jobs:
           TAG_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
           echo ::set-output name=tag::${TAG_VERSION}
         id: release
-      - uses: navikt/bidrag-git/tag@v3.0.4
+      - uses: navikt/bidrag-git/tag@v3
         with:
           tag_message: Releasing version ${{ steps.release.outputs.tag }}
           tag: ${{ steps.release.outputs.tag }}
