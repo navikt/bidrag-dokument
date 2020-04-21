@@ -28,7 +28,8 @@ spec:
       cpu: 500m
       memory: 512Mi
   ingresses:
-    - {{ ingress }}
+    - {{ ingress_preprod }}
+    - {{ ingress_nais }}
   vault:
     enabled: true
     paths:
