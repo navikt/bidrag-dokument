@@ -30,6 +30,7 @@ spec:
       memory: 512Mi
   ingresses:
     - https://bidrag-dokument.nais.adeo.no/
+    - https://bidrag-dokument.prod-fss.nais.io
   vault:
     enabled: true
     paths:
