@@ -1,0 +1,5 @@
+{
+  "namespace": "c1",
+  "ingress.preprod": "https://bidrag-dokument.nais-q1.preprod.local/",
+  "ingress.nais": "https://bidrag-dokument-q1.dev-fss.nais.io/"
+}

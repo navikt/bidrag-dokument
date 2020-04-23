@@ -54,16 +54,16 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-fss
-          RESOURCE: deploy/nais.yaml
-          VAR: namespace=default,ingress_preprod=https://bidrag-dokument.nais.preprod.local/,ingress_nais=https://bidrag-dokument.dev-fss.nais.io
+          RESOURCE: deploy/nais/nais.yaml
+          VARS: deploy/nais/c0.json
       - name: Deploy to dev-fss, namespace q1
         if: github.ref != 'refs/heads/master'
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-fss
-          RESOURCE: deploy/nais.yaml
-          VAR: namespace=q1,ingress_preprod=https://bidrag-dokument-q1.nais.preprod.local/,ingress_nais=https://bidrag-dokument-q1.dev-fss.nais.io
+          RESOURCE: deploy/nais/nais.yaml
+          VARS: deploy/nais/c1.json
 
   run_cucumber:
     runs-on: self-hosted
@@ -120,7 +120,7 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-fss
-          RESOURCE: deploy/nais-p.yaml
+          RESOURCE: deploy/nais/nais-p.yaml
           VAR: namespace=default
 
   tag_prod_deploy:
