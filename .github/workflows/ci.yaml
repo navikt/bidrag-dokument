@@ -55,7 +55,7 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-fss
           RESOURCE: deploy/nais/nais.yaml
-          VARS: deploy/nais/c0.json
+          VARS: deploy/nais/q0.json
       - name: Deploy to dev-fss, namespace q1
         if: github.ref != 'refs/heads/master'
         uses: nais/deploy/actions/deploy@v1
@@ -63,7 +63,7 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: dev-fss
           RESOURCE: deploy/nais/nais.yaml
-          VARS: deploy/nais/c1.json
+          VARS: deploy/nais/q1.json
 
   run_cucumber:
     runs-on: self-hosted
