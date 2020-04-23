@@ -1,0 +1,5 @@
+{
+  "namespace": "default",
+  "ingress_preprod": "https://bidrag-dokument.nais.preprod.local/",
+  "ingress_nais": "https://bidrag-dokument.dev-fss.nais.io/"
+}
