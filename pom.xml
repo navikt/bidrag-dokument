@@ -210,13 +210,6 @@
       <scope>runtime</scope>
     </dependency>
 
-    <!-- vulnerable dependencies -->
-    <dependency>
-      <groupId>org.apache.tomcat.embed</groupId>
-      <artifactId>tomcat-embed-core</artifactId>
-      <version>9.0.31</version>
-    </dependency>
-
     <!-- test dependencies -->
     <dependency>
       <groupId>org.assertj</groupId>
@@ -250,7 +243,7 @@
 
   <dependencyManagement>
     <dependencies>
-      <!-- Override version of json-smart -->
+      <!-- Override SNAPSHOT version of json-smart -->
       <dependency>
         <groupId>net.minidev</groupId>
         <artifactId>json-smart</artifactId>
