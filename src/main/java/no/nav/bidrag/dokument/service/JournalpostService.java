@@ -2,6 +2,7 @@ package no.nav.bidrag.dokument.service;
 
 import static no.nav.bidrag.commons.KildesystemIdenfikator.Kildesystem.BIDRAG;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import no.nav.bidrag.commons.KildesystemIdenfikator;
@@ -67,21 +68,10 @@ public class JournalpostService {
   }
 
   public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
-    return bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade);
-//    List<JournalpostDto> sakjournal = new ArrayList<>(bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade));
-//    sakjournal.addAll(bidragArkivConsumer.finnJournalposter(saksnummer, fagomrade)); ingen kall mot bidrag-dokument-arkiv gjøres per dato
+    var sakjournal = new ArrayList<>(bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade));
+    sakjournal.addAll(bidragArkivConsumer.finnJournalposter(saksnummer, fagomrade));
 
-//    return sakjournal;
-  }
-
-  private List<JournalpostDto> journalposterFraArkiv(List<JournalpostDto> journalposter, String saksnummer, String fagomrade) {
-    journalposter.addAll(bidragArkivConsumer.finnJournalposter(saksnummer, fagomrade));
-    return journalposter;
-  }
-
-  private List<JournalpostDto> journalposterFraBrevlager(List<JournalpostDto> journalposter, String saksnummer, String fagomrade) {
-    journalposter.addAll(bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade));
-    return journalposter;
+    return sakjournal;
   }
 
   public HttpStatusResponse<Void> endre(String saksnummer, String enhet, EndreJournalpostCommand endreJournalpostCommand) {
