@@ -14,23 +14,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: navikt/bidrag-docker/exists@v1
+        id: dockerimage
+        with:
+          image_name: bidrag-test-gh-actions
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/checkout@v2
+        if: ${{ steps.dockerimage.outputs.not_found }} == 'true'
       - uses: actions/setup-java@v1.3.0
+        if: ${{ steps.dockerimage.outputs.not_found }} == 'true'
         with:
           java-version: '13'
-      - run: env
       - uses: actions/cache@v1
+        if: ${{ steps.dockerimage.outputs.not_found }} == 'true'
         with:
           path: ~/.m2
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
       - uses: navikt/bidrag-maven/setup@v1
+        if: ${{ steps.dockerimage.outputs.not_found }} == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: navikt/bidrag-maven/verify-dependencies@v1
+        if: ${{ steps.dockerimage.outputs.not_found }} == 'true'
       - run: mvn install -B -e
+        if: ${{ steps.dockerimage.outputs.not_found }} == 'true'
       - name: Build and publish Docker image
+        if: ${{ steps.dockerimage.outputs.not_found }} == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
