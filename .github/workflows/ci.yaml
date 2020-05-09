@@ -17,7 +17,7 @@ jobs:
       - uses: navikt/bidrag-docker/exists@v1
         id: dockerimage
         with:
-          image_name: bidrag-test-gh-actions
+          image_name: bidrag-dokument
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/checkout@v2
         if: ${{ steps.dockerimage.outputs.not_found }} == 'true'
