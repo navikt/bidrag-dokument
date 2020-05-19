@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -262,8 +263,8 @@ class JournalpostControllerTest {
     }
   }
 
-  @DisplayName("Journalstatus er mottaksregistrert")
   @Nested
+  @DisplayName("Journalstatus er mottaksregistrert")
   class MottaksregistrertJournalstatus {
 
     private static final String PATH_JOURNALPOST_UTEN_SAK = "/journal/";
@@ -364,16 +365,14 @@ class JournalpostControllerTest {
           .thenReturn(new ResponseEntity<>(singletonList(new JournalpostDto()), HttpStatus.OK)); // blir kalla en gang i arkiv og en gang i brevlager
 
       var listeMedJournalposterResponse = httpHeaderTestRestTemplate.exchange(
-          lagSakjournalUrlForFagomradeBid("1001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+          lagUrlForFagomradeBid("/sak/1001/journal"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
       );
 
       assertThat(optional(listeMedJournalposterResponse)).hasValueSatisfying(
           response -> assertAll(
               () -> assertThat(response.getStatusCode()).as("status").isEqualTo(HttpStatus.OK),
-              // () -> assertThat(response.getBody()).as("body").hasSize(2), skal kalle også kalle bidrag-dokument-arkiv
-              () -> assertThat(response.getBody()).as("body").hasSize(1),
-              // () -> verify(restTemplateMock, times(2)) skal kalle også kalle bidrag-dokument-arkiv
-              () -> verify(restTemplateMock)
+              () -> assertThat(response.getBody()).as("body").hasSize(2), // skal kalle også kalle bidrag-dokument-arkiv
+              () -> verify(restTemplateMock, times(2))  //skal kalle også kalle bidrag-dokument-arkiv
                   .exchange(eq("/sak/1001/journal?fagomrade=BID"), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any())
           )
       );
@@ -383,7 +382,7 @@ class JournalpostControllerTest {
     @DisplayName("skal få BAD_REQUEST(400) som statuskode når saksnummer ikke er et heltall")
     void skalFaBadRequestNarSaksnummerIkkeErHeltall() {
       var journalposterResponse = httpHeaderTestRestTemplate.exchange(
-          lagSakjournalUrlForFagomradeBid("xyz"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+          lagUrlForFagomradeBid("/sak/xyz/journal"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
       );
 
       assertThat(optional(journalposterResponse)).hasValueSatisfying(response -> assertAll(
@@ -400,16 +399,15 @@ class JournalpostControllerTest {
           .thenReturn(new ResponseEntity<>(singletonList(new JournalpostDto()), HttpStatus.OK));
 
       var listeMedJournalposterResponse = httpHeaderTestRestTemplate.exchange(
-          lagSakjournalUrlForFagomradeBid("2020001"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
+          lagUrlForFagomradeBid("/sak/2020001/journal"), HttpMethod.GET, null, responseTypeErListeMedJournalposter()
       );
 
-//    assertThat(listeMedJournalposterResponse.getBody()).hasSize(2); skal kalle også kalle bidrag-dokument-arkiv
-      assertThat(listeMedJournalposterResponse.getBody()).hasSize(1);
+      assertThat(listeMedJournalposterResponse.getBody()).hasSize(2);//  skal kalle også kalle bidrag-dokument-arkiv
     }
 
-    private String lagSakjournalUrlForFagomradeBid(String saksnummer) {
+    private String lagUrlForFagomradeBid(String path) {
       return UriComponentsBuilder
-          .fromHttpUrl("http://localhost:" + port + "/bidrag-dokument/sak/" + saksnummer + "/journal")
+          .fromHttpUrl("http://localhost:" + port + "/bidrag-dokument" + path)
           .queryParam("fagomrade", "BID")
           .toUriString();
     }

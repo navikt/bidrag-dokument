@@ -15,8 +15,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class BidragArkivConsumer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(BidragArkivConsumer.class);
+  private static final String PATH_JOURNAL = "/sak/%s/journal";
   private static final String PATH_JOURNALPOST = "/sak/%s/journal/%s";
-  private static final String PATH_SAKJOURNAL = "/sakjournal/";
   private static final String PARAM_FAGOMRADE = "fagomrade";
 
   private final RestTemplate restTemplate;
@@ -35,7 +35,7 @@ public class BidragArkivConsumer {
   }
 
   public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
-    var uri = UriComponentsBuilder.fromPath(PATH_SAKJOURNAL + saksnummer)
+    var uri = UriComponentsBuilder.fromPath(String.format(PATH_JOURNAL, saksnummer))
         .queryParam(PARAM_FAGOMRADE, fagomrade)
         .toUriString();
 
