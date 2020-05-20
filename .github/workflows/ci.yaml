@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-java@v1.3.0
         if: ${{ steps.dockerimage.outputs.not_found }} == 'true'
         with:
-          java-version: '13'
+          java-version: '14'
       - uses: actions/cache@v1
         if: ${{ steps.dockerimage.outputs.not_found }} == 'true'
         with:
