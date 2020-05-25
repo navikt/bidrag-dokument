@@ -10,6 +10,7 @@ import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
 import no.nav.bidrag.dokument.dto.RegistrereJournalpostCommand;
 import org.slf4j.Logger;
@@ -24,8 +25,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class BidragJournalpostConsumer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(BidragJournalpostConsumer.class);
-  private static final String PATH_JOURNALPOST = "/sak/%s/journal/%s";
-  private static final String PATH_MOTTAKSREGISTRERT_JOURNALPOST = "/journal/%s";
+  private static final String PATH_JOURNALPOST_MED_SAK = "/sak/%s/journal/%s";
+  private static final String PATH_JOURNALPOST_UTEN_SAK = "/journal/%s";
+  private static final String PATH_JOURNALPOST_FOR_JOURNALSTATUS = "/journal/%s/journalstatus/%s";
   private static final String PATH_SAK_JOURNAL = "/sak/%s/journal";
   private static final String PARAM_FAGOMRADE = "fagomrade";
 
@@ -54,13 +56,7 @@ public class BidragJournalpostConsumer {
   }
 
   public HttpStatusResponse<JournalpostDto> hentJournalpost(String saksnummer, String id) {
-    String path;
-
-    if (saksnummer != null) {
-      path = String.format(PATH_JOURNALPOST, saksnummer, id);
-    } else {
-      path = String.format(PATH_MOTTAKSREGISTRERT_JOURNALPOST, id);
-    }
+    String path = String.format(PATH_JOURNALPOST_MED_SAK, saksnummer, id);
 
     LOGGER.info("Hent journalpost fra bidrag-dokument-journalpost{}", path);
     var exchange = restTemplate.exchange(path, HttpMethod.GET, null, JournalpostDto.class);
@@ -69,8 +65,18 @@ public class BidragJournalpostConsumer {
     return new HttpStatusResponse<>(exchange.getStatusCode(), exchange.getBody());
   }
 
+  public HttpStatusResponse<JournalpostResponse> hentJournalpostResponse(String prefiksetJournalpostId, String journalstatus) {
+    String path = String.format(PATH_JOURNALPOST_FOR_JOURNALSTATUS, prefiksetJournalpostId, journalstatus);
+
+    LOGGER.info("Hent journalpost fra bidrag-dokument-journalpost{}", path);
+    var exchange = restTemplate.exchange(path, HttpMethod.GET, null, JournalpostResponse.class);
+
+    LOGGER.info("Hent journalpost fikk http status {} fra bidrag-dokument-journalpost", exchange.getStatusCode());
+    return new HttpStatusResponse<>(exchange.getStatusCode(), exchange.getBody());
+  }
+
   public HttpStatusResponse<Void> endre(String saksnummer, String enhet, EndreJournalpostCommand endreJournalpostCommand) {
-    var path = String.format(PATH_JOURNALPOST, saksnummer, endreJournalpostCommand.getJournalpostId());
+    var path = String.format(PATH_JOURNALPOST_MED_SAK, saksnummer, endreJournalpostCommand.getJournalpostId());
     LOGGER.info("Endre journalpost BidragDokument: {}, path {}", endreJournalpostCommand, path);
 
     var endretJournalpostResponse = restTemplate
@@ -80,22 +86,20 @@ public class BidragJournalpostConsumer {
     return new HttpStatusResponse<>(endretJournalpostResponse.getStatusCode());
   }
 
-  public HttpStatusResponse<Void> registrer(String enhet, RegistrereJournalpostCommand registrereJournalpostCommand) {
-    var path = String.format(PATH_MOTTAKSREGISTRERT_JOURNALPOST, registrereJournalpostCommand.getJournalpostId());
+  public void registrer(String enhet, RegistrereJournalpostCommand registrereJournalpostCommand) {
+    var path = String.format(PATH_JOURNALPOST_UTEN_SAK, registrereJournalpostCommand.getJournalpostId());
     LOGGER.info("Registrer journalpost: {}, path {}", registrereJournalpostCommand, path);
 
-    var registrereJournalpostResponse = restTemplate
-        .exchange(path, HttpMethod.PUT, new HttpEntity<>(registrereJournalpostCommand, createEnhetHeader(enhet)), Void.class);
-    return new HttpStatusResponse<>(registrereJournalpostResponse.getStatusCode());
+    restTemplate.exchange(path, HttpMethod.PUT, new HttpEntity<>(registrereJournalpostCommand, createEnhetHeader(enhet)), Void.class);
   }
 
   public HttpStatusResponse<List<AvvikType>> finnAvvik(String saksnummer, String journalpostId) {
     String path;
 
     if (saksnummer != null) {
-      path = String.format(PATH_JOURNALPOST, saksnummer, journalpostId) + "/avvik";
+      path = String.format(PATH_JOURNALPOST_MED_SAK, saksnummer, journalpostId) + "/avvik";
     } else {
-      path = String.format(PATH_MOTTAKSREGISTRERT_JOURNALPOST, journalpostId) + "/avvik";
+      path = String.format(PATH_JOURNALPOST_UTEN_SAK, journalpostId) + "/avvik";
     }
 
     LOGGER.info("Finner avvik på journalpost fra bidrag-dokument-journalpost{}", path);
@@ -111,7 +115,7 @@ public class BidragJournalpostConsumer {
 
   public HttpStatusResponse<OpprettAvvikshendelseResponse> opprettAvvik(String saksnummer, String enhet, String journalpostId,
       Avvikshendelse avvikshendelse) {
-    var path = String.format(PATH_JOURNALPOST, saksnummer, journalpostId) + "/avvik";
+    var path = String.format(PATH_JOURNALPOST_MED_SAK, saksnummer, journalpostId) + "/avvik";
     LOGGER.info("Oppretter {} på journalpost med id {} fra bidrag-dokument-journalpost", avvikshendelse, journalpostId);
 
     var avviksResponse = restTemplate.exchange(
@@ -124,7 +128,7 @@ public class BidragJournalpostConsumer {
   public HttpStatusResponse<OpprettAvvikshendelseResponse> opprettAvvikPaMottaksregistrertJournalpost(
       Avvikshendelse avvikshendelse, String prefiksetJournalpostId, String enhetsnummer
   ) {
-    var path = String.format(PATH_MOTTAKSREGISTRERT_JOURNALPOST + "/avvik", prefiksetJournalpostId);
+    var path = String.format(PATH_JOURNALPOST_UTEN_SAK + "/avvik", prefiksetJournalpostId);
     LOGGER.info("bidrag-dokument-journalpost{}: {}", path, avvikshendelse);
 
     var avviksResponse = restTemplate.exchange(

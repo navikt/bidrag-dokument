@@ -23,6 +23,7 @@ import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
 import no.nav.bidrag.dokument.dto.RegistrereJournalpostCommand;
 import org.junit.jupiter.api.AfterEach;
@@ -273,22 +274,22 @@ class JournalpostControllerTest {
     @DisplayName("skal få httpstatus 400 (BAD_REQUEST) når man henter journalpost uten gyldig prefix på journalpost id")
     void skalFaBadRequestVedFeilPrefixPaId() {
       var journalpostResponseEntity = httpHeaderTestRestTemplate.exchange(
-          PATH_JOURNALPOST_UTEN_SAK + "ugyldig-id", HttpMethod.GET, null, JournalpostDto.class
+          PATH_JOURNALPOST_UTEN_SAK + "ugyldig-id/journalstatus/M", HttpMethod.GET, null, JournalpostDto.class
       );
 
       assertThat(journalpostResponseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
-    @DisplayName("skal hente journalpost uten sakstilknytning")
+    @DisplayName("skal hente journalpost uten sakstilknytning for journalstatus M")
     void skalHenteJournalpostUtenSakstilknytning() {
       when(restTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(JournalpostDto.class)))
           .thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
 
-      httpHeaderTestRestTemplate.exchange(PATH_JOURNALPOST_UTEN_SAK + "BID-1", HttpMethod.GET, null, JournalpostDto.class);
+      httpHeaderTestRestTemplate.exchange(PATH_JOURNALPOST_UTEN_SAK + "BID-1/journalstatus/M", HttpMethod.GET, null, JournalpostDto.class);
 
       verify(restTemplateMock).exchange(
-          PATH_JOURNALPOST_UTEN_SAK + "BID-1", HttpMethod.GET, null, JournalpostDto.class
+          PATH_JOURNALPOST_UTEN_SAK + "BID-1/journalstatus/M", HttpMethod.GET, null, JournalpostResponse.class
       );
     }
 

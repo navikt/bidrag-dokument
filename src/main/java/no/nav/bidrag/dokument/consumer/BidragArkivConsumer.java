@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -17,6 +18,7 @@ public class BidragArkivConsumer {
   private static final Logger LOGGER = LoggerFactory.getLogger(BidragArkivConsumer.class);
   private static final String PATH_JOURNAL = "/sak/%s/journal";
   private static final String PATH_JOURNALPOST = "/sak/%s/journal/%s";
+  private static final String PATH_JOURNALPOST_UTEN_SAK = "/journal/%s/journalstatus/%s";
   private static final String PARAM_FAGOMRADE = "fagomrade";
 
   private final RestTemplate restTemplate;
@@ -28,6 +30,16 @@ public class BidragArkivConsumer {
   public HttpStatusResponse<JournalpostDto> hentJournalpost(String saksnummer, String id) {
     var url = String.format(PATH_JOURNALPOST, saksnummer, id);
     var journalpostExchange = restTemplate.exchange(url, HttpMethod.GET, null, JournalpostDto.class);
+
+    LOGGER.info("Hent journalpost fikk http status {} fra bidrag-dokument-arkiv", journalpostExchange.getStatusCode());
+
+    return new HttpStatusResponse<>(journalpostExchange.getStatusCode(), journalpostExchange.getBody());
+  }
+
+
+  public HttpStatusResponse<JournalpostResponse> hentJournalpostResponse(String prefiksetJournalpostId, String journalstatus) {
+    var url = String.format(PATH_JOURNALPOST_UTEN_SAK, prefiksetJournalpostId, journalstatus);
+    var journalpostExchange = restTemplate.exchange(url, HttpMethod.GET, null, JournalpostResponse.class);
 
     LOGGER.info("Hent journalpost fikk http status {} fra bidrag-dokument-arkiv", journalpostExchange.getStatusCode());
 
