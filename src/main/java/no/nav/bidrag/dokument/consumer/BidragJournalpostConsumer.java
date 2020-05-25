@@ -27,7 +27,6 @@ public class BidragJournalpostConsumer {
   private static final Logger LOGGER = LoggerFactory.getLogger(BidragJournalpostConsumer.class);
   private static final String PATH_JOURNALPOST_MED_SAK = "/sak/%s/journal/%s";
   private static final String PATH_JOURNALPOST_UTEN_SAK = "/journal/%s";
-  private static final String PATH_JOURNALPOST_FOR_JOURNALSTATUS = "/journal/%s/journalstatus/%s";
   private static final String PATH_SAK_JOURNAL = "/sak/%s/journal";
   private static final String PARAM_FAGOMRADE = "fagomrade";
 
@@ -65,8 +64,8 @@ public class BidragJournalpostConsumer {
     return new HttpStatusResponse<>(exchange.getStatusCode(), exchange.getBody());
   }
 
-  public HttpStatusResponse<JournalpostResponse> hentJournalpostResponse(String prefiksetJournalpostId, String journalstatus) {
-    String path = String.format(PATH_JOURNALPOST_FOR_JOURNALSTATUS, prefiksetJournalpostId, journalstatus);
+  public HttpStatusResponse<JournalpostResponse> hentJournalpostResponse(String prefiksetJournalpostId) {
+    String path = String.format(PATH_JOURNALPOST_UTEN_SAK, prefiksetJournalpostId);
 
     LOGGER.info("Hent journalpost fra bidrag-dokument-journalpost{}", path);
     var exchange = restTemplate.exchange(path, HttpMethod.GET, null, JournalpostResponse.class);

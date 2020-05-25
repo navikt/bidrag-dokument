@@ -178,30 +178,26 @@ public class JournalpostController {
     return new ResponseEntity<>(endreResponse.getHttpStatus());
   }
 
-  @GetMapping("/journal/{journalpostIdForKildesystem}/journalstatus/{journalstatus}")
+  @GetMapping("/journal/{journalpostIdForKildesystem}")
   @ApiOperation(
-      "Hent en journalpost med journalstatus for en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>"
+      "Hent en journalpost for en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>"
   )
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "Journalpost er hentet"),
-      @ApiResponse(code = 204, message = "Journalposten har ikke riktig journalstatus"),
       @ApiResponse(code = 400, message = "Ukjent/ugyldig journalpostId som har/mangler prefix"),
       @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(code = 403, message = "Saksbehandler har ikke tilgang til aktuell journalpost"),
       @ApiResponse(code = 404, message = "Journalposten som skal hentes eksisterer ikke")
   })
-  public ResponseEntity<JournalpostResponse> hentJournalpostMedJournalstatus(
-      @PathVariable String journalpostIdForKildesystem,
-      @PathVariable String journalstatus
-  ) {
-    LOGGER.info("GET: /journal/{}/journalstatus/{}", journalpostIdForKildesystem, journalstatus);
+  public ResponseEntity<JournalpostResponse> hentJournalpostMedJournalstatus(@PathVariable String journalpostIdForKildesystem) {
+    LOGGER.info("GET: /journal/{}", journalpostIdForKildesystem);
 
     KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
     if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    var journalpostDtoResponse = journalpostService.hentJournalpost(kildesystemIdenfikator, journalstatus);
+    var journalpostDtoResponse = journalpostService.hentJournalpostResponse(kildesystemIdenfikator);
     return new ResponseEntity<>(journalpostDtoResponse.getBody(), journalpostDtoResponse.getHttpStatus());
   }
 

@@ -33,12 +33,12 @@ public class JournalpostService {
     this.bidragJournalpostConsumer = bidragJournalpostConsumer;
   }
 
-  public HttpStatusResponse<JournalpostResponse> hentJournalpost(KildesystemIdenfikator kildesystemIdenfikator, String journalstatus) {
+  public HttpStatusResponse<JournalpostResponse> hentJournalpostResponse(KildesystemIdenfikator kildesystemIdenfikator) {
     if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.hentJournalpostResponse(kildesystemIdenfikator.getPrefiksetJournalpostId(), journalstatus);
+      return bidragJournalpostConsumer.hentJournalpostResponse(kildesystemIdenfikator.getPrefiksetJournalpostId());
     }
 
-    return bidragArkivConsumer.hentJournalpostResponse(kildesystemIdenfikator.getPrefiksetJournalpostId(), journalstatus);
+    return bidragArkivConsumer.hentJournalpostResponse(kildesystemIdenfikator.getPrefiksetJournalpostId());
   }
 
   public HttpStatusResponse<JournalpostDto> hentJournalpost(String saksnummer, KildesystemIdenfikator kildesystemIdenfikator) {
