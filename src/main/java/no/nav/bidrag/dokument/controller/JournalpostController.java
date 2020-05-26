@@ -189,7 +189,7 @@ public class JournalpostController {
       @ApiResponse(code = 403, message = "Saksbehandler har ikke tilgang til aktuell journalpost"),
       @ApiResponse(code = 404, message = "Journalposten som skal hentes eksisterer ikke")
   })
-  public ResponseEntity<JournalpostResponse> hentJournalpostMedJournalstatus(@PathVariable String journalpostIdForKildesystem) {
+  public ResponseEntity<JournalpostResponse> hentJournalpost(@PathVariable String journalpostIdForKildesystem) {
     LOGGER.info("GET: /journal/{}", journalpostIdForKildesystem);
 
     KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
