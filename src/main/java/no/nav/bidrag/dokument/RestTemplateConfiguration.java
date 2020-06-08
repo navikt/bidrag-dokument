@@ -1,9 +1,6 @@
 package no.nav.bidrag.dokument;
 
-import static no.nav.bidrag.commons.web.EnhetFilter.X_ENHET_HEADER;
-
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
-import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.bidrag.dokument.BidragDokumentConfig.OidcTokenManager;
 import org.springframework.context.annotation.Bean;

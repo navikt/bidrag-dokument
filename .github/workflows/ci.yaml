@@ -56,14 +56,10 @@ jobs:
 
     steps:
       - run: kubectl config use-context dev-fss
-      - name: restart bidrag-dokument-testdata pods in default namespace
-        if: github.ref == 'refs/head/master'
+      - name: restart bidrag-dokument-testdata pods
         run: |
           PODS_TESTDATA=$(kubectl get pods --output name | grep bidrag-dokument-testdata | sed 's;pod/;;')
           kubectl delete pods $(echo $PODS_TESTDATA | sed 's/\n/ /')
-      - name: restart bidrag-dokument-testdata pods in namespace q1
-        if: github.ref != 'refs/head/master'
-        run: |
           PODS_TESTDATA=$(kubectl get pods -n q1 --output name | grep bidrag-dokument-testdata | sed 's;pod/;;')
           kubectl delete pods -n q1 $(echo $PODS_TESTDATA | sed 's/\n/ /')
 
