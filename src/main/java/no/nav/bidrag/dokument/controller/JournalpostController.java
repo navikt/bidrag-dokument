@@ -16,6 +16,7 @@ import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
 import no.nav.bidrag.dokument.dto.RegistrereJournalpostCommand;
 import no.nav.bidrag.dokument.service.JournalpostService;
@@ -179,18 +180,16 @@ public class JournalpostController {
 
   @GetMapping("/journal/{journalpostIdForKildesystem}")
   @ApiOperation(
-      "Hent en journalpost som er mottaksregistrert for en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>"
+      "Hent en journalpost for en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>"
   )
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "Journalpost er hentet"),
-      @ApiResponse(code = 204, message = "Journalpost er tilknyttet sak og er derfor ikke tilgangelig"),
-      @ApiResponse(code = 400, message = "Det finnes ikke en journalpost på gitt id eller ukjent prefix for journalpostId"),
+      @ApiResponse(code = 400, message = "Ukjent/ugyldig journalpostId som har/mangler prefix"),
       @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(code = 403, message = "Saksbehandler har ikke tilgang til aktuell journalpost"),
-      @ApiResponse(code = 404, message = "Journalposten som skal hentes eksisterer ikke eller er koblet mot annet saksnummer")
+      @ApiResponse(code = 404, message = "Journalposten som skal hentes eksisterer ikke")
   })
-  public ResponseEntity<JournalpostDto> hentJournalpostMedStatusMottaksregistrert(@PathVariable String journalpostIdForKildesystem) {
-
+  public ResponseEntity<JournalpostResponse> hentJournalpost(@PathVariable String journalpostIdForKildesystem) {
     LOGGER.info("GET: /journal/{}", journalpostIdForKildesystem);
 
     KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
@@ -198,7 +197,7 @@ public class JournalpostController {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    var journalpostDtoResponse = journalpostService.hentJournalpost(kildesystemIdenfikator);
+    var journalpostDtoResponse = journalpostService.hentJournalpostResponse(kildesystemIdenfikator);
     return new ResponseEntity<>(journalpostDtoResponse.getBody(), journalpostDtoResponse.getHttpStatus());
   }
 
@@ -236,7 +235,7 @@ public class JournalpostController {
       @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"),
       @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig, eller du har ikke adgang til kode 6 og 7 (nav-ansatt)")
   })
-  public ResponseEntity<Void> registrerOpprettetJournalpost(
+  public ResponseEntity<Void> registrerMottaksregistrertJournalpost(
       @RequestHeader(X_ENHET_HEADER) String enhet,
       @PathVariable String journalpostIdForKildesystem,
       @RequestBody RegistrereJournalpostCommand registrereJournalpostCommand

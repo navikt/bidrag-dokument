@@ -13,6 +13,7 @@ import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
 import no.nav.bidrag.dokument.dto.RegistrereJournalpostCommand;
 import org.springframework.http.HttpStatus;
@@ -32,8 +33,12 @@ public class JournalpostService {
     this.bidragJournalpostConsumer = bidragJournalpostConsumer;
   }
 
-  public HttpStatusResponse<JournalpostDto> hentJournalpost(KildesystemIdenfikator kildesystemIdenfikator) {
-    return hentJournalpost(null, kildesystemIdenfikator);
+  public HttpStatusResponse<JournalpostResponse> hentJournalpostResponse(KildesystemIdenfikator kildesystemIdenfikator) {
+    if (kildesystemIdenfikator.erFor(BIDRAG)) {
+      return bidragJournalpostConsumer.hentJournalpostResponse(kildesystemIdenfikator.getPrefiksetJournalpostId());
+    }
+
+    return bidragArkivConsumer.hentJournalpostResponse(kildesystemIdenfikator.getPrefiksetJournalpostId());
   }
 
   public HttpStatusResponse<JournalpostDto> hentJournalpost(String saksnummer, KildesystemIdenfikator kildesystemIdenfikator) {
