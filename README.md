@@ -17,7 +17,7 @@ tjenester som blir "rutet" via denne:
 Dette er en spring-boot applikasjon og kan kjøres som ren java applikasjon, ved å
 bruke `maven` eller ved å bygge et docker-image og kjøre dette 
 
-Se [Sikkerhet](#Sikkerhet) for kjøring med sikkerhet lokalt.
+Se avsnittet `Sikkerhet` for kjøring med sikkerhet lokalt.
 
 ##### java og maven
 * krever installasjon av java og maven
