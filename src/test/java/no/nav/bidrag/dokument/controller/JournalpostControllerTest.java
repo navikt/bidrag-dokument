@@ -1,5 +1,6 @@
 package no.nav.bidrag.dokument.controller;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static no.nav.bidrag.commons.web.EnhetFilter.X_ENHET_HEADER;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.SECURE_TEST_PROFILE;
@@ -108,7 +109,7 @@ class JournalpostControllerTest {
     @Test
     @DisplayName("skal hente journalpost fra midlertidig brevlager")
     void skalHenteJournalpostFraMidlertidigBrevlager() {
-      when(restTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(JournalpostDto.class)))
+      when(restTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(JournalpostResponse.class)))
           .thenReturn(new ResponseEntity<>(enJournalpostFra("Grev Still E. Ben"), HttpStatus.I_AM_A_TEAPOT));
 
       var url = initEndpointUrl("/sak/007/journal/bid-1");
@@ -117,16 +118,16 @@ class JournalpostControllerTest {
       assertThat(Optional.of(responseEntity)).hasValueSatisfying(response -> assertAll(
           () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.I_AM_A_TEAPOT),
           () -> assertThat(response.getBody()).extracting(JournalpostDto::getAvsenderNavn).isEqualTo("Grev Still E. Ben"),
-          () -> verify(restTemplateMock).exchange("/sak/007/journal/BID-1", HttpMethod.GET, null, JournalpostDto.class)
+          () -> verify(restTemplateMock).exchange("/journal/BID-1?saksnummer=007", HttpMethod.GET, null, JournalpostResponse.class)
       ));
     }
 
-    private JournalpostDto enJournalpostFra(@SuppressWarnings("SameParameterValue") String setAvsenderNavn) {
+    private JournalpostResponse enJournalpostFra(@SuppressWarnings("SameParameterValue") String setAvsenderNavn) {
       JournalpostDto jp = new JournalpostDto();
       jp.setAvsenderNavn(setAvsenderNavn);
       jp.setGjelderAktor(new AktorDto("06127412345"));
 
-      return jp;
+      return new JournalpostResponse(jp, emptyList());
     }
   }
 

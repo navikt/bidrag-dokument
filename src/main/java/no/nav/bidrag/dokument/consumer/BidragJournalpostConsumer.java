@@ -25,10 +25,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class BidragJournalpostConsumer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(BidragJournalpostConsumer.class);
+  private static final String PARAM_FAGOMRADE = "fagomrade";
+  private static final String PARAM_SAKSNUMMER = "saksnummer";
+  private static final String PATH_JOURNALPOST_MED_SAKPARAM = "/journal/%s?" + PARAM_SAKSNUMMER + "=%s";
   private static final String PATH_JOURNALPOST_MED_SAK = "/sak/%s/journal/%s";
   private static final String PATH_JOURNALPOST_UTEN_SAK = "/journal/%s";
   private static final String PATH_SAK_JOURNAL = "/sak/%s/journal";
-  private static final String PARAM_FAGOMRADE = "fagomrade";
 
   private final RestTemplate restTemplate;
 
@@ -55,13 +57,13 @@ public class BidragJournalpostConsumer {
   }
 
   public HttpStatusResponse<JournalpostDto> hentJournalpost(String saksnummer, String id) {
-    String path = String.format(PATH_JOURNALPOST_MED_SAK, saksnummer, id);
+    String path = String.format(PATH_JOURNALPOST_MED_SAKPARAM, id, saksnummer);
 
     LOGGER.info("Hent journalpost fra bidrag-dokument-journalpost{}", path);
-    var exchange = restTemplate.exchange(path, HttpMethod.GET, null, JournalpostDto.class);
+    var exchange = restTemplate.exchange(path, HttpMethod.GET, null, JournalpostResponse.class);
 
     LOGGER.info("Hent journalpost fikk http status {} fra bidrag-dokument-journalpost", exchange.getStatusCode());
-    return new HttpStatusResponse<>(exchange.getStatusCode(), exchange.getBody());
+    return new HttpStatusResponse<>(exchange.getStatusCode(), exchange.getBody() != null ? exchange.getBody().getJournalpost() : null);
   }
 
   public HttpStatusResponse<JournalpostResponse> hentJournalpostResponse(String prefiksetJournalpostId) {
