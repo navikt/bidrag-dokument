@@ -12,7 +12,6 @@ import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
-import no.nav.bidrag.dokument.dto.RegistrereJournalpostCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -76,22 +75,16 @@ public class BidragJournalpostConsumer {
     return new HttpStatusResponse<>(exchange.getStatusCode(), exchange.getBody());
   }
 
-  public HttpStatusResponse<Void> endre(String saksnummer, String enhet, EndreJournalpostCommand endreJournalpostCommand) {
-    var path = String.format(PATH_JOURNALPOST_MED_SAK, saksnummer, endreJournalpostCommand.getJournalpostId());
+  public HttpStatusResponse<Void> endre(String enhet, EndreJournalpostCommand endreJournalpostCommand) {
+    var path = String.format(PATH_JOURNALPOST_UTEN_SAK, endreJournalpostCommand.getJournalpostId());
     LOGGER.info("Endre journalpost BidragDokument: {}, path {}", endreJournalpostCommand, path);
 
-    var endretJournalpostResponse = restTemplate
-        .exchange(path, HttpMethod.PUT, new HttpEntity<>(endreJournalpostCommand, createEnhetHeader(enhet)), Void.class);
+    var endretJournalpostResponse = restTemplate.exchange(
+        path, HttpMethod.PUT, new HttpEntity<>(endreJournalpostCommand, createEnhetHeader(enhet)), Void.class
+    );
 
     LOGGER.info("Endre journalpost fikk http status {}", endretJournalpostResponse.getStatusCode());
     return new HttpStatusResponse<>(endretJournalpostResponse.getStatusCode());
-  }
-
-  public void registrer(String enhet, RegistrereJournalpostCommand registrereJournalpostCommand) {
-    var path = String.format(PATH_JOURNALPOST_UTEN_SAK, registrereJournalpostCommand.getJournalpostId());
-    LOGGER.info("Registrer journalpost: {}, path {}", registrereJournalpostCommand, path);
-
-    restTemplate.exchange(path, HttpMethod.PUT, new HttpEntity<>(registrereJournalpostCommand, createEnhetHeader(enhet)), Void.class);
   }
 
   public HttpStatusResponse<List<AvvikType>> finnAvvik(String saksnummer, String journalpostId) {

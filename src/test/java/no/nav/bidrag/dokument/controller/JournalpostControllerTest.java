@@ -178,7 +178,7 @@ class JournalpostControllerTest {
 
       assertThat(optional(endretJournalpostResponse)).hasValueSatisfying(response -> assertAll(
           () -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED),
-          () -> verify(restTemplateMock).exchange(eq("/sak/69/journal/bid-1"), eq(HttpMethod.PUT), any(), eq(Void.class))
+          () -> verify(restTemplateMock).exchange(eq("/journal/bid-1"), eq(HttpMethod.PUT), any(), eq(Void.class))
       ));
     }
   }

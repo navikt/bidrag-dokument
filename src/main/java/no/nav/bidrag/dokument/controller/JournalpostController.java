@@ -174,7 +174,7 @@ public class JournalpostController {
 
     endreJournalpostCommand.setJournalpostId(journalpostIdForKildesystem);
 
-    var endreResponse = journalpostService.endre(saksnummer, enhet, endreJournalpostCommand);
+    var endreResponse = journalpostService.endre(enhet, endreJournalpostCommand);
     return new ResponseEntity<>(endreResponse.getHttpStatus());
   }
 
