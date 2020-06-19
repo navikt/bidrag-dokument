@@ -54,9 +54,9 @@
     <bidrag-commons.version>0.3.7</bidrag-commons.version>
     <bidrag-commons-test.version>0.2.1</bidrag-commons-test.version>
     <bidrag-dokument-dto.version>0.10.0.1</bidrag-dokument-dto.version>
-    <logback.encoder.version>6.3</logback.encoder.version>
+    <logback.encoder.version>6.4</logback.encoder.version>
     <springfox-swagger.version>2.9.2</springfox-swagger.version>
-    <token-support.version>1.1.5</token-support.version>
+    <token-support.version>1.1.6</token-support.version>
 
     <!-- build -->
     <build-helper-maven.version>3.1.0</build-helper-maven.version>
