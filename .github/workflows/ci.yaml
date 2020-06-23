@@ -9,6 +9,19 @@ env:
 
 jobs:
 
+  restart-testdata:
+    name: restart kubernetes pods bidrag-dokument-testdata
+    runs-on: self-hosted
+
+    steps:
+      - run: kubectl config use-context dev-fss
+      - name: restart bidrag-dokument-testdata pods
+        run: |
+          PODS_TESTDATA=$(kubectl get pods -l app=bidrag-dokument-testdata | awk '{print $1}' | grep -v NAME)
+          kubectl delete pods $(echo $PODS_TESTDATA | sed 's;\n; ;')
+          PODS_TESTDATA=$(kubectl get pods -n q1 -l app=bidrag-dokument-testdata  | awk '{print $1}' | grep -v NAME)
+          kubectl delete pods -n q1 $(echo $PODS_TESTDATA | sed 's;\n; ;')
+
   build:
     name: Build with maven and docker
     runs-on: ubuntu-latest
@@ -50,20 +63,6 @@ jobs:
           docker build --tag ${IMAGE} .
           docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
           docker push ${IMAGE}
-
-  restart-testdata:
-    name: restart kubernetes pods bidrag-dokument-testdata
-    runs-on: self-hosted
-    needs: build
-
-    steps:
-      - run: kubectl config use-context dev-fss
-      - name: restart bidrag-dokument-testdata pods
-        run: |
-          PODS_TESTDATA=$(kubectl get pods --output name | grep bidrag-dokument-testdata | sed 's;pod/;;')
-          kubectl delete pods $(echo $PODS_TESTDATA | sed 's/\n/ /')
-          PODS_TESTDATA=$(kubectl get pods -n q1 --output name | grep bidrag-dokument-testdata | sed 's;pod/;;')
-          kubectl delete pods -n q1 $(echo $PODS_TESTDATA | sed 's/\n/ /')
 
   deploy_dev:
     runs-on: ubuntu-latest
