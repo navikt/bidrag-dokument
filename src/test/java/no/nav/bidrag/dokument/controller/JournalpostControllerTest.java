@@ -210,7 +210,7 @@ class JournalpostControllerTest {
           () -> assertThat(responseEntity.getBody()).as("avvik").hasSize(1),
           () -> assertThat(responseEntity.getBody()).as("avvik").contains(AvvikType.BESTILL_ORIGINAL),
           () -> verify(restTemplateMock).exchange(
-              eq("/sak/1001/journal/BID-1/avvik"), eq(HttpMethod.GET), any(), eq(responseTypeErListeMedAvvikType())
+              eq("/journal/BID-1/avvik?saksnummer=1001"), eq(HttpMethod.GET), any(), eq(responseTypeErListeMedAvvikType())
           )
       );
     }
@@ -313,7 +313,7 @@ class JournalpostControllerTest {
       httpHeaderTestRestTemplate.exchange(PATH_JOURNALPOST_UTEN_SAK + "BID-1/avvik", HttpMethod.GET, null, responseTypeErListeMedAvvikType());
 
       verify(restTemplateMock).exchange(
-          PATH_JOURNALPOST_UTEN_SAK + "BID-1/avvik", HttpMethod.GET, null, responseTypeErListeMedAvvikType()
+          PATH_JOURNALPOST_UTEN_SAK + "BID-1/avvik?journalstatus=M", HttpMethod.GET, null, responseTypeErListeMedAvvikType()
       );
     }
 
