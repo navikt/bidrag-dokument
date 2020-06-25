@@ -1,5 +1,6 @@
 package no.nav.bidrag.dokument.controller;
 
+import static no.nav.bidrag.commons.KildesystemIdenfikator.PREFIX_BIDRAG_COMPLETE;
 import static no.nav.bidrag.commons.web.EnhetFilter.X_ENHET_HEADER;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.DELIMTER;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.ISSUER;
@@ -148,24 +149,22 @@ public class JournalpostController {
     return new ResponseEntity<>(opprettAvvikResponse.getBody(), opprettAvvikResponse.getHttpStatus());
   }
 
-  @PutMapping("/sak/{saksnummer}/journal/{journalpostIdForKildesystem}")
+  @PutMapping("/journal/{journalpostIdForKildesystem}")
   @ApiOperation("Endre eksisterende journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
   @ApiResponses(value = {
       @ApiResponse(code = 202, message = "Journalpost er endret"),
-      @ApiResponse(code = 204, message = "Journalpost funnet, men mangler relatert sak. Returnerer ikke data."),
-      @ApiResponse(code = 400, message = "Prefiks på journalpostId er ugyldig, enhet mangler/ugyldig (fra header), JournalpostEndreJournalpostCommandDto.gjelder er ikke satt, eller det ikke finnes en journalpost på gitt id"),
+      @ApiResponse(code = 400, message = "Prefiks på journalpostId er ugyldig, JournalpostEndreJournalpostCommandDto.gjelder er ikke satt, eksister ikke journalpost for gitt id, eller enhet mangler/ugyldig (fra header)"),
       @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
-      @ApiResponse(code = 403, message = "Saksbehandler har ikke tilgang til aktuell journalpost"),
+      @ApiResponse(code = 403, message = "Saksbehandler har ikke tilgang til aktuell journalpost/sak"),
       @ApiResponse(code = 404, message = "Fant ikke journalpost som skal endres, ingen 'payload' eller feil prefix/id på journalposten")
   })
-  public ResponseEntity<Void> put(
+  public ResponseEntity<Void> endreJournalpost(
       @RequestHeader(X_ENHET_HEADER) String enhet,
-      @PathVariable String saksnummer,
       @RequestBody EndreJournalpostCommand endreJournalpostCommand,
       @PathVariable String journalpostIdForKildesystem
   ) {
 
-    LOGGER.info("put endret: bidrag-dokument/sak/{}/journal/{}\n \\-> {}", saksnummer, journalpostIdForKildesystem, endreJournalpostCommand);
+    LOGGER.info("put endret: bidrag-dokument/journal/{}\n \\-> {}", journalpostIdForKildesystem, endreJournalpostCommand);
 
     KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
     if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
@@ -223,35 +222,6 @@ public class JournalpostController {
 
     var avvikslisteResponse = journalpostService.finnAvvik(kildesystemIdenfikator);
     return new ResponseEntity<>(avvikslisteResponse.getBody(), avvikslisteResponse.getHttpStatus());
-  }
-
-  @PutMapping("/journal/{journalpostIdForKildesystem}")
-  @ApiOperation(
-      "Registrere en mottaksregistrert journalpost med id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>"
-  )
-  @ApiResponses(value = {
-      @ApiResponse(code = 202, message = "Journalpost er registrert"),
-      @ApiResponse(code = 400, message = "Det er ukjent prefix for journalpostId, det finnes ikke en journalpost på gitt id, enhet mangler/ugyldig (fra header), eller journalposten ikke har status mottaksregistrert"),
-      @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"),
-      @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig, eller du har ikke adgang til kode 6 og 7 (nav-ansatt)")
-  })
-  public ResponseEntity<Void> registrerMottaksregistrertJournalpost(
-      @RequestHeader(X_ENHET_HEADER) String enhet,
-      @PathVariable String journalpostIdForKildesystem,
-      @RequestBody RegistrereJournalpostCommand registrereJournalpostCommand
-  ) {
-
-    LOGGER.info("put: bidrag-dokument/journal/{} - {}", journalpostIdForKildesystem, registrereJournalpostCommand);
-
-    KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
-    if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
-
-    registrereJournalpostCommand.setJournalpostId(journalpostIdForKildesystem);
-    journalpostService.registrer(enhet, registrereJournalpostCommand);
-
-    return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
   @PostMapping(value = "/journal/{journalpostIdForKildesystem}/avvik", consumes = MediaType.APPLICATION_JSON_VALUE)

@@ -26,7 +26,6 @@ import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
-import no.nav.bidrag.dokument.dto.RegistrereJournalpostCommand;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -156,7 +155,7 @@ class JournalpostControllerTest {
     @Test
     @DisplayName("skal få BAD_REQUEST når prefix er ukjent ved endring av journalpost")
     void skalFaBadRequestMedUkjentPrefixVedEndringAvJournalpost() {
-      var lagreJournalpostUrl = initEndpointUrl("/sak/69/journal/svada-en");
+      var lagreJournalpostUrl = initEndpointUrl("/journal/svada-en");
 
       var badRequestResponse = httpHeaderTestRestTemplate.exchange(
           lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommand(), createEnhetHeader("4802")), JournalpostDto.class
@@ -171,7 +170,7 @@ class JournalpostControllerTest {
       when(restTemplateMock.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(Void.class)))
           .thenReturn(new ResponseEntity<>(HttpStatus.ACCEPTED));
 
-      var lagreJournalpostUrl = initEndpointUrl("/sak/69/journal/bid-1");
+      var lagreJournalpostUrl = initEndpointUrl("/journal/bid-1");
       var endretJournalpostResponse = httpHeaderTestRestTemplate.exchange(
           lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommand(), createEnhetHeader("4802")), Void.class
       );
@@ -315,18 +314,6 @@ class JournalpostControllerTest {
       verify(restTemplateMock).exchange(
           PATH_JOURNALPOST_UTEN_SAK + "BID-1/avvik?journalstatus=M", HttpMethod.GET, null, responseTypeErListeMedAvvikType()
       );
-    }
-
-    @Test
-    @DisplayName("skal registrere journalpost")
-    void skalRegistrereJournalpost() {
-      when(restTemplateMock.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(Void.class)))
-          .thenReturn(new ResponseEntity<>(HttpStatus.I_AM_A_TEAPOT));
-
-      HttpEntity<RegistrereJournalpostCommand> registrerEntity = new HttpEntity<>(new RegistrereJournalpostCommand(), createEnhetHeader("4802"));
-      httpHeaderTestRestTemplate.exchange(PATH_JOURNALPOST_UTEN_SAK + "BID-1", HttpMethod.PUT, registrerEntity, Void.class);
-
-      verify(restTemplateMock).exchange(eq(PATH_JOURNALPOST_UTEN_SAK + "BID-1"), eq(HttpMethod.PUT), any(), eq(Void.class));
     }
 
     @Test
