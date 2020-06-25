@@ -56,18 +56,14 @@ public class BidragJournalpostConsumer {
     };
   }
 
-  public HttpStatusResponse<JournalpostDto> hentJournalpost(String saksnummer, String id) {
-    String path = String.format(PATH_JOURNALPOST_MED_SAKPARAM, id, saksnummer);
+  public HttpStatusResponse<JournalpostResponse> hentJournalpostResponse(String saksnummer, String id) {
+    String path;
 
-    LOGGER.info("Hent journalpost fra bidrag-dokument-journalpost{}", path);
-    var exchange = restTemplate.exchange(path, HttpMethod.GET, null, JournalpostResponse.class);
-
-    LOGGER.info("Hent journalpost fikk http status {} fra bidrag-dokument-journalpost", exchange.getStatusCode());
-    return new HttpStatusResponse<>(exchange.getStatusCode(), exchange.getBody() != null ? exchange.getBody().getJournalpost() : null);
-  }
-
-  public HttpStatusResponse<JournalpostResponse> hentJournalpostResponse(String prefiksetJournalpostId) {
-    String path = String.format(PATH_JOURNALPOST_UTEN_SAK, prefiksetJournalpostId);
+    if (saksnummer != null) {
+      path = String.format(PATH_JOURNALPOST_MED_SAKPARAM, id, saksnummer);
+    } else {
+      path = String.format(PATH_JOURNALPOST_UTEN_SAK, id);
+    }
 
     LOGGER.info("Hent journalpost fra bidrag-dokument-journalpost{}", path);
     var exchange = restTemplate.exchange(path, HttpMethod.GET, null, JournalpostResponse.class);

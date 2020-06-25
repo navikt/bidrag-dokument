@@ -33,17 +33,9 @@ public class JournalpostService {
     this.bidragJournalpostConsumer = bidragJournalpostConsumer;
   }
 
-  public HttpStatusResponse<JournalpostResponse> hentJournalpostResponse(KildesystemIdenfikator kildesystemIdenfikator) {
+  public HttpStatusResponse<JournalpostResponse> hentJournalpost(String saksnummer, KildesystemIdenfikator kildesystemIdenfikator) {
     if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.hentJournalpostResponse(kildesystemIdenfikator.getPrefiksetJournalpostId());
-    }
-
-    return bidragArkivConsumer.hentJournalpostResponse(kildesystemIdenfikator.getPrefiksetJournalpostId());
-  }
-
-  public HttpStatusResponse<JournalpostDto> hentJournalpost(String saksnummer, KildesystemIdenfikator kildesystemIdenfikator) {
-    if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.hentJournalpost(saksnummer, kildesystemIdenfikator.getPrefiksetJournalpostId());
+      return bidragJournalpostConsumer.hentJournalpostResponse(saksnummer, kildesystemIdenfikator.getPrefiksetJournalpostId());
     }
 
     return bidragArkivConsumer.hentJournalpost(saksnummer, kildesystemIdenfikator.getPrefiksetJournalpostId());

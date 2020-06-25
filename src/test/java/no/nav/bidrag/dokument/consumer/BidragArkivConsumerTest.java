@@ -7,7 +7,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -36,23 +38,23 @@ class BidragArkivConsumerTest {
   @DisplayName("skal hente en journalpost med spring sin RestTemplate")
   void skalHenteJournalpostMedRestTemplate() {
 
-    when(restTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(JournalpostDto.class)))
+    when(restTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(JournalpostResponse.class)))
         .thenReturn(new ResponseEntity<>(enJournalpostMedJournaltilstand("ENDELIG"), HttpStatus.OK));
 
-    var journalpostResponse = bidragArkivConsumer.hentJournalpost("69", "BID-101");
-    JournalpostDto journalpostDto = journalpostResponse.fetchOptionalResult()
+    var httpStatuzResponse = bidragArkivConsumer.hentJournalpost("69","BID-101");
+    var journalpostResponse = httpStatuzResponse.fetchOptionalResult()
         .orElseThrow(() -> new AssertionError("BidragArkivConsumer kunne ikke finne journalpost!"));
 
-    assertThat(journalpostDto.getInnhold()).isEqualTo("ENDELIG");
+    assertThat(journalpostResponse.getJournalpost()).extracting(JournalpostDto::getInnhold).isEqualTo("ENDELIG");
 
-    verify(restTemplateMock).exchange("/sak/69/journal/BID-101", HttpMethod.GET, null, JournalpostDto.class);
+    verify(restTemplateMock).exchange("/journal/BID-101?saksnummer=69", HttpMethod.GET, null, JournalpostResponse.class);
   }
 
-  private JournalpostDto enJournalpostMedJournaltilstand(@SuppressWarnings("SameParameterValue") String innhold) {
+  private JournalpostResponse enJournalpostMedJournaltilstand(@SuppressWarnings("SameParameterValue") String innhold) {
     JournalpostDto journalpostDto = new JournalpostDto();
     journalpostDto.setInnhold(innhold);
 
-    return journalpostDto;
+    return new JournalpostResponse(journalpostDto, Collections.emptyList());
   }
 }
 

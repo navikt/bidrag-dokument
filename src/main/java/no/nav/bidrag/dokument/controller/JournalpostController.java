@@ -1,6 +1,5 @@
 package no.nav.bidrag.dokument.controller;
 
-import static no.nav.bidrag.commons.KildesystemIdenfikator.PREFIX_BIDRAG_COMPLETE;
 import static no.nav.bidrag.commons.web.EnhetFilter.X_ENHET_HEADER;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.DELIMTER;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.ISSUER;
@@ -73,23 +72,25 @@ public class JournalpostController {
     return new ResponseEntity<>(journalposter, journalposter.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK);
   }
 
-  @GetMapping("/sak/{saksnummer}/journal/{journalpostIdForKildesystem}")
+  @GetMapping("/journal/{journalpostIdForKildesystem}")
   @ApiOperation("Hent en journalpost for en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "Journalpost er hentet"),
-      @ApiResponse(code = 204, message = "Journalpost funnet, men mangler relatert sak. Returnerer ikke data."),
+      @ApiResponse(code = 400, message = "Ukjent/ugyldig journalpostId som har/mangler prefix"),
       @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(code = 403, message = "Saksbehandler har ikke tilgang til aktuell journalpost"),
-      @ApiResponse(code = 404, message = "Journalposten som skal hentes eksisterer ikke eller er koblet mot annet saksnummer. Eller det er feil prefix/id på journalposten")
+      @ApiResponse(code = 404, message = "Journalposten som skal hentes eksisterer ikke eller det er feil prefix/id på journalposten")
   })
-  public ResponseEntity<JournalpostDto> hent(@PathVariable String saksnummer, @PathVariable String journalpostIdForKildesystem) {
-
-    LOGGER.info("request: bidrag-dokument/sak/{}/journal/{}", saksnummer, journalpostIdForKildesystem);
-
+  public ResponseEntity<JournalpostResponse> hentJournalpost(
+      @PathVariable String journalpostIdForKildesystem,
+      @ApiParam(name = "saksnummer", type = "String", value = "journalposten tilhører sak") @RequestParam(required = false) String saksnummer
+  ) {
     KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
     if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
+
+    LOGGER.info("request: bidrag-dokument/journal/{}?saksnummer={}", journalpostIdForKildesystem, saksnummer);
 
     var journalpostDtoResponse = journalpostService.hentJournalpost(saksnummer, kildesystemIdenfikator);
     return new ResponseEntity<>(journalpostDtoResponse.getBody(), journalpostDtoResponse.getHttpStatus());
@@ -178,29 +179,6 @@ public class JournalpostController {
 
     var endreResponse = journalpostService.endre(enhet, endreJournalpostCommand);
     return new ResponseEntity<>(endreResponse.getHttpStatus());
-  }
-
-  @GetMapping("/journal/{journalpostIdForKildesystem}")
-  @ApiOperation(
-      "Hent en journalpost for en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>"
-  )
-  @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Journalpost er hentet"),
-      @ApiResponse(code = 400, message = "Ukjent/ugyldig journalpostId som har/mangler prefix"),
-      @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
-      @ApiResponse(code = 403, message = "Saksbehandler har ikke tilgang til aktuell journalpost"),
-      @ApiResponse(code = 404, message = "Journalposten som skal hentes eksisterer ikke")
-  })
-  public ResponseEntity<JournalpostResponse> hentJournalpost(@PathVariable String journalpostIdForKildesystem) {
-    LOGGER.info("GET: /journal/{}", journalpostIdForKildesystem);
-
-    KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
-    if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
-
-    var journalpostDtoResponse = journalpostService.hentJournalpostResponse(kildesystemIdenfikator);
-    return new ResponseEntity<>(journalpostDtoResponse.getBody(), journalpostDtoResponse.getHttpStatus());
   }
 
   @PostMapping(value = "/journal/{journalpostIdForKildesystem}/avvik", consumes = MediaType.APPLICATION_JSON_VALUE)
