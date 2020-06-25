@@ -8,6 +8,7 @@ import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_BIDRAG;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
 
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.util.List;
@@ -19,7 +20,6 @@ import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
-import no.nav.bidrag.dokument.dto.RegistrereJournalpostCommand;
 import no.nav.bidrag.dokument.service.JournalpostService;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
 import org.slf4j.Logger;
@@ -95,17 +95,20 @@ public class JournalpostController {
     return new ResponseEntity<>(journalpostDtoResponse.getBody(), journalpostDtoResponse.getHttpStatus());
   }
 
-  @GetMapping("/sak/{saksnummer}/journal/{journalpostIdForKildesystem}/avvik")
+  @GetMapping("/journal/{journalpostIdForKildesystem}/avvik")
   @ApiOperation("Henter mulige avvik for en journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "Tilgjengelig avvik for journalpost er hentet"),
-      @ApiResponse(code = 204, message = "Ingen tilgjengelige avvik for journalpost"),
+      @ApiResponse(code = 204, message = "Ingen tilgjengelige avvik for journalpost eller journalposten er for annen sak"),
       @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"),
       @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig"),
       @ApiResponse(code = 404, message = "Fant ikke journalpost som det skal hentes avvik på")
   })
-  public ResponseEntity<List<AvvikType>> finnAvvik(@PathVariable String saksnummer, @PathVariable String journalpostIdForKildesystem) {
-    LOGGER.info("request: bidrag-dokument/sak/{}/journal/{}/avvik", saksnummer, journalpostIdForKildesystem);
+  public ResponseEntity<List<AvvikType>> hentAvvik(
+      @PathVariable String journalpostIdForKildesystem,
+      @ApiParam(name = "saksnummer", type = "String", value = "journalposten tilhører sak") @RequestParam(required = false) String saksnummer
+  ) {
+    LOGGER.info("request: bidrag-dokument/journal/{}/avvik", journalpostIdForKildesystem);
 
     KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
     if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
@@ -198,30 +201,6 @@ public class JournalpostController {
 
     var journalpostDtoResponse = journalpostService.hentJournalpostResponse(kildesystemIdenfikator);
     return new ResponseEntity<>(journalpostDtoResponse.getBody(), journalpostDtoResponse.getHttpStatus());
-  }
-
-  @GetMapping("/journal/{journalpostIdForKildesystem}/avvik")
-  @ApiOperation(
-      "Finner mulige avvik for en journalpost med status mottaksregistrert, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER
-          + "<journalpostId>")
-  @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Tilgjengelig avvik for journalpost er hentet"),
-      @ApiResponse(code = 204, message = "Ingen tilgjengelige avvik for journalpost eller journalposten har ikke status mottaksregistrert"),
-      @ApiResponse(code = 400, message = "Ukjent prefix på journalpost id"),
-      @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"),
-      @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig"),
-      @ApiResponse(code = 404, message = "Fant ikke journalpost som det skal hentes avvik på")
-  })
-  public ResponseEntity<List<AvvikType>> finnAvvikPaJournalpostMedStatusMottaksregistrert(@PathVariable String journalpostIdForKildesystem) {
-    LOGGER.info("GET: /journal/{}/avvik", journalpostIdForKildesystem);
-
-    KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
-    if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
-
-    var avvikslisteResponse = journalpostService.finnAvvik(kildesystemIdenfikator);
-    return new ResponseEntity<>(avvikslisteResponse.getBody(), avvikslisteResponse.getHttpStatus());
   }
 
   @PostMapping(value = "/journal/{journalpostIdForKildesystem}/avvik", consumes = MediaType.APPLICATION_JSON_VALUE)

@@ -189,7 +189,7 @@ class JournalpostControllerTest {
     @Test
     @DisplayName("skal feile når man henter avvikshendelser uten å prefikse journalpostId med kildesystem")
     void skalFeileVedHentingAvAvvikshendelserForJournalpostNarJournalpostIdIkkeErPrefiksetMedKildesystem() {
-      var url = initEndpointUrl("/sak/1001/journal/1/avvik");
+      var url = initEndpointUrl("/journal/1/avvik");
       var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.GET, null, responseTypeErListeMedAvvikType());
 
       assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -201,7 +201,7 @@ class JournalpostControllerTest {
       when(restTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(responseTypeErListeMedAvvikType())))
           .thenReturn(new ResponseEntity<>(List.of(AvvikType.BESTILL_ORIGINAL), HttpStatus.OK));
 
-      var url = initEndpointUrl("/sak/1001/journal/BID-1/avvik");
+      var url = initEndpointUrl("/journal/BID-1/avvik?saksnummer=1001");
       var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.GET, null, responseTypeErListeMedAvvikType());
 
       assertAll(
@@ -311,9 +311,7 @@ class JournalpostControllerTest {
 
       httpHeaderTestRestTemplate.exchange(PATH_JOURNALPOST_UTEN_SAK + "BID-1/avvik", HttpMethod.GET, null, responseTypeErListeMedAvvikType());
 
-      verify(restTemplateMock).exchange(
-          PATH_JOURNALPOST_UTEN_SAK + "BID-1/avvik?journalstatus=M", HttpMethod.GET, null, responseTypeErListeMedAvvikType()
-      );
+      verify(restTemplateMock).exchange(PATH_JOURNALPOST_UTEN_SAK + "BID-1/avvik", HttpMethod.GET, null, responseTypeErListeMedAvvikType());
     }
 
     @Test

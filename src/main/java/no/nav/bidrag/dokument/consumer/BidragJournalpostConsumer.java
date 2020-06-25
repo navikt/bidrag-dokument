@@ -25,9 +25,8 @@ public class BidragJournalpostConsumer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(BidragJournalpostConsumer.class);
   private static final String PARAM_FAGOMRADE = "fagomrade";
-  private static final String PARAM_JSTATUS = "journalstatus";
   private static final String PARAM_SAKSNUMMER = "saksnummer";
-  private static final String PATH_AVVIK_PA_JOURNALPOST_MED_JSTATUS_PARAM = "/journal/%s/avvik?" + PARAM_JSTATUS + "=%s";
+  private static final String PATH_AVVIK_PA_JOURNALPOST = "/journal/%s/avvik";
   private static final String PATH_AVVIK_PA_JOURNALPOST_MED_SAK_PARAM = "/journal/%s/avvik?" + PARAM_SAKSNUMMER + "=%s";
   private static final String PATH_JOURNALPOST_MED_SAKPARAM = "/journal/%s?" + PARAM_SAKSNUMMER + "=%s";
   private static final String PATH_JOURNALPOST_UTEN_SAK = "/journal/%s";
@@ -95,7 +94,7 @@ public class BidragJournalpostConsumer {
     if (saksnummer != null) {
       path = String.format(PATH_AVVIK_PA_JOURNALPOST_MED_SAK_PARAM, journalpostId, saksnummer);
     } else {
-      path = String.format(PATH_AVVIK_PA_JOURNALPOST_MED_JSTATUS_PARAM, journalpostId, 'M');
+      path = String.format(PATH_AVVIK_PA_JOURNALPOST, journalpostId);
     }
 
     LOGGER.info("Finner avvik på journalpost fra bidrag-dokument-journalpost{}", path);
