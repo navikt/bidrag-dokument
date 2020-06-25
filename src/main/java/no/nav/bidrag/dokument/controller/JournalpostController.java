@@ -54,10 +54,10 @@ public class JournalpostController {
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "Fant journalposter for saksnummer"),
       @ApiResponse(code = 204, message = "Ingen journalposter for saksnummer"),
-      @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"),
-      @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig")
+      @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
+      @ApiResponse(code = 403, message = "Saksbehandler har ikke tilgang til aktuell journalpost"),
   })
-  public ResponseEntity<List<JournalpostDto>> get(
+  public ResponseEntity<List<JournalpostDto>> hentJournal(
       @PathVariable String saksnummer,
       @RequestParam String fagomrade
   ) {
