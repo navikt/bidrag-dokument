@@ -144,7 +144,7 @@ public class JournalpostController {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    var opprettAvvikResponse = journalpostService.opprettAvvik(saksnummer, enhet, kildesystemIdenfikator, avvikshendelse);
+    var opprettAvvikResponse = journalpostService.opprettAvvik(enhet, kildesystemIdenfikator, avvikshendelse);
     return new ResponseEntity<>(opprettAvvikResponse.getBody(), opprettAvvikResponse.getHttpStatus());
   }
 
@@ -279,7 +279,7 @@ public class JournalpostController {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
-    var response = journalpostService.opprettAvvikPaMottaksregistrertJournalpost(avvikshendelse, kildesystemIdenfikator, enhetsnummer);
+    var response = journalpostService.opprettAvvik(enhetsnummer, kildesystemIdenfikator, avvikshendelse);
 
     return new ResponseEntity<>(response.getBody(), response.getHttpStatus());
   }

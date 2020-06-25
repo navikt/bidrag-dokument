@@ -62,11 +62,10 @@ public class JournalpostService {
   }
 
   public HttpStatusResponse<OpprettAvvikshendelseResponse> opprettAvvik(
-      String saksnummer, String enhet, KildesystemIdenfikator kildesystemIdenfikator,
-      Avvikshendelse avvikshendelse
+      String enhet, KildesystemIdenfikator kildesystemIdenfikator, Avvikshendelse avvikshendelse
   ) {
     if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.opprettAvvik(saksnummer, enhet, kildesystemIdenfikator.getPrefiksetJournalpostId(), avvikshendelse);
+      return bidragJournalpostConsumer.opprettAvvik(enhet, kildesystemIdenfikator.getPrefiksetJournalpostId(), avvikshendelse);
     }
 
     return new HttpStatusResponse<>(HttpStatus.BAD_REQUEST);
@@ -102,17 +101,5 @@ public class JournalpostService {
     endreJournalpostCommand.setTittel(registrereJournalpostCommand.getTittel());
 
     return endreJournalpostCommand;
-  }
-
-  public HttpStatusResponse<OpprettAvvikshendelseResponse> opprettAvvikPaMottaksregistrertJournalpost(
-      Avvikshendelse avvikshendelse, KildesystemIdenfikator kildesystemIdenfikator, String enhetsnummer
-  ) {
-    if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.opprettAvvikPaMottaksregistrertJournalpost(
-          avvikshendelse, kildesystemIdenfikator.getPrefiksetJournalpostId(), enhetsnummer
-      );
-    }
-
-    return new HttpStatusResponse<>(HttpStatus.BAD_REQUEST);
   }
 }

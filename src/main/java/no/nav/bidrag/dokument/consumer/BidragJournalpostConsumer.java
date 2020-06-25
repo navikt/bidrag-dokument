@@ -30,7 +30,6 @@ public class BidragJournalpostConsumer {
   private static final String PATH_AVVIK_PA_JOURNALPOST_MED_JSTATUS_PARAM = "/journal/%s/avvik?" + PARAM_JSTATUS + "=%s";
   private static final String PATH_AVVIK_PA_JOURNALPOST_MED_SAK_PARAM = "/journal/%s/avvik?" + PARAM_SAKSNUMMER + "=%s";
   private static final String PATH_JOURNALPOST_MED_SAKPARAM = "/journal/%s?" + PARAM_SAKSNUMMER + "=%s";
-  private static final String PATH_JOURNALPOST_MED_SAK = "/sak/%s/journal/%s";
   private static final String PATH_JOURNALPOST_UTEN_SAK = "/journal/%s";
   private static final String PATH_SAK_JOURNAL = "/sak/%s/journal";
 
@@ -110,22 +109,8 @@ public class BidragJournalpostConsumer {
     };
   }
 
-  public HttpStatusResponse<OpprettAvvikshendelseResponse> opprettAvvik(String saksnummer, String enhet, String journalpostId,
-      Avvikshendelse avvikshendelse) {
-    var path = String.format(PATH_JOURNALPOST_MED_SAK, saksnummer, journalpostId) + "/avvik";
-    LOGGER.info("Oppretter {} på journalpost med id {} fra bidrag-dokument-journalpost", avvikshendelse, journalpostId);
-
-    var avviksResponse = restTemplate.exchange(
-        path, HttpMethod.POST, new HttpEntity<>(avvikshendelse, createEnhetHeader(enhet)), OpprettAvvikshendelseResponse.class
-    );
-
-    return new HttpStatusResponse<>(avviksResponse.getStatusCode(), avviksResponse.getBody());
-  }
-
-  public HttpStatusResponse<OpprettAvvikshendelseResponse> opprettAvvikPaMottaksregistrertJournalpost(
-      Avvikshendelse avvikshendelse, String prefiksetJournalpostId, String enhetsnummer
-  ) {
-    var path = String.format(PATH_JOURNALPOST_UTEN_SAK + "/avvik", prefiksetJournalpostId);
+  public HttpStatusResponse<OpprettAvvikshendelseResponse> opprettAvvik(String enhetsnummer, String journalpostId, Avvikshendelse avvikshendelse) {
+    var path = String.format(PATH_JOURNALPOST_UTEN_SAK + "/avvik", journalpostId);
     LOGGER.info("bidrag-dokument-journalpost{}: {}", path, avvikshendelse);
 
     var avviksResponse = restTemplate.exchange(
