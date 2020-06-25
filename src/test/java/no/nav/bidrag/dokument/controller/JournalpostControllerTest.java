@@ -230,7 +230,7 @@ class JournalpostControllerTest {
       final var avvikshendelse = new Avvikshendelse(AvvikType.BESTILL_ORIGINAL.name(), enhetsnummer);
 
       var bestillOriginalEntity = initHttpEntity(avvikshendelse, new CustomHeader(X_ENHET_HEADER, "1234"));
-      var url = initEndpointUrl("/sak/1001/journal/BID-4/avvik");
+      var url = initEndpointUrl("/journal/BID-4/avvik");
       var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, bestillOriginalEntity, OpprettAvvikshendelseResponse.class);
 
       assertAll(
@@ -256,9 +256,9 @@ class JournalpostControllerTest {
     @Test
     @DisplayName("skal få bad request når avvikstype ikke kan parses")
     void skalFaBadRequest() {
-      final var avvikshendelse = new Avvikshendelse("AVVIK_IKKE_BLANT_KJENTE_AVVIKSTYPER", "4806");
+      final var avvikshendelse = new Avvikshendelse("AVVIK_IKKE_BLANT_KJENTE_AVVIKSTYPER", "4806", "1001");
       var ukjentAvvikEntity = initHttpEntity(avvikshendelse, new CustomHeader(X_ENHET_HEADER, "1234"));
-      var url = initEndpointUrl("/sak/1001/journal/BID-1/avvik");
+      var url = initEndpointUrl("/journal/BID-1/avvik");
       var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, ukjentAvvikEntity, OpprettAvvikshendelseResponse.class);
 
       assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);

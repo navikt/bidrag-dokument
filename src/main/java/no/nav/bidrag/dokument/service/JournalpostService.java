@@ -15,7 +15,6 @@ import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
-import no.nav.bidrag.dokument.dto.RegistrereJournalpostCommand;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -68,26 +67,5 @@ public class JournalpostService {
 
   public HttpStatusResponse<Void> endre(String enhet, EndreJournalpostCommand endreJournalpostCommand) {
     return bidragJournalpostConsumer.endre(enhet, endreJournalpostCommand);
-  }
-
-  public void registrer(String enhet, RegistrereJournalpostCommand registrereJournalpostCommand) {
-    bidragJournalpostConsumer.endre(enhet, map(registrereJournalpostCommand));
-  }
-
-  private EndreJournalpostCommand map(RegistrereJournalpostCommand registrereJournalpostCommand) {
-    var endreJournalpostCommand = new EndreJournalpostCommand();
-    endreJournalpostCommand.setJournalpostId(registrereJournalpostCommand.getJournalpostId());
-    endreJournalpostCommand.setAvsenderNavn(registrereJournalpostCommand.getAvsenderNavn());
-    endreJournalpostCommand.setBehandlingstema(registrereJournalpostCommand.getBehandlingstema());
-    endreJournalpostCommand.setDokumentDato(registrereJournalpostCommand.getDokumentDato());
-    endreJournalpostCommand.setEndreDokumenter(registrereJournalpostCommand.getEndreDokumenter());
-    endreJournalpostCommand.setFagomrade(registrereJournalpostCommand.getFagomrade());
-    endreJournalpostCommand.setGjelder(registrereJournalpostCommand.getGjelder());
-    endreJournalpostCommand.setGjelderType(registrereJournalpostCommand.getGjelderType());
-    endreJournalpostCommand.setJournalforendeEnhet(registrereJournalpostCommand.getJournalforendeEnhet());
-    endreJournalpostCommand.setTilknyttSaker(registrereJournalpostCommand.getSaksnummer());
-    endreJournalpostCommand.setTittel(registrereJournalpostCommand.getTittel());
-
-    return endreJournalpostCommand;
   }
 }
