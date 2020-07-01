@@ -15,7 +15,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import java.util.stream.Collectors;
 import no.nav.bidrag.commons.KildesystemIdenfikator;
-import no.nav.bidrag.commons.web.HttpStatusResponse;
+import no.nav.bidrag.commons.web.HttpResponse;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.bidrag.dokument.service.JournalpostService;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,7 +65,7 @@ class EnhetFilterFilterTest {
   @DisplayName("skal logge requests mot applikasjonen som ikke inneholder enhetsinformasjon i header")
   void skalLoggeRequestsMotApplikasjonenUtenHeaderInformasjon() {
     when(journalpostServiceMock.hentJournalpost(anyString(), any(KildesystemIdenfikator.class)))
-        .thenReturn(new HttpStatusResponse<>(HttpStatus.I_AM_A_TEAPOT));
+        .thenReturn(HttpResponse.from(HttpStatus.I_AM_A_TEAPOT));
 
     var response = securedTestRestTemplate.exchange(
         "http://localhost:" + port + "/bidrag-dokument/journal/BID-123?saksnummer=777",
@@ -93,7 +93,8 @@ class EnhetFilterFilterTest {
   @DisplayName("skal logge requests mot applikasjonen som ikke inneholder enhetsinformasjon i header")
   void skalLoggeRequestsMotApplikasjonenMedHeaderInformasjon() {
     when(journalpostServiceMock.hentJournalpost(anyString(), any(KildesystemIdenfikator.class)))
-        .thenReturn(new HttpStatusResponse<>(HttpStatus.I_AM_A_TEAPOT));
+        .thenReturn(HttpResponse.from(HttpStatus.I_AM_A_TEAPOT));
+
     var enhet = "4802";
     var htpEntity = new HttpEntity<Void>(null, createEnhetHeader(enhet));
     var response = securedTestRestTemplate.exchange(

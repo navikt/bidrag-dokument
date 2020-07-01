@@ -3,7 +3,7 @@ package no.nav.bidrag.dokument.consumer;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import no.nav.bidrag.commons.web.HttpStatusResponse;
+import no.nav.bidrag.commons.web.HttpResponse;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import org.slf4j.Logger;
@@ -27,7 +27,7 @@ public class BidragArkivConsumer {
     this.restTemplate = restTemplate;
   }
 
-  public HttpStatusResponse<JournalpostResponse> hentJournalpost(String saksnummer, String id) {
+  public HttpResponse<JournalpostResponse> hentJournalpost(String saksnummer, String id) {
     String url;
 
     if (saksnummer == null) {
@@ -40,7 +40,7 @@ public class BidragArkivConsumer {
 
     LOGGER.info("Hent journalpost fikk http status {} fra bidrag-dokument-arkiv", journalpostExchange.getStatusCode());
 
-    return new HttpStatusResponse<>(journalpostExchange.getStatusCode(), journalpostExchange.getBody());
+    return new HttpResponse<>(journalpostExchange);
   }
 
   public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
