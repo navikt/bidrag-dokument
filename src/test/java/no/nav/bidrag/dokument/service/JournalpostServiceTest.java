@@ -3,6 +3,7 @@ package no.nav.bidrag.dokument.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,6 +13,7 @@ import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,7 +46,7 @@ class JournalpostServiceTest {
   @DisplayName("skal hente journalpost gitt id")
   void skalHenteJournalpostGittId() {
     when(bidragArkivConsumerMock.hentJournalpost(anyString(), anyString()))
-        .thenReturn(new HttpStatusResponse<>(HttpStatus.OK, new JournalpostDto()));
+        .thenReturn(new HttpStatusResponse<>(HttpStatus.OK, new JournalpostResponse()));
 
     var httpStatusResponse = journalpostService.hentJournalpost("69", new KildesystemIdenfikator("joark-3"));
     assertThat(httpStatusResponse.fetchOptionalResult()).isPresent();
@@ -55,15 +57,11 @@ class JournalpostServiceTest {
   void skalKombinereResultaterFraJournalpostOgArkiv() {
     when(bidragJournalpostConsumerMock.finnJournalposter("1", "FAG"))
         .thenReturn(Collections.singletonList(new JournalpostDto()));
-//    when(bidragArkivConsumerMock.finnJournalposter("1", "FAG"))
-//        .thenReturn(Collections.singletonList(new JournalpostDto()));
 
     var journalposter = journalpostService.finnJournalposter("1", "FAG");
 
     assertAll(
-//        () -> assertThat(journalposter).hasSize(2),
         () -> assertThat(journalposter).hasSize(1),
-//        () -> verify(bidragArkivConsumerMock).finnJournalposter("1", "FAG"),
         () -> verify(bidragJournalpostConsumerMock).finnJournalposter("1", "FAG")
     );
   }

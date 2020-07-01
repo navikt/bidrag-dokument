@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import no.nav.bidrag.commons.KildesystemIdenfikator;
 import no.nav.bidrag.commons.web.HttpStatusResponse;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
+import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import no.nav.bidrag.dokument.service.JournalpostService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -39,10 +40,13 @@ class CorrelationIdFilterTest {
 
   @Autowired
   private HttpHeaderTestRestTemplate securedTestRestTemplate;
+
+  @SuppressWarnings("rawtypes")
   @MockBean
   private Appender appenderMock;
   @MockBean
   private JournalpostService journalpostServiceMock;
+
   @LocalServerPort
   private int port;
 
@@ -63,10 +67,10 @@ class CorrelationIdFilterTest {
         .thenReturn(new HttpStatusResponse<>(HttpStatus.I_AM_A_TEAPOT));
 
     var response = securedTestRestTemplate.exchange(
-        "http://localhost:" + port + "/bidrag-dokument/sak/777/journal/BID-123",
+        "http://localhost:" + port + "/bidrag-dokument/journal/BID-123?saksnummer=777",
         HttpMethod.GET,
         null,
-        String.class
+        JournalpostResponse.class
     );
 
     assertAll(
@@ -78,7 +82,7 @@ class CorrelationIdFilterTest {
           var loggingEvents = loggingEventCaptor.getAllValues();
           var allMsgs = loggingEvents.stream().map(ILoggingEvent::getFormattedMessage).collect(Collectors.joining("\n"));
 
-          assertThat(allMsgs).containsIgnoringCase("Prosessing GET /bidrag-dokument/sak/777/journal/BID-123");
+          assertThat(allMsgs).containsIgnoringCase("Prosessing GET /bidrag-dokument/journal/BID-123");
         }
     );
   }
@@ -91,7 +95,7 @@ class CorrelationIdFilterTest {
         "http://localhost:" + port + "/bidrag-dokument/actuator/health",
         HttpMethod.GET,
         null,
-        String.class
+        JournalpostResponse.class
     );
 
     assertAll(
