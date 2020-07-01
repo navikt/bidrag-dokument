@@ -14,7 +14,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import java.util.stream.Collectors;
 import no.nav.bidrag.commons.KildesystemIdenfikator;
-import no.nav.bidrag.commons.web.HttpStatusResponse;
+import no.nav.bidrag.commons.web.HttpResponse;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import no.nav.bidrag.dokument.service.JournalpostService;
@@ -64,7 +64,7 @@ class CorrelationIdFilterTest {
   @DisplayName("skal logge requests mot applikasjonen")
   void skalLoggeRequestsMotApplikasjonen() {
     when(journalpostServiceMock.hentJournalpost(anyString(), any(KildesystemIdenfikator.class)))
-        .thenReturn(new HttpStatusResponse<>(HttpStatus.I_AM_A_TEAPOT));
+        .thenReturn(HttpResponse.from(HttpStatus.I_AM_A_TEAPOT));
 
     var response = securedTestRestTemplate.exchange(
         "http://localhost:" + port + "/bidrag-dokument/journal/BID-123?saksnummer=777",

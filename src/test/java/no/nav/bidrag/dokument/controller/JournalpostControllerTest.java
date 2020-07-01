@@ -186,6 +186,29 @@ class JournalpostControllerTest {
           () -> verify(restTemplateMock).exchange(eq("/journal/bid-1"), eq(HttpMethod.PUT), any(), eq(Void.class))
       ));
     }
+
+    @Test
+    @DisplayName("skal videresende headere når journalpost endres")
+    void skalVideresendeHeadereVedEndreJournalpost() {
+      var advarselHeader = new HttpHeaders();
+      advarselHeader.add(HttpHeaders.WARNING, "rofl");
+
+      when(restTemplateMock.exchange(anyString(), eq(HttpMethod.PUT), any(), eq(Void.class)))
+          .thenReturn(new ResponseEntity<>(advarselHeader, HttpStatus.BAD_REQUEST));
+
+      var lagreJournalpostUrl = initEndpointUrl("/journal/bid-1");
+      var endretJournalpostResponse = httpHeaderTestRestTemplate.exchange(
+          lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommand(), createEnhetHeader("4802")), Void.class
+      );
+
+      assertThat(optional(endretJournalpostResponse)).hasValueSatisfying(response -> assertAll(
+          () -> assertThat(response.getStatusCode()).as("status").isEqualTo(HttpStatus.BAD_REQUEST),
+          () -> {
+            var headers = response.getHeaders();
+            assertThat(headers.getFirst(HttpHeaders.WARNING)).as("warning header").isEqualTo("rofl");
+          }
+      ));
+    }
   }
 
   @Nested

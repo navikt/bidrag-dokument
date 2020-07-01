@@ -5,7 +5,7 @@ import static no.nav.bidrag.commons.web.EnhetFilter.X_ENHET_HEADER;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import no.nav.bidrag.commons.web.HttpStatusResponse;
+import no.nav.bidrag.commons.web.HttpResponse;
 import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
@@ -56,7 +56,7 @@ public class BidragJournalpostConsumer {
     };
   }
 
-  public HttpStatusResponse<JournalpostResponse> hentJournalpostResponse(String saksnummer, String id) {
+  public HttpResponse<JournalpostResponse> hentJournalpostResponse(String saksnummer, String id) {
     String path;
 
     if (saksnummer != null) {
@@ -69,10 +69,10 @@ public class BidragJournalpostConsumer {
     var exchange = restTemplate.exchange(path, HttpMethod.GET, null, JournalpostResponse.class);
 
     LOGGER.info("Hent journalpost fikk http status {} fra bidrag-dokument-journalpost", exchange.getStatusCode());
-    return new HttpStatusResponse<>(exchange.getStatusCode(), exchange.getBody());
+    return new HttpResponse<>(exchange);
   }
 
-  public HttpStatusResponse<Void> endre(String enhet, EndreJournalpostCommand endreJournalpostCommand) {
+  public HttpResponse<Void> endre(String enhet, EndreJournalpostCommand endreJournalpostCommand) {
     var path = String.format(PATH_JOURNALPOST_UTEN_SAK, endreJournalpostCommand.getJournalpostId());
     LOGGER.info("Endre journalpost BidragDokument: {}, path {}", endreJournalpostCommand, path);
 
@@ -81,10 +81,10 @@ public class BidragJournalpostConsumer {
     );
 
     LOGGER.info("Endre journalpost fikk http status {}", endretJournalpostResponse.getStatusCode());
-    return new HttpStatusResponse<>(endretJournalpostResponse.getStatusCode());
+    return new HttpResponse<>(endretJournalpostResponse);
   }
 
-  public HttpStatusResponse<List<AvvikType>> finnAvvik(String saksnummer, String journalpostId) {
+  public HttpResponse<List<AvvikType>> finnAvvik(String saksnummer, String journalpostId) {
     String path;
 
     if (saksnummer != null) {
@@ -96,7 +96,7 @@ public class BidragJournalpostConsumer {
     LOGGER.info("Finner avvik på journalpost fra bidrag-dokument-journalpost{}", path);
 
     var avviksResponse = restTemplate.exchange(path, HttpMethod.GET, null, typereferansenErListeMedAvvikstyper());
-    return new HttpStatusResponse<>(avviksResponse.getStatusCode(), avviksResponse.getBody());
+    return new HttpResponse<>(avviksResponse);
   }
 
   private ParameterizedTypeReference<List<AvvikType>> typereferansenErListeMedAvvikstyper() {
@@ -104,7 +104,7 @@ public class BidragJournalpostConsumer {
     };
   }
 
-  public HttpStatusResponse<OpprettAvvikshendelseResponse> opprettAvvik(String enhetsnummer, String journalpostId, Avvikshendelse avvikshendelse) {
+  public HttpResponse<OpprettAvvikshendelseResponse> opprettAvvik(String enhetsnummer, String journalpostId, Avvikshendelse avvikshendelse) {
     var path = String.format(PATH_JOURNALPOST_UTEN_SAK + "/avvik", journalpostId);
     LOGGER.info("bidrag-dokument-journalpost{}: {}", path, avvikshendelse);
 
@@ -112,7 +112,7 @@ public class BidragJournalpostConsumer {
         path, HttpMethod.POST, new HttpEntity<>(avvikshendelse, createEnhetHeader(enhetsnummer)), OpprettAvvikshendelseResponse.class
     );
 
-    return new HttpStatusResponse<>(avviksResponse.getStatusCode(), avviksResponse.getBody());
+    return new HttpResponse<>(avviksResponse);
   }
 
   public static HttpHeaders createEnhetHeader(String enhet) {

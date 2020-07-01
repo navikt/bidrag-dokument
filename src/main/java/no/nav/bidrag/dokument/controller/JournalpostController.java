@@ -1,6 +1,7 @@
 package no.nav.bidrag.dokument.controller;
 
 import static no.nav.bidrag.commons.web.EnhetFilter.X_ENHET_HEADER;
+import static no.nav.bidrag.commons.web.WebUtil.initHttpHeadersWith;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.DELIMTER;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.ISSUER;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_BIDRAG;
@@ -22,6 +23,7 @@ import no.nav.bidrag.dokument.service.JournalpostService;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -63,7 +65,7 @@ public class JournalpostController {
     LOGGER.info("request: bidrag-dokument/sak/{}?fagomrade={}", saksnummer, fagomrade);
 
     if (saksnummer.matches(NON_DIGITS)) {
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(initHttpHeadersWith(HttpHeaders.WARNING, "Ugyldig prefix på journalpostId"), HttpStatus.BAD_REQUEST);
     }
 
     var journalposter = journalpostService.finnJournalposter(saksnummer, fagomrade);
@@ -86,13 +88,12 @@ public class JournalpostController {
   ) {
     KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
     if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(initHttpHeadersWith(HttpHeaders.WARNING, "Ugyldig prefix på journalpostId"), HttpStatus.BAD_REQUEST);
     }
 
     LOGGER.info("request: bidrag-dokument/journal/{}?saksnummer={}", journalpostIdForKildesystem, saksnummer);
 
-    var journalpostDtoResponse = journalpostService.hentJournalpost(saksnummer, kildesystemIdenfikator);
-    return new ResponseEntity<>(journalpostDtoResponse.getBody(), journalpostDtoResponse.getHttpStatus());
+    return journalpostService.hentJournalpost(saksnummer, kildesystemIdenfikator).getResponseEntity();
   }
 
   @GetMapping("/journal/{journalpostIdForKildesystem}/avvik")
@@ -112,11 +113,10 @@ public class JournalpostController {
 
     KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
     if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(initHttpHeadersWith(HttpHeaders.WARNING, "Ugyldig prefix på journalpostId"), HttpStatus.BAD_REQUEST);
     }
 
-    var avvikslisteRespnse = journalpostService.finnAvvik(saksnummer, kildesystemIdenfikator);
-    return new ResponseEntity<>(avvikslisteRespnse.getBody(), avvikslisteRespnse.getHttpStatus());
+    return journalpostService.finnAvvik(saksnummer, kildesystemIdenfikator).getResponseEntity();
   }
 
   @PostMapping(value = "/journal/{journalpostIdForKildesystem}/avvik", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -139,17 +139,20 @@ public class JournalpostController {
     try {
       AvvikType.valueOf(avvikshendelse.getAvvikType());
     } catch (Exception e) {
-      LOGGER.warn("Ukjent avvikstype: {}, exception: {}: {}", avvikshendelse.getAvvikType(), e.getClass().getSimpleName(), e.getMessage());
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+      var message = String.format(
+          "Ukjent avvikstype: %s, exception: %s: %s", avvikshendelse.getAvvikType(), e.getClass().getSimpleName(), e.getMessage()
+      );
+
+      LOGGER.warn(message);
+      return new ResponseEntity<>(initHttpHeadersWith(HttpHeaders.WARNING, message), HttpStatus.BAD_REQUEST);
     }
 
     KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
     if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(initHttpHeadersWith(HttpHeaders.WARNING, "Ugyldig prefix på journalpostId"), HttpStatus.BAD_REQUEST);
     }
 
-    var opprettAvvikResponse = journalpostService.opprettAvvik(enhet, kildesystemIdenfikator, avvikshendelse);
-    return new ResponseEntity<>(opprettAvvikResponse.getBody(), opprettAvvikResponse.getHttpStatus());
+    return journalpostService.opprettAvvik(enhet, kildesystemIdenfikator, avvikshendelse).getResponseEntity();
   }
 
   @PutMapping("/journal/{journalpostIdForKildesystem}")
@@ -176,12 +179,11 @@ public class JournalpostController {
 
     KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
     if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+      return new ResponseEntity<>(initHttpHeadersWith(HttpHeaders.WARNING, "Ugyldig prefix på journalpostId"), HttpStatus.BAD_REQUEST);
     }
 
     endreJournalpostCommand.setJournalpostId(journalpostIdForKildesystem);
 
-    var endreResponse = journalpostService.endre(enhet, endreJournalpostCommand);
-    return new ResponseEntity<>(endreResponse.getHttpStatus());
+    return journalpostService.endre(enhet, endreJournalpostCommand).getResponseEntity();
   }
 }
