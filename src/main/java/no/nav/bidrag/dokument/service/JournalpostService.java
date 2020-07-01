@@ -15,7 +15,6 @@ import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
-import no.nav.bidrag.dokument.dto.RegistrereJournalpostCommand;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -33,24 +32,12 @@ public class JournalpostService {
     this.bidragJournalpostConsumer = bidragJournalpostConsumer;
   }
 
-  public HttpStatusResponse<JournalpostResponse> hentJournalpostResponse(KildesystemIdenfikator kildesystemIdenfikator) {
+  public HttpStatusResponse<JournalpostResponse> hentJournalpost(String saksnummer, KildesystemIdenfikator kildesystemIdenfikator) {
     if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.hentJournalpostResponse(kildesystemIdenfikator.getPrefiksetJournalpostId());
-    }
-
-    return bidragArkivConsumer.hentJournalpostResponse(kildesystemIdenfikator.getPrefiksetJournalpostId());
-  }
-
-  public HttpStatusResponse<JournalpostDto> hentJournalpost(String saksnummer, KildesystemIdenfikator kildesystemIdenfikator) {
-    if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.hentJournalpost(saksnummer, kildesystemIdenfikator.getPrefiksetJournalpostId());
+      return bidragJournalpostConsumer.hentJournalpostResponse(saksnummer, kildesystemIdenfikator.getPrefiksetJournalpostId());
     }
 
     return bidragArkivConsumer.hentJournalpost(saksnummer, kildesystemIdenfikator.getPrefiksetJournalpostId());
-  }
-
-  public HttpStatusResponse<List<AvvikType>> finnAvvik(KildesystemIdenfikator kildesystemIdenfikator) {
-    return finnAvvik(null, kildesystemIdenfikator);
   }
 
   public HttpStatusResponse<List<AvvikType>> finnAvvik(String saksnummer, KildesystemIdenfikator kildesystemIdenfikator) {
@@ -62,11 +49,10 @@ public class JournalpostService {
   }
 
   public HttpStatusResponse<OpprettAvvikshendelseResponse> opprettAvvik(
-      String saksnummer, String enhet, KildesystemIdenfikator kildesystemIdenfikator,
-      Avvikshendelse avvikshendelse
+      String enhet, KildesystemIdenfikator kildesystemIdenfikator, Avvikshendelse avvikshendelse
   ) {
     if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.opprettAvvik(saksnummer, enhet, kildesystemIdenfikator.getPrefiksetJournalpostId(), avvikshendelse);
+      return bidragJournalpostConsumer.opprettAvvik(enhet, kildesystemIdenfikator.getPrefiksetJournalpostId(), avvikshendelse);
     }
 
     return new HttpStatusResponse<>(HttpStatus.BAD_REQUEST);
@@ -79,23 +65,7 @@ public class JournalpostService {
     return sakjournal;
   }
 
-  public HttpStatusResponse<Void> endre(String saksnummer, String enhet, EndreJournalpostCommand endreJournalpostCommand) {
-    return bidragJournalpostConsumer.endre(saksnummer, enhet, endreJournalpostCommand);
-  }
-
-  public void registrer(String enhet, RegistrereJournalpostCommand registrereJournalpostCommand) {
-    bidragJournalpostConsumer.registrer(enhet, registrereJournalpostCommand);
-  }
-
-  public HttpStatusResponse<OpprettAvvikshendelseResponse> opprettAvvikPaMottaksregistrertJournalpost(
-      Avvikshendelse avvikshendelse, KildesystemIdenfikator kildesystemIdenfikator, String enhetsnummer
-  ) {
-    if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.opprettAvvikPaMottaksregistrertJournalpost(
-          avvikshendelse, kildesystemIdenfikator.getPrefiksetJournalpostId(), enhetsnummer
-      );
-    }
-
-    return new HttpStatusResponse<>(HttpStatus.BAD_REQUEST);
+  public HttpStatusResponse<Void> endre(String enhet, EndreJournalpostCommand endreJournalpostCommand) {
+    return bidragJournalpostConsumer.endre(enhet, endreJournalpostCommand);
   }
 }

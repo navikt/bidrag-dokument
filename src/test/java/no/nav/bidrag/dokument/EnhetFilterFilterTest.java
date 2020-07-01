@@ -41,10 +41,13 @@ class EnhetFilterFilterTest {
 
   @Autowired
   private HttpHeaderTestRestTemplate securedTestRestTemplate;
+
+  @SuppressWarnings("rawtypes")
   @MockBean
   private Appender appenderMock;
   @MockBean
   private JournalpostService journalpostServiceMock;
+
   @LocalServerPort
   private int port;
 
@@ -65,7 +68,7 @@ class EnhetFilterFilterTest {
         .thenReturn(new HttpStatusResponse<>(HttpStatus.I_AM_A_TEAPOT));
 
     var response = securedTestRestTemplate.exchange(
-        "http://localhost:" + port + "/bidrag-dokument/sak/777/journal/BID-123",
+        "http://localhost:" + port + "/bidrag-dokument/journal/BID-123?saksnummer=777",
         HttpMethod.GET,
         null,
         String.class
@@ -80,7 +83,7 @@ class EnhetFilterFilterTest {
           var loggingEvents = loggingEventCaptor.getAllValues();
           var allMsgs = loggingEvents.stream().map(ILoggingEvent::getFormattedMessage).collect(Collectors.joining("\n"));
 
-          assertThat(allMsgs).contains("Behandler request '/bidrag-dokument/sak/777/journal/BID-123' uten informasjon om enhetsnummer.");
+          assertThat(allMsgs).contains("Behandler request '/bidrag-dokument/journal/BID-123' uten informasjon om enhetsnummer.");
         }
     );
   }
@@ -94,7 +97,7 @@ class EnhetFilterFilterTest {
     var enhet = "4802";
     var htpEntity = new HttpEntity<Void>(null, createEnhetHeader(enhet));
     var response = securedTestRestTemplate.exchange(
-        "http://localhost:" + port + "/bidrag-dokument/sak/777/journal/BID-123",
+        "http://localhost:" + port + "/bidrag-dokument/journal/BID-123?saksnummer=777",
         HttpMethod.GET,
         htpEntity,
         String.class
@@ -109,7 +112,7 @@ class EnhetFilterFilterTest {
           var loggingEvents = loggingEventCaptor.getAllValues();
           var allMsgs = loggingEvents.stream().map(ILoggingEvent::getFormattedMessage).collect(Collectors.joining("\n"));
 
-          assertThat(allMsgs).containsIgnoringCase("Behandler request '/bidrag-dokument/sak/777/journal/BID-123' for enhet med enhetsnummer " + enhet);
+          assertThat(allMsgs).containsIgnoringCase("Behandler request '/bidrag-dokument/journal/BID-123' for enhet med enhetsnummer " + enhet);
         }
     );
   }
