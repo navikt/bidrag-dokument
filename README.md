@@ -1,7 +1,8 @@
 # bidrag-dokument
 ![](https://github.com/navikt/bidrag-dokument/workflows/continious%20integration/badge.svg)
 
-Microservice for integrasjon mellom BISYS og JOARK
+Microservice for integrasjon mellom BISYS og JOARK, bruk av `bidrag-dokument-journalpost`
+og `bidrag-dokument-arkiv`.
 
 ### hensikt
 
