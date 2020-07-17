@@ -14,7 +14,7 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>2.3.1.RELEASE</version>
-    <relativePath /> <!-- lookup parent from repository -->
+    <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
   <repositories>
@@ -55,7 +55,7 @@
     <bidrag-commons-test.version>0.2.1</bidrag-commons-test.version>
     <bidrag-dokument-dto.version>0.10.1</bidrag-dokument-dto.version>
     <logback.encoder.version>6.4</logback.encoder.version>
-    <springfox-swagger.version>2.9.2</springfox-swagger.version>
+    <springfox-swagger.version>2.10.5</springfox-swagger.version>
     <token-support.version>1.2.0</token-support.version>
 
     <!-- build -->
