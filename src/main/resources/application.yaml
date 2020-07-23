@@ -39,7 +39,7 @@ no.nav.security.jwt:
   issuers: isso
   issuer:
     isso:
-      accepted_audience: bisys-${FASIT_ENVIRONMENT_NAME}, bidrag-ui-${FASIT_ENVIRONMENT_NAME}, bidrag-dokument-ui-${FASIT_ENVIRONMENT_NAME}, bidrag-q-localhost
+      accepted_audience: ${ACCEPTED_AUDIENCE}
       discoveryurl: ${ISSO_ISSUER_URL}/.well-known/openid-configuration
 
 ---
