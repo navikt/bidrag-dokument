@@ -6,7 +6,7 @@
   <artifactId>bidrag-dokument</artifactId>
   <version>1.0.432-SNAPSHOT</version>
 
-  <description>Backend NAIS for bidrag-dokument</description>
+  <description>Backend NAIS-application for bidrag-dokument</description>
   <url>https://github.com/navikt/bidrag-dokument</url>
   <packaging>jar</packaging>
 
