@@ -102,6 +102,7 @@ jobs:
     steps:
       - name: clone cucumber with bidrag-dokument
         run: |
+          sudo rm -rf bidrag-cucumber-backend
           git clone --depth 1 https://github.com/navikt/bidrag-cucumber-backend
           cd bidrag-cucumber-backend
           mkdir simple
@@ -116,6 +117,7 @@ jobs:
         env:
           USER_AUTHENTICATION: ${{ secrets.USER_AUTHENTICATION }}
           TEST_USER_AUTHENTICATION: ${{ secrets.TEST_USER_AUTHENTICATION }}
+      - run: sudo rm -rf bidrag-cucumber-backend
 
   bump_dev_version:
     runs-on: ubuntu-latest
