@@ -100,7 +100,7 @@ jobs:
     name: Run cucumber integration tests
     needs: deploy_dev
     steps:
-      - uses: navikt/bidrag-integration/cucumber-clone@master
+      - uses: navikt/bidrag-integration/cucumber-clone@v1
       - uses: navikt/bidrag-maven/cucumber-backend@v3.0.1
         with:
           maven_image: maven:3.6.3-jdk-13
