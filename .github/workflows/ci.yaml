@@ -104,7 +104,9 @@ jobs:
         run: |
           git clone --depth 1 https://github.com/navikt/bidrag-cucumber-backend
           cd bidrag-cucumber-backend
-          git clone --depth 1 https://github.com/navikt/bidrag-dokument"
+          mkdir simple
+          cd simple
+          git clone --depth 1 https://github.com/navikt/bidrag-dokument
       - uses: navikt/bidrag-maven/cucumber-backend@v3
         with:
           maven_image: maven:3.6.3-jdk-13
