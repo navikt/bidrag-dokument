@@ -100,14 +100,7 @@ jobs:
     name: Run cucumber integration tests
     needs: deploy_dev
     steps:
-      - name: clone cucumber with bidrag-dokument
-        run: |
-          sudo rm -rf bidrag-cucumber-backend
-          git clone --depth 1 https://github.com/navikt/bidrag-cucumber-backend
-          cd bidrag-cucumber-backend
-          mkdir simple
-          cd simple
-          git clone --depth 1 https://github.com/navikt/bidrag-dokument
+      - uses: navikt/bidrag-integration/cucumber-clone@master
       - uses: navikt/bidrag-maven/cucumber-backend@v3.0.1
         with:
           maven_image: maven:3.6.3-jdk-13
