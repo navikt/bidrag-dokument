@@ -100,4 +100,3 @@ og <code>{isso-issuer-url}</code> hentes fra Fasit-ressurs BaseUrl isso-issuer (
  - Hent test-token [http://localhost:8090/bidrag-dokument/local/jwt](http://localhost:8090/bidrag-dokument/local/jwt)
  - Åpne Swagger (http://localhost:8090/bidrag-dokument/swagger-ui.html)
  - Trykk Authorize, og oppdater value-feltet med: Bearer <testtoken-streng> fra steg 2.
-
