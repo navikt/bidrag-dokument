@@ -25,6 +25,7 @@ import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
+import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseOppgaveResponse;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -247,18 +248,18 @@ class JournalpostControllerTest {
     @DisplayName("skal opprette et avvik på en journalpost")
     void skalOppretteAvvikPaJournalpost() {
       when(restTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(OpprettAvvikshendelseResponse.class)))
-          .thenReturn(new ResponseEntity<>(new OpprettAvvikshendelseResponse(AvvikType.BESTILL_ORIGINAL), HttpStatus.CREATED));
+          .thenReturn(new ResponseEntity<>(new OpprettAvvikshendelseOppgaveResponse(AvvikType.BESTILL_ORIGINAL), HttpStatus.CREATED));
 
       final var enhetsnummer = "4806";
       final var avvikshendelse = new Avvikshendelse(AvvikType.BESTILL_ORIGINAL.name(), enhetsnummer);
 
       var bestillOriginalEntity = initHttpEntity(avvikshendelse, new CustomHeader(X_ENHET_HEADER, "1234"));
       var url = initEndpointUrl("/journal/BID-4/avvik");
-      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, bestillOriginalEntity, OpprettAvvikshendelseResponse.class);
+      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, bestillOriginalEntity, OpprettAvvikshendelseOppgaveResponse.class);
 
       assertAll(
           () -> assertThat(responseEntity.getStatusCode()).as("status").isEqualTo(HttpStatus.CREATED),
-          () -> assertThat(responseEntity.getBody()).as("body").isEqualTo(new OpprettAvvikshendelseResponse(AvvikType.BESTILL_ORIGINAL)),
+          () -> assertThat(responseEntity.getBody()).as("body").isEqualTo(new OpprettAvvikshendelseOppgaveResponse(AvvikType.BESTILL_ORIGINAL)),
           () -> verify(restTemplateMock).exchange(
               eq("/journal/BID-4/avvik"), eq(HttpMethod.POST), any(), eq(OpprettAvvikshendelseResponse.class)
           )
@@ -345,18 +346,18 @@ class JournalpostControllerTest {
     @DisplayName("skal opprette avvik")
     void skalOppretteAvvik() {
       when(restTemplateMock.exchange(anyString(), eq(HttpMethod.POST), any(), eq(OpprettAvvikshendelseResponse.class)))
-          .thenReturn(new ResponseEntity<>(new OpprettAvvikshendelseResponse(AvvikType.ENDRE_FAGOMRADE), HttpStatus.CREATED));
+          .thenReturn(new ResponseEntity<>(new OpprettAvvikshendelseOppgaveResponse(AvvikType.ENDRE_FAGOMRADE), HttpStatus.CREATED));
 
       final var enhetsnummer = "4806";
       final var avvikshendelse = new Avvikshendelse(AvvikType.ENDRE_FAGOMRADE.name(), enhetsnummer);
 
       var bestillOriginalEntity = initHttpEntity(avvikshendelse, new CustomHeader(X_ENHET_HEADER, "1234"));
       var url = initEndpointUrl("/journal/BID-666/avvik");
-      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, bestillOriginalEntity, OpprettAvvikshendelseResponse.class);
+      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, bestillOriginalEntity, OpprettAvvikshendelseOppgaveResponse.class);
 
       assertAll(
           () -> assertThat(responseEntity.getStatusCode()).as("status").isEqualTo(HttpStatus.CREATED),
-          () -> assertThat(responseEntity.getBody()).as("body").isEqualTo(new OpprettAvvikshendelseResponse(AvvikType.ENDRE_FAGOMRADE)),
+          () -> assertThat(responseEntity.getBody()).as("body").isEqualTo(new OpprettAvvikshendelseOppgaveResponse(AvvikType.ENDRE_FAGOMRADE)),
           () -> verify(restTemplateMock).exchange(eq("/journal/BID-666/avvik"), eq(HttpMethod.POST), any(), eq(OpprettAvvikshendelseResponse.class))
       );
     }
