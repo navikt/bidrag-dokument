@@ -16,12 +16,12 @@ jobs:
     steps:
       - run: kubectl config use-context dev-fss
       - name: restart bidrag-dokument-testdata pods at the default namespace
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         run: |
           PODS_TESTDATA=$(kubectl get pods -l app=bidrag-dokument-testdata | awk '{print $1}' | grep -v NAME)
           kubectl delete pods $(echo $PODS_TESTDATA | sed 's;\n; ;')
       - name: restart bidrag-dokument-testdata pods at namespace q1
-        if: github.ref != 'refs/heads/master'
+        if: github.ref != 'refs/heads/main'
         run: |
           PODS_TESTDATA=$(kubectl get pods -n q1 -l app=bidrag-dokument-testdata  | awk '{print $1}' | grep -v NAME)
           kubectl delete pods -n q1 $(echo $PODS_TESTDATA | sed 's;\n; ;')
@@ -51,8 +51,10 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - uses: navikt/bidrag-maven/setup@v1
+      - uses: navikt/bidrag-maven/setup@v4
         if: env.NOT_FOUND == 'true'
+        with:
+          repositories: maven-central=https://repo.maven.apache.org/maven2,github-packages=https://maven.pkg.github.com/navikt/maven-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: navikt/bidrag-maven/verify-dependencies@v1
@@ -79,7 +81,7 @@ jobs:
         with:
           path: deploy
       - name: Deploy to dev-fss, default namespace
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
@@ -87,7 +89,7 @@ jobs:
           RESOURCE: deploy/nais/nais.yaml
           VARS: deploy/nais/q0.json
       - name: Deploy to dev-fss, namespace q1
-        if: github.ref != 'refs/heads/master'
+        if: github.ref != 'refs/heads/main'
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
@@ -100,7 +102,8 @@ jobs:
     name: Run cucumber integration tests
     needs: deploy_dev
     steps:
-      - uses: navikt/bidrag-maven/cucumber-backend@v1
+      - uses: navikt/bidrag-integration/cucumber-clone@v1.0.3
+      - uses: navikt/bidrag-maven/cucumber-backend@v3.0.1
         with:
           maven_image: maven:3.6.3-jdk-13
           cucumber_tag: bidrag-dokument
@@ -109,11 +112,12 @@ jobs:
         env:
           USER_AUTHENTICATION: ${{ secrets.USER_AUTHENTICATION }}
           TEST_USER_AUTHENTICATION: ${{ secrets.TEST_USER_AUTHENTICATION }}
+      - run: sudo rm -rf bidrag-cucumber-backend
 
   bump_dev_version:
     runs-on: ubuntu-latest
     name: Bump SNAPSHOT version
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     needs: run_cucumber
 
     steps:

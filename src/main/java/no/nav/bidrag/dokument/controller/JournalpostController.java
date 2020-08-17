@@ -65,7 +65,8 @@ public class JournalpostController {
     LOGGER.info("request: bidrag-dokument/sak/{}?fagomrade={}", saksnummer, fagomrade);
 
     if (saksnummer.matches(NON_DIGITS)) {
-      return new ResponseEntity<>(initHttpHeadersWith(HttpHeaders.WARNING, "Ugyldig prefix på journalpostId"), HttpStatus.BAD_REQUEST);
+      LOGGER.warn("Ugyldig saksnummer: {}", saksnummer);
+      return new ResponseEntity<>(initHttpHeadersWith(HttpHeaders.WARNING, "Ugyldig saksnummer"), HttpStatus.BAD_REQUEST);
     }
 
     var journalposter = journalpostService.finnJournalposter(saksnummer, fagomrade);
