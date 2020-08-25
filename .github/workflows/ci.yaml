@@ -103,7 +103,7 @@ jobs:
     needs: deploy_dev
     steps:
       - uses: navikt/bidrag-integration/cucumber-clone@v1.0.3
-      - uses: navikt/bidrag-maven/cucumber-backend@v3.0.1
+      - uses: navikt/bidrag-maven/cucumber-backend@v4
         with:
           maven_image: maven:3.6.3-jdk-13
           cucumber_tag: bidrag-dokument
