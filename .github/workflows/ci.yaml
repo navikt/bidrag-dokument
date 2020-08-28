@@ -102,7 +102,11 @@ jobs:
     name: Run cucumber integration tests
     needs: deploy_dev
     steps:
-      - uses: navikt/bidrag-integration/cucumber-clone@v1.0.3
+      - uses: navikt/bidrag-integration/cucumber-clone@feature/nais
+        with:
+          extra_clones: bidrag-dokument-testdata
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: navikt/bidrag-maven/cucumber-backend@feature/nais
         with:
           maven_image: maven:3.6.3-jdk-13
