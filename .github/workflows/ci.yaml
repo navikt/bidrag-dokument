@@ -1,4 +1,4 @@
-name: continious integration
+name: continuous integration
 on:
   push:
     branches:
@@ -15,12 +15,12 @@ jobs:
 
     steps:
       - run: kubectl config use-context dev-fss
-      - name: restart bidrag-dokument-testdata pods at the default namespace
+      - name: restart bidrag-dokument-testdata pods for pods in the default namespace
         if: github.ref == 'refs/heads/main'
         run: |
           PODS_TESTDATA=$(kubectl get pods -l app=bidrag-dokument-testdata | awk '{print $1}' | grep -v NAME)
           kubectl delete pods $(echo $PODS_TESTDATA | sed 's;\n; ;')
-      - name: restart bidrag-dokument-testdata pods at namespace q1
+      - name: restart bidrag-dokument-testdata pods for pods in the feature namespace
         if: github.ref != 'refs/heads/main'
         run: |
           PODS_TESTDATA=$(kubectl get pods -n q1 -l app=bidrag-dokument-testdata  | awk '{print $1}' | grep -v NAME)
