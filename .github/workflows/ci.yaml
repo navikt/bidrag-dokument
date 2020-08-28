@@ -106,7 +106,7 @@ jobs:
         with:
           extra_clones: bidrag-dokument-testdata
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EXTRA_CLONES_CREDENTIALS: "jactor-rises:${{ secrets.EXTRA_CLONES_TOKEN }}"
       - uses: navikt/bidrag-maven/cucumber-backend@feature/nais
         with:
           maven_image: maven:3.6.3-jdk-13
