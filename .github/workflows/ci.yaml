@@ -102,12 +102,12 @@ jobs:
     name: Run cucumber integration tests
     needs: deploy_dev
     steps:
-      - uses: navikt/bidrag-integration/cucumber-clone@feature/nais
+      - uses: navikt/bidrag-integration/cucumber-clone@v4
         with:
           extra_clones: bidrag-dokument-testdata
         env:
           EXTRA_CLONES_CREDENTIALS: "jactor-rises:${{ secrets.EXTRA_CLONES_TOKEN }}"
-      - uses: navikt/bidrag-maven/cucumber-backend@feature/nais
+      - uses: navikt/bidrag-maven/cucumber-backend@v5
         with:
           maven_image: maven:3.6.3-jdk-13
           cucumber_tag: bidrag-dokument
