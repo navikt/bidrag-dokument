@@ -31,10 +31,10 @@ public class DokumentController {
     var dokumentUrlResponse = dokumentService.hentTilgangUrl(journalpostId, dokumentreferanse);
 
     LOGGER.info(String.format(
-        "tilgang til dokument: %s, status: %s", dokumentUrlResponse.getBody(), dokumentUrlResponse.getHttpStatus()
+        "tilgang til dokument: %s, status: %s", dokumentUrlResponse.fetchBody(), dokumentUrlResponse.getResponseEntity().getStatusCode()
     ));
 
-    return new ResponseEntity<>(dokumentUrlResponse.getBody(), dokumentUrlResponse.getHttpStatus());
+    return dokumentUrlResponse.getResponseEntity();
   }
 
 }
