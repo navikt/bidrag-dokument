@@ -30,10 +30,21 @@ spec:
   ingresses:
     - {{ ingress_preprod }}
     - {{ ingress_nais }}
+  env:
+    - name: ACCEPTED_AUDIENCE
+      value: {{ accepted_audience }}
+    - name: BIDRAG_ARKIV_URL
+      value: {{ bidrag_dokument_arkiv_url }}
+    - name: ISSO_ISSUER_URL
+      value: https://isso-q.adeo.no:443/isso/oauth2
+    - name: JOURNALPOST_URL
+      value: {{ bidrag_dokument_journalpost_url }}
+    - name: SECURITY_TOKEN_URL
+      value: https://security-token-service.nais.preprod.local/rest/v1/sts/token
+    - name: SRVBIDRAG_USERNAME
+      value: srvbidrag-dokument
   vault:
     enabled: true
     paths:
       - kvPath: /serviceuser/data/dev/srvbidrag-dokument
         mountPath: /var/run/secrets/nais.io/srvbidrag-dokument
-      - kvPath: /kv/preprod/fss/bidrag-dokument/{{ namespace }}
-        mountPath: /var/run/secrets/nais.io/vault

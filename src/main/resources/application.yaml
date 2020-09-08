@@ -1,4 +1,3 @@
-FASIT_ENVIRONMENT_NAME: q1
 ISSO_ISSUER_URL: https://isso-q.adeo.no:443/isso/oauth2
 BIDRAG_ARKIV_URL: https://bidrag-dokument-arkiv-q1.nais.preprod.local
 JOURNALPOST_URL: https://bidrag-dokument-journalpost-q1.nais.preprod.local

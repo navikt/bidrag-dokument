@@ -46,7 +46,7 @@ Etter applikasjon er startet kan den nåes med browser på
 Applikasjonen er satt opp med følgende profiler:
 
 #### live-profil
-Formål: Kjøring i produksjon og preprod. 
+Formål: Kjøring i produksjon og dev-cluster. 
 
 #### test-profil
 Formål: Enhetstester generelt, og for lokal kjøring.
@@ -95,7 +95,8 @@ hvor <code>{isso-agent-brukernavn}</code> og <code>{isso-agent-passord}</code> h
 
 og <code>{isso-issuer-url}</code> hentes fra Fasit-ressurs BaseUrl isso-issuer (f.eks [https://fasit.adeo.no/resources/2291405](https://fasit.adeo.no/resources/2291405) for q0.
 
-#### Oppskrift for kjøring med test-token i Swagger (ved integrasjonstesting mot AM eller ABAC må token hentes fra bidrag-ui.<domene-navn>/session)
+#### Oppskrift for kjøring med test-token i Swagger
+(ved integrasjonstesting mot AM eller ABAC må token hentes fra bidrag-ui.<domene-navn>/session)
  - Start BidragDokumentLocal som standard Java-applikasjon
  - Hent test-token [http://localhost:8090/bidrag-dokument/local/jwt](http://localhost:8090/bidrag-dokument/local/jwt)
  - Åpne Swagger (http://localhost:8090/bidrag-dokument/swagger-ui.html)

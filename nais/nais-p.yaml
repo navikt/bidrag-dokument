@@ -31,10 +31,21 @@ spec:
   ingresses:
     - https://bidrag-dokument.nais.adeo.no/
     - https://bidrag-dokument.prod-fss.nais.io
+  env:
+    - name: ACCEPTED_AUDIENCE
+      value: bisys-p,bidrag-ui-p,bidrag-dokument-ui-p
+    - name: BIDRAG_ARKIV_URL
+      value: https://bidrag-dokument-arkiv.nais.adeo.no/bidrag-dokument-arkiv
+    - name: ISSO_ISSUER_URL
+      value: https://isso.adeo.no:443/isso/oauth2
+    - name: JOURNALPOST_URL
+      value: https://bidrag-dokument-journalpost.nais.adeo.no/bidrag-dokument-journalpost
+    - name: SECURITY_TOKEN_URL
+      value: https://security-token-service.nais.adeo.no/rest/v1/sts/token
+    - name: SRVBIDRAG_USERNAME
+      value: srvbidrag-dokument
   vault:
     enabled: true
     paths:
       - kvPath: /serviceuser/data/prod/srvbidrag-dokument
         mountPath: /var/run/secrets/nais.io/srvbidrag-dokument
-      - kvPath: /kv/prod/fss/bidrag-dokument/default
-        mountPath: /var/run/secrets/nais.io/vault
