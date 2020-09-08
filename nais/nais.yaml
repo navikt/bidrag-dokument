@@ -48,5 +48,3 @@ spec:
     paths:
       - kvPath: /serviceuser/data/dev/srvbidrag-dokument
         mountPath: /var/run/secrets/nais.io/srvbidrag-dokument
-      - kvPath: /kv/preprod/fss/bidrag-dokument/{{ namespace }}
-        mountPath: /var/run/secrets/nais.io/vault
