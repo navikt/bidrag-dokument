@@ -41,6 +41,8 @@ spec:
       value: {{ bidrag_dokument_journalpost_url }}
     - name: SECURITY_TOKEN_URL
       value: https://security-token-service.nais.preprod.local/rest/v1/sts/token
+    - name: SRVBIDRAG_USERNAME
+      value: srvbidrag-dokument
   vault:
     enabled: true
     paths:
