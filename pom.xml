@@ -20,7 +20,7 @@
   <properties>
 
     <!-- language -->
-    <java.version>14</java.version>
+    <java.version>15</java.version>
 
     <!-- dependent versions other than from spring-boot -->
     <bidrag-commons.version>0.4.2</bidrag-commons.version>
