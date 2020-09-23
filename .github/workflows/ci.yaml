@@ -109,7 +109,7 @@ jobs:
           EXTRA_CLONES_CREDENTIALS: "jactor-rises:${{ secrets.EXTRA_CLONES_TOKEN }}"
       - uses: navikt/bidrag-maven/cucumber-backend@v5
         with:
-          maven_image: maven:3.6.3-jdk-13
+          maven_image: maven:3.6.3-openjdk-15
           cucumber_tag: bidrag-dokument
           username: j104364
           test_user: z992903
