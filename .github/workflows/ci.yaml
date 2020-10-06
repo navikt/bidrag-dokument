@@ -37,7 +37,7 @@ jobs:
           image_name: bidrag-dokument
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: echo ::set-env name=NOT_FOUND::${{ steps.dockerimage.outputs.not_found }}
+      - run: echo NOT_FOUND=${{ steps.dockerimage.outputs.not_found }} >> $GITHUB_ENV
       - uses: actions/checkout@v2
         if: env.NOT_FOUND == 'true'
       - uses: actions/setup-java@v1.3.0
