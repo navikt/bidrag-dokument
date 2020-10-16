@@ -280,14 +280,14 @@ class JournalpostControllerTest {
     }
 
     @Test
-    @DisplayName("skal få not implemented uten header value")
+    @DisplayName("skal få bad request uten header value")
     void skalFaBadRequestUtenHeaderValue() {
       final var avvikshendelse = new Avvikshendelse("BESTILL_ORIGINAL", "4806", "1001");
       var ukjentAvvikEntity = initHttpEntity(avvikshendelse);
       var url = initEndpointUrl("/journal/BID-1/avvik");
       var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, ukjentAvvikEntity, OpprettAvvikshendelseResponse.class);
 
-      assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_IMPLEMENTED);
+      assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
