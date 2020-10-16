@@ -8,6 +8,7 @@ import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
 import static no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer.createEnhetHeader;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -35,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -99,6 +101,18 @@ class JournalpostControllerTest {
               () -> verify(restTemplateMock).exchange(eq("/journal/JOARK-2?saksnummer=007"), eq(HttpMethod.GET), any(), eq(JournalpostResponse.class))
           )
       );
+    }
+
+    @Test
+    @DisplayName("Skal gi status 401 dersom token mangler")
+    void skalGiStatus401DersomTokenMangler() {
+
+      var testRestTemplate = new TestRestTemplate();
+
+      var url = initEndpointUrl("/journal/joark-2?saksnummer=007");
+      var responseEntity = testRestTemplate.exchange(url, HttpMethod.GET, null, String.class);
+
+      assertEquals(responseEntity.getStatusCode(), HttpStatus.UNAUTHORIZED);
     }
 
     private JournalpostResponse enJournalpostMedInnhold(@SuppressWarnings("SameParameterValue") String innhold) {
@@ -266,14 +280,14 @@ class JournalpostControllerTest {
     }
 
     @Test
-    @DisplayName("skal få not implemented uten header value")
+    @DisplayName("skal få bad request uten header value")
     void skalFaBadRequestUtenHeaderValue() {
       final var avvikshendelse = new Avvikshendelse("BESTILL_ORIGINAL", "4806", "1001");
       var ukjentAvvikEntity = initHttpEntity(avvikshendelse);
       var url = initEndpointUrl("/journal/BID-1/avvik");
       var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, ukjentAvvikEntity, OpprettAvvikshendelseResponse.class);
 
-      assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_IMPLEMENTED);
+      assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
