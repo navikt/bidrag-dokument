@@ -12,6 +12,7 @@ jobs:
   restart-testdata:
     name: restart kubernetes pods bidrag-dokument-testdata
     runs-on: self-hosted
+    if: github.ref != 'refs/heads/release'
 
     steps:
       - run: kubectl config use-context dev-fss
