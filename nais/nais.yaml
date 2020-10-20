@@ -29,7 +29,7 @@ spec:
       memory: 512Mi
   ingresses:
     - {{ ingress_preprod }}
-    - {{ ingress_nais }}
+    - {{ ingress_adeo }}
   env:
     - name: ACCEPTED_AUDIENCE
       value: {{ accepted_audience }}
