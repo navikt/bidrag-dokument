@@ -1,8 +1,8 @@
 {
   "namespace": "q1",
   "ingress_preprod": "https://bidrag-dokument-q1.nais.preprod.local/",
-  "ingress_adeo": "https://bidrag-dokument-q1.dev.adeo.no/",
+  "ingress_adeo": "https://bidrag-dokument-feature.dev.adeo.no/",
   "accepted_audience": "bisys-q1,bidrag-ui-q1,bidrag-dokument-ui-q1,bidrag-q-localhost,ida-q",
-  "bidrag_dokument_arkiv_url": "https://bidrag-dokument-arkiv-q1.nais.preprod.local/bidrag-dokument-arkiv",
+  "bidrag_dokument_arkiv_url": "https://bidrag-dokument-arkiv-feature.nais.preprod.local/bidrag-dokument-arkiv",
   "bidrag_dokument_journalpost_url": "https://bidrag-dokument-journalpost-feature.nais.preprod.local/bidrag-dokument-journalpost"
 }
