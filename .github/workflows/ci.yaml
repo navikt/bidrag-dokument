@@ -103,7 +103,7 @@ jobs:
     name: Run cucumber integration tests
     needs: deploy_dev
     steps:
-      - uses: navikt/bidrag-integration/cucumber-clone@v4
+      - uses: navikt/bidrag-integration/cucumber-clone@feature/cuke-clone
         with:
           extra_clones: bidrag-dokument-testdata
         env:
