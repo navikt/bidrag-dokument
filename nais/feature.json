@@ -1,5 +1,6 @@
 {
-  "namespace": "q1",
+  "name": "bidrag-dokument-feature",
+  "namespace": "bidrag",
   "ingress_preprod": "https://bidrag-dokument-q1.nais.preprod.local/",
   "ingress_adeo": "https://bidrag-dokument-feature.dev.adeo.no/",
   "accepted_audience": "bisys-q1,bidrag-ui-q1,bidrag-dokument-ui-q1,bidrag-q-localhost,ida-q",
