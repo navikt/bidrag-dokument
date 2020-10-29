@@ -81,7 +81,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           path: deploy
-      - name: Deploy main to dev-fss (for namespace, see main.yaml)
+      - name: Deploy main to dev-fss
         if: github.ref == 'refs/heads/main'
         uses: nais/deploy/actions/deploy@v1
         env:
@@ -89,7 +89,7 @@ jobs:
           CLUSTER: dev-fss
           RESOURCE: deploy/nais/nais.yaml
           VARS: deploy/nais/main.json
-      - name: Deploy feature to dev-fss (for namespace, see feature.yaml)
+      - name: Deploy feature to dev-fss
         if: github.ref != 'refs/heads/main'
         uses: nais/deploy/actions/deploy@v1
         env:
