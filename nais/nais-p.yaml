@@ -1,8 +1,8 @@
 apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
-  name: {{ bidrag-dokument }}
-  namespace: {{ namespace }}
+  name: bidrag-dokument
+  namespace: bidrag
   labels:
     team: bidrag
 spec:
