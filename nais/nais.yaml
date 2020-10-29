@@ -2,7 +2,7 @@ apiVersion: "nais.io/v1alpha1"
 kind: "Application"
 metadata:
   name: {{ name }}
-  namespace: {{ namespace }}
+  namespace: bidrag
   labels:
     team: bidrag
 spec:
@@ -28,21 +28,14 @@ spec:
       cpu: 500m
       memory: 512Mi
   ingresses:
-    - {{ ingress_preprod }}
-    - {{ ingress_adeo }}
+  {{#each ingresses as |url|}}
+    - {{url}}
+  {{/each}}
   env:
-    - name: ACCEPTED_AUDIENCE
-      value: {{ accepted_audience }}
-    - name: BIDRAG_ARKIV_URL
-      value: {{ bidrag_dokument_arkiv_url }}
-    - name: ISSO_ISSUER_URL
-      value: https://isso-q.adeo.no:443/isso/oauth2
-    - name: JOURNALPOST_URL
-      value: {{ bidrag_dokument_journalpost_url }}
-    - name: SECURITY_TOKEN_URL
-      value: https://security-token-service.nais.preprod.local/rest/v1/sts/token
-    - name: SRVBIDRAG_USERNAME
-      value: srvbidrag-dokument
+  {{#each env}}
+    - name: {{@key}}
+      value: "{{this}}"
+  {{/each}}
   vault:
     enabled: true
     paths:
