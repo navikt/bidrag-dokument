@@ -16,16 +16,16 @@ jobs:
 
     steps:
       - run: kubectl config use-context dev-fss
-      - name: restart bidrag-dokument-testdata pods for pods in the default namespace
+      - name: restart bidrag-dokument-testdata
         if: github.ref == 'refs/heads/main'
         run: |
-          PODS_TESTDATA=$(kubectl get pods -l app=bidrag-dokument-testdata | awk '{print $1}' | grep -v NAME)
-          kubectl delete pods $(echo $PODS_TESTDATA | sed 's;\n; ;')
-      - name: restart bidrag-dokument-testdata pods for pods in the feature namespace
+          PODS_TESTDATA=$(kubectl get pods -n bidrag -l app=bidrag-dokument-testdata | awk '{print $1}' | grep -v NAME)
+          kubectl delete pods -n bidrag $(echo $PODS_TESTDATA | sed 's;\n; ;')
+      - name: restart bidrag-dokument-testdata-feature
         if: github.ref != 'refs/heads/main'
         run: |
-          PODS_TESTDATA=$(kubectl get pods -n q1 -l app=bidrag-dokument-testdata  | awk '{print $1}' | grep -v NAME)
-          kubectl delete pods -n q1 $(echo $PODS_TESTDATA | sed 's;\n; ;')
+          PODS_TESTDATA=$(kubectl get pods -n bidrag -l app=bidrag-dokument-testdata-feature  | awk '{print $1}' | grep -v NAME)
+          kubectl delete pods -n bidrag $(echo $PODS_TESTDATA | sed 's;\n; ;')
 
   build:
     name: Build with maven and docker
