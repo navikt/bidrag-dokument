@@ -6,10 +6,10 @@
   ],
   "env": {
     "ACCEPTED_AUDIENCE": "bisys-q0,bidrag-ui-q0,bidrag-dokument-ui-q0,bidrag-q-localhost,ida-q",
-    "BIDRAG_ARKIV_URL": "https://bidrag-dokument-arkiv.nais.preprod.local/bidrag-dokument-arkiv",
+    "BIDRAG_ARKIV_URL": "https://bidrag-dokument-arkiv.dev.adeo.no/bidrag-dokument-arkiv",
     "ISSO_ISSUER_URL": "https://isso-q.adeo.no:443/isso/oauth2",
-    "JOURNALPOST_URL": "https://bidrag-dokument-journalpost.nais.preprod.local/bidrag-dokument-journalpost",
-    "SECURITY_TOKEN_URL": "https://security-token-service.nais.preprod.local/rest/v1/sts/token",
+    "JOURNALPOST_URL": "https://bidrag-dokument-journalpost.dev.adeo.no/bidrag-dokument-journalpost",
+    "SECURITY_TOKEN_URL": "https://security-token-service.dev.adeo.no/rest/v1/sts/token",
     "SRVBIDRAG_USERNAME": "srvbidrag-dokument"
   }
 }
