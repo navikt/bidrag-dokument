@@ -2,6 +2,7 @@ package no.nav.bidrag.dokument.controller;
 
 import static no.nav.bidrag.dokument.BidragDokumentConfig.ISSUER;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import no.nav.bidrag.dokument.dto.DokumentTilgangResponse;
 import no.nav.bidrag.dokument.service.DokumentService;
 import no.nav.security.token.support.core.api.ProtectedWithClaims;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "Dokument")
 @ProtectedWithClaims(issuer = ISSUER)
 public class DokumentController {
 

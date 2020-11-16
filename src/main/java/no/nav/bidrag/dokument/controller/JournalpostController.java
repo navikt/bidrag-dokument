@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import no.nav.bidrag.commons.KildesystemIdenfikator;
 import no.nav.bidrag.dokument.dto.AvvikType;
@@ -37,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "Journalpost")
 @ProtectedWithClaims(issuer = ISSUER)
 public class JournalpostController {
 
