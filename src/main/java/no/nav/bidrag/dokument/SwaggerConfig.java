@@ -21,7 +21,6 @@ import springfox.documentation.spring.web.plugins.Docket;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackageClasses = {BidragDokument.class})
 public class SwaggerConfig implements WebMvcConfigurer {
 
   @Bean
