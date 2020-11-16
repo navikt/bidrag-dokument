@@ -1,7 +1,6 @@
 package no.nav.bidrag.dokument;
 
 import java.util.List;
-import no.nav.bidrag.dokument.controller.JournalpostController;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +21,7 @@ import springfox.documentation.spring.web.plugins.Docket;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackageClasses = {JournalpostController.class})
+@ComponentScan(basePackageClasses = {BidragDokument.class})
 public class SwaggerConfig implements WebMvcConfigurer {
 
   @Bean
