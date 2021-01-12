@@ -2,7 +2,8 @@
   "name": "bidrag-dokument",
   "ingresses": [
     "https://bidrag-dokument.nais.preprod.local/",
-    "https://bidrag-dokument.dev.adeo.no/"
+    "https://bidrag-dokument.dev.adeo.no/",
+    "https://bidrag-dokument.dev-fss-pub.nais.io/"
   ],
   "env": {
     "ACCEPTED_AUDIENCE": "bisys-q0,bidrag-ui-q0,bidrag-dokument-ui-q0,bidrag-q-localhost,ida-q",

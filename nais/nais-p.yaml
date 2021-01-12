@@ -31,6 +31,7 @@ spec:
   ingresses:
     - https://bidrag-dokument.nais.adeo.no/
     - https://bidrag-dokument.prod-fss.nais.io
+    - https://bidrag-dokument.prod-fss-pub.nais.io
   env:
     - name: ACCEPTED_AUDIENCE
       value: bisys-p,bidrag-ui-p,bidrag-dokument-ui-p
