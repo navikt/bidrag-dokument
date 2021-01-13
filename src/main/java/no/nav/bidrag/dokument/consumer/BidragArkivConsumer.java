@@ -1,5 +1,7 @@
 package no.nav.bidrag.dokument.consumer;
 
+import static no.nav.bidrag.dokument.BidragDokumentConfig.KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -21,15 +23,21 @@ public class BidragArkivConsumer {
   private static final String PATH_JOURNALPOST_MED_SAKPARAM = "/journal/%s?saksnummer=%s";
   private static final String PARAM_FAGOMRADE = "fagomrade";
 
-  private final RestTemplate restTemplate;
+  private final ConsumerTarget consumerTarget;
 
-  public BidragArkivConsumer(RestTemplate restTemplate) {
-    this.restTemplate = restTemplate;
+  public BidragArkivConsumer(ConsumerTarget consumerTarget) {
+    this.consumerTarget = consumerTarget;
   }
 
   private static ParameterizedTypeReference<List<JournalpostDto>>
       typereferansenErListeMedJournalposter() {
     return new ParameterizedTypeReference<>() {};
+  }
+
+  private RestTemplate henteRestTemplateForToken() {
+    return consumerTarget
+        .getRestTemplateProvider()
+        .provideRestTemplate(KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV, consumerTarget.getBaseUrl());
   }
 
   public HttpResponse<JournalpostResponse> hentJournalpost(String saksnummer, String id) {
@@ -42,7 +50,7 @@ public class BidragArkivConsumer {
     }
 
     var journalpostExchange =
-        restTemplate.exchange(url, HttpMethod.GET, null, JournalpostResponse.class);
+        henteRestTemplateForToken().exchange(url, HttpMethod.GET, null, JournalpostResponse.class);
 
     LOGGER.info(
         "Hent journalpost fikk http status {} fra bidrag-dokument-arkiv",
@@ -58,7 +66,8 @@ public class BidragArkivConsumer {
             .toUriString();
 
     var journalposterFraArkiv =
-        restTemplate.exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter());
+        henteRestTemplateForToken()
+            .exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter());
     var httpStatus = journalposterFraArkiv.getStatusCode();
 
     LOGGER.info(

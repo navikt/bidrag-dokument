@@ -1,24 +1,36 @@
 package no.nav.bidrag.dokument;
 
+import com.nimbusds.jwt.JWTParser;
+import com.nimbusds.jwt.SignedJWT;
+import java.text.ParseException;
 import java.util.Optional;
 import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.EnhetFilter;
+import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
+import no.nav.bidrag.dokument.consumer.ConsumerTarget;
 import no.nav.bidrag.dokument.consumer.DokumentConsumer;
+import no.nav.security.token.support.client.core.ClientProperties;
+import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenResponse;
+import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService;
+import no.nav.security.token.support.client.spring.ClientConfigurationProperties;
 import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
@@ -29,38 +41,66 @@ public class BidragDokumentConfig {
   public static final String DELIMTER = "-";
   public static final String PREFIX_BIDRAG = "BID";
   public static final String PREFIX_JOARK = "JOARK";
-  public static final String ISSUER = "isso";
+  public static final String KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV = "bidrag-dokument-arkiv";
+  public static final String KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST = "bidrag-dokument-journalpost";
   static final String LIVE_PROFILE = "live";
   private static final Logger LOGGER = LoggerFactory.getLogger(BidragDokumentConfig.class);
+  private static final String ISSUER_AZURE_AD_IDENTIFIER = "login.microsoftonline.com";
+  @Autowired private ClientConfigurationProperties clientConfigurationProperties;
+
+  @Autowired private OAuth2AccessTokenService oAuth2AccessTokenService;
+
+  @Autowired private RestTemplateBuilder restTemplateBuilder;
+
+  @Autowired private OidcTokenManager oidcTokenManager;
+
+  private static String henteIssuer(String idToken) {
+    try {
+      var t = parseIdToken(idToken);
+      return parseIdToken(idToken).getJWTClaimsSet().getIssuer();
+    } catch (ParseException e) {
+      throw new IllegalStateException("Kunne ikke hente informasjon om tokenets issuer", e);
+    }
+  }
+
+  private static SignedJWT parseIdToken(String idToken) throws ParseException {
+    return (SignedJWT) JWTParser.parse(idToken);
+  }
 
   @Bean
   public BidragJournalpostConsumer bidragJournalpostConsumer(
       @Value("${JOURNALPOST_URL}") String journalpostBaseUrl,
-      @Qualifier("aad-bdj") RestTemplate restTemplate) {
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(journalpostBaseUrl));
+      RestTemplateProvider restTemplateProvider) {
     LOGGER.info("BidragJournalpostConsumer med base url: " + journalpostBaseUrl);
-
-    return new BidragJournalpostConsumer(restTemplate);
+    return new BidragJournalpostConsumer(
+        ConsumerTarget.builder()
+            .restTemplateProvider(restTemplateProvider)
+            .baseUrl(journalpostBaseUrl)
+            .build());
   }
 
   @Bean
   public BidragArkivConsumer journalforingConsumer(
       @Value("${BIDRAG_ARKIV_URL}") String bidragArkivBaseUrl,
-      @Qualifier("aad-bda") RestTemplate restTemplate) {
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(bidragArkivBaseUrl));
+      RestTemplateProvider restTemplateProvider) {
     LOGGER.info("BidragArkivConsumer med base url: " + bidragArkivBaseUrl);
-
-    return new BidragArkivConsumer(restTemplate);
+    return new BidragArkivConsumer(
+        ConsumerTarget.builder()
+            .restTemplateProvider(restTemplateProvider)
+            .baseUrl(bidragArkivBaseUrl)
+            .build());
   }
 
   @Bean
   public DokumentConsumer dokumentConsumer(
       @Value("${JOURNALPOST_URL}") String journalpostBaseUrl,
-      @Qualifier("aad-bdj") RestTemplate restTemplate) {
-    restTemplate.setUriTemplateHandler(new RootUriTemplateHandler(journalpostBaseUrl));
+      RestTemplateProvider restTemplateProvider) {
     LOGGER.info("DokumentConsumer med base url: " + journalpostBaseUrl);
-
-    return new DokumentConsumer(restTemplate);
+    return new DokumentConsumer(
+        ConsumerTarget.builder()
+            .restTemplateProvider(restTemplateProvider)
+            .baseUrl(journalpostBaseUrl)
+            .build());
   }
 
   @Bean
@@ -86,10 +126,67 @@ public class BidragDokumentConfig {
     return () ->
         Optional.ofNullable(tokenValidationContextHolder)
             .map(TokenValidationContextHolder::getTokenValidationContext)
-            .map(tokenValidationContext -> tokenValidationContext.getJwtTokenAsOptional(ISSUER))
+            .map(tokenValidationContext -> tokenValidationContext.getFirstValidToken())
             .map(Optional::get)
             .map(JwtToken::getTokenAsString)
-            .orElseThrow(() -> new IllegalStateException("Kunne ikke videresende Bearer token"));
+            .orElseThrow(() -> new IllegalStateException("Kunne ikke hente Bearer token"));
+  }
+
+  @Bean
+  public RestTemplateProvider restTemplateProvider(OidcTokenManager oidcTokenManager) {
+    return (navnKlient, baseUrl) -> selector(navnKlient, baseUrl, oidcTokenManager.fetchToken());
+  }
+
+  private RestTemplate selector(String navnKlient, String baseUrl, String idToken) {
+
+    var issuer = henteIssuer(idToken);
+    if (issuer.contains(ISSUER_AZURE_AD_IDENTIFIER)) {
+      return azureRestTemplate(navnKlient);
+
+    } else {
+      return issoRestTemplate(baseUrl);
+    }
+  }
+
+  private RestTemplate azureRestTemplate(String clientName) {
+    ClientProperties clientProperties =
+        Optional.ofNullable(clientConfigurationProperties.getRegistration().get(clientName))
+            .orElseThrow(
+                () ->
+                    new IllegalStateException(
+                        "could not find oauth2 client config for " + clientName));
+    return restTemplateBuilder
+        .additionalInterceptors(bearerTokenInterceptor(clientProperties, oAuth2AccessTokenService))
+        .build();
+  }
+
+  private ClientHttpRequestInterceptor bearerTokenInterceptor(
+      ClientProperties clientProperties, OAuth2AccessTokenService oAuth2AccessTokenService) {
+    return (request, body, execution) -> {
+      OAuth2AccessTokenResponse response =
+          oAuth2AccessTokenService.getAccessToken(clientProperties);
+      request.getHeaders().setBearerAuth(response.getAccessToken());
+      return execution.execute(request, body);
+    };
+  }
+
+  private RestTemplate issoRestTemplate(String baseUrl) {
+    HttpHeaderRestTemplate httpHeaderRestTemplate = new HttpHeaderRestTemplate();
+
+    httpHeaderRestTemplate.addHeaderGenerator(
+        HttpHeaders.AUTHORIZATION, () -> "Bearer " + oidcTokenManager.fetchToken());
+    httpHeaderRestTemplate.addHeaderGenerator(
+        CorrelationIdFilter.CORRELATION_ID_HEADER,
+        CorrelationIdFilter::fetchCorrelationIdForThread);
+
+    httpHeaderRestTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
+
+    return httpHeaderRestTemplate;
+  }
+
+  @FunctionalInterface
+  public interface RestTemplateProvider {
+    RestTemplate provideRestTemplate(String navnKlient, String baseUrl);
   }
 
   @FunctionalInterface

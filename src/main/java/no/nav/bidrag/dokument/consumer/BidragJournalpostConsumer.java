@@ -1,6 +1,7 @@
 package no.nav.bidrag.dokument.consumer;
 
 import static no.nav.bidrag.commons.web.EnhetFilter.X_ENHET_HEADER;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,10 +35,10 @@ public class BidragJournalpostConsumer {
   private static final String PATH_JOURNALPOST_UTEN_SAK = "/journal/%s";
   private static final String PATH_SAK_JOURNAL = "/sak/%s/journal";
 
-  private final RestTemplate restTemplate;
+  private final ConsumerTarget consumerTarget;
 
-  public BidragJournalpostConsumer(RestTemplate restTemplate) {
-    this.restTemplate = restTemplate;
+  public BidragJournalpostConsumer(ConsumerTarget consumerTarget) {
+    this.consumerTarget = consumerTarget;
   }
 
   private static ParameterizedTypeReference<List<JournalpostDto>>
@@ -51,6 +52,12 @@ public class BidragJournalpostConsumer {
     return header;
   }
 
+  private RestTemplate henteRestTemplateForToken() {
+    return consumerTarget
+        .getRestTemplateProvider()
+        .provideRestTemplate(KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST, consumerTarget.getBaseUrl());
+  }
+
   public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
     var uri =
         UriComponentsBuilder.fromPath(String.format(PATH_SAK_JOURNAL, saksnummer))
@@ -58,7 +65,8 @@ public class BidragJournalpostConsumer {
             .toUriString();
 
     var journalposterFraBrevlagerRequest =
-        restTemplate.exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter());
+        henteRestTemplateForToken()
+            .exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter());
     var httpStatus = journalposterFraBrevlagerRequest.getStatusCode();
 
     LOGGER.info(
@@ -81,7 +89,8 @@ public class BidragJournalpostConsumer {
     }
 
     LOGGER.info("Hent journalpost fra bidrag-dokument-journalpost{}", path);
-    var exchange = restTemplate.exchange(path, HttpMethod.GET, null, JournalpostResponse.class);
+    var exchange =
+        henteRestTemplateForToken().exchange(path, HttpMethod.GET, null, JournalpostResponse.class);
 
     LOGGER.info(
         "Hent journalpost fikk http status {} fra bidrag-dokument-journalpost",
@@ -94,11 +103,12 @@ public class BidragJournalpostConsumer {
     LOGGER.info("Endre journalpost BidragDokument: {}, path {}", endreJournalpostCommand, path);
 
     var endretJournalpostResponse =
-        restTemplate.exchange(
-            path,
-            HttpMethod.PUT,
-            new HttpEntity<>(endreJournalpostCommand, createEnhetHeader(enhet)),
-            Void.class);
+        henteRestTemplateForToken()
+            .exchange(
+                path,
+                HttpMethod.PUT,
+                new HttpEntity<>(endreJournalpostCommand, createEnhetHeader(enhet)),
+                Void.class);
 
     LOGGER.info("Endre journalpost fikk http status {}", endretJournalpostResponse.getStatusCode());
     return new HttpResponse<>(endretJournalpostResponse);
@@ -116,7 +126,8 @@ public class BidragJournalpostConsumer {
     LOGGER.info("Finner avvik på journalpost fra bidrag-dokument-journalpost{}", path);
 
     var avviksResponse =
-        restTemplate.exchange(path, HttpMethod.GET, null, typereferansenErListeMedAvvikstyper());
+        henteRestTemplateForToken()
+            .exchange(path, HttpMethod.GET, null, typereferansenErListeMedAvvikstyper());
     return new HttpResponse<>(avviksResponse);
   }
 
@@ -130,11 +141,12 @@ public class BidragJournalpostConsumer {
     LOGGER.info("bidrag-dokument-journalpost{}: {}", path, avvikshendelse);
 
     var avviksResponse =
-        restTemplate.exchange(
-            path,
-            HttpMethod.POST,
-            new HttpEntity<>(avvikshendelse, createEnhetHeader(enhetsnummer)),
-            OpprettAvvikshendelseResponse.class);
+        henteRestTemplateForToken()
+            .exchange(
+                path,
+                HttpMethod.POST,
+                new HttpEntity<>(avvikshendelse, createEnhetHeader(enhetsnummer)),
+                OpprettAvvikshendelseResponse.class);
 
     return new HttpResponse<>(avviksResponse);
   }

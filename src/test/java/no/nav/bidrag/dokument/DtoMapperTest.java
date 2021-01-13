@@ -1,5 +1,6 @@
 package no.nav.bidrag.dokument;
 
+import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,12 +12,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(classes = BidragDokumentLocal.class)
+@ActiveProfiles(TEST_PROFILE)
 class DtoMapperTest {
 
-  @Autowired
-  private ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
   @Test
   @DisplayName("skal mappe aktør til json og tilbake")
@@ -35,13 +37,16 @@ class DtoMapperTest {
   @DisplayName("skal mappe BestillOriginal til json og tilbake")
   void skalMappeBestillOriginalTilJson() throws IOException {
     final String enhentsnummer = "4806";
-    String json = objectMapper.writeValueAsString(new Avvikshendelse(AvvikType.BESTILL_ORIGINAL.name(), enhentsnummer));
+    String json =
+        objectMapper.writeValueAsString(
+            new Avvikshendelse(AvvikType.BESTILL_ORIGINAL.name(), enhentsnummer));
 
     assertThat(json).contains("\"avvikType\":\"BESTILL_ORIGINAL\"");
 
     System.out.println(json);
     Avvikshendelse deserialisert = objectMapper.readValue(json, Avvikshendelse.class);
 
-    assertThat(deserialisert).isEqualTo(new Avvikshendelse(AvvikType.BESTILL_ORIGINAL.name(), enhentsnummer));
+    assertThat(deserialisert)
+        .isEqualTo(new Avvikshendelse(AvvikType.BESTILL_ORIGINAL.name(), enhentsnummer));
   }
 }
