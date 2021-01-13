@@ -8,6 +8,7 @@ import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestTemplate;
@@ -23,8 +24,13 @@ public class BidragArkivConsumer {
 
   private final RestTemplate restTemplate;
 
-  public BidragArkivConsumer(RestTemplate restTemplate) {
+  public BidragArkivConsumer(@Qualifier("aad-bda") RestTemplate restTemplate) {
     this.restTemplate = restTemplate;
+  }
+
+  private static ParameterizedTypeReference<List<JournalpostDto>>
+      typereferansenErListeMedJournalposter() {
+    return new ParameterizedTypeReference<>() {};
   }
 
   public HttpResponse<JournalpostResponse> hentJournalpost(String saksnummer, String id) {
@@ -36,31 +42,32 @@ public class BidragArkivConsumer {
       url = String.format(PATH_JOURNALPOST_MED_SAKPARAM, id, saksnummer);
     }
 
-    var journalpostExchange = restTemplate.exchange(url, HttpMethod.GET, null, JournalpostResponse.class);
+    var journalpostExchange =
+        restTemplate.exchange(url, HttpMethod.GET, null, JournalpostResponse.class);
 
-    LOGGER.info("Hent journalpost fikk http status {} fra bidrag-dokument-arkiv", journalpostExchange.getStatusCode());
+    LOGGER.info(
+        "Hent journalpost fikk http status {} fra bidrag-dokument-arkiv",
+        journalpostExchange.getStatusCode());
 
     return new HttpResponse<>(journalpostExchange);
   }
 
   public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
-    var uri = UriComponentsBuilder.fromPath(String.format(PATH_JOURNAL, saksnummer))
-        .queryParam(PARAM_FAGOMRADE, fagomrade)
-        .toUriString();
+    var uri =
+        UriComponentsBuilder.fromPath(String.format(PATH_JOURNAL, saksnummer))
+            .queryParam(PARAM_FAGOMRADE, fagomrade)
+            .toUriString();
 
-    var journalposterFraArkiv = restTemplate.exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter());
+    var journalposterFraArkiv =
+        restTemplate.exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter());
     var httpStatus = journalposterFraArkiv.getStatusCode();
 
     LOGGER.info(
         "Fikk http status {} fra journalposter i bidragssak med saksnummer {} på fagområde {} fra bidrag-dokuemnt-arkiv",
-        httpStatus, saksnummer, fagomrade
-    );
+        httpStatus,
+        saksnummer,
+        fagomrade);
 
     return Optional.ofNullable(journalposterFraArkiv.getBody()).orElse(Collections.emptyList());
-  }
-
-  private static ParameterizedTypeReference<List<JournalpostDto>> typereferansenErListeMedJournalposter() {
-    return new ParameterizedTypeReference<>() {
-    };
   }
 }

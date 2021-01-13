@@ -4,6 +4,8 @@ JOURNALPOST_URL: https://bidrag-dokument-journalpost-q1.nais.preprod.local
 SECURITY_TOKEN_URL: https://security-token-service-nais-preprod.local
 SRVBIDRAG_USERNAME: srvbidrag-dokument
 SRVBIDRAG_PASSWORD: bareForTest
+BIDRAG_DOKUMENT_JOURNALPOST_CLIENT_ID: TBA
+BIDRAG_DOKUMENT_ARKIV_CLIENT_ID: TBA
 
 
 
@@ -30,16 +32,36 @@ management:
 #							
 ####################################################################
 
-spring:
-  profiles: live
+spring.config.activate.on-profile: live
 
 # OIDC          
 no.nav.security.jwt:
-  issuers: isso
-  issuer:
-    isso:
-      accepted_audience: ${ACCEPTED_AUDIENCE}
-      discoveryurl: ${ISSO_ISSUER_URL}/.well-known/openid-configuration
+  issuers: aad, isso
+  issuer.aad:
+    discovery_url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/v2.0/.well-known/openid-configuration
+    accepted_audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}, ${ACCEPTED_AUDIENCE}
+    proxy-url: http://webproxy.nais:8088
+  client:
+    registration:
+      bidrag-dokument-journalpost:
+        token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        scope: api://${BIDRAG_DOKUMENT_JOURNALPOST_CLIENT_ID}/.default
+        authentication:
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_ID}
+          client-auth-method: client_secret_basic
+      bidrag-dokument-arkiv:
+        token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        scope: api://${BIDRAG_DOKUMENT_ARKIV_CLIENT_ID}/.default
+        authentication:
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_ID}
+          client-auth-method: client_secret_basic
+  issuer.isso:
+    accepted_audience: ${ACCEPTED_AUDIENCE}
+    discoveryurl: ${ISSO_ISSUER_URL}/.well-known/openid-configuration
 
 ---
 
@@ -51,8 +73,7 @@ no.nav.security.jwt:
 #							
 ####################################################################
 
-spring:
-  profiles: test, secure-test
+spring.config.activate.on-profile: test, secure-test
 
 no.nav.security.jwt:
   issuers: isso

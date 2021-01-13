@@ -6,6 +6,9 @@ metadata:
   labels:
     team: bidrag
 spec:
+  azure:
+    application:
+      enabled: true
   image: {{ image }}
   port: 8080
   liveness:
