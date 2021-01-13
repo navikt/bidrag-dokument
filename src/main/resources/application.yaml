@@ -4,10 +4,6 @@ JOURNALPOST_URL: https://bidrag-dokument-journalpost-q1.nais.preprod.local
 SECURITY_TOKEN_URL: https://security-token-service-nais-preprod.local
 SRVBIDRAG_USERNAME: srvbidrag-dokument
 SRVBIDRAG_PASSWORD: bareForTest
-BIDRAG_DOKUMENT_JOURNALPOST_CLIENT_ID: TBA
-BIDRAG_DOKUMENT_ARKIV_CLIENT_ID: TBA
-
-
 
 ####################################################################
 # 
