@@ -8,7 +8,6 @@ import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestTemplate;
@@ -24,7 +23,7 @@ public class BidragArkivConsumer {
 
   private final RestTemplate restTemplate;
 
-  public BidragArkivConsumer(@Qualifier("aad-bda") RestTemplate restTemplate) {
+  public BidragArkivConsumer(RestTemplate restTemplate) {
     this.restTemplate = restTemplate;
   }
 

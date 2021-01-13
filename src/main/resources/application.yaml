@@ -49,7 +49,7 @@ no.nav.security.jwt:
         scope: api://${BIDRAG_DOKUMENT_JOURNALPOST_CLIENT_ID}/.default
         authentication:
           client-id: ${AZURE_APP_CLIENT_ID}
-          client-secret: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
       bidrag-dokument-arkiv:
         token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
@@ -57,7 +57,7 @@ no.nav.security.jwt:
         scope: api://${BIDRAG_DOKUMENT_ARKIV_CLIENT_ID}/.default
         authentication:
           client-id: ${AZURE_APP_CLIENT_ID}
-          client-secret: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
   issuer.isso:
     accepted_audience: ${ACCEPTED_AUDIENCE}
@@ -81,5 +81,6 @@ no.nav.security.jwt:
     discoveryurl: http://metadata
     accepted_audience: aud-localhost
     cookie_name: localhost-idtoken
+
 
 ---

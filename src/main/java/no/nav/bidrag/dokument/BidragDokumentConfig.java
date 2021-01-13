@@ -7,8 +7,10 @@ import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.consumer.DokumentConsumer;
+import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
+import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,6 +22,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
+@EnableOAuth2Client(cacheEnabled = true)
+@EnableJwtTokenValidation(ignore = {"springfox.documentation.swagger.web.ApiResourceController"})
 public class BidragDokumentConfig {
 
   public static final String DELIMTER = "-";

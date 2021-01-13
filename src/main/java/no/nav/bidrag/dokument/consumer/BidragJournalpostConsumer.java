@@ -14,7 +14,6 @@ import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -37,7 +36,7 @@ public class BidragJournalpostConsumer {
 
   private final RestTemplate restTemplate;
 
-  public BidragJournalpostConsumer(@Qualifier("aad-bdj") RestTemplate restTemplate) {
+  public BidragJournalpostConsumer(RestTemplate restTemplate) {
     this.restTemplate = restTemplate;
   }
 
