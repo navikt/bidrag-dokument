@@ -56,7 +56,6 @@ public class BidragDokumentConfig {
 
   private static String henteIssuer(String idToken) {
     try {
-      var t = parseIdToken(idToken);
       return parseIdToken(idToken).getJWTClaimsSet().getIssuer();
     } catch (ParseException e) {
       throw new IllegalStateException("Kunne ikke hente informasjon om tokenets issuer", e);
