@@ -1,0 +1,18 @@
+name: bidrag-dokument-feature
+ingresses:
+  - https://bidrag-dokument-q1.nais.preprod.local/
+  - https://bidrag-dokument-feature.dev.adeo.no/
+  - https://bidrag-dokument-feature.dev-fss-pub.nais.io
+env:
+  - name: ACCEPTED_AUDIENCE
+    value: bisys-q1,bidrag-ui-q1,bidrag-dokument-ui-q1,bidrag-q-localhost,ida-q
+  - name: BIDRAG_ARKIV_URL
+    value: https://bidrag-dokument-arkiv-feature.dev.adeo.no/bidrag-dokument-arkiv
+  - name: ISSO_ISSUER_URL
+    value: https://isso-q.adeo.no:443/isso/oauth2
+  - name: JOURNALPOST_URL
+    value: https://bidrag-dokument-journalpost-feature.dev.adeo.no/bidrag-dokument-journalpost
+  - name: SECURITY_TOKEN_URL
+    value: https://security-token-service.dev.adeo.no/rest/v1/sts/token
+  - name: SRVBIDRAG_USERNAME
+    value: srvbidrag-dokument
