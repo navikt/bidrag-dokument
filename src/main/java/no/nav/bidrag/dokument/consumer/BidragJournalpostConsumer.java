@@ -24,15 +24,14 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 public class BidragJournalpostConsumer {
 
+  public static final String PATH_AVVIK_PA_JOURNALPOST = "/journal/%s/avvik";
+  public static final String PATH_JOURNALPOST_UTEN_SAK = "/journal/%s";
+  public static final String PATH_SAK_JOURNAL = "/sak/%s/journal";
   private static final Logger LOGGER = LoggerFactory.getLogger(BidragJournalpostConsumer.class);
   private static final String PARAM_FAGOMRADE = "fagomrade";
   private static final String PARAM_SAKSNUMMER = "saksnummer";
-  private static final String PATH_AVVIK_PA_JOURNALPOST = "/journal/%s/avvik";
-  private static final String PATH_AVVIK_PA_JOURNALPOST_MED_SAK_PARAM = "/journal/%s/avvik?" + PARAM_SAKSNUMMER + "=%s";
-  private static final String PATH_JOURNALPOST_MED_SAKPARAM = "/journal/%s?" + PARAM_SAKSNUMMER + "=%s";
-  private static final String PATH_JOURNALPOST_UTEN_SAK = "/journal/%s";
-  private static final String PATH_SAK_JOURNAL = "/sak/%s/journal";
-
+  public static final String PATH_AVVIK_PA_JOURNALPOST_MED_SAK_PARAM = "/journal/%s/avvik?" + PARAM_SAKSNUMMER + "=%s";
+  public static final String PATH_JOURNALPOST_MED_SAKPARAM = "/journal/%s?" + PARAM_SAKSNUMMER + "=%s";
   private final ConsumerTarget consumerTarget;
 
   public BidragJournalpostConsumer(ConsumerTarget consumerTarget) {
@@ -51,6 +50,7 @@ public class BidragJournalpostConsumer {
   }
 
   private RestTemplate henteRestTemplateForToken() {
+    var baseurl = consumerTarget.getBaseUrl();
     return consumerTarget.getRestTemplateProvider().provideRestTemplate(KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST, consumerTarget.getBaseUrl());
   }
 
@@ -84,6 +84,8 @@ public class BidragJournalpostConsumer {
   public HttpResponse<Void> endre(String enhet, EndreJournalpostCommand endreJournalpostCommand) {
     var path = String.format(PATH_JOURNALPOST_UTEN_SAK, endreJournalpostCommand.getJournalpostId());
     LOGGER.info("Endre journalpost BidragDokument: {}, path {}", endreJournalpostCommand, path);
+
+    var rt = henteRestTemplateForToken();
 
     var endretJournalpostResponse = henteRestTemplateForToken()
         .exchange(path, HttpMethod.PUT, new HttpEntity<>(endreJournalpostCommand, createEnhetHeader(enhet)), Void.class);

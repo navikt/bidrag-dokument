@@ -1,69 +1,88 @@
 package no.nav.bidrag.dokument.consumer;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
+import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-import no.nav.bidrag.dokument.BidragDokumentConfig.RestTemplateProvider;
+import java.io.IOException;
+import no.nav.bidrag.dokument.BidragDokumentConfig.OidcTokenManager;
+import no.nav.bidrag.dokument.BidragDokumentLocal;
+import no.nav.bidrag.dokument.consumer.stub.BidragDokumentJournalpostStub;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
-import no.nav.bidrag.dokument.dto.JournalpostDto;
+import no.nav.security.token.support.test.jersey.TestTokenGeneratorResource;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.test.context.ActiveProfiles;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest(classes = {BidragDokumentLocal.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles(TEST_PROFILE)
 @DisplayName("BidragJournalpostConsumer")
+@AutoConfigureWireMock(port = 8096)
 @SuppressWarnings("unchecked")
 class BidragJournalpostConsumerTest {
 
-  @InjectMocks
+  @Autowired
   private BidragJournalpostConsumer bidragJournalpostConsumer;
 
-  @Mock
+  @Autowired
+  private BidragDokumentJournalpostStub bidragDokumentJournalpostStub;
+
+  @MockBean
+  private OidcTokenManager oidcTokenManager;
+
+  @MockBean
   private ConsumerTarget consumerTarget;
 
-  @Mock
-  private RestTemplateProvider restTemplateProviderMock;
+  @Value("${wiremock.server.port}")
+  private String wiremockPort;
 
-  @Mock
-  private RestTemplate restTemplateMock;
+  private static String generateTestToken() {
+    TestTokenGeneratorResource testTokenGeneratorResource = new TestTokenGeneratorResource();
+    return testTokenGeneratorResource.issueToken("localhost-idtoken");
+  }
 
   @Test
-  @DisplayName("skal hente journalen til en sak")
-  void skalHenteSakJournal() {
-    when(consumerTarget.getBaseUrl()).thenReturn("bidrag-dokument-arkiv-url");
-    when(consumerTarget.getRestTemplateProvider()).thenReturn(restTemplateProviderMock);
-    when(restTemplateProviderMock.provideRestTemplate(anyString(), anyString())).thenReturn(restTemplateMock);
-    when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
-        .thenReturn(new ResponseEntity<>(HttpStatus.NO_CONTENT));
+  @DisplayName("skal hente journalpost til en sak")
+  void skalHenteJournalpostTilSak() throws IOException {
 
-    bidragJournalpostConsumer.finnJournalposter("101", "BID");
-    verify(restTemplateMock)
-        .exchange(eq("/sak/101/journal?fagomrade=BID"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
+    // given
+    var saksnr = "1900000";
+
+    bidragDokumentJournalpostStub.runHenteJournalpostForSak(saksnr);
+
+    var idToken = generateTestToken();
+    var bidragDokumentJournalpostBaseUrl = "http://localhost:" + wiremockPort + "/";
+
+    when(oidcTokenManager.fetchToken()).thenReturn(idToken);
+    when(consumerTarget.getBaseUrl()).thenReturn(bidragDokumentJournalpostBaseUrl);
+
+    // when
+    var respons = bidragJournalpostConsumer.finnJournalposter(saksnr, "BID");
+
+    // then
+    assertEquals(2, respons.size());
   }
 
   @Test
   @DisplayName("skal endre journalpost")
-  void skalEndreJournalpost() {
-    when(consumerTarget.getBaseUrl()).thenReturn("bidrag-dokument-arkiv-url");
-    when(consumerTarget.getRestTemplateProvider()).thenReturn(restTemplateProviderMock);
-    when(restTemplateProviderMock.provideRestTemplate(anyString(), anyString())).thenReturn(restTemplateMock);
-    when(restTemplateMock.exchange(anyString(), any(), any(), (Class<Object>) any())).thenReturn(new ResponseEntity<>(HttpStatus.ACCEPTED));
+  void skalEndreJournalpost() throws IOException {
+    var idToken = generateTestToken();
+    var request = endreJournalpostCommandMedId101();
+    var bidragDokumentJournalpostBaseUrl = "http://localhost:" + wiremockPort + "/";
 
-    bidragJournalpostConsumer.endre("4802", endreJournalpostCommandMedId101());
+    when(oidcTokenManager.fetchToken()).thenReturn(idToken);
+    when(consumerTarget.getBaseUrl()).thenReturn(bidragDokumentJournalpostBaseUrl);
 
-    verify(restTemplateMock).exchange(eq("/journal/BID-101"), eq(HttpMethod.PUT), any(), eq(Void.class));
+    bidragDokumentJournalpostStub.runHenteEndreJournalpost(request.getJournalpostId());
+
+    var respons = bidragJournalpostConsumer.endre("4802", endreJournalpostCommandMedId101());
+    Assertions.assertTrue(respons.is2xxSuccessful());
   }
 
   private EndreJournalpostCommand endreJournalpostCommandMedId101() {
