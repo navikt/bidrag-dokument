@@ -48,7 +48,7 @@ class BidragArkivConsumerTest {
         .thenReturn(new ResponseEntity<>(enJournalpostMedJournaltilstand("ENDELIG"), HttpStatus.OK));
 
     var httpResponse = bidragArkivConsumer.hentJournalpost("69", "BID-101");
-    var journalpostResponse = httpResponse.fetchBody()s.orElseThrow(() -> new AssertionError("BidragArkivConsumer kunne ikke finne journalpost!"));
+    var journalpostResponse = httpResponse.fetchBody().orElseThrow(() -> new AssertionError("BidragArkivConsumer kunne ikke finne journalpost!"));
 
     assertThat(journalpostResponse.getJournalpost()).extracting(JournalpostDto::getInnhold).isEqualTo("ENDELIG");
 
