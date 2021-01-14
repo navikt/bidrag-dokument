@@ -30,52 +30,32 @@ import org.springframework.web.client.RestTemplate;
 
 @ActiveProfiles({TEST_PROFILE, SECURE_TEST_PROFILE})
 @DisplayName("DokumentController")
-@SpringBootTest(
-    classes = BidragDokumentLocal.class,
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = BidragDokumentLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class DokumentControllerTest {
 
-  @Autowired private HttpHeaderTestRestTemplate securedTestRestTemplate;
-  @LocalServerPort private int port;
-  @MockBean private RestTemplateProvider restTemplateProviderMock;
-  @MockBean private RestTemplate restTemplateMock;
+  @Autowired
+  private HttpHeaderTestRestTemplate securedTestRestTemplate;
+  @LocalServerPort
+  private int port;
+  @MockBean
+  private RestTemplateProvider restTemplateProviderMock;
+  @MockBean
+  private RestTemplate restTemplateMock;
 
   @Test
   @DisplayName("skal spørre brevserver om tilgang til dokument")
   void skalVideresendeRequestOmTilgangTilDokument() {
-    when(restTemplateProviderMock.provideRestTemplate(anyString(), anyString()))
-        .thenReturn(restTemplateMock);
-    when(restTemplateMock.exchange(
-            eq("/tilgang/BID-123/dokref"),
-            eq(HttpMethod.GET),
-            any(),
-            eq(DokumentTilgangResponse.class)))
-        .thenReturn(
-            new ResponseEntity<>(
-                new DokumentTilgangResponse("urlWithToken", "BREVLAGER"),
-                HttpStatus.I_AM_A_TEAPOT));
+    when(restTemplateProviderMock.provideRestTemplate(anyString(), anyString())).thenReturn(restTemplateMock);
+    when(restTemplateMock.exchange(eq("/tilgang/BID-123/dokref"), eq(HttpMethod.GET), any(), eq(DokumentTilgangResponse.class)))
+        .thenReturn(new ResponseEntity<>(new DokumentTilgangResponse("urlWithToken", "BREVLAGER"), HttpStatus.I_AM_A_TEAPOT));
 
-    var dokumentUrlResponse =
-        Optional.of(
-            securedTestRestTemplate.exchange(
-                localhostUrl("/bidrag-dokument/tilgang/BID-123/dokref"),
-                HttpMethod.GET,
-                null,
-                DokumentTilgangResponse.class));
+    var dokumentUrlResponse = Optional.of(securedTestRestTemplate
+        .exchange(localhostUrl("/bidrag-dokument/tilgang/BID-123/dokref"), HttpMethod.GET, null, DokumentTilgangResponse.class));
 
-    assertThat(dokumentUrlResponse)
-        .hasValueSatisfying(
-            response ->
-                assertAll(
-                    () ->
-                        assertThat(response.getStatusCode())
-                            .as("status")
-                            .isEqualTo(HttpStatus.I_AM_A_TEAPOT),
-                    () ->
-                        assertThat(response)
-                            .extracting(ResponseEntity::getBody)
-                            .as("url")
-                            .isEqualTo(new DokumentTilgangResponse("urlWithToken", "BREVLAGER"))));
+    assertThat(dokumentUrlResponse).hasValueSatisfying(
+        response -> assertAll(() -> assertThat(response.getStatusCode()).as("status").isEqualTo(HttpStatus.I_AM_A_TEAPOT),
+            () -> assertThat(response).extracting(ResponseEntity::getBody).as("url")
+                .isEqualTo(new DokumentTilgangResponse("urlWithToken", "BREVLAGER"))));
   }
 
   @Test
@@ -84,12 +64,7 @@ class DokumentControllerTest {
 
     var testRestTemplate = new TestRestTemplate();
 
-    var responseEntity =
-        testRestTemplate.exchange(
-            localhostUrl("/bidrag-dokument/tilgang/BID-123/dokref"),
-            HttpMethod.GET,
-            null,
-            String.class);
+    var responseEntity = testRestTemplate.exchange(localhostUrl("/bidrag-dokument/tilgang/BID-123/dokref"), HttpMethod.GET, null, String.class);
 
     assertEquals(responseEntity.getStatusCode(), HttpStatus.UNAUTHORIZED);
   }

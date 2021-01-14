@@ -27,32 +27,30 @@ import org.springframework.web.client.RestTemplate;
 @SuppressWarnings("unchecked")
 class BidragJournalpostConsumerTest {
 
-  @InjectMocks private BidragJournalpostConsumer bidragJournalpostConsumer;
+  @InjectMocks
+  private BidragJournalpostConsumer bidragJournalpostConsumer;
 
-  @Mock private ConsumerTarget consumerTarget;
+  @Mock
+  private ConsumerTarget consumerTarget;
 
-  @Mock private RestTemplateProvider restTemplateProviderMock;
+  @Mock
+  private RestTemplateProvider restTemplateProviderMock;
 
-  @Mock private RestTemplate restTemplateMock;
+  @Mock
+  private RestTemplate restTemplateMock;
 
   @Test
   @DisplayName("skal hente journalen til en sak")
   void skalHenteSakJournal() {
     when(consumerTarget.getBaseUrl()).thenReturn("bidrag-dokument-arkiv-url");
     when(consumerTarget.getRestTemplateProvider()).thenReturn(restTemplateProviderMock);
-    when(restTemplateProviderMock.provideRestTemplate(anyString(), anyString()))
-        .thenReturn(restTemplateMock);
-    when(restTemplateMock.exchange(
-            anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
+    when(restTemplateProviderMock.provideRestTemplate(anyString(), anyString())).thenReturn(restTemplateMock);
+    when(restTemplateMock.exchange(anyString(), any(), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any()))
         .thenReturn(new ResponseEntity<>(HttpStatus.NO_CONTENT));
 
     bidragJournalpostConsumer.finnJournalposter("101", "BID");
     verify(restTemplateMock)
-        .exchange(
-            eq("/sak/101/journal?fagomrade=BID"),
-            eq(HttpMethod.GET),
-            any(),
-            (ParameterizedTypeReference<List<JournalpostDto>>) any());
+        .exchange(eq("/sak/101/journal?fagomrade=BID"), eq(HttpMethod.GET), any(), (ParameterizedTypeReference<List<JournalpostDto>>) any());
   }
 
   @Test
@@ -60,15 +58,12 @@ class BidragJournalpostConsumerTest {
   void skalEndreJournalpost() {
     when(consumerTarget.getBaseUrl()).thenReturn("bidrag-dokument-arkiv-url");
     when(consumerTarget.getRestTemplateProvider()).thenReturn(restTemplateProviderMock);
-    when(restTemplateProviderMock.provideRestTemplate(anyString(), anyString()))
-        .thenReturn(restTemplateMock);
-    when(restTemplateMock.exchange(anyString(), any(), any(), (Class<Object>) any()))
-        .thenReturn(new ResponseEntity<>(HttpStatus.ACCEPTED));
+    when(restTemplateProviderMock.provideRestTemplate(anyString(), anyString())).thenReturn(restTemplateMock);
+    when(restTemplateMock.exchange(anyString(), any(), any(), (Class<Object>) any())).thenReturn(new ResponseEntity<>(HttpStatus.ACCEPTED));
 
     bidragJournalpostConsumer.endre("4802", endreJournalpostCommandMedId101());
 
-    verify(restTemplateMock)
-        .exchange(eq("/journal/BID-101"), eq(HttpMethod.PUT), any(), eq(Void.class));
+    verify(restTemplateMock).exchange(eq("/journal/BID-101"), eq(HttpMethod.PUT), any(), eq(Void.class));
   }
 
   private EndreJournalpostCommand endreJournalpostCommandMedId101() {

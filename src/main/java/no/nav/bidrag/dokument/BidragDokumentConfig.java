@@ -46,13 +46,18 @@ public class BidragDokumentConfig {
   static final String LIVE_PROFILE = "live";
   private static final Logger LOGGER = LoggerFactory.getLogger(BidragDokumentConfig.class);
   private static final String ISSUER_AZURE_AD_IDENTIFIER = "login.microsoftonline.com";
-  @Autowired private ClientConfigurationProperties clientConfigurationProperties;
 
-  @Autowired private OAuth2AccessTokenService oAuth2AccessTokenService;
+  @Autowired
+  private ClientConfigurationProperties clientConfigurationProperties;
 
-  @Autowired private RestTemplateBuilder restTemplateBuilder;
+  @Autowired
+  private OAuth2AccessTokenService oAuth2AccessTokenService;
 
-  @Autowired private OidcTokenManager oidcTokenManager;
+  @Autowired
+  private RestTemplateBuilder restTemplateBuilder;
+
+  @Autowired
+  private OidcTokenManager oidcTokenManager;
 
   private static String henteIssuer(String idToken) {
     try {
@@ -67,39 +72,23 @@ public class BidragDokumentConfig {
   }
 
   @Bean
-  public BidragJournalpostConsumer bidragJournalpostConsumer(
-      @Value("${JOURNALPOST_URL}") String journalpostBaseUrl,
+  public BidragJournalpostConsumer bidragJournalpostConsumer(@Value("${JOURNALPOST_URL}") String journalpostBaseUrl,
       RestTemplateProvider restTemplateProvider) {
     LOGGER.info("BidragJournalpostConsumer med base url: " + journalpostBaseUrl);
-    return new BidragJournalpostConsumer(
-        ConsumerTarget.builder()
-            .restTemplateProvider(restTemplateProvider)
-            .baseUrl(journalpostBaseUrl)
-            .build());
+    return new BidragJournalpostConsumer(ConsumerTarget.builder().restTemplateProvider(restTemplateProvider).baseUrl(journalpostBaseUrl).build());
   }
 
   @Bean
-  public BidragArkivConsumer journalforingConsumer(
-      @Value("${BIDRAG_ARKIV_URL}") String bidragArkivBaseUrl,
+  public BidragArkivConsumer journalforingConsumer(@Value("${BIDRAG_ARKIV_URL}") String bidragArkivBaseUrl,
       RestTemplateProvider restTemplateProvider) {
     LOGGER.info("BidragArkivConsumer med base url: " + bidragArkivBaseUrl);
-    return new BidragArkivConsumer(
-        ConsumerTarget.builder()
-            .restTemplateProvider(restTemplateProvider)
-            .baseUrl(bidragArkivBaseUrl)
-            .build());
+    return new BidragArkivConsumer(ConsumerTarget.builder().restTemplateProvider(restTemplateProvider).baseUrl(bidragArkivBaseUrl).build());
   }
 
   @Bean
-  public DokumentConsumer dokumentConsumer(
-      @Value("${JOURNALPOST_URL}") String journalpostBaseUrl,
-      RestTemplateProvider restTemplateProvider) {
+  public DokumentConsumer dokumentConsumer(@Value("${JOURNALPOST_URL}") String journalpostBaseUrl, RestTemplateProvider restTemplateProvider) {
     LOGGER.info("DokumentConsumer med base url: " + journalpostBaseUrl);
-    return new DokumentConsumer(
-        ConsumerTarget.builder()
-            .restTemplateProvider(restTemplateProvider)
-            .baseUrl(journalpostBaseUrl)
-            .build());
+    return new DokumentConsumer(ConsumerTarget.builder().restTemplateProvider(restTemplateProvider).baseUrl(journalpostBaseUrl).build());
   }
 
   @Bean
@@ -120,15 +109,10 @@ public class BidragDokumentConfig {
   }
 
   @Bean
-  public OidcTokenManager oidcTokenManager(
-      TokenValidationContextHolder tokenValidationContextHolder) {
-    return () ->
-        Optional.ofNullable(tokenValidationContextHolder)
-            .map(TokenValidationContextHolder::getTokenValidationContext)
-            .map(tokenValidationContext -> tokenValidationContext.getFirstValidToken())
-            .map(Optional::get)
-            .map(JwtToken::getTokenAsString)
-            .orElseThrow(() -> new IllegalStateException("Kunne ikke hente Bearer token"));
+  public OidcTokenManager oidcTokenManager(TokenValidationContextHolder tokenValidationContextHolder) {
+    return () -> Optional.ofNullable(tokenValidationContextHolder).map(TokenValidationContextHolder::getTokenValidationContext)
+        .map(tokenValidationContext -> tokenValidationContext.getFirstValidToken()).map(Optional::get).map(JwtToken::getTokenAsString)
+        .orElseThrow(() -> new IllegalStateException("Kunne ikke hente Bearer token"));
   }
 
   @Bean
@@ -148,22 +132,14 @@ public class BidragDokumentConfig {
   }
 
   private RestTemplate azureRestTemplate(String clientName) {
-    ClientProperties clientProperties =
-        Optional.ofNullable(clientConfigurationProperties.getRegistration().get(clientName))
-            .orElseThrow(
-                () ->
-                    new IllegalStateException(
-                        "could not find oauth2 client config for " + clientName));
-    return restTemplateBuilder
-        .additionalInterceptors(bearerTokenInterceptor(clientProperties, oAuth2AccessTokenService))
-        .build();
+    ClientProperties clientProperties = Optional.ofNullable(clientConfigurationProperties.getRegistration().get(clientName))
+        .orElseThrow(() -> new IllegalStateException("could not find oauth2 client config for " + clientName));
+    return restTemplateBuilder.additionalInterceptors(bearerTokenInterceptor(clientProperties, oAuth2AccessTokenService)).build();
   }
 
-  private ClientHttpRequestInterceptor bearerTokenInterceptor(
-      ClientProperties clientProperties, OAuth2AccessTokenService oAuth2AccessTokenService) {
+  private ClientHttpRequestInterceptor bearerTokenInterceptor(ClientProperties clientProperties, OAuth2AccessTokenService oAuth2AccessTokenService) {
     return (request, body, execution) -> {
-      OAuth2AccessTokenResponse response =
-          oAuth2AccessTokenService.getAccessToken(clientProperties);
+      OAuth2AccessTokenResponse response = oAuth2AccessTokenService.getAccessToken(clientProperties);
       request.getHeaders().setBearerAuth(response.getAccessToken());
       return execution.execute(request, body);
     };
@@ -172,11 +148,8 @@ public class BidragDokumentConfig {
   private RestTemplate issoRestTemplate(String baseUrl) {
     HttpHeaderRestTemplate httpHeaderRestTemplate = new HttpHeaderRestTemplate();
 
-    httpHeaderRestTemplate.addHeaderGenerator(
-        HttpHeaders.AUTHORIZATION, () -> "Bearer " + oidcTokenManager.fetchToken());
-    httpHeaderRestTemplate.addHeaderGenerator(
-        CorrelationIdFilter.CORRELATION_ID_HEADER,
-        CorrelationIdFilter::fetchCorrelationIdForThread);
+    httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.AUTHORIZATION, () -> "Bearer " + oidcTokenManager.fetchToken());
+    httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER, CorrelationIdFilter::fetchCorrelationIdForThread);
 
     httpHeaderRestTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
 
@@ -185,6 +158,7 @@ public class BidragDokumentConfig {
 
   @FunctionalInterface
   public interface RestTemplateProvider {
+
     RestTemplate provideRestTemplate(String navnKlient, String baseUrl);
   }
 

@@ -29,15 +29,13 @@ public class BidragArkivConsumer {
     this.consumerTarget = consumerTarget;
   }
 
-  private static ParameterizedTypeReference<List<JournalpostDto>>
-      typereferansenErListeMedJournalposter() {
-    return new ParameterizedTypeReference<>() {};
+  private static ParameterizedTypeReference<List<JournalpostDto>> typereferansenErListeMedJournalposter() {
+    return new ParameterizedTypeReference<>() {
+    };
   }
 
   private RestTemplate henteRestTemplateForToken() {
-    return consumerTarget
-        .getRestTemplateProvider()
-        .provideRestTemplate(KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV, consumerTarget.getBaseUrl());
+    return consumerTarget.getRestTemplateProvider().provideRestTemplate(KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV, consumerTarget.getBaseUrl());
   }
 
   public HttpResponse<JournalpostResponse> hentJournalpost(String saksnummer, String id) {
@@ -49,32 +47,21 @@ public class BidragArkivConsumer {
       url = String.format(PATH_JOURNALPOST_MED_SAKPARAM, id, saksnummer);
     }
 
-    var journalpostExchange =
-        henteRestTemplateForToken().exchange(url, HttpMethod.GET, null, JournalpostResponse.class);
+    var journalpostExchange = henteRestTemplateForToken().exchange(url, HttpMethod.GET, null, JournalpostResponse.class);
 
-    LOGGER.info(
-        "Hent journalpost fikk http status {} fra bidrag-dokument-arkiv",
-        journalpostExchange.getStatusCode());
+    LOGGER.info("Hent journalpost fikk http status {} fra bidrag-dokument-arkiv", journalpostExchange.getStatusCode());
 
     return new HttpResponse<>(journalpostExchange);
   }
 
   public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
-    var uri =
-        UriComponentsBuilder.fromPath(String.format(PATH_JOURNAL, saksnummer))
-            .queryParam(PARAM_FAGOMRADE, fagomrade)
-            .toUriString();
+    var uri = UriComponentsBuilder.fromPath(String.format(PATH_JOURNAL, saksnummer)).queryParam(PARAM_FAGOMRADE, fagomrade).toUriString();
 
-    var journalposterFraArkiv =
-        henteRestTemplateForToken()
-            .exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter());
+    var journalposterFraArkiv = henteRestTemplateForToken().exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter());
     var httpStatus = journalposterFraArkiv.getStatusCode();
 
-    LOGGER.info(
-        "Fikk http status {} fra journalposter i bidragssak med saksnummer {} på fagområde {} fra bidrag-dokuemnt-arkiv",
-        httpStatus,
-        saksnummer,
-        fagomrade);
+    LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} på fagområde {} fra bidrag-dokuemnt-arkiv", httpStatus,
+        saksnummer, fagomrade);
 
     return Optional.ofNullable(journalposterFraArkiv.getBody()).orElse(Collections.emptyList());
   }

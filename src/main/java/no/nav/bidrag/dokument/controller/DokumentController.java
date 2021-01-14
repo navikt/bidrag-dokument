@@ -23,17 +23,13 @@ public class DokumentController {
   }
 
   @GetMapping("/tilgang/{journalpostId}/{dokumentreferanse}")
-  public ResponseEntity<DokumentTilgangResponse> giTilgangTilDokument(
-      @PathVariable String journalpostId, @PathVariable String dokumentreferanse) {
+  public ResponseEntity<DokumentTilgangResponse> giTilgangTilDokument(@PathVariable String journalpostId, @PathVariable String dokumentreferanse) {
     LOGGER.info("Spør om tilgang til dokument: " + dokumentreferanse);
 
     var dokumentUrlResponse = dokumentService.hentTilgangUrl(journalpostId, dokumentreferanse);
 
-    LOGGER.info(
-        String.format(
-            "tilgang til dokument: %s, status: %s",
-            dokumentUrlResponse.fetchBody(),
-            dokumentUrlResponse.getResponseEntity().getStatusCode()));
+    LOGGER.info(String
+        .format("tilgang til dokument: %s, status: %s", dokumentUrlResponse.fetchBody(), dokumentUrlResponse.getResponseEntity().getStatusCode()));
 
     return dokumentUrlResponse.getResponseEntity();
   }
