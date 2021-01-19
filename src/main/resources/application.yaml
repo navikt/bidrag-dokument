@@ -64,9 +64,13 @@ no.nav.security.jwt:
 
 spring.config.activate.on-profile: test, secure-test
 
+# default port for tester som ikke bruker wiremock
+wiremock.server.port: 8085
+
 ISSO_ISSUER_URL: https://isso-q.adeo.no:443/isso/oauth2
-BIDRAG_ARKIV_URL: https://bidrag-dokument-arkiv-q1.nais.preprod.local
-JOURNALPOST_URL: http://localhost:8096/
+# For enkelhetsskyld brukes samme wiremock-instans for både arkiv og journalpost
+BIDRAG_ARKIV_URL: http://localhost:${wiremock.server.port}/
+JOURNALPOST_URL: http://localhost:${wiremock.server.port}/
 SECURITY_TOKEN_URL: https://security-token-service-nais-preprod.local
 SRVBIDRAG_USERNAME: srvbidrag-dokument
 SRVBIDRAG_PASSWORD: bareForTest

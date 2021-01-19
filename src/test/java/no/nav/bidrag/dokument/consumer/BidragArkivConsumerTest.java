@@ -1,64 +1,70 @@
 package no.nav.bidrag.dokument.consumer;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
+import static no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer.PATH_JOURNALPOST_UTEN_SAK;
+import static no.nav.bidrag.dokument.consumer.stub.BidragDokumentJournalpostStub.generereJournalpostrespons;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
-import no.nav.bidrag.dokument.BidragDokumentConfig.RestTemplateProvider;
+import com.github.tomakehurst.wiremock.matching.StringValuePattern;
+import java.util.HashMap;
+import java.util.Map;
+import no.nav.bidrag.dokument.BidragDokumentConfig.OidcTokenManager;
+import no.nav.bidrag.dokument.BidragDokumentLocal;
+import no.nav.bidrag.dokument.consumer.stub.BidragDokumentJournalpostStub;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
-import no.nav.bidrag.dokument.dto.JournalpostResponse;
+import no.nav.security.token.support.test.jersey.TestTokenGeneratorResource;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpMethod;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("BidragArkivConsumer")
-@ExtendWith(MockitoExtension.class)
-@TestInstance(Lifecycle.PER_CLASS)
+@SpringBootTest(classes = {BidragDokumentLocal.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles(TEST_PROFILE)
+@AutoConfigureWireMock(port = 0)
 class BidragArkivConsumerTest {
 
-  @Mock
-  ConsumerTarget consumerTarget;
-  @Mock
-  RestTemplateProvider restTemplateProviderMock;
-  @InjectMocks
+  @Autowired
   private BidragArkivConsumer bidragArkivConsumer;
-  @Mock
-  private RestTemplate restTemplateMock;
+
+  @Autowired
+  private BidragDokumentJournalpostStub bidragDokumentJournalpostStub;
+
+  @MockBean
+  private OidcTokenManager oidcTokenManager;
+
+  private static String generateTestToken() {
+    TestTokenGeneratorResource testTokenGeneratorResource = new TestTokenGeneratorResource();
+    return testTokenGeneratorResource.issueToken("localhost-idtoken");
+  }
 
   @Test
   @DisplayName("skal hente en journalpost med spring sin RestTemplate")
   void skalHenteJournalpostMedRestTemplate() {
-    when(consumerTarget.getBaseUrl()).thenReturn("bidrag-dokument-arkiv-url");
-    when(consumerTarget.getRestTemplateProvider()).thenReturn(restTemplateProviderMock);
-    when(restTemplateProviderMock.provideRestTemplate(anyString(), anyString())).thenReturn(restTemplateMock);
-    when(restTemplateMock.exchange(anyString(), eq(HttpMethod.GET), any(), eq(JournalpostResponse.class)))
-        .thenReturn(new ResponseEntity<>(enJournalpostMedJournaltilstand("ENDELIG"), HttpStatus.OK));
 
-    var httpResponse = bidragArkivConsumer.hentJournalpost("69", "BID-101");
+    var jpId = "BID-101";
+    var saksnr = "69";
+    var path = String.format(PATH_JOURNALPOST_UTEN_SAK, jpId);
+    Map<String, StringValuePattern> queryParams = new HashMap<>();
+    queryParams.put("saksnummer", equalTo(saksnr));
+
+    Map<String, String> journalpostelementer = new HashMap<>();
+    journalpostelementer.put("innhold", "ENDELIG");
+    var idToken = generateTestToken();
+
+    when(oidcTokenManager.fetchToken()).thenReturn(idToken);
+    bidragDokumentJournalpostStub.runGet(path, queryParams, HttpStatus.OK, generereJournalpostrespons(journalpostelementer));
+
+    var httpResponse = bidragArkivConsumer.hentJournalpost(saksnr, jpId);
     var journalpostResponse = httpResponse.fetchBody().orElseThrow(() -> new AssertionError("BidragArkivConsumer kunne ikke finne journalpost!"));
 
     assertThat(journalpostResponse.getJournalpost()).extracting(JournalpostDto::getInnhold).isEqualTo("ENDELIG");
 
-    verify(restTemplateMock).exchange("/journal/BID-101?saksnummer=69", HttpMethod.GET, null, JournalpostResponse.class);
-  }
-
-  private JournalpostResponse enJournalpostMedJournaltilstand(@SuppressWarnings("SameParameterValue") String innhold) {
-    JournalpostDto journalpostDto = new JournalpostDto();
-    journalpostDto.setInnhold(innhold);
-
-    return new JournalpostResponse(journalpostDto, Collections.emptyList());
   }
 }

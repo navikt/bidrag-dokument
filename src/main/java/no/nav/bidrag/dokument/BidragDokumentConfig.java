@@ -75,20 +75,27 @@ public class BidragDokumentConfig {
   public BidragJournalpostConsumer bidragJournalpostConsumer(@Value("${JOURNALPOST_URL}") String journalpostBaseUrl,
       RestTemplateProvider restTemplateProvider) {
     LOGGER.info("BidragJournalpostConsumer med base url: " + journalpostBaseUrl);
-    return new BidragJournalpostConsumer(ConsumerTarget.builder().restTemplateProvider(restTemplateProvider).baseUrl(journalpostBaseUrl).build());
+    var consumerTarget = ConsumerTarget.builder().azureRestTemplate(azureRestTemplate(KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST, journalpostBaseUrl))
+        .issoRestTemplate(issoRestTemplate(journalpostBaseUrl)).restTemplateProvider(restTemplateProvider).build();
+
+    return new BidragJournalpostConsumer(consumerTarget);
   }
 
   @Bean
   public BidragArkivConsumer journalforingConsumer(@Value("${BIDRAG_ARKIV_URL}") String bidragArkivBaseUrl,
       RestTemplateProvider restTemplateProvider) {
     LOGGER.info("BidragArkivConsumer med base url: " + bidragArkivBaseUrl);
-    return new BidragArkivConsumer(ConsumerTarget.builder().restTemplateProvider(restTemplateProvider).baseUrl(bidragArkivBaseUrl).build());
+    var consumerTarget = ConsumerTarget.builder().azureRestTemplate(azureRestTemplate(KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV, bidragArkivBaseUrl))
+        .issoRestTemplate(issoRestTemplate(bidragArkivBaseUrl)).restTemplateProvider(restTemplateProvider).build();
+    return new BidragArkivConsumer(consumerTarget);
   }
 
   @Bean
   public DokumentConsumer dokumentConsumer(@Value("${JOURNALPOST_URL}") String journalpostBaseUrl, RestTemplateProvider restTemplateProvider) {
     LOGGER.info("DokumentConsumer med base url: " + journalpostBaseUrl);
-    return new DokumentConsumer(ConsumerTarget.builder().restTemplateProvider(restTemplateProvider).baseUrl(journalpostBaseUrl).build());
+    var consumerTarget = ConsumerTarget.builder().azureRestTemplate(azureRestTemplate(KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST, journalpostBaseUrl))
+        .issoRestTemplate(issoRestTemplate(journalpostBaseUrl)).restTemplateProvider(restTemplateProvider).build();
+    return new DokumentConsumer(consumerTarget);
   }
 
   @Bean
@@ -117,24 +124,22 @@ public class BidragDokumentConfig {
 
   @Bean
   public RestTemplateProvider restTemplateProvider(OidcTokenManager oidcTokenManager) {
-    return (navnKlient, baseUrl) -> selector(navnKlient, baseUrl, oidcTokenManager.fetchToken());
+    return (consumerTarget) -> selector(oidcTokenManager.fetchToken(), consumerTarget);
   }
 
-  private RestTemplate selector(String navnKlient, String baseUrl, String idToken) {
-
+  private RestTemplate selector(String idToken, ConsumerTarget consumerTarget) {
     var issuer = henteIssuer(idToken);
     if (issuer.contains(ISSUER_AZURE_AD_IDENTIFIER)) {
-      return azureRestTemplate(navnKlient);
-
+      return consumerTarget.getAzureRestTemplate();
     } else {
-      return issoRestTemplate(baseUrl);
+      return consumerTarget.getIssoRestTemplate();
     }
   }
 
-  private RestTemplate azureRestTemplate(String clientName) {
+  private RestTemplate azureRestTemplate(String clientName, String baseUrl) {
     ClientProperties clientProperties = Optional.ofNullable(clientConfigurationProperties.getRegistration().get(clientName))
         .orElseThrow(() -> new IllegalStateException("could not find oauth2 client config for " + clientName));
-    return restTemplateBuilder.additionalInterceptors(bearerTokenInterceptor(clientProperties, oAuth2AccessTokenService)).build();
+    return restTemplateBuilder.rootUri(baseUrl).additionalInterceptors(bearerTokenInterceptor(clientProperties, oAuth2AccessTokenService)).build();
   }
 
   private ClientHttpRequestInterceptor bearerTokenInterceptor(ClientProperties clientProperties, OAuth2AccessTokenService oAuth2AccessTokenService) {
@@ -159,7 +164,7 @@ public class BidragDokumentConfig {
   @FunctionalInterface
   public interface RestTemplateProvider {
 
-    RestTemplate provideRestTemplate(String navnKlient, String baseUrl);
+    RestTemplate provideRestTemplate(ConsumerTarget consumerTarget);
   }
 
   @FunctionalInterface

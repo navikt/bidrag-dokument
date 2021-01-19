@@ -66,6 +66,7 @@ public class JournalpostService {
   }
 
   public HttpResponse<Void> endre(String enhet, EndreJournalpostCommand endreJournalpostCommand) {
-    return bidragJournalpostConsumer.endre(enhet, endreJournalpostCommand);
+    var respons = bidragJournalpostConsumer.endre(enhet, endreJournalpostCommand);
+    return respons;
   }
 }

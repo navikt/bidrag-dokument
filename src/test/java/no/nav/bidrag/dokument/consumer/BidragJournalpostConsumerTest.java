@@ -14,16 +14,16 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(classes = {BidragDokumentLocal.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(TEST_PROFILE)
 @DisplayName("BidragJournalpostConsumer")
-@AutoConfigureWireMock(port = 8096)
+@AutoConfigureWireMock(port = 0)
 @SuppressWarnings("unchecked")
 class BidragJournalpostConsumerTest {
 
@@ -35,12 +35,6 @@ class BidragJournalpostConsumerTest {
 
   @MockBean
   private OidcTokenManager oidcTokenManager;
-
-  @MockBean
-  private ConsumerTarget consumerTarget;
-
-  @Value("${wiremock.server.port}")
-  private String wiremockPort;
 
   private static String generateTestToken() {
     TestTokenGeneratorResource testTokenGeneratorResource = new TestTokenGeneratorResource();
@@ -57,10 +51,8 @@ class BidragJournalpostConsumerTest {
     bidragDokumentJournalpostStub.runHenteJournalpostForSak(saksnr);
 
     var idToken = generateTestToken();
-    var bidragDokumentJournalpostBaseUrl = "http://localhost:" + wiremockPort + "/";
 
     when(oidcTokenManager.fetchToken()).thenReturn(idToken);
-    when(consumerTarget.getBaseUrl()).thenReturn(bidragDokumentJournalpostBaseUrl);
 
     // when
     var respons = bidragJournalpostConsumer.finnJournalposter(saksnr, "BID");
@@ -74,12 +66,10 @@ class BidragJournalpostConsumerTest {
   void skalEndreJournalpost() throws IOException {
     var idToken = generateTestToken();
     var request = endreJournalpostCommandMedId101();
-    var bidragDokumentJournalpostBaseUrl = "http://localhost:" + wiremockPort + "/";
 
     when(oidcTokenManager.fetchToken()).thenReturn(idToken);
-    when(consumerTarget.getBaseUrl()).thenReturn(bidragDokumentJournalpostBaseUrl);
 
-    bidragDokumentJournalpostStub.runHenteEndreJournalpost(request.getJournalpostId());
+    bidragDokumentJournalpostStub.runEndreJournalpost(request.getJournalpostId(), HttpStatus.OK);
 
     var respons = bidragJournalpostConsumer.endre("4802", endreJournalpostCommandMedId101());
     Assertions.assertTrue(respons.is2xxSuccessful());

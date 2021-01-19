@@ -1,6 +1,6 @@
 package no.nav.bidrag.dokument.security;
 
-import static no.nav.bidrag.dokument.BidragDokumentLocal.SECURE_TEST_PROFILE;
+import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
 
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.security.token.support.test.jersey.TestTokenGeneratorResource;
@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 
 @Configuration
-@Profile(SECURE_TEST_PROFILE)
+@Profile(TEST_PROFILE)
 public class HttpHeaderTestRestTemplateConfiguration {
 
   @Bean
