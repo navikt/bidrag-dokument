@@ -1,12 +1,3 @@
-ISSO_ISSUER_URL: https://isso-q.adeo.no:443/isso/oauth2
-BIDRAG_ARKIV_URL: https://bidrag-dokument-arkiv-q1.nais.preprod.local
-JOURNALPOST_URL: https://bidrag-dokument-journalpost-q1.nais.preprod.local
-SECURITY_TOKEN_URL: https://security-token-service-nais-preprod.local
-SRVBIDRAG_USERNAME: srvbidrag-dokument
-SRVBIDRAG_PASSWORD: bareForTest
-
-
-
 ####################################################################
 # 
 # Profiles: All
@@ -30,16 +21,36 @@ management:
 #							
 ####################################################################
 
-spring:
-  profiles: live
+spring.config.activate.on-profile: live
 
 # OIDC          
 no.nav.security.jwt:
-  issuers: isso
-  issuer:
-    isso:
-      accepted_audience: ${ACCEPTED_AUDIENCE}
-      discoveryurl: ${ISSO_ISSUER_URL}/.well-known/openid-configuration
+  issuers: aad, isso
+  issuer.aad:
+    discovery_url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/v2.0/.well-known/openid-configuration
+    accepted_audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}, ${ACCEPTED_AUDIENCE}
+    proxy-url: http://webproxy.nais:8088
+  client:
+    registration:
+      bidrag-dokument-journalpost:
+        token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        scope: api://${BIDRAG_DOKUMENT_JOURNALPOST_CLIENT_ID}/.default
+        authentication:
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
+          client-auth-method: client_secret_basic
+      bidrag-dokument-arkiv:
+        token-endpoint-url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/oauth2/v2.0/token
+        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        scope: api://${BIDRAG_DOKUMENT_ARKIV_CLIENT_ID}/.default
+        authentication:
+          client-id: ${AZURE_APP_CLIENT_ID}
+          client-secret: ${AZURE_APP_CLIENT_SECRET}
+          client-auth-method: client_secret_basic
+  issuer.isso:
+    accepted_audience: ${ACCEPTED_AUDIENCE}
+    discoveryurl: ${ISSO_ISSUER_URL}/.well-known/openid-configuration
 
 ---
 
@@ -51,8 +62,18 @@ no.nav.security.jwt:
 #							
 ####################################################################
 
-spring:
-  profiles: test, secure-test
+spring.config.activate.on-profile: test, secure-test
+
+# default port for tester som ikke bruker wiremock
+wiremock.server.port: 8085
+
+ISSO_ISSUER_URL: https://isso-q.adeo.no:443/isso/oauth2
+# For enkelhetsskyld brukes samme wiremock-instans for både arkiv og journalpost
+BIDRAG_ARKIV_URL: http://localhost:${wiremock.server.port}/
+JOURNALPOST_URL: http://localhost:${wiremock.server.port}/
+SECURITY_TOKEN_URL: https://security-token-service-nais-preprod.local
+SRVBIDRAG_USERNAME: srvbidrag-dokument
+SRVBIDRAG_PASSWORD: bareForTest
 
 no.nav.security.jwt:
   issuers: isso
@@ -60,5 +81,25 @@ no.nav.security.jwt:
     discoveryurl: http://metadata
     accepted_audience: aud-localhost
     cookie_name: localhost-idtoken
+  client:
+    registration:
+      bidrag-dokument-journalpost:
+        token-endpoint-url: https://login.microsoftonline.com/123/oauth2/v2.0/token
+        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        scope: api://123/.default
+        authentication:
+          client-id: 123
+          client-secret: 123
+          client-auth-method: client_secret_basic
+      bidrag-dokument-arkiv:
+        token-endpoint-url: https://login.microsoftonline.com/123/oauth2/v2.0/token
+        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        scope: api://123/.default
+        authentication:
+          client-id: 123
+          client-secret: 123
+          client-auth-method: client_secret_basic
+
+
 
 ---

@@ -30,6 +30,7 @@
     <nimbus-jose-jwt.version>8.20.1</nimbus-jose-jwt.version>
     <springfox-swagger.version>2.9.2</springfox-swagger.version>
     <token-support.version>1.3.2</token-support.version>
+    <springframework-cloud.version>3.0.0</springframework-cloud.version>
 
     <!-- build -->
     <build-helper-maven.version>3.2.0</build-helper-maven.version>
@@ -75,23 +76,15 @@
     </dependency>
 
     <dependency>
+      <groupId>no.nav.security</groupId>
+      <artifactId>token-client-spring</artifactId>
+      <version>${token-support.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>no.nav.bidrag</groupId>
       <artifactId>bidrag-commons</artifactId>
       <version>${bidrag-commons.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>no.nav.security</groupId>
-      <artifactId>token-validation-test-support</artifactId>
-      <version>${token-support.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>no.nav.bidrag</groupId>
-      <artifactId>bidrag-commons-test</artifactId>
-      <version>${bidrag-commons-test.version}</version>
-      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -166,8 +159,29 @@
 
     <!-- test dependencies -->
     <dependency>
+      <groupId>no.nav.security</groupId>
+      <artifactId>token-validation-test-support</artifactId>
+      <version>${token-support.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>no.nav.bidrag</groupId>
+      <artifactId>bidrag-commons-test</artifactId>
+      <version>${bidrag-commons-test.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-contract-stub-runner</artifactId>
+      <version>${springframework-cloud.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -226,6 +240,21 @@
 
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <reuseForks>false</reuseForks>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <includes>
+            <reuseForks>false</reuseForks>
+            <forkCount>1</forkCount>
+          </includes>
+          <threadCount>20</threadCount>
+        </configuration>
       </plugin>
 
       <plugin>

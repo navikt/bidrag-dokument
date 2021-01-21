@@ -16,3 +16,7 @@ env:
     value: https://security-token-service.dev.adeo.no/rest/v1/sts/token
   - name: SRVBIDRAG_USERNAME
     value: srvbidrag-dokument
+  - name: BIDRAG_DOKUMENT_JOURNALPOST_CLIENT_ID
+    value: TBA
+  - name: BIDRAG_DOKUMENT_ARKIV_CLIENT_ID
+    value: TBA

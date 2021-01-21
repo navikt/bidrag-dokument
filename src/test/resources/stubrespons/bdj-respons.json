@@ -1,0 +1,56 @@
+[
+  {
+    "avsenderNavn": "BRINGEDAL, ISELIN",
+    "dokumenter": [
+      {
+        "dokumentreferanse": "3700519680",
+        "dokumentType": "I",
+        "tittel": ""
+      }
+    ],
+    "dokumentDato": "2018-12-17",
+    "fagomrade": "BID",
+    "gjelderAktor": {
+      "ident": "06068925809"
+    },
+    "innhold": "Erkjennelse, Farskap",
+    "journalforendeEnhet": "4860",
+    "journalfortAv": "Eidsheim, Mona",
+    "journalfortDato": "2018-12-21",
+    "journalpostId": "BID-37005196",
+    "mottattDato": "2018-12-21",
+    "dokumentType": "I",
+    "journalstatus": "J",
+    "feilfort": false,
+    "brevkode": null
+  },
+  {
+    "avsenderNavn": "BREILAND, TORE",
+    "dokumenter": [
+      {
+        "dokumentreferanse": "3700754266",
+        "dokumentType": "U",
+        "tittel": ""
+      }
+    ],
+    "dokumentDato": "2019-01-02",
+    "fagomrade": "BID",
+    "gjelderAktor": {
+      "ident": "16048734794"
+    },
+    "innhold": "Farskap, brev p reg med orig erkl/samboere",
+    "journalforendeEnhet": "4860",
+    "journalfortAv": "Eidsheim, Mona",
+    "journalfortDato": "2019-01-02",
+    "journalpostId": "BID-37007542",
+    "mottattDato": "2019-01-02",
+    "dokumentType": "U",
+    "journalstatus": "R",
+    "feilfort": false,
+    "brevkode": {
+      "kode": "BI01S02 ",
+      "dekode": null,
+      "erGyldig": true
+    }
+  }
+]

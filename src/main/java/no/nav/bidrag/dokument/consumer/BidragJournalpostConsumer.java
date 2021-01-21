@@ -18,42 +18,45 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 public class BidragJournalpostConsumer {
 
+  public static final String PATH_AVVIK_PA_JOURNALPOST = "/journal/%s/avvik";
+  public static final String PATH_JOURNALPOST_UTEN_SAK = "/journal/%s";
+  public static final String PATH_SAK_JOURNAL = "/sak/%s/journal";
   private static final Logger LOGGER = LoggerFactory.getLogger(BidragJournalpostConsumer.class);
   private static final String PARAM_FAGOMRADE = "fagomrade";
   private static final String PARAM_SAKSNUMMER = "saksnummer";
-  private static final String PATH_AVVIK_PA_JOURNALPOST = "/journal/%s/avvik";
-  private static final String PATH_AVVIK_PA_JOURNALPOST_MED_SAK_PARAM = "/journal/%s/avvik?" + PARAM_SAKSNUMMER + "=%s";
-  private static final String PATH_JOURNALPOST_MED_SAKPARAM = "/journal/%s?" + PARAM_SAKSNUMMER + "=%s";
-  private static final String PATH_JOURNALPOST_UTEN_SAK = "/journal/%s";
-  private static final String PATH_SAK_JOURNAL = "/sak/%s/journal";
+  public static final String PATH_AVVIK_PA_JOURNALPOST_MED_SAK_PARAM = "/journal/%s/avvik?" + PARAM_SAKSNUMMER + "=%s";
+  public static final String PATH_JOURNALPOST_MED_SAKPARAM = "/journal/%s?" + PARAM_SAKSNUMMER + "=%s";
+  private final ConsumerTarget consumerTarget;
 
-  private final RestTemplate restTemplate;
-
-  public BidragJournalpostConsumer(RestTemplate restTemplate) {
-    this.restTemplate = restTemplate;
-  }
-
-  public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
-    var uri = UriComponentsBuilder.fromPath(String.format(PATH_SAK_JOURNAL, saksnummer))
-        .queryParam(PARAM_FAGOMRADE, fagomrade)
-        .toUriString();
-
-    var journalposterFraBrevlagerRequest = restTemplate.exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter());
-    var httpStatus = journalposterFraBrevlagerRequest.getStatusCode();
-
-    LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} på fagområde {}", httpStatus, saksnummer, fagomrade);
-
-    return Optional.ofNullable(journalposterFraBrevlagerRequest.getBody()).orElse(Collections.emptyList());
+  public BidragJournalpostConsumer(ConsumerTarget consumerTarget) {
+    this.consumerTarget = consumerTarget;
   }
 
   private static ParameterizedTypeReference<List<JournalpostDto>> typereferansenErListeMedJournalposter() {
     return new ParameterizedTypeReference<>() {
     };
+  }
+
+  public static HttpHeaders createEnhetHeader(String enhet) {
+    var header = new HttpHeaders();
+    header.add(X_ENHET_HEADER, enhet);
+    return header;
+  }
+
+  public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
+    var uri = UriComponentsBuilder.fromPath(String.format(PATH_SAK_JOURNAL, saksnummer)).queryParam(PARAM_FAGOMRADE, fagomrade).toUriString();
+
+    var journalposterFraBrevlagerRequest = consumerTarget.henteRestTemplateForIssuer()
+        .exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter());
+    var httpStatus = journalposterFraBrevlagerRequest.getStatusCode();
+
+    LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} på fagområde {}", httpStatus, saksnummer, fagomrade);
+
+    return Optional.ofNullable(journalposterFraBrevlagerRequest.getBody()).orElse(Collections.emptyList());
   }
 
   public HttpResponse<JournalpostResponse> hentJournalpostResponse(String saksnummer, String id) {
@@ -66,7 +69,7 @@ public class BidragJournalpostConsumer {
     }
 
     LOGGER.info("Hent journalpost fra bidrag-dokument-journalpost{}", path);
-    var exchange = restTemplate.exchange(path, HttpMethod.GET, null, JournalpostResponse.class);
+    var exchange = consumerTarget.henteRestTemplateForIssuer().exchange(path, HttpMethod.GET, null, JournalpostResponse.class);
 
     LOGGER.info("Hent journalpost fikk http status {} fra bidrag-dokument-journalpost", exchange.getStatusCode());
     return new HttpResponse<>(exchange);
@@ -76,12 +79,13 @@ public class BidragJournalpostConsumer {
     var path = String.format(PATH_JOURNALPOST_UTEN_SAK, endreJournalpostCommand.getJournalpostId());
     LOGGER.info("Endre journalpost BidragDokument: {}, path {}", endreJournalpostCommand, path);
 
-    var endretJournalpostResponse = restTemplate.exchange(
-        path, HttpMethod.PUT, new HttpEntity<>(endreJournalpostCommand, createEnhetHeader(enhet)), Void.class
-    );
+    var endretJournalpostResponse = consumerTarget.henteRestTemplateForIssuer()
+        .exchange(path, HttpMethod.PUT, new HttpEntity<>(endreJournalpostCommand, createEnhetHeader(enhet)), Void.class);
 
     LOGGER.info("Endre journalpost fikk http status {}", endretJournalpostResponse.getStatusCode());
-    return new HttpResponse<>(endretJournalpostResponse);
+
+    var respons = new HttpResponse<>(endretJournalpostResponse);
+    return respons;
   }
 
   public HttpResponse<List<AvvikType>> finnAvvik(String saksnummer, String journalpostId) {
@@ -95,7 +99,7 @@ public class BidragJournalpostConsumer {
 
     LOGGER.info("Finner avvik på journalpost fra bidrag-dokument-journalpost{}", path);
 
-    var avviksResponse = restTemplate.exchange(path, HttpMethod.GET, null, typereferansenErListeMedAvvikstyper());
+    var avviksResponse = consumerTarget.henteRestTemplateForIssuer().exchange(path, HttpMethod.GET, null, typereferansenErListeMedAvvikstyper());
     return new HttpResponse<>(avviksResponse);
   }
 
@@ -108,16 +112,9 @@ public class BidragJournalpostConsumer {
     var path = String.format(PATH_JOURNALPOST_UTEN_SAK + "/avvik", journalpostId);
     LOGGER.info("bidrag-dokument-journalpost{}: {}", path, avvikshendelse);
 
-    var avviksResponse = restTemplate.exchange(
-        path, HttpMethod.POST, new HttpEntity<>(avvikshendelse, createEnhetHeader(enhetsnummer)), OpprettAvvikshendelseResponse.class
-    );
+    var avviksResponse = consumerTarget.henteRestTemplateForIssuer()
+        .exchange(path, HttpMethod.POST, new HttpEntity<>(avvikshendelse, createEnhetHeader(enhetsnummer)), OpprettAvvikshendelseResponse.class);
 
     return new HttpResponse<>(avviksResponse);
-  }
-
-  public static HttpHeaders createEnhetHeader(String enhet) {
-    var header = new HttpHeaders();
-    header.add(X_ENHET_HEADER, enhet);
-    return header;
   }
 }
