@@ -3,7 +3,7 @@ package no.nav.bidrag.dokument.consumer;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
 import static no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer.PATH_JOURNALPOST_UTEN_SAK;
-import static no.nav.bidrag.dokument.consumer.stub.BidragDokumentJournalpostStub.generereJournalpostrespons;
+import static no.nav.bidrag.dokument.consumer.stub.RestConsumerStub.generereJournalpostrespons;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import no.nav.bidrag.dokument.BidragDokumentConfig.OidcTokenManager;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
-import no.nav.bidrag.dokument.consumer.stub.BidragDokumentJournalpostStub;
+import no.nav.bidrag.dokument.consumer.stub.RestConsumerStub;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.security.token.support.test.jersey.TestTokenGeneratorResource;
 import org.junit.jupiter.api.DisplayName;
@@ -34,7 +34,7 @@ class BidragArkivConsumerTest {
   private BidragArkivConsumer bidragArkivConsumer;
 
   @Autowired
-  private BidragDokumentJournalpostStub bidragDokumentJournalpostStub;
+  private RestConsumerStub restConsumerStub;
 
   @MockBean
   private OidcTokenManager oidcTokenManager;
@@ -59,7 +59,7 @@ class BidragArkivConsumerTest {
     var idToken = generateTestToken();
 
     when(oidcTokenManager.fetchToken()).thenReturn(idToken);
-    bidragDokumentJournalpostStub.runGet(path, queryParams, HttpStatus.OK, generereJournalpostrespons(journalpostelementer));
+    restConsumerStub.runGet(path, queryParams, HttpStatus.OK, generereJournalpostrespons(journalpostelementer));
 
     var httpResponse = bidragArkivConsumer.hentJournalpost(saksnr, jpId);
     var journalpostResponse = httpResponse.fetchBody().orElseThrow(() -> new AssertionError("BidragArkivConsumer kunne ikke finne journalpost!"));

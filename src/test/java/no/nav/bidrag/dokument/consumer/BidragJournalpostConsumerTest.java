@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import no.nav.bidrag.dokument.BidragDokumentConfig.OidcTokenManager;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
-import no.nav.bidrag.dokument.consumer.stub.BidragDokumentJournalpostStub;
+import no.nav.bidrag.dokument.consumer.stub.RestConsumerStub;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.security.token.support.test.jersey.TestTokenGeneratorResource;
 import org.junit.jupiter.api.Assertions;
@@ -31,7 +31,7 @@ class BidragJournalpostConsumerTest {
   private BidragJournalpostConsumer bidragJournalpostConsumer;
 
   @Autowired
-  private BidragDokumentJournalpostStub bidragDokumentJournalpostStub;
+  private RestConsumerStub restConsumerStub;
 
   @MockBean
   private OidcTokenManager oidcTokenManager;
@@ -48,7 +48,7 @@ class BidragJournalpostConsumerTest {
     // given
     var saksnr = "1900000";
 
-    bidragDokumentJournalpostStub.runHenteJournalpostForSak(saksnr);
+    restConsumerStub.runHenteJournalpostForSak(saksnr);
 
     var idToken = generateTestToken();
 
@@ -69,7 +69,7 @@ class BidragJournalpostConsumerTest {
 
     when(oidcTokenManager.fetchToken()).thenReturn(idToken);
 
-    bidragDokumentJournalpostStub.runEndreJournalpost(request.getJournalpostId(), HttpStatus.OK);
+    restConsumerStub.runEndreJournalpost(request.getJournalpostId(), HttpStatus.OK);
 
     var respons = bidragJournalpostConsumer.endre("4802", endreJournalpostCommandMedId101());
     Assertions.assertTrue(respons.is2xxSuccessful());

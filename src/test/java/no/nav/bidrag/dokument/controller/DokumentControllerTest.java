@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.Optional;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
-import no.nav.bidrag.dokument.consumer.stub.BidragDokumentJournalpostStub;
+import no.nav.bidrag.dokument.consumer.stub.RestConsumerStub;
 import no.nav.bidrag.dokument.dto.DokumentTilgangResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ class DokumentControllerTest {
   private int port;
 
   @Autowired
-  private BidragDokumentJournalpostStub bidragDokumentJournalpostStub;
+  private RestConsumerStub restConsumerStub;
 
   @Test
   @DisplayName("skal spørre brevserver om tilgang til dokument")
@@ -47,7 +47,7 @@ class DokumentControllerTest {
     var dokumentUrl = "https://dokument-url.no/";
     var type = "BREVLAGER";
 
-    bidragDokumentJournalpostStub
+    restConsumerStub
         .runGiTilgangTilDokument(journalpostId, dokumentReferanse, dokumentUrl, type, HttpStatus.OK.value());
 
     var dokumentUrlResponse = Optional.of(securedTestRestTemplate

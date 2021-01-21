@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class BidragDokumentJournalpostStub {
+public class RestConsumerStub {
 
   public static String lesResponsfilSomStreng(String filnavn) throws IOException {
     return Files.readString(Path.of("src/test/resources/stubrespons/" + filnavn), StandardCharsets.UTF_8);

@@ -7,8 +7,8 @@ import static no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer.PATH_AVV
 import static no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer.PATH_JOURNALPOST_UTEN_SAK;
 import static no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer.PATH_SAK_JOURNAL;
 import static no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer.createEnhetHeader;
-import static no.nav.bidrag.dokument.consumer.stub.BidragDokumentJournalpostStub.generereJournalpostrespons;
-import static no.nav.bidrag.dokument.consumer.stub.BidragDokumentJournalpostStub.lesResponsfilSomStreng;
+import static no.nav.bidrag.dokument.consumer.stub.RestConsumerStub.generereJournalpostrespons;
+import static no.nav.bidrag.dokument.consumer.stub.RestConsumerStub.lesResponsfilSomStreng;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
-import no.nav.bidrag.dokument.consumer.stub.BidragDokumentJournalpostStub;
+import no.nav.bidrag.dokument.consumer.stub.RestConsumerStub;
 import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
@@ -65,7 +65,7 @@ class JournalpostControllerTest {
   private HttpHeaderTestRestTemplate httpHeaderTestRestTemplate;
 
   @Autowired
-  private BidragDokumentJournalpostStub bidragDokumentJournalpostStub;
+  private RestConsumerStub restConsumerStub;
 
   private <T> HttpEntity<T> initHttpEntity(T body, CustomHeader... customHeaders) {
     var httpHeaders = new HttpHeaders();
@@ -111,7 +111,7 @@ class JournalpostControllerTest {
       var queryParams = new HashMap<String, StringValuePattern>();
       queryParams.put("saksnummer", equalTo(saksnr));
 
-      bidragDokumentJournalpostStub.runHenteJournalpost(jpId, queryParams, HttpStatus.NO_CONTENT, "");
+      restConsumerStub.runHenteJournalpost(jpId, queryParams, HttpStatus.NO_CONTENT, "");
 
       var journalpostResponseEntity = httpHeaderTestRestTemplate
           .exchange(initEndpointUrl(String.format(PATH_JOURNALPOST_UTEN_SAK, jpId) + "?saksnummer=" + saksnr), HttpMethod.GET, null,
@@ -131,7 +131,7 @@ class JournalpostControllerTest {
       queryParams.put("saksnummer", equalTo(saksnr));
       var responsfilnavn = "journalpostInnholdMidlertidig.json";
 
-      bidragDokumentJournalpostStub.runHenteJournalpost(jpId, queryParams, HttpStatus.OK, lesResponsfilSomStreng(responsfilnavn));
+      restConsumerStub.runHenteJournalpost(jpId, queryParams, HttpStatus.OK, lesResponsfilSomStreng(responsfilnavn));
 
       var url = initEndpointUrl("/journal/joark-2?saksnummer=007");
       var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.GET, null, JournalpostResponse.class);
@@ -165,7 +165,7 @@ class JournalpostControllerTest {
       Map<String, String> journalpostelementer = new HashMap<>();
       journalpostelementer.put("avsenderNavn", "Grev Still E. Ben");
 
-      bidragDokumentJournalpostStub.runHenteJournalpost(jpId, queryParams, HttpStatus.OK, generereJournalpostrespons(journalpostelementer));
+      restConsumerStub.runHenteJournalpost(jpId, queryParams, HttpStatus.OK, generereJournalpostrespons(journalpostelementer));
 
       var url = initEndpointUrl("/journal/" + jpId + "?saksnummer=" + saksnr);
       var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.GET, null, JournalpostResponse.class);
@@ -217,7 +217,7 @@ class JournalpostControllerTest {
     @DisplayName("skal endre journalpost")
     void skalEndreJournalpost() throws IOException {
       var jpId = "BID-1";
-      bidragDokumentJournalpostStub.runEndreJournalpost(jpId, HttpStatus.ACCEPTED);
+      restConsumerStub.runEndreJournalpost(jpId, HttpStatus.ACCEPTED);
 
       var lagreJournalpostUrl = initEndpointUrl("/journal/BID-1");
       var endretJournalpostResponse = httpHeaderTestRestTemplate
@@ -232,7 +232,7 @@ class JournalpostControllerTest {
     @DisplayName("skal videresende headere når journalpost endres")
     void skalVideresendeHeadereVedEndreJournalpost() {
       var jpId = "BID-1";
-      bidragDokumentJournalpostStub.runEndreJournalpostMedHeader(jpId, HttpHeader.httpHeader(HttpHeaders.WARNING, "rofl"), HttpStatus.OK, "");
+      restConsumerStub.runEndreJournalpostMedHeader(jpId, HttpHeader.httpHeader(HttpHeaders.WARNING, "rofl"), HttpStatus.OK, "");
 
       var lagreJournalpostUrl = initEndpointUrl("/journal/BID-1");
       var endretJournalpostResponse = httpHeaderTestRestTemplate
@@ -269,7 +269,7 @@ class JournalpostControllerTest {
       queryParams.put("saksnummer", equalTo(saksnr));
       final var respons = String.join("\n", " [", "\"BESTILL_ORIGINAL\"", "]");
 
-      bidragDokumentJournalpostStub.runGet(path, queryParams, HttpStatus.OK, respons);
+      restConsumerStub.runGet(path, queryParams, HttpStatus.OK, respons);
 
       var url = initEndpointUrl(path + "?saksnummer=1001");
 
@@ -292,7 +292,7 @@ class JournalpostControllerTest {
       final var path = String.format(PATH_AVVIK_PA_JOURNALPOST, jpId);
       final var respons = String.join("\n", " {", "\"avvikType\":", "\"" + avvikshendelse.getAvvikType() + "\"", "}");
 
-      bidragDokumentJournalpostStub.runPost(path, HttpStatus.CREATED, respons);
+      restConsumerStub.runPost(path, HttpStatus.CREATED, respons);
 
       var bestillOriginalEntity = initHttpEntity(avvikshendelse, new CustomHeader(X_ENHET_HEADER, "1234"));
       var url = initEndpointUrl(path);
@@ -356,7 +356,7 @@ class JournalpostControllerTest {
       var jpId = "BID-1";
       Map<String, String> journalpostelementer = new HashMap<>();
       journalpostelementer.put("avsenderNavn", "Grev Still E. Ben");
-      bidragDokumentJournalpostStub
+      restConsumerStub
           .runGet(String.format(PATH_JOURNALPOST_UTEN_SAK + "%s", jpId), HttpStatus.OK, generereJournalpostrespons(journalpostelementer));
 
       // when
@@ -384,7 +384,7 @@ class JournalpostControllerTest {
 
       // given
       var jpId = "BID-1";
-      bidragDokumentJournalpostStub
+      restConsumerStub
           .runGet(String.format(PATH_AVVIK_PA_JOURNALPOST, jpId), HttpStatus.OK, String.join("\n", " [", " \"ARKIVERE_JOURNALPOST\"]"));
 
       // when
@@ -405,7 +405,7 @@ class JournalpostControllerTest {
       final var path = String.format(PATH_AVVIK_PA_JOURNALPOST, jpId);
       final var respons = String.join("\n", " {", "\"avvikType\":", "\"ENDRE_FAGOMRADE\"", "}");
 
-      bidragDokumentJournalpostStub.runPost(path, HttpStatus.CREATED, respons);
+      restConsumerStub.runPost(path, HttpStatus.CREATED, respons);
 
       var bestillOriginalEntity = initHttpEntity(avvikshendelse, new CustomHeader(X_ENHET_HEADER, "1234"));
       var url = initEndpointUrl(path);
@@ -440,7 +440,7 @@ class JournalpostControllerTest {
 
       // Bruker en fellestub for journalpost og arkiv pga identisk path. Kan evnt sette opp egne
       // WireMock-instanser for hver app, men det krever mer arbeid.
-      bidragDokumentJournalpostStub.runGet(path, HttpStatus.OK, lesResponsfilSomStreng(navnResponsfil));
+      restConsumerStub.runGet(path, HttpStatus.OK, lesResponsfilSomStreng(navnResponsfil));
 
       // when
       var listeMedJournalposterResponse = httpHeaderTestRestTemplate
@@ -476,7 +476,7 @@ class JournalpostControllerTest {
 
       // Bruker en fellestub for journalpost og arkiv pga identisk path. Kan evnt sette opp egne
       // WireMock-instanser for hver app, men det krever mer arbeid.
-      bidragDokumentJournalpostStub.runGet(path, HttpStatus.OK, lesResponsfilSomStreng(navnResponsfil));
+      restConsumerStub.runGet(path, HttpStatus.OK, lesResponsfilSomStreng(navnResponsfil));
 
       var listeMedJournalposterResponse = httpHeaderTestRestTemplate
           .exchange(lagUrlForFagomradeBid(path), HttpMethod.GET, null, responseTypeErListeMedJournalposter());

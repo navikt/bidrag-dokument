@@ -157,8 +157,6 @@ public class JournalpostController {
 
     endreJournalpostCommand.setJournalpostId(journalpostIdForKildesystem);
 
-    var respons = journalpostService.endre(enhet, endreJournalpostCommand).getResponseEntity();
-
-    return respons;
+    return journalpostService.endre(enhet, endreJournalpostCommand).getResponseEntity();
   }
 }
