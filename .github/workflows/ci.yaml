@@ -103,15 +103,17 @@ jobs:
     name: Run cucumber integration tests
     needs: deploy_dev
     steps:
-      - uses: navikt/bidrag-integration/cucumber-clone@feature/names
+      - uses: navikt/bidrag-integration/cucumber-clone@v5
+        id: clone
         with:
           extra_clones: bidrag-dokument-testdata
         env:
           EXTRA_CLONES_CREDENTIALS: "jactor-rises:${{ secrets.EXTRA_CLONES_TOKEN }}"
-      - uses: navikt/bidrag-integration/input-json@feature/names
+      - uses: navikt/bidrag-integration/input-json@v5
         with:
+          base_path: ${{ steps.clone.outputs.cucumber_path }}
           test_username: z992903
-      - uses: navikt/bidrag-maven/cucumber-backend@v6.0.0-alpha
+      - uses: navikt/bidrag-maven/cucumber-backend@v6
         with:
           maven_image: maven:3.6.3-openjdk-15
           cucumber_tag: bidrag-dokument
