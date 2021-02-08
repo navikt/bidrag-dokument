@@ -2,6 +2,7 @@ name: bidrag-dokument
 ingresses:
   - https://bidrag-dokument.nais.preprod.local/
   - https://bidrag-dokument.dev.adeo.no/
+  - https://bidrag-dokument.dev.intern.nav.no/
   - https://bidrag-dokument.dev-fss-pub.nais.io/
 env:
   - name: ACCEPTED_AUDIENCE
