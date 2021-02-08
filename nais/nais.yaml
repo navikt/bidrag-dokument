@@ -5,6 +5,9 @@ metadata:
   namespace: bidrag
   labels:
     team: bidrag
+  {{#if port}}
+    port: {{ port }}
+  {{/if}}
 spec:
   azure:
     application:
