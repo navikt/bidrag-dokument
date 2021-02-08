@@ -168,8 +168,8 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-fss
-          RESOURCE: deploy/nais/nais-p.yaml
-          VAR: namespace=bidrag
+          RESOURCE: deploy/nais/nais.yaml
+          VARS: deploy/nais/prod.yaml
 
   tag_prod_deploy:
     runs-on: ubuntu-latest
