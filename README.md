@@ -92,9 +92,9 @@ curl -X POST \
 	{isso-issuer-url}/access_token
 ```
 
-hvor <code>{isso-agent-brukernavn}</code> og <code>{isso-agent-passord}</code> hentes fra Fasit-ressurs OpenIdConnect bidrag-dokument-ui-oidc for aktuelt miljø (f.eks [https://fasit.adeo.no/resources/6419841](https://fasit.adeo.no/resources/6419841) for q0),
+hvor <code>{isso-agent-brukernavn}</code> og <code>{isso-agent-passord}</code> hentes fra Fasit-ressurs OpenIdConnect bidrag-dokument-ui-oidc for aktuelt miljø (f.eks [https://fasit.adeo.no/resources/6419841](https://fasit.adeo.no/resources/6419841) for q2),
 
-og <code>{isso-issuer-url}</code> hentes fra Fasit-ressurs BaseUrl isso-issuer (f.eks [https://fasit.adeo.no/resources/2291405](https://fasit.adeo.no/resources/2291405) for q0.
+og <code>{isso-issuer-url}</code> hentes fra Fasit-ressurs BaseUrl isso-issuer (f.eks [https://fasit.adeo.no/resources/2291405](https://fasit.adeo.no/resources/2291405) for q2.
 
 #### Oppskrift for kjøring med test-token i Swagger
 (ved integrasjonstesting mot AM eller ABAC må token hentes fra bidrag-ui.<domene-navn>/session)
