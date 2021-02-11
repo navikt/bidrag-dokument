@@ -10,21 +10,21 @@ env:
 jobs:
 
   restart-testdata:
-    name: restart kubernetes pods bidrag-dokument-testdata
+    name: restart kubernetes pods bidrag-testdata
     runs-on: self-hosted
     if: github.ref != 'refs/heads/release'
 
     steps:
       - run: kubectl config use-context dev-fss
-      - name: restart bidrag-dokument-testdata
+      - name: restart bidrag-testdata
         if: github.ref == 'refs/heads/main'
         run: |
-          PODS_TESTDATA=$(kubectl get pods -n bidrag -l app=bidrag-dokument-testdata | awk '{print $1}' | grep -v NAME)
+          PODS_TESTDATA=$(kubectl get pods -n bidrag -l app=bidrag-testdata | awk '{print $1}' | grep -v NAME)
           kubectl delete pods -n bidrag $(echo $PODS_TESTDATA | sed 's;\n; ;')
-      - name: restart bidrag-dokument-testdata-feature
+      - name: restart bidrag-testdata-feature
         if: github.ref != 'refs/heads/main'
         run: |
-          PODS_TESTDATA=$(kubectl get pods -n bidrag -l app=bidrag-dokument-testdata-feature  | awk '{print $1}' | grep -v NAME)
+          PODS_TESTDATA=$(kubectl get pods -n bidrag -l app=bidrag-testdata-feature  | awk '{print $1}' | grep -v NAME)
           kubectl delete pods -n bidrag $(echo $PODS_TESTDATA | sed 's;\n; ;')
 
   build:
@@ -106,7 +106,7 @@ jobs:
       - uses: navikt/bidrag-integration/cucumber-clone@v5
         id: clone
         with:
-          extra_clones: bidrag-dokument-testdata
+          extra_clones: bidrag-testdata
         env:
           EXTRA_CLONES_CREDENTIALS: "jactor-rises:${{ secrets.EXTRA_CLONES_TOKEN }}"
       - uses: navikt/bidrag-integration/input-json@v5
