@@ -121,7 +121,11 @@ jobs:
         env:
           USER_AUTHENTICATION: ${{ secrets.USER_AUTHENTICATION }}
           TEST_USER_AUTHENTICATION: ${{ secrets.TEST_USER_AUTHENTICATION }}
-      - run: sudo rm -rf bidrag-cucumber-backend
+      - name: Remove files from workspace
+        run: |
+          cd $RUNNER_WORKSPACE
+          sudo rm -rf *
+        if: ${{ failure() || success() }}
 
   bump_dev_version:
     runs-on: ubuntu-latest
@@ -164,7 +168,7 @@ jobs:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-fss
           RESOURCE: deploy/nais/nais-p.yaml
-          VAR: namespace=default
+          VAR: namespace=bidrag
 
   tag_prod_deploy:
     runs-on: ubuntu-latest
