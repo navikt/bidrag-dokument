@@ -125,7 +125,7 @@ jobs:
         run: |
           cd $RUNNER_WORKSPACE
           sudo rm -rf *
-        if: ${{ failure() || success() }}
+        if: ${{ always() }}
 
   bump_dev_version:
     runs-on: ubuntu-latest
