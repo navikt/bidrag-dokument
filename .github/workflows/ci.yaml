@@ -124,7 +124,9 @@ jobs:
           USER_AUTHENTICATION: ${{ secrets.USER_AUTHENTICATION }}
           TEST_USER_AUTHENTICATION: ${{ secrets.TEST_USER_AUTHENTICATION }}
       - run: cat ${{ steps.generator.outputs.path_to_generated_shell }}
-      - run: ${{ steps.generator.outputs.path_to_generated_shell }}
+      - run: |
+          cd $RUNNER_WORKSPACE/bidrag-cucumber-backend || exit 1
+          ${{ steps.generator.outputs.path_to_generated_shell }}
       - name: Remove files from workspace
         run: |
           cd $RUNNER_WORKSPACE
