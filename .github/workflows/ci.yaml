@@ -120,13 +120,13 @@ jobs:
           delimited_arguments: "false%test%j104364%json/integrationInput.json%execute-cucumber.sh%tag=bidrag-dokument"
           generator: generateCucumberShell.kts
           generated_shell: execute-cucumber.sh
-        env:
-          USER_AUTHENTICATION: ${{ secrets.USER_AUTHENTICATION }}
-          TEST_USER_AUTHENTICATION: ${{ secrets.TEST_USER_AUTHENTICATION }}
       - run: cat ${{ steps.generator.outputs.path_to_generated_shell }}
       - run: |
           cd $RUNNER_WORKSPACE/bidrag-cucumber-backend || exit 1
           ${{ steps.generator.outputs.path_to_generated_shell }}
+        env:
+          USER_AUTHENTICATION: ${{ secrets.USER_AUTHENTICATION }}
+          TEST_USER_AUTHENTICATION: ${{ secrets.TEST_USER_AUTHENTICATION }}
       - name: Remove files from workspace
         run: |
           cd $RUNNER_WORKSPACE
