@@ -113,7 +113,7 @@ jobs:
         with:
           base_path: ${{ steps.clone.outputs.cucumber_path }}
           test_username: z992903
-      - uses: navikt/bidrag-scripts/generate-with-kotlin@feature/pwd
+      - uses: navikt/bidrag-scripts/generate-with-kotlin@v1
         id: generator
         with:
           delimiter: "%"
