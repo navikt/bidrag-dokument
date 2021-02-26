@@ -113,14 +113,18 @@ jobs:
         with:
           base_path: ${{ steps.clone.outputs.cucumber_path }}
           test_username: z992903
-      - uses: navikt/bidrag-maven/cucumber-backend@v6
+      - uses: navikt/bidrag-scripts/generate-with-kotlin@feature/pwd
+        id: generator
         with:
-          maven_image: maven:3.6.3-openjdk-15
-          cucumber_tag: bidrag-dokument
-          username: j104364
+          delimiter: "%"
+          delimited_arguments: "false%test%j104364%json/integrationInput.json%execute-cucumber.sh%tag=bidrag-dokument"
+          generator: generateCucumberShell.kts
+          generated_shell: execute-cucumber.sh
         env:
           USER_AUTHENTICATION: ${{ secrets.USER_AUTHENTICATION }}
           TEST_USER_AUTHENTICATION: ${{ secrets.TEST_USER_AUTHENTICATION }}
+      - run: cat ${{ steps.generator.outputs.path_to_generated_shell }}
+      - run: ${{ steps.generator.outputs.path_to_generated_shell }}
       - name: Remove files from workspace
         run: |
           cd $RUNNER_WORKSPACE
