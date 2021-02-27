@@ -113,17 +113,12 @@ jobs:
         with:
           base_path: ${{ steps.clone.outputs.cucumber_path }}
           test_username: z992903
-      - uses: navikt/bidrag-scripts/generate-with-kotlin@v1
-        id: generator
+      - uses: navikt/bidrag-scripts/create-cucumber-shell@v1
+        id: creator
         with:
-          delimiter: "%"
-          delimited_arguments: "false%test%j104364%json/integrationInput.json%execute-cucumber.sh%tag=bidrag-dokument"
-          generator: generateCucumberShell.kts
-          generated_shell: execute-cucumber.sh
-      - run: cat ${{ steps.generator.outputs.path_to_generated_shell }}
-      - run: |
-          cd $RUNNER_WORKSPACE/bidrag-cucumber-backend || exit 1
-          ${{ steps.generator.outputs.path_to_generated_shell }}
+          cucumber_tag: bidrag-dokument
+          user: j104364
+      - run: ${{ steps.creator.outputs.created_shell }}
         env:
           USER_AUTHENTICATION: ${{ secrets.USER_AUTHENTICATION }}
           TEST_USER_AUTHENTICATION: ${{ secrets.TEST_USER_AUTHENTICATION }}
