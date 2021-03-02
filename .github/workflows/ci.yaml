@@ -113,11 +113,12 @@ jobs:
         with:
           base_path: ${{ steps.clone.outputs.cucumber_path }}
           test_username: z992903
-      - uses: navikt/bidrag-maven/cucumber-backend@v6
+      - uses: navikt/bidrag-scripts/create-cucumber-shell@v1
+        id: creator
         with:
-          maven_image: maven:3.6.3-openjdk-15
           cucumber_tag: bidrag-dokument
-          username: j104364
+          user: j104364
+      - run: ${{ steps.creator.outputs.created_shell }}
         env:
           USER_AUTHENTICATION: ${{ secrets.USER_AUTHENTICATION }}
           TEST_USER_AUTHENTICATION: ${{ secrets.TEST_USER_AUTHENTICATION }}
@@ -125,7 +126,7 @@ jobs:
         run: |
           cd $RUNNER_WORKSPACE
           sudo rm -rf *
-        if: ${{ failure() || success() }}
+        if: ${{ always() }}
 
   bump_dev_version:
     runs-on: ubuntu-latest
