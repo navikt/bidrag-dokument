@@ -46,5 +46,5 @@ spec:
   vault:
     enabled: true
     paths:
-      - kvPath: /serviceuser/data/dev/srvbidrag-dokument
+      - kvPath: /serviceuser/data/{{ deploy }}/srvbidrag-dokument
         mountPath: /var/run/secrets/nais.io/srvbidrag-dokument

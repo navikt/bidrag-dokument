@@ -1,4 +1,5 @@
 name: bidrag-dokument
+deploy: prod
 port: 8080
 ingresses:
   - https://bidrag-dokument.intern.nav.no/

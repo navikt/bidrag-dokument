@@ -1,4 +1,5 @@
 name: bidrag-dokument
+deploy: dev
 ingresses:
   - https://bidrag-dokument.nais.preprod.local/
   - https://bidrag-dokument.dev.adeo.no/
