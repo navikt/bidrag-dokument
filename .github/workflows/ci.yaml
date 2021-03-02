@@ -71,7 +71,7 @@ jobs:
           docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
           docker push ${IMAGE}
 
-  deploy_dev:
+  deploy:
     runs-on: ubuntu-latest
     name: Deploy docker image to dev
     if: github.ref != 'refs/heads/release'
@@ -97,11 +97,19 @@ jobs:
           CLUSTER: dev-fss
           RESOURCE: deploy/nais/nais.yaml
           VARS: deploy/nais/feature.yaml
+      - name: Deploy nais app to prod-fss
+        if: github.ref == 'refs/heads/release'
+        uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-fss
+          RESOURCE: deploy/nais/nais.yaml
+          VARS: deploy/nais/prod.yaml
 
   run_cucumber:
     runs-on: self-hosted
     name: Run cucumber integration tests
-    needs: deploy_dev
+    needs: deploy
     steps:
       - uses: navikt/bidrag-integration/cucumber-clone@v5
         id: clone
@@ -128,7 +136,7 @@ jobs:
           sudo rm -rf *
         if: ${{ always() }}
 
-  bump_dev_version:
+  bump_patch_version:
     runs-on: ubuntu-latest
     name: Bump SNAPSHOT version
     if: github.ref == 'refs/heads/main'
@@ -154,27 +162,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  deploy_prod:
-    runs-on: ubuntu-latest
-    name: Deploy docker image to prod
-    if: github.ref == 'refs/heads/release'
-    needs: build
-
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          path: deploy
-      - uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: prod-fss
-          RESOURCE: deploy/nais/nais.yaml
-          VARS: deploy/nais/prod.yaml
-
   tag_prod_deploy:
     runs-on: ubuntu-latest
     name: Tag latest deploy to prod
-    needs: deploy_prod
+    needs: deploy
 
     steps:
       - uses: actions/checkout@v2
