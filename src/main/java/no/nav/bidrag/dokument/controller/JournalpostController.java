@@ -51,7 +51,6 @@ public class JournalpostController {
   @GetMapping("/sak/{saksnummer}/journal")
   @ApiOperation("Finn saksjournal for et saksnummer, samt parameter 'fagomrade' (FAR - farskapsjournal) og (BID - bidragsjournal)")
   @ApiResponses(value = {@ApiResponse(code = 200, message = "Fant journalposter for saksnummer"),
-      @ApiResponse(code = 204, message = "Ingen journalposter for saksnummer"),
       @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(code = 403, message = "Saksbehandler har ikke tilgang til aktuell journalpost"),})
   public ResponseEntity<List<JournalpostDto>> hentJournal(@PathVariable String saksnummer, @RequestParam String fagomrade) {
@@ -65,7 +64,7 @@ public class JournalpostController {
 
     var journalposter = journalpostService.finnJournalposter(saksnummer, fagomrade);
 
-    return new ResponseEntity<>(journalposter, journalposter.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK);
+    return new ResponseEntity<>(journalposter, HttpStatus.OK);
   }
 
   @GetMapping("/journal/{journalpostIdForKildesystem}")
@@ -90,7 +89,6 @@ public class JournalpostController {
   @GetMapping("/journal/{journalpostIdForKildesystem}/avvik")
   @ApiOperation("Henter mulige avvik for en journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
   @ApiResponses(value = {@ApiResponse(code = 200, message = "Tilgjengelig avvik for journalpost er hentet"),
-      @ApiResponse(code = 204, message = "Ingen tilgjengelige avvik for journalpost eller journalposten er for annen sak"),
       @ApiResponse(code = 401, message = "Du mangler sikkerhetstoken"), @ApiResponse(code = 403, message = "Sikkerhetstoken er ikke gyldig"),
       @ApiResponse(code = 404, message = "Fant ikke journalpost som det skal hentes avvik på")})
   public ResponseEntity<List<AvvikType>> hentAvvik(@PathVariable String journalpostIdForKildesystem,
