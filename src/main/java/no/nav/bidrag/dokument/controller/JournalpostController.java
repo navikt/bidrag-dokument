@@ -156,7 +156,7 @@ public class JournalpostController {
           """),
       @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(code = 403, message = "Saksbehandler har ikke tilgang til aktuell journalpost/sak"),
-      @ApiResponse(code = 404, message = "Fant ikke journalpost som skal endres, ingen 'payload' eller feil prefix/id på journalposten")
+      @ApiResponse(code = 404, message = "Fant ikke journalpost som skal endres")
   })
   public ResponseEntity<Void> endreJournalpost(
       @RequestBody EndreJournalpostCommand endreJournalpostCommand,
