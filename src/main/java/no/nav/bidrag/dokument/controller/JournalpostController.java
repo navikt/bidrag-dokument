@@ -150,9 +150,8 @@ public class JournalpostController {
       @ApiResponse(code = 400, message = "En av følgende: "
           + "(1) prefiks på journalpostId er ugyldig "
           + "(2) EndreJournalpostCommandDto.gjelder er ikke satt "
-          + "(3) eksister ikke journalpost for gitt id "
-          + "(4) enhet mangler/ugyldig (fra header)"
-          + "(5) journalpost skal journalføres, men har ikke sakstilknytninger"),
+          + "(3) enhet mangler/ugyldig (fra header)"
+          + "(4) journalpost skal journalføres, men har ikke sakstilknytninger"),
       @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(code = 403, message = "Saksbehandler har ikke tilgang til aktuell journalpost/sak"),
       @ApiResponse(code = 404, message = "Fant ikke journalpost som skal endres, ingen 'payload' eller feil prefix/id på journalposten")
