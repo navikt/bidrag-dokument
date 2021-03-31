@@ -113,7 +113,16 @@ public class JournalpostController {
   @ApiOperation("Lagrer et avvik for en journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
   @ApiResponses(value = {
       @ApiResponse(code = 200, message = "Avvik på journalpost er behandlet"),
-      @ApiResponse(code = 400, message = "Ugyldig id, avvikstype mangler i avvikshendelsen, enhetsnummer ugyldig (i header) eller behandling er ugyldig"),
+      @ApiResponse(code = 400, message = """
+          En av følgende:
+          - prefiks på journalpostId er ugyldig
+          - avvikstypen mangler i avvikshendelsen
+          - enhetsnummer i header (X_ENHET) mangler
+          - ugyldig behandling av avvikshendelse (som bla. inkluderer):
+            - oppretting av oppgave feiler
+            - BESTILL_SPLITTING: beskrivelse må være i avvikshendelsen
+            - OVERFOR_TIL_ANNEN_ENHET: nyttEnhetsnummer og gammeltEnhetsnummer må være i detaljer map
+          """),
       @ApiResponse(code = 401, message = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(code = 404, message = "Fant ikke journalpost som det skal lages avvik på eller feil prefix/id på journalposten"),
       @ApiResponse(code = 503, message = "Oppretting av oppgave for avviket feilet")
