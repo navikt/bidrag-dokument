@@ -28,7 +28,6 @@
     <bidrag-dokument-dto.version>0.15.4</bidrag-dokument-dto.version>
     <logback.encoder.version>6.6</logback.encoder.version>
     <lombok.version>1.18.20</lombok.version>
-    <nimbus-jose-jwt.version>8.21</nimbus-jose-jwt.version>
     <springfox-swagger.version>2.9.2</springfox-swagger.version>
     <token-support.version>1.3.5</token-support.version>
     <springframework-cloud.version>3.0.0</springframework-cloud.version>
@@ -182,12 +181,6 @@
         <groupId>net.minidev</groupId>
         <artifactId>json-smart</artifactId>
         <version>2.3</version>
-      </dependency>
-      <!-- Downgrade nimbus version because of nav token support -->
-      <dependency>
-        <groupId>com.nimbusds</groupId>
-        <artifactId>nimbus-jose-jwt</artifactId>
-        <version>${nimbus-jose-jwt.version}</version>
       </dependency>
       <!-- lombok for java 16 -->
       <dependency>
