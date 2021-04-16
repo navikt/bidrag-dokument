@@ -25,7 +25,7 @@
     <!-- dependent versions other than from spring-boot -->
     <bidrag-commons.version>0.5.6</bidrag-commons.version>
     <bidrag-commons-test.version>0.2.1</bidrag-commons-test.version>
-    <bidrag-dokument-dto.version>0.15.4</bidrag-dokument-dto.version>
+    <bidrag-dokument-dto.version>0.15.5</bidrag-dokument-dto.version>
     <logback.encoder.version>6.6</logback.encoder.version>
     <lombok.version>1.18.20</lombok.version>
     <springfox-swagger.version>2.9.2</springfox-swagger.version>
