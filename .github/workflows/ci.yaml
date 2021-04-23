@@ -163,10 +163,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: check if commit to build exists in main branch
-        run: |
-          BRANCHES=$( git branch --contains ${{ github.sha }} )
-          echo "present in branches: $BRANCHES"
-          echo -q $BRANCHES | grep -E '(^|\s)main$'
+        run: git log origin/main | grep -c ${{ github.sha }}
       - uses: actions/setup-java@v1
         with:
           java-version: '16'
