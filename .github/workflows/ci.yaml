@@ -158,7 +158,7 @@ jobs:
   build_release:
     name: Build release with maven and docker
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/release'
+    if: github.ref == 'refs/heads/feature/grep'
 
     steps:
       - uses: actions/checkout@v2
@@ -166,7 +166,7 @@ jobs:
         run: |
           BRANCHES=$( git branch --contains ${{ github.sha }} )
           echo "contains: $BRANCHES"
-          echo -q $BRANCHES | grep -E '(^|\s)main$'
+          echo -q $BRANCHES | grep -E '(^|\s)feature/grep$'
       - uses: actions/setup-java@v1
         with:
           java-version: '16'
