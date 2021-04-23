@@ -158,14 +158,14 @@ jobs:
   build_release:
     name: Build release with maven and docker
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/feature/release-ci'
+    if: github.ref == 'refs/heads/release'
 
     steps:
       - uses: actions/checkout@v2
       - name: check if commit to build exists in main branch
         run: |
           BRANCHES=$( git branch --contains ${{ github.sha }} )
-          echo $BRANCHES | egrep '(^|\s)feature/release-ci$'
+          echo $BRANCHES | egrep '(^|\s)main$'
       - uses: actions/setup-java@v1
         with:
           java-version: '16'
