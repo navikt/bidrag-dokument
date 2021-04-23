@@ -29,8 +29,8 @@
     <logback.encoder.version>6.6</logback.encoder.version>
     <lombok.version>1.18.20</lombok.version>
     <springfox-swagger.version>2.9.2</springfox-swagger.version>
+    <springframework-cloud.version>3.0.2</springframework-cloud.version>
     <token-support.version>1.3.5</token-support.version>
-    <springframework-cloud.version>3.0.0</springframework-cloud.version>
 
     <!-- build -->
     <build-helper-maven.version>3.2.0</build-helper-maven.version>
