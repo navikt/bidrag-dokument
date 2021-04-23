@@ -156,7 +156,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build_release:
-    name: Build with maven and docker
+    name: Build release with maven and docker
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/feature/release-ci'
 
@@ -165,7 +165,7 @@ jobs:
       - name: check if commit to build exists in main branch
         run: |
           BRANCHES=$( git branch --contains ${{ github.sha }} )
-          echo $BRANCHES | grep 'feature/release-ci$'
+          echo $BRANCHES | egrep '(^|\s)feature/release-ci$'
       - uses: actions/setup-java@v1
         with:
           java-version: '16'
