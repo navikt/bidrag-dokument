@@ -164,7 +164,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: check if commit to build exists in main branch
         run: |
-          BRANCES=${ git branch --contains ${{ github.sha }} }
+          BRANCHES=$( git branch --contains ${{ github.sha }} )
           echo $BRANCHES
           echo $BRANCHES | grep -E '^release$'
       - uses: actions/setup-java@v1
