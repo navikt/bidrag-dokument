@@ -30,6 +30,7 @@ jobs:
   build:
     name: Build with maven and docker
     runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/release'
 
     steps:
       - uses: navikt/bidrag-docker/exists@v1
@@ -154,11 +155,45 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  build_release:
+    name: Build release with maven and docker
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/release'
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: check if commit to build exists in main branch
+        run: |
+          BRANCHES=$( git branch --contains ${{ github.sha }} )
+          echo $BRANCHES | egrep '(^|\s)main$'
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '16'
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - uses: navikt/bidrag-maven/setup@v4
+        with:
+          repositories: maven-central=https://repo.maven.apache.org/maven2,github-packages=https://maven.pkg.github.com/navikt/maven-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: mvn install -B -e -DskipTests
+      - name: Build and publish Docker image
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          docker build --tag ${IMAGE} .
+          docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
+          docker push ${IMAGE}
+
   deploy_prod:
     runs-on: ubuntu-latest
     name: Deploy docker image to prod
     if: github.ref == 'refs/heads/release'
-    needs: build
+    needs: build_release
 
     steps:
       - uses: actions/checkout@v2
