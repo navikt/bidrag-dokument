@@ -165,8 +165,7 @@ jobs:
       - name: check if commit to build exists in main branch
         run: |
           BRANCHES=$( git branch --contains ${{ github.sha }} )
-          echo $BRANCHES
-          echo $BRANCHES | grep -E '^release$'
+          echo $BRANCHES | grep 'feature/release-ci$'
       - uses: actions/setup-java@v1
         with:
           java-version: '16'
