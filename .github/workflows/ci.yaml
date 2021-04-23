@@ -165,7 +165,8 @@ jobs:
       - name: check if commit to build exists in main branch
         run: |
           BRANCHES=$( git branch --contains ${{ github.sha }} )
-          echo $BRANCHES | egrep '(^|\s)main$'
+          echo "contains: $BRANCHES"
+          echo -q $BRANCHES | grep -E '(^|\s)main$'
       - uses: actions/setup-java@v1
         with:
           java-version: '16'
