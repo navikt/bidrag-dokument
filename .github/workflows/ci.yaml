@@ -158,21 +158,21 @@ jobs:
   build_release:
     name: Build release with maven and docker
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/feature/grep'
+    if: github.ref == 'refs/heads/release'
 
     steps:
       - uses: actions/checkout@v2
       - name: check if commit to build exists in main branch
         run: |
           BRANCHES=$( git branch --contains ${{ github.sha }} )
-          echo "contains: $BRANCHES"
-          echo -q $BRANCHES | grep -E '(^|\s)feature/grep$'
+          echo "present in branches: $BRANCHES"
+          echo -q $BRANCHES | grep -E '(^|\s)main$'
       - uses: actions/setup-java@v1
         with:
           java-version: '16'
       - uses: actions/cache@v1
         with:
-          path: ~/.m2
+          path: ~/.m2'
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
