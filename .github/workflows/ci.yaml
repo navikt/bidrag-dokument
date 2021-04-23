@@ -161,9 +161,16 @@ jobs:
     if: github.ref == 'refs/heads/release'
 
     steps:
-      - uses: actions/checkout@v2
+      - run: git clone --depth 1 https://www.github.com/${{ github.repository }}
       - name: check if commit to build exists in main branch
-        run: git log origin/main | grep -c ${{ github.sha }}
+        run: |
+          cd $( echo ${{ github.repository }} | sed 's;navikt/;;' )
+          git log | grep -c ${{ github.sha }}
+      - name: Remove files from workspace
+        run: |
+          cd $RUNNER_WORKSPACE
+          sudo rm -rf *
+      - uses: actions/checkout@v2
       - uses: actions/setup-java@v1
         with:
           java-version: '16'
