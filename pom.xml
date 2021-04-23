@@ -182,11 +182,16 @@
         <artifactId>lombok</artifactId>
         <version>${lombok.version}</version>
       </dependency>
-      <!-- Ovverride vulnerable guava -->
+      <!-- Ovverride vulnerable dependencies -->
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>30.1-jre</version>
+      </dependency>
+      <dependency>
+        <groupId>com.nimbusds</groupId>
+        <artifactId>oauth2-oidc-sdk</artifactId>
+        <version>8.36.2</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
