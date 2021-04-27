@@ -103,6 +103,7 @@ jobs:
     runs-on: self-hosted
     name: Run cucumber integration tests
     needs: deploy_dev
+
     steps:
       - uses: navikt/bidrag-integration/cucumber-clone@v5
         id: clone
