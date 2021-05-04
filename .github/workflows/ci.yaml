@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - '**'
+      - '!release'
 
 env:
   IMAGE: docker.pkg.github.com/${{ github.repository }}/bidrag-dokument:${{ github.sha }}
@@ -12,7 +13,6 @@ jobs:
   restart-testdata:
     name: restart kubernetes pods bidrag-testdata
     runs-on: self-hosted
-    if: github.ref != 'refs/heads/release'
 
     steps:
       - run: kubectl config use-context dev-fss
@@ -30,7 +30,6 @@ jobs:
   build:
     name: Build with maven and docker
     runs-on: ubuntu-latest
-    if: github.ref != 'refs/heads/release'
 
     steps:
       - uses: navikt/bidrag-docker/exists@v1
@@ -72,10 +71,9 @@ jobs:
           docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
           docker push ${IMAGE}
 
-  deploy_dev:
+  deploy:
     runs-on: ubuntu-latest
     name: Deploy docker image to dev
-    if: github.ref != 'refs/heads/release'
     needs: build
 
     steps:
@@ -102,7 +100,7 @@ jobs:
   run_cucumber:
     runs-on: self-hosted
     name: Run cucumber integration tests
-    needs: deploy_dev
+    needs: deploy
 
     steps:
       - uses: navikt/bidrag-integration/cucumber-clone@v5
@@ -124,11 +122,20 @@ jobs:
         env:
           USER_AUTHENTICATION: ${{ secrets.USER_AUTHENTICATION }}
           TEST_USER_AUTHENTICATION: ${{ secrets.TEST_USER_AUTHENTICATION }}
+
+  remove_files_from_workspace:
+    name: Remove files from workspace
+    runs-on: self-hosted
+    needs: run_cucumber
+
+    if: ${{ always() }}
+
+    steps:
       - name: Remove files from workspace
         run: |
           cd $RUNNER_WORKSPACE
+          echo deleting files in $RUNNER_WORKSPACE
           sudo rm -rf *
-        if: ${{ always() }}
 
   bump_dev_version:
     runs-on: ubuntu-latest
@@ -153,88 +160,5 @@ jobs:
         with:
           commit_message: "Bumped to new version: ${{ steps.snapshot.outputs.version }}"
           pattern: "pom.xml"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  verify_release:
-    name: Verify that release commit is present in main branch
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/release'
-
-    steps:
-      - run: git clone --depth 1 https://www.github.com/${{ github.repository }}
-      - name: check if commit to build exists in main branch
-        run: |
-          cd $( echo ${{ github.repository }} | sed 's;navikt/;;' )
-          git log | grep -c ${{ github.sha }}
-
-  build_release:
-    name: Build release with maven and docker
-    runs-on: ubuntu-latest
-    needs: verify_release
-
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-java@v1
-        with:
-          java-version: '16'
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2'
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - uses: navikt/bidrag-maven/setup@v4
-        with:
-          repositories: maven-central=https://repo.maven.apache.org/maven2,github-packages=https://maven.pkg.github.com/navikt/maven-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: mvn install -B -e -DskipTests
-      - name: Build and publish Docker image
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          docker build --tag ${IMAGE} .
-          docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
-          docker push ${IMAGE}
-
-  deploy_prod:
-    runs-on: ubuntu-latest
-    name: Deploy docker image to prod
-    if: github.ref == 'refs/heads/release'
-    needs: build_release
-
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          path: deploy
-      - uses: nais/deploy/actions/deploy@v1
-        env:
-          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: prod-fss
-          RESOURCE: deploy/.nais/nais-p.yaml
-          VAR: namespace=bidrag
-
-  tag_prod_deploy:
-    runs-on: ubuntu-latest
-    name: Tag latest deploy to prod
-    needs: deploy_prod
-
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - run: |
-          TAG_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | sed 's/-SNAPSHOT//')
-          echo ::set-output name=tag::${TAG_VERSION}
-        id: release
-      - uses: navikt/bidrag-git/tag@v3
-        with:
-          tag_message: Releasing version ${{ steps.release.outputs.tag }}
-          tag: ${{ steps.release.outputs.tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
