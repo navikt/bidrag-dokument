@@ -1,4 +1,4 @@
-name: release bidrag-dokument-journalpost
+name: release bidrag-dokument
 on:
   push:
     branches:
