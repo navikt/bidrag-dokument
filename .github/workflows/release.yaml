@@ -89,17 +89,3 @@ jobs:
           tag: ${{ steps.release.outputs.tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  remove_files_from_workspace:
-    name: Remove files from workspace
-    runs-on: self-hosted
-    needs: build
-
-    if: ${{ always() }}
-
-    steps:
-      - name: Remove files from workspace
-        run: |
-          cd $RUNNER_WORKSPACE
-          echo deleting files in $RUNNER_WORKSPACE
-          sudo rm -rf *
