@@ -1,6 +1,7 @@
 # bidrag-dokument
 ![](https://github.com/navikt/bidrag-dokument/workflows/continuous%20integration/badge.svg)
 ![](https://github.com/navikt/bidrag-dokument/workflows/test%20build%20on%20pull%20request/badge.svg)
+[![release bidrag-dokument](https://github.com/navikt/bidrag-dokument/actions/workflows/release.yaml/badge.svg)](https://github.com/navikt/bidrag-dokument/actions/workflows/release.yaml)
 
 Microservice for integrasjon mellom BISYS og JOARK, bruk av `bidrag-dokument-journalpost`
 og `bidrag-dokument-arkiv`.
