@@ -6,7 +6,7 @@ ingresses:
   - https://bidrag-dokument-feature.dev-fss-pub.nais.io
 env:
   - name: ACCEPTED_AUDIENCE
-    value: bisys-q1,bidrag-ui-q1,bidrag-dokument-ui-q1,bidrag-q-localhost,ida-q
+    value: bisys-q1,bidrag-ui-q1,bidrag-ui-feature-q1,bidrag-dokument-ui-q1,bidrag-q-localhost,ida-q
   - name: BIDRAG_ARKIV_URL
     value: https://bidrag-dokument-arkiv-feature.dev.adeo.no/bidrag-dokument-arkiv
   - name: ISSO_ISSUER_URL
