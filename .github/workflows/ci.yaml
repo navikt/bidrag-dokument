@@ -58,7 +58,7 @@ jobs:
           repositories: maven-central=https://repo.maven.apache.org/maven2,github-packages=https://maven.pkg.github.com/navikt/maven-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: navikt/bidrag-maven/verify-dependencies@v7.0.0
+      - uses: navikt/bidrag-maven/verify-dependencies@v7
         if: env.NOT_FOUND == 'true'
       - run: mvn install -B -e
         if: env.NOT_FOUND == 'true'
@@ -156,7 +156,7 @@ jobs:
           BUMPED_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo ::set-output name=version::${BUMPED_VERSION}
         id: snapshot
-      - uses: navikt/bidrag-git/commit@v3
+      - uses: navikt/bidrag-git/commit@v5
         with:
           commit_message: "Bumped to new version: ${{ steps.snapshot.outputs.version }}"
           pattern: "pom.xml"
