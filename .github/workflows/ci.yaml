@@ -123,20 +123,6 @@ jobs:
           USER_AUTHENTICATION: ${{ secrets.USER_AUTHENTICATION }}
           TEST_USER_AUTHENTICATION: ${{ secrets.TEST_USER_AUTHENTICATION }}
 
-  remove_files_from_workspace:
-    name: Remove files from workspace
-    runs-on: self-hosted
-    needs: run_cucumber
-
-    if: ${{ always() }}
-
-    steps:
-      - name: Remove files from workspace
-        run: |
-          cd $RUNNER_WORKSPACE
-          echo deleting files in $RUNNER_WORKSPACE
-          sudo rm -rf *
-
   bump_dev_version:
     runs-on: ubuntu-latest
     name: Bump SNAPSHOT version
