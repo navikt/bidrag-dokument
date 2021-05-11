@@ -11,10 +11,10 @@ import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
 import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
 import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
+import no.nav.bidrag.dokument.dto.BehandleAvvikshendelseResponse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
-import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -48,11 +48,11 @@ public class JournalpostService {
     return HttpResponse.from(HttpStatus.BAD_REQUEST, Collections.emptyList());
   }
 
-  public HttpResponse<OpprettAvvikshendelseResponse> opprettAvvik(
+  public HttpResponse<BehandleAvvikshendelseResponse> behandleAvvik(
       String enhet, KildesystemIdenfikator kildesystemIdenfikator, Avvikshendelse avvikshendelse
   ) {
     if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.opprettAvvik(enhet, kildesystemIdenfikator.getPrefiksetJournalpostId(), avvikshendelse);
+      return bidragJournalpostConsumer.behandleAvvik(enhet, kildesystemIdenfikator.getPrefiksetJournalpostId(), avvikshendelse);
     }
 
     return HttpResponse.from(HttpStatus.BAD_REQUEST);
@@ -66,7 +66,6 @@ public class JournalpostService {
   }
 
   public HttpResponse<Void> endre(String enhet, EndreJournalpostCommand endreJournalpostCommand) {
-    var respons = bidragJournalpostConsumer.endre(enhet, endreJournalpostCommand);
-    return respons;
+    return bidragJournalpostConsumer.endre(enhet, endreJournalpostCommand);
   }
 }
