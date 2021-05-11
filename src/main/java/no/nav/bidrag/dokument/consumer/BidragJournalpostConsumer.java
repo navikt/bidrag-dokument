@@ -8,10 +8,10 @@ import java.util.Optional;
 import no.nav.bidrag.commons.web.HttpResponse;
 import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
+import no.nav.bidrag.dokument.dto.BehandleAvvikshendelseResponse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
-import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -84,8 +84,7 @@ public class BidragJournalpostConsumer {
 
     LOGGER.info("Endre journalpost fikk http status {}", endretJournalpostResponse.getStatusCode());
 
-    var respons = new HttpResponse<>(endretJournalpostResponse);
-    return respons;
+    return new HttpResponse<>(endretJournalpostResponse);
   }
 
   public HttpResponse<List<AvvikType>> finnAvvik(String saksnummer, String journalpostId) {
@@ -108,12 +107,12 @@ public class BidragJournalpostConsumer {
     };
   }
 
-  public HttpResponse<OpprettAvvikshendelseResponse> opprettAvvik(String enhetsnummer, String journalpostId, Avvikshendelse avvikshendelse) {
+  public HttpResponse<BehandleAvvikshendelseResponse> behandleAvvik(String enhetsnummer, String journalpostId, Avvikshendelse avvikshendelse) {
     var path = String.format(PATH_JOURNALPOST_UTEN_SAK + "/avvik", journalpostId);
     LOGGER.info("bidrag-dokument-journalpost{}: {}", path, avvikshendelse);
 
     var avviksResponse = consumerTarget.henteRestTemplateForIssuer()
-        .exchange(path, HttpMethod.POST, new HttpEntity<>(avvikshendelse, createEnhetHeader(enhetsnummer)), OpprettAvvikshendelseResponse.class);
+        .exchange(path, HttpMethod.POST, new HttpEntity<>(avvikshendelse, createEnhetHeader(enhetsnummer)), BehandleAvvikshendelseResponse.class);
 
     return new HttpResponse<>(avviksResponse);
   }

@@ -18,7 +18,7 @@ import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
-import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
+import no.nav.bidrag.dokument.dto.BehandleAvvikshendelseResponse;
 import no.nav.bidrag.dokument.service.JournalpostService;
 import no.nav.security.token.support.core.api.Protected;
 import org.slf4j.Logger;
@@ -127,7 +127,7 @@ public class JournalpostController {
       @ApiResponse(code = 404, message = "Fant ikke journalpost som det skal lages avvik på eller feil prefix/id på journalposten"),
       @ApiResponse(code = 503, message = "Oppretting av oppgave for avviket feilet")
   })
-  public ResponseEntity<OpprettAvvikshendelseResponse> behandleAvvik(
+  public ResponseEntity<BehandleAvvikshendelseResponse> behandleAvvik(
       @RequestHeader(X_ENHET_HEADER) String enhet,
       @PathVariable String journalpostIdForKildesystem,
       @RequestBody Avvikshendelse avvikshendelse
@@ -149,7 +149,7 @@ public class JournalpostController {
       return new ResponseEntity<>(initHttpHeadersWith(HttpHeaders.WARNING, "Ugyldig prefix på journalpostId"), HttpStatus.BAD_REQUEST);
     }
 
-    return journalpostService.opprettAvvik(enhet, kildesystemIdenfikator, avvikshendelse).getResponseEntity();
+    return journalpostService.behandleAvvik(enhet, kildesystemIdenfikator, avvikshendelse).getResponseEntity();
   }
 
   @PutMapping("/journal/{journalpostIdForKildesystem}")

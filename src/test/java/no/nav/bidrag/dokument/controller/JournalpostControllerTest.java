@@ -26,10 +26,10 @@ import no.nav.bidrag.dokument.BidragDokumentLocal;
 import no.nav.bidrag.dokument.consumer.stub.RestConsumerStub;
 import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
+import no.nav.bidrag.dokument.dto.BehandleAvvikshendelseResponse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
-import no.nav.bidrag.dokument.dto.OpprettAvvikshendelseResponse;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -298,11 +298,11 @@ class JournalpostControllerTest {
       var url = initEndpointUrl(path);
 
       // when
-      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, bestillOriginalEntity, OpprettAvvikshendelseResponse.class);
+      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, bestillOriginalEntity, BehandleAvvikshendelseResponse.class);
 
       // then
       assertAll(() -> assertThat(responseEntity.getStatusCode()).as("status").isEqualTo(HttpStatus.CREATED),
-          () -> assertThat(responseEntity.getBody()).as("body").isEqualTo(new OpprettAvvikshendelseResponse(AvvikType.BESTILL_ORIGINAL)));
+          () -> assertThat(responseEntity.getBody()).as("body").isEqualTo(new BehandleAvvikshendelseResponse(AvvikType.BESTILL_ORIGINAL)));
     }
 
     @Test
@@ -311,7 +311,7 @@ class JournalpostControllerTest {
       final var avvikshendelse = new Avvikshendelse("BESTILL_ORIGINAL", "4806", "1001");
       var ukjentAvvikEntity = initHttpEntity(avvikshendelse);
       var url = initEndpointUrl("/journal/BID-1/avvik");
-      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, ukjentAvvikEntity, OpprettAvvikshendelseResponse.class);
+      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, ukjentAvvikEntity, BehandleAvvikshendelseResponse.class);
 
       assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -322,7 +322,7 @@ class JournalpostControllerTest {
       final var avvikshendelse = new Avvikshendelse("AVVIK_IKKE_BLANT_KJENTE_AVVIKSTYPER", "4806", "1001");
       var ukjentAvvikEntity = initHttpEntity(avvikshendelse, new CustomHeader(X_ENHET_HEADER, "1234"));
       var url = initEndpointUrl("/journal/BID-1/avvik");
-      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, ukjentAvvikEntity, OpprettAvvikshendelseResponse.class);
+      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, ukjentAvvikEntity, BehandleAvvikshendelseResponse.class);
 
       assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -411,11 +411,11 @@ class JournalpostControllerTest {
       var url = initEndpointUrl(path);
 
       // when
-      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, bestillOriginalEntity, OpprettAvvikshendelseResponse.class);
+      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, bestillOriginalEntity, BehandleAvvikshendelseResponse.class);
 
       // then
       assertAll(() -> assertThat(responseEntity.getStatusCode()).as("status").isEqualTo(HttpStatus.CREATED),
-          () -> assertThat(responseEntity.getBody()).as("body").isEqualTo(new OpprettAvvikshendelseResponse(AvvikType.ENDRE_FAGOMRADE)));
+          () -> assertThat(responseEntity.getBody()).as("body").isEqualTo(new BehandleAvvikshendelseResponse(AvvikType.ENDRE_FAGOMRADE)));
     }
 
     private ParameterizedTypeReference<List<AvvikType>> responseTypeErListeMedAvvikType() {
@@ -429,7 +429,6 @@ class JournalpostControllerTest {
   class SakJournal {
 
     @Test
-    @SuppressWarnings("unchecked")
     @DisplayName("skal finne Journalposter for en bidragssak")
     void skalFinneJournalposterForEnBidragssak() throws IOException {
 
@@ -465,7 +464,6 @@ class JournalpostControllerTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     @DisplayName("skal hente sakjournal fra bidrag-dokument-arkiv såfremt bidrag-dokument-journalpost")
     void skalHenteSakJournalFraBidragDokumentArkiv() throws IOException {
 
