@@ -2,6 +2,11 @@ package no.nav.bidrag.dokument;
 
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import java.text.ParseException;
 import java.util.Optional;
 import no.nav.bidrag.commons.ExceptionLogger;
@@ -35,7 +40,17 @@ import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @EnableOAuth2Client(cacheEnabled = true)
-@EnableJwtTokenValidation(ignore = {"springfox.documentation.swagger.web.ApiResourceController"})
+@EnableJwtTokenValidation
+@OpenAPIDefinition(
+    info = @Info(title = "bidrag-dokument", version = "v1"),
+    security = @SecurityRequirement(name = "bearerAuth")
+)
+@SecurityScheme(
+    bearerFormat = "JWT",
+    name = "bearerAuth",
+    scheme = "bearer",
+    type = SecuritySchemeType.HTTP
+)
 public class BidragDokumentConfig {
 
   public static final String DELIMTER = "-";
