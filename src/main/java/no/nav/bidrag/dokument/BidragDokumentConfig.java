@@ -17,12 +17,12 @@ import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenRespons
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService;
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties;
 import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client;
+import no.nav.security.token.support.core.context.TokenValidationContext;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
@@ -47,17 +47,19 @@ public class BidragDokumentConfig {
   private static final Logger LOGGER = LoggerFactory.getLogger(BidragDokumentConfig.class);
   private static final String ISSUER_AZURE_AD_IDENTIFIER = "login.microsoftonline.com";
 
-  @Autowired
-  private ClientConfigurationProperties clientConfigurationProperties;
+  private final ClientConfigurationProperties clientConfigurationProperties;
+  private final OAuth2AccessTokenService oAuth2AccessTokenService;
+  private final RestTemplateBuilder restTemplateBuilder;
 
-  @Autowired
-  private OAuth2AccessTokenService oAuth2AccessTokenService;
-
-  @Autowired
-  private RestTemplateBuilder restTemplateBuilder;
-
-  @Autowired
-  private OidcTokenManager oidcTokenManager;
+  public BidragDokumentConfig(
+      ClientConfigurationProperties clientConfigurationProperties,
+      OAuth2AccessTokenService oAuth2AccessTokenService,
+      RestTemplateBuilder restTemplateBuilder
+  ) {
+    this.clientConfigurationProperties = clientConfigurationProperties;
+    this.oAuth2AccessTokenService = oAuth2AccessTokenService;
+    this.restTemplateBuilder = restTemplateBuilder;
+  }
 
   private static String henteIssuer(String idToken) {
     try {
@@ -72,29 +74,39 @@ public class BidragDokumentConfig {
   }
 
   @Bean
-  public BidragJournalpostConsumer bidragJournalpostConsumer(@Value("${JOURNALPOST_URL}") String journalpostBaseUrl,
-      RestTemplateProvider restTemplateProvider) {
+  public BidragJournalpostConsumer bidragJournalpostConsumer(
+      @Value("${JOURNALPOST_URL}") String journalpostBaseUrl,
+      OidcTokenManager oidcTokenManager,
+      RestTemplateProvider restTemplateProvider
+  ) {
     LOGGER.info("BidragJournalpostConsumer med base url: " + journalpostBaseUrl);
     var consumerTarget = ConsumerTarget.builder().azureRestTemplate(azureRestTemplate(KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST, journalpostBaseUrl))
-        .issoRestTemplate(issoRestTemplate(journalpostBaseUrl)).restTemplateProvider(restTemplateProvider).build();
+        .issoRestTemplate(issoRestTemplate(journalpostBaseUrl, oidcTokenManager)).restTemplateProvider(restTemplateProvider).build();
 
     return new BidragJournalpostConsumer(consumerTarget);
   }
 
   @Bean
-  public BidragArkivConsumer journalforingConsumer(@Value("${BIDRAG_ARKIV_URL}") String bidragArkivBaseUrl,
-      RestTemplateProvider restTemplateProvider) {
+  public BidragArkivConsumer journalforingConsumer(
+      @Value("${BIDRAG_ARKIV_URL}") String bidragArkivBaseUrl,
+      OidcTokenManager oidcTokenManager,
+      RestTemplateProvider restTemplateProvider
+  ) {
     LOGGER.info("BidragArkivConsumer med base url: " + bidragArkivBaseUrl);
     var consumerTarget = ConsumerTarget.builder().azureRestTemplate(azureRestTemplate(KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV, bidragArkivBaseUrl))
-        .issoRestTemplate(issoRestTemplate(bidragArkivBaseUrl)).restTemplateProvider(restTemplateProvider).build();
+        .issoRestTemplate(issoRestTemplate(bidragArkivBaseUrl, oidcTokenManager)).restTemplateProvider(restTemplateProvider).build();
     return new BidragArkivConsumer(consumerTarget);
   }
 
   @Bean
-  public DokumentConsumer dokumentConsumer(@Value("${JOURNALPOST_URL}") String journalpostBaseUrl, RestTemplateProvider restTemplateProvider) {
+  public DokumentConsumer dokumentConsumer(
+      @Value("${JOURNALPOST_URL}") String journalpostBaseUrl,
+      OidcTokenManager oidcTokenManager,
+      RestTemplateProvider restTemplateProvider
+  ) {
     LOGGER.info("DokumentConsumer med base url: " + journalpostBaseUrl);
     var consumerTarget = ConsumerTarget.builder().azureRestTemplate(azureRestTemplate(KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST, journalpostBaseUrl))
-        .issoRestTemplate(issoRestTemplate(journalpostBaseUrl)).restTemplateProvider(restTemplateProvider).build();
+        .issoRestTemplate(issoRestTemplate(journalpostBaseUrl, oidcTokenManager)).restTemplateProvider(restTemplateProvider).build();
     return new DokumentConsumer(consumerTarget);
   }
 
@@ -117,8 +129,11 @@ public class BidragDokumentConfig {
 
   @Bean
   public OidcTokenManager oidcTokenManager(TokenValidationContextHolder tokenValidationContextHolder) {
-    return () -> Optional.ofNullable(tokenValidationContextHolder).map(TokenValidationContextHolder::getTokenValidationContext)
-        .map(tokenValidationContext -> tokenValidationContext.getFirstValidToken()).map(Optional::get).map(JwtToken::getTokenAsString)
+    return () -> Optional.ofNullable(tokenValidationContextHolder)
+        .map(TokenValidationContextHolder::getTokenValidationContext)
+        .map(TokenValidationContext::getFirstValidToken)
+        .map(Optional::get)
+        .map(JwtToken::getTokenAsString)
         .orElseThrow(() -> new IllegalStateException("Kunne ikke hente Bearer token"));
   }
 
@@ -150,7 +165,7 @@ public class BidragDokumentConfig {
     };
   }
 
-  private RestTemplate issoRestTemplate(String baseUrl) {
+  private RestTemplate issoRestTemplate(String baseUrl, OidcTokenManager oidcTokenManager) {
     HttpHeaderRestTemplate httpHeaderRestTemplate = new HttpHeaderRestTemplate();
 
     httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.AUTHORIZATION, () -> "Bearer " + oidcTokenManager.fetchToken());
