@@ -25,7 +25,6 @@ import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client;
 import no.nav.security.token.support.core.context.TokenValidationContext;
 import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
-import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,14 +39,13 @@ import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @EnableOAuth2Client(cacheEnabled = true)
-@EnableJwtTokenValidation
 @OpenAPIDefinition(
     info = @Info(title = "bidrag-dokument", version = "v1"),
-    security = @SecurityRequirement(name = "bearerAuth")
+    security = @SecurityRequirement(name = "bearer-key")
 )
 @SecurityScheme(
     bearerFormat = "JWT",
-    name = "bearerAuth",
+    name = "bearer-key",
     scheme = "bearer",
     type = SecuritySchemeType.HTTP
 )

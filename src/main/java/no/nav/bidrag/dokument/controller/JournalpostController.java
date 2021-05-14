@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import no.nav.bidrag.commons.KildesystemIdenfikator;
 import no.nav.bidrag.commons.web.EnhetFilter;
@@ -50,7 +51,10 @@ public class JournalpostController {
   }
 
   @GetMapping("/sak/{saksnummer}/journal")
-  @Operation(description = "Finn saksjournal for et saksnummer, samt parameter 'fagomrade' (FAR - farskapsjournal) og (BID - bidragsjournal)")
+  @Operation(
+      security = {@SecurityRequirement(name = "bearer-key")},
+      description = "Finn saksjournal for et saksnummer, samt parameter 'fagomrade' (FAR - farskapsjournal) og (BID - bidragsjournal)"
+  )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Fant journalposter for saksnummer"),
       @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
@@ -70,13 +74,17 @@ public class JournalpostController {
   }
 
   @GetMapping("/journal/{journalpostIdForKildesystem}")
-  @Operation(description = "Hent en journalpost for en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>")
+  @Operation(
+      security = {@SecurityRequirement(name = "bearer-key")},
+      description = "Hent en journalpost for en id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>"
+  )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Journalpost er hentet"),
       @ApiResponse(responseCode = "400", description = "Ukjent/ugyldig journalpostId som har/mangler prefix"),
       @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
       @ApiResponse(responseCode = "403", description = "Saksbehandler har ikke tilgang til aktuell journalpost"),
-      @ApiResponse(responseCode = "404", description = "Journalposten som skal hentes eksisterer ikke eller det er feil prefix/id på journalposten")})
+      @ApiResponse(responseCode = "404", description = "Journalposten som skal hentes eksisterer ikke eller det er feil prefix/id på journalposten")
+  })
   public ResponseEntity<JournalpostResponse> hentJournalpost(@PathVariable String journalpostIdForKildesystem,
       @Parameter(name = "saksnummer", description = "journalposten tilhører sak") @RequestParam(required = false) String saksnummer) {
     KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
@@ -90,8 +98,10 @@ public class JournalpostController {
   }
 
   @GetMapping("/journal/{journalpostIdForKildesystem}/avvik")
-  @Operation(description =
-      "Henter mulige avvik for en journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>"
+  @Operation(
+      security = {@SecurityRequirement(name = "bearer-key")},
+      description = "Henter mulige avvik for en journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER
+          + "<journalpostId>"
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Tilgjengelig avvik for journalpost er hentet"),
@@ -112,8 +122,9 @@ public class JournalpostController {
   }
 
   @PostMapping(value = "/journal/{journalpostIdForKildesystem}/avvik", consumes = MediaType.APPLICATION_JSON_VALUE)
-  @Operation(description =
-      "Lagrer et avvik for en journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>"
+  @Operation(
+      security = {@SecurityRequirement(name = "bearer-key")},
+      description = "Lagrer et avvik for en journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>"
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Avvik på journalpost er behandlet"),
@@ -157,8 +168,9 @@ public class JournalpostController {
   }
 
   @PutMapping("/journal/{journalpostIdForKildesystem}")
-  @Operation(description =
-      "Endre eksisterende journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>"
+  @Operation(
+      security = {@SecurityRequirement(name = "bearer-key")},
+      description = "Endre eksisterende journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>"
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Journalpost er endret (eller registrert/journalført når payload inkluderer \"skalJournalfores\":\"true\")"),

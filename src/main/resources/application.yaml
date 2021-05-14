@@ -15,8 +15,6 @@ management:
 
 springdoc:
   packages-to-scan: no.nav.bidrag.dokument.controller
-  use-management-port: true
-  swagger-ui.path: swagger-ui.html
 
 ---
 
