@@ -87,15 +87,8 @@ class JournalpostControllerTest {
     return "http://localhost:" + localServerPort + contextPath + endpoint;
   }
 
-  private static class CustomHeader {
+  private record CustomHeader(String name, String value) {
 
-    final String name;
-    final String value;
-
-    private CustomHeader(String name, String value) {
-      this.name = name;
-      this.value = value;
-    }
   }
 
   @Nested
