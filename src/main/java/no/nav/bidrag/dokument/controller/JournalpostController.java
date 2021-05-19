@@ -8,6 +8,8 @@ import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -57,8 +59,9 @@ public class JournalpostController {
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Fant journalposter for saksnummer"),
-      @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
-      @ApiResponse(responseCode = "403", description = "Saksbehandler har ikke tilgang til aktuell journalpost"),})
+      @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig", content = @Content(schema = @Schema(hidden = true))),
+      @ApiResponse(responseCode = "403", description = "Saksbehandler har ikke tilgang til aktuell journalpost", content = @Content(schema = @Schema(hidden = true)))
+  })
   public ResponseEntity<List<JournalpostDto>> hentJournal(@PathVariable String saksnummer, @RequestParam String fagomrade) {
 
     LOGGER.info("request: bidrag-dokument/sak/{}?fagomrade={}", saksnummer, fagomrade);
@@ -80,10 +83,10 @@ public class JournalpostController {
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Journalpost er hentet"),
-      @ApiResponse(responseCode = "400", description = "Ukjent/ugyldig journalpostId som har/mangler prefix"),
-      @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
-      @ApiResponse(responseCode = "403", description = "Saksbehandler har ikke tilgang til aktuell journalpost"),
-      @ApiResponse(responseCode = "404", description = "Journalposten som skal hentes eksisterer ikke eller det er feil prefix/id på journalposten")
+      @ApiResponse(responseCode = "400", description = "Ukjent/ugyldig journalpostId som har/mangler prefix", content = @Content(schema = @Schema(hidden = true))),
+      @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig", content = @Content(schema = @Schema(hidden = true))),
+      @ApiResponse(responseCode = "403", description = "Saksbehandler har ikke tilgang til aktuell journalpost", content = @Content(schema = @Schema(hidden = true))),
+      @ApiResponse(responseCode = "404", description = "Journalposten som skal hentes eksisterer ikke eller det er feil prefix/id på journalposten", content = @Content(schema = @Schema(hidden = true)))
   })
   public ResponseEntity<JournalpostResponse> hentJournalpost(@PathVariable String journalpostIdForKildesystem,
       @Parameter(name = "saksnummer", description = "journalposten tilhører sak") @RequestParam(required = false) String saksnummer) {
@@ -105,9 +108,9 @@ public class JournalpostController {
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Tilgjengelig avvik for journalpost er hentet"),
-      @ApiResponse(responseCode = "401", description = "Du mangler sikkerhetstoken"),
-      @ApiResponse(responseCode = "403", description = "Sikkerhetstoken er ikke gyldig"),
-      @ApiResponse(responseCode = "404", description = "Fant ikke journalpost som det skal hentes avvik på")
+      @ApiResponse(responseCode = "401", description = "Du mangler sikkerhetstoken", content = @Content(schema = @Schema(hidden = true))),
+      @ApiResponse(responseCode = "403", description = "Sikkerhetstoken er ikke gyldig", content = @Content(schema = @Schema(hidden = true))),
+      @ApiResponse(responseCode = "404", description = "Fant ikke journalpost som det skal hentes avvik på", content = @Content(schema = @Schema(hidden = true)))
   })
   public ResponseEntity<List<AvvikType>> hentAvvik(@PathVariable String journalpostIdForKildesystem,
       @Parameter(name = "saksnummer", description = "journalposten tilhører sak") @RequestParam(required = false) String saksnummer) {
