@@ -1,4 +1,6 @@
 name: bidrag-dokument-feature
+azure:
+  tenant: trygdeetaten.no
 ingresses:
   - https://bidrag-dokument-q1.nais.preprod.local/
   - https://bidrag-dokument-feature.dev.adeo.no/

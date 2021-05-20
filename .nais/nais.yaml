@@ -9,7 +9,7 @@ spec:
   azure:
     application:
       enabled: true
-      tenant: trygdeetaten.no
+      tenant: {{ azure.tenant }}
   image: {{ image }}
   liveness:
     path: /bidrag-dokument/actuator/health
