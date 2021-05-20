@@ -1,4 +1,6 @@
 name: bidrag-dokument
+azure:
+  tenant: nav.no
 ingresses:
   - https://bidrag-dokument.nais.adeo.no/
   - https://bidrag-dokument.prod-fss.nais.io
