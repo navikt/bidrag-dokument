@@ -1,55 +1,19 @@
-apiVersion: "nais.io/v1alpha1"
-kind: "Application"
-metadata:
-  name: bidrag-dokument
-  namespace: bidrag
-  labels:
-    team: bidrag
-spec:
-  azure:
-    application:
-      enabled: true
-  image: {{ image }}
-  port: 8080
-  liveness:
-    path: /bidrag-dokument/actuator/health
-    initialDelay: 20
-    timeout: 1
-    periodSeconds: 5
-    failureThreshold: 10
-  readiness:
-    path: /bidrag-dokument/actuator/health
-    initialDelay: 20
-    timeout: 1
-  prometheus:
-    enabled: true
-    path: /bidrag-dokument/actuator/prometheus
-  resources:
-    limits:
-      cpu: 1000m
-      memory: 1024Mi
-    requests:
-      cpu: 500m
-      memory: 512Mi
-  ingresses:
-    - https://bidrag-dokument.nais.adeo.no/
-    - https://bidrag-dokument.prod-fss.nais.io
-    - https://bidrag-dokument.prod-fss-pub.nais.io
-  env:
-    - name: ACCEPTED_AUDIENCE
-      value: bisys-p,bidrag-ui-p,bidrag-dokument-ui-p
-    - name: BIDRAG_ARKIV_URL
-      value: https://bidrag-dokument-arkiv.nais.adeo.no/bidrag-dokument-arkiv
-    - name: ISSO_ISSUER_URL
-      value: https://isso.adeo.no:443/isso/oauth2
-    - name: JOURNALPOST_URL
-      value: https://bidrag-dokument-journalpost.nais.adeo.no/bidrag-dokument-journalpost
-    - name: SECURITY_TOKEN_URL
-      value: https://security-token-service.nais.adeo.no/rest/v1/sts/token
-    - name: SRVBIDRAG_USERNAME
-      value: srvbidrag-dokument
-  vault:
-    enabled: true
-    paths:
-      - kvPath: /serviceuser/data/prod/srvbidrag-dokument
-        mountPath: /var/run/secrets/nais.io/srvbidrag-dokument
+name: bidrag-dokument
+ingresses:
+  - https://bidrag-dokument.nais.adeo.no/
+  - https://bidrag-dokument.prod-fss.nais.io
+  - https://bidrag-dokument.prod-fss-pub.nais.io
+env:
+  - name: ACCEPTED_AUDIENCE
+    value: bisys-p,bidrag-ui-p,bidrag-dokument-ui-p
+  - name: BIDRAG_ARKIV_URL
+    value: https://bidrag-dokument-arkiv.nais.adeo.no/bidrag-dokument-arkiv
+  - name: ISSO_ISSUER_URL
+    value: https://isso.adeo.no:443/isso/oauth2
+  - name: JOURNALPOST_URL
+    value: https://bidrag-dokument-journalpost.nais.adeo.no/bidrag-dokument-journalpost
+  - name: SECURITY_TOKEN_URL
+    value: https://security-token-service.nais.adeo.no/rest/v1/sts/token
+  - name: SRVBIDRAG_USERNAME
+    value: srvbidrag-dokument
+path: prod

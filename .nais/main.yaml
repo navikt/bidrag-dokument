@@ -21,3 +21,4 @@ env:
     value: TBA
   - name: BIDRAG_DOKUMENT_ARKIV_CLIENT_ID
     value: TBA
+path: dev
