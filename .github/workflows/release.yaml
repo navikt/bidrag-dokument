@@ -64,7 +64,8 @@ jobs:
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
           CLUSTER: prod-fss
-          RESOURCE: deploy/.nais/nais-p.yaml
+          RESOURCE: deploy/.nais/nais.yaml
+          VARS: deploy/.nais/prod.yaml
 
   tag:
     runs-on: ubuntu-latest
