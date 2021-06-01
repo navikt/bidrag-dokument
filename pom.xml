@@ -29,7 +29,7 @@
     <logback.encoder.version>6.6</logback.encoder.version>
     <lombok.version>1.18.20</lombok.version>
     <springdoc-openapi-ui.version>1.5.9</springdoc-openapi-ui.version>
-    <springframework-cloud.version>3.0.2</springframework-cloud.version>
+    <springframework-cloud.version>3.0.3</springframework-cloud.version>
     <token-support.version>1.3.7</token-support.version>
 
     <!-- build -->
