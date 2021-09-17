@@ -24,7 +24,6 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles(TEST_PROFILE)
 @DisplayName("BidragJournalpostConsumer")
 @AutoConfigureWireMock(port = 0)
-@SuppressWarnings("unchecked")
 class BidragJournalpostConsumerTest {
 
   @Autowired

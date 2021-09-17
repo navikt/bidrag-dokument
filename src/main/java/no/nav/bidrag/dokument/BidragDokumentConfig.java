@@ -35,6 +35,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
@@ -179,11 +180,15 @@ public class BidragDokumentConfig {
   }
 
   private RestTemplate issoRestTemplate(String baseUrl, OidcTokenManager oidcTokenManager) {
-    HttpHeaderRestTemplate httpHeaderRestTemplate = new HttpHeaderRestTemplate();
+    var requestFactory = new HttpComponentsClientHttpRequestFactory();
+    requestFactory.setConnectTimeout(0);
+    requestFactory.setReadTimeout(0);
+
+    var httpHeaderRestTemplate = new HttpHeaderRestTemplate();
 
     httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.AUTHORIZATION, () -> "Bearer " + oidcTokenManager.fetchToken());
     httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER, CorrelationIdFilter::fetchCorrelationIdForThread);
-
+    httpHeaderRestTemplate.setRequestFactory(requestFactory);
     httpHeaderRestTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
 
     return httpHeaderRestTemplate;

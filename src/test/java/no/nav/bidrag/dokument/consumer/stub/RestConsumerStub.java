@@ -3,8 +3,8 @@ package no.nav.bidrag.dokument.consumer.stub;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.patch;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer.PATH_JOURNALPOST_UTEN_SAK;
@@ -66,14 +66,14 @@ public class RestConsumerStub {
   }
 
   public void runEndreJournalpost(String journalpostId, HttpStatus status) throws IOException {
-    stubFor(put(urlPathMatching(String.format(PATH_JOURNALPOST_UTEN_SAK, journalpostId))).willReturn(
+    stubFor(patch(urlPathMatching(String.format(PATH_JOURNALPOST_UTEN_SAK, journalpostId))).willReturn(
         aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withStatus(status.value())
             .withBody(Files.readString(Path.of("src/test/resources/stubrespons/bdj-respons.json"), StandardCharsets.UTF_8))));
   }
 
   public void runEndreJournalpostMedHeader(String journalpostId, HttpHeader headerinput, HttpStatus status, String respons) {
     HttpHeaders headers = new HttpHeaders(headerinput, HttpHeader.httpHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE));
-    stubFor(put(urlPathMatching(String.format(PATH_JOURNALPOST_UTEN_SAK, journalpostId)))
+    stubFor(patch(urlPathMatching(String.format(PATH_JOURNALPOST_UTEN_SAK, journalpostId)))
         .willReturn(aResponse().withHeaders(headers).withStatus(status.value()).withBody(respons)));
   }
 
