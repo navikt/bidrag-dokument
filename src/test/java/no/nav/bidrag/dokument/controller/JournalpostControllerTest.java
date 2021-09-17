@@ -179,7 +179,7 @@ class JournalpostControllerTest {
     void skalFaBadRequestMedUkjentPrefix() {
       var lagreJournalpostUrl = initEndpointUrl("/journal/svada-1");
       var entityMedEnhetsheader = new HttpEntity<>(new EndreJournalpostCommand(), createEnhetHeader("4802"));
-      var badRequestResponse = httpHeaderTestRestTemplate.exchange(lagreJournalpostUrl, HttpMethod.PUT, entityMedEnhetsheader, Void.class);
+      var badRequestResponse = httpHeaderTestRestTemplate.exchange(lagreJournalpostUrl, HttpMethod.PATCH, entityMedEnhetsheader, Void.class);
 
       assertThat(badRequestResponse).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.BAD_REQUEST);
     }
@@ -199,7 +199,7 @@ class JournalpostControllerTest {
       var lagreJournalpostUrl = initEndpointUrl("/journal/svada-1");
 
       var badRequestResponse = httpHeaderTestRestTemplate
-          .exchange(lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommand(), createEnhetHeader("4802")),
+          .exchange(lagreJournalpostUrl, HttpMethod.PATCH, new HttpEntity<>(new EndreJournalpostCommand(), createEnhetHeader("4802")),
               JournalpostResponse.class);
 
       assertThat(badRequestResponse).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.BAD_REQUEST);
@@ -214,7 +214,7 @@ class JournalpostControllerTest {
 
       var lagreJournalpostUrl = initEndpointUrl("/journal/BID-1");
       var endretJournalpostResponse = httpHeaderTestRestTemplate
-          .exchange(lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommand(), createEnhetHeader("4802")), Void.class);
+          .exchange(lagreJournalpostUrl, HttpMethod.PATCH, new HttpEntity<>(new EndreJournalpostCommand(), createEnhetHeader("4802")), Void.class);
 
       assertThat(optional(endretJournalpostResponse))
           .hasValueSatisfying(response -> assertAll(() -> assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED)));
@@ -229,7 +229,7 @@ class JournalpostControllerTest {
 
       var lagreJournalpostUrl = initEndpointUrl("/journal/BID-1");
       var endretJournalpostResponse = httpHeaderTestRestTemplate
-          .exchange(lagreJournalpostUrl, HttpMethod.PUT, new HttpEntity<>(new EndreJournalpostCommand(), createEnhetHeader("4802")), Void.class);
+          .exchange(lagreJournalpostUrl, HttpMethod.PATCH, new HttpEntity<>(new EndreJournalpostCommand(), createEnhetHeader("4802")), Void.class);
 
       assertThat(optional(endretJournalpostResponse))
           .hasValueSatisfying(response -> assertAll(() -> assertThat(response.getStatusCode()).as("status").isEqualTo(HttpStatus.OK), () -> {
