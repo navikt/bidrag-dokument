@@ -25,14 +25,14 @@ class DtoMapperTest {
   @Test
   @DisplayName("skal mappe aktør til json og tilbake")
   void skalMappeAktorTilJson() throws IOException {
-    String json = objectMapper.writeValueAsString(new AktorDto("06127412345"));
+    String json = objectMapper.writeValueAsString(new AktorDto("06127412345", "FNR"));
 
     assertThat(json).contains("\"ident\":\"06127412345\"");
 
     System.out.println(json);
     AktorDto deserialisert = objectMapper.readValue(json, AktorDto.class);
 
-    assertThat(deserialisert).isEqualTo(new AktorDto("06127412345"));
+    assertThat(deserialisert).isEqualTo(new AktorDto("06127412345", "FNR"));
   }
 
   @Test

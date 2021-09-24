@@ -98,7 +98,8 @@ public class JournalpostController {
 
     LOGGER.info("request: bidrag-dokument/journal/{}?saksnummer={}", journalpostIdForKildesystem, saksnummer);
 
-    return journalpostService.hentJournalpost(saksnummer, kildesystemIdenfikator).getResponseEntity();
+    var response =  journalpostService.hentJournalpost(saksnummer, kildesystemIdenfikator);
+    return response.clearContentHeaders().getResponseEntity();
   }
 
   @GetMapping("/journal/{journalpostIdForKildesystem}/avvik")
