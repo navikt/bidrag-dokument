@@ -172,35 +172,6 @@ public class JournalpostController {
     return journalpostService.behandleAvvik(enhet, kildesystemIdenfikator, avvikshendelse).getResponseEntity();
   }
 
-  @PutMapping("/journal/{journalpostIdForKildesystem}")
-  @Deprecated(forRemoval = true)
-  @Operation(
-      security = {@SecurityRequirement(name = "bearer-key")},
-      description = "Endre eksisterende journalpost, id på formatet [" + PREFIX_BIDRAG + '|' + PREFIX_JOARK + ']' + DELIMTER + "<journalpostId>"
-  )
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Journalpost er endret (eller registrert/journalført når payload inkluderer \"skalJournalfores\":\"true\")"),
-      @ApiResponse(responseCode = "400", description = """
-          En av følgende:
-          - prefiks på journalpostId er ugyldig
-          - EndreJournalpostCommandDto.gjelder er ikke satt og det finnes dokumenter tilknyttet journalpost
-          - enhet mangler/ugyldig (fra header)
-          - journalpost skal journalføres, men har ikke sakstilknytninger
-          """),
-      @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"),
-      @ApiResponse(responseCode = "403", description = "Saksbehandler har ikke tilgang til aktuell journalpost/sak"),
-      @ApiResponse(responseCode = "404", description = "Fant ikke journalpost som skal endres")
-  })
-  public ResponseEntity<Void> endreJournalpost(
-      @RequestBody EndreJournalpostCommand endreJournalpostCommand,
-      @PathVariable String journalpostIdForKildesystem,
-      @RequestHeader(EnhetFilter.X_ENHET_HEADER) String enhet
-  ) {
-    LOGGER.info("put endret: bidrag-dokument/journal/{}\n \\-> {}", journalpostIdForKildesystem, endreJournalpostCommand);
-
-    return patchJournalpost(endreJournalpostCommand, journalpostIdForKildesystem, enhet);
-  }
-
   @PatchMapping("/journal/{journalpostIdForKildesystem}")
   @Operation(
       security = {@SecurityRequirement(name = "bearer-key")},
