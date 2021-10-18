@@ -9,6 +9,7 @@ import no.nav.bidrag.commons.web.HttpResponse;
 import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.BehandleAvvikshendelseResponse;
+import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import org.slf4j.Logger;
@@ -19,11 +20,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.util.UriComponentsBuilder;
 
-public class BidragArkivConsumer {
+public class BidragDokumentConsumer {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(BidragArkivConsumer.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(BidragDokumentConsumer.class);
   private static final String PATH_JOURNAL = "/sak/%s/journal";
   public static final String PATH_JOURNALPOST_UTEN_SAK = "/journal/%s";
+  public static final String PATH_SAK_JOURNAL = "/sak/%s/journal";
   private static final String PATH_JOURNALPOST = "/journal/%s";
   private static final String PATH_JOURNALPOST_MED_SAKPARAM = "/journal/%s?saksnummer=%s";
   private static final String PARAM_FAGOMRADE = "fagomrade";
@@ -33,7 +35,7 @@ public class BidragArkivConsumer {
 
   private final ConsumerTarget consumerTarget;
 
-  public BidragArkivConsumer(ConsumerTarget consumerTarget) {
+  public BidragDokumentConsumer(ConsumerTarget consumerTarget) {
     this.consumerTarget = consumerTarget;
   }
 
@@ -95,6 +97,18 @@ public class BidragArkivConsumer {
         saksnummer, fagomrade);
 
     return Optional.ofNullable(journalposterFraArkiv.getBody()).orElse(Collections.emptyList());
+  }
+
+  public HttpResponse<Void> endre(String enhet, EndreJournalpostCommand endreJournalpostCommand) {
+    var path = String.format(PATH_JOURNALPOST_UTEN_SAK, endreJournalpostCommand.getJournalpostId());
+    LOGGER.info("Endre journalpost BidragDokument: {}, path {}", endreJournalpostCommand, path);
+
+    var endretJournalpostResponse = consumerTarget.henteRestTemplateForIssuer()
+        .exchange(path, HttpMethod.PATCH, new HttpEntity<>(endreJournalpostCommand, createEnhetHeader(enhet)), Void.class);
+
+    LOGGER.info("Endre journalpost fikk http status {}", endretJournalpostResponse.getStatusCode());
+
+    return new HttpResponse<>(endretJournalpostResponse);
   }
 
   public static HttpHeaders createEnhetHeader(String enhet) {

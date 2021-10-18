@@ -13,8 +13,7 @@ import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
-import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
-import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
+import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer;
 import no.nav.bidrag.dokument.consumer.ConsumerTarget;
 import no.nav.bidrag.dokument.consumer.DokumentConsumer;
 import no.nav.security.token.support.client.core.ClientProperties;
@@ -27,6 +26,7 @@ import no.nav.security.token.support.core.context.TokenValidationContextHolder;
 import no.nav.security.token.support.core.jwt.JwtToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
@@ -88,7 +88,8 @@ public class BidragDokumentConfig {
   }
 
   @Bean
-  public BidragJournalpostConsumer bidragJournalpostConsumer(
+  @Qualifier("journalpost")
+  public BidragDokumentConsumer bidragJournalpostConsumer(
       @Value("${JOURNALPOST_URL}") String journalpostBaseUrl,
       OidcTokenManager oidcTokenManager,
       RestTemplateProvider restTemplateProvider
@@ -97,11 +98,12 @@ public class BidragDokumentConfig {
     var consumerTarget = ConsumerTarget.builder().azureRestTemplate(azureRestTemplate(KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST, journalpostBaseUrl))
         .issoRestTemplate(issoRestTemplate(journalpostBaseUrl, oidcTokenManager)).restTemplateProvider(restTemplateProvider).build();
 
-    return new BidragJournalpostConsumer(consumerTarget);
+    return new BidragDokumentConsumer(consumerTarget);
   }
 
   @Bean
-  public BidragArkivConsumer journalforingConsumer(
+  @Qualifier("arkiv")
+  public BidragDokumentConsumer bidragArkivConsumer(
       @Value("${BIDRAG_ARKIV_URL}") String bidragArkivBaseUrl,
       OidcTokenManager oidcTokenManager,
       RestTemplateProvider restTemplateProvider
@@ -109,7 +111,7 @@ public class BidragDokumentConfig {
     LOGGER.info("BidragArkivConsumer med base url: " + bidragArkivBaseUrl);
     var consumerTarget = ConsumerTarget.builder().azureRestTemplate(azureRestTemplate(KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV, bidragArkivBaseUrl))
         .issoRestTemplate(issoRestTemplate(bidragArkivBaseUrl, oidcTokenManager)).restTemplateProvider(restTemplateProvider).build();
-    return new BidragArkivConsumer(consumerTarget);
+    return new BidragDokumentConsumer(consumerTarget);
   }
 
   @Bean
