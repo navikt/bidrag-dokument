@@ -1,5 +1,7 @@
 package no.nav.bidrag.dokument.service;
 
+import static no.nav.bidrag.dokument.BidragDokumentConfig.ARKIV_QUALIFIER;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.MIDL_BREVLAGER_QUALIFIER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -24,9 +26,9 @@ import org.springframework.http.HttpStatus;
 @ExtendWith(MockitoExtension.class)
 class JournalpostServiceTest {
 
-  @Mock(name="arkiv")
+  @Mock(name=ARKIV_QUALIFIER)
   private BidragDokumentConsumer bidragArkivConsumerMock;
-  @Mock(name="journalpost")
+  @Mock(name=MIDL_BREVLAGER_QUALIFIER)
   private BidragDokumentConsumer bidragJournalpostConsumerMock;
   private JournalpostService journalpostService;
 

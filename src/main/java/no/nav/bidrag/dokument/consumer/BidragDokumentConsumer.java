@@ -53,7 +53,7 @@ public class BidragDokumentConsumer {
       path = String.format(PATH_AVVIK_PA_JOURNALPOST, journalpostId);
     }
 
-    LOGGER.info("Finner avvik på journalpost fra bidrag-dokument-arkiv{}", path);
+    LOGGER.info("Finner avvik på journalpost fra {}{}", consumerTarget.getTargetApp(), path);
 
     var avviksResponse = consumerTarget.henteRestTemplateForIssuer().exchange(path, HttpMethod.GET, null, typereferansenErListeMedAvvikstyper());
     return new HttpResponse<>(avviksResponse);
@@ -62,7 +62,7 @@ public class BidragDokumentConsumer {
 
   public HttpResponse<BehandleAvvikshendelseResponse> behandleAvvik(String enhetsnummer, String journalpostId, Avvikshendelse avvikshendelse) {
     var path = String.format(PATH_JOURNALPOST_UTEN_SAK + "/avvik", journalpostId);
-    LOGGER.info("bidrag-dokument-arkiv{}: {}", path, avvikshendelse);
+    LOGGER.info("{}{}: {}", consumerTarget.getTargetApp(), path, avvikshendelse);
 
     var avviksResponse = consumerTarget.henteRestTemplateForIssuer()
         .exchange(path, HttpMethod.POST, new HttpEntity<>(avvikshendelse, createEnhetHeader(enhetsnummer)), BehandleAvvikshendelseResponse.class);
@@ -81,7 +81,7 @@ public class BidragDokumentConsumer {
 
     var journalpostExchange = consumerTarget.henteRestTemplateForIssuer().exchange(url, HttpMethod.GET, null, JournalpostResponse.class);
 
-    LOGGER.info("Hent journalpost fikk http status {} fra bidrag-dokument-arkiv", journalpostExchange.getStatusCode());
+    LOGGER.info("Hent journalpost fikk http status {} fra {}", journalpostExchange.getStatusCode(), consumerTarget.getTargetApp());
 
     return new HttpResponse<>(journalpostExchange);
   }
@@ -93,8 +93,8 @@ public class BidragDokumentConsumer {
         .exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter());
     var httpStatus = journalposterFraArkiv.getStatusCode();
 
-    LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} på fagområde {} fra bidrag-dokuemnt-arkiv", httpStatus,
-        saksnummer, fagomrade);
+    LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} på fagområde {} fra {}", httpStatus,
+        saksnummer, fagomrade, consumerTarget.getTargetApp());
 
     return Optional.ofNullable(journalposterFraArkiv.getBody()).orElse(Collections.emptyList());
   }

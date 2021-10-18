@@ -1,6 +1,7 @@
 package no.nav.bidrag.dokument.consumer;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.ARKIV_QUALIFIER;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
 import static no.nav.bidrag.dokument.consumer.BidragDokumentConsumer.PATH_JOURNALPOST_UTEN_SAK;
 import static no.nav.bidrag.dokument.consumer.stub.RestConsumerStub.generereJournalpostrespons;
@@ -32,7 +33,7 @@ import org.springframework.test.context.ActiveProfiles;
 class BidragArkivConsumerTest {
 
   @Autowired
-  @Qualifier("arkiv")
+  @Qualifier(ARKIV_QUALIFIER)
   private BidragDokumentConsumer bidragArkivConsumer;
 
   @Autowired
@@ -61,7 +62,7 @@ class BidragArkivConsumerTest {
     var idToken = generateTestToken();
 
     when(oidcTokenManager.fetchToken()).thenReturn(idToken);
-    restConsumerStub.runGet(path, queryParams, HttpStatus.OK, generereJournalpostrespons(journalpostelementer));
+    restConsumerStub.runGetArkiv(path, queryParams, HttpStatus.OK, generereJournalpostrespons(journalpostelementer));
 
     var httpResponse = bidragArkivConsumer.hentJournalpost(saksnr, jpId);
     var journalpostResponse = httpResponse.fetchBody().orElseThrow(() -> new AssertionError("BidragArkivConsumer kunne ikke finne journalpost!"));

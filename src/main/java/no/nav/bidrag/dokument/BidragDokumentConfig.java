@@ -55,6 +55,8 @@ public class BidragDokumentConfig {
   public static final String DELIMTER = "-";
   public static final String PREFIX_BIDRAG = "BID";
   public static final String PREFIX_JOARK = "JOARK";
+  public static final String MIDL_BREVLAGER_QUALIFIER = "midlertidigBrevlager";
+  public static final String ARKIV_QUALIFIER = "arkiv";
   public static final String KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV = "bidrag-dokument-arkiv";
   public static final String KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST = "bidrag-dokument-journalpost";
   static final String LIVE_PROFILE = "live";
@@ -88,7 +90,7 @@ public class BidragDokumentConfig {
   }
 
   @Bean
-  @Qualifier("journalpost")
+  @Qualifier(MIDL_BREVLAGER_QUALIFIER)
   public BidragDokumentConsumer bidragJournalpostConsumer(
       @Value("${JOURNALPOST_URL}") String journalpostBaseUrl,
       OidcTokenManager oidcTokenManager,
@@ -96,13 +98,15 @@ public class BidragDokumentConfig {
   ) {
     LOGGER.info("BidragJournalpostConsumer med base url: " + journalpostBaseUrl);
     var consumerTarget = ConsumerTarget.builder().azureRestTemplate(azureRestTemplate(KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST, journalpostBaseUrl))
-        .issoRestTemplate(issoRestTemplate(journalpostBaseUrl, oidcTokenManager)).restTemplateProvider(restTemplateProvider).build();
+        .issoRestTemplate(issoRestTemplate(journalpostBaseUrl, oidcTokenManager)).restTemplateProvider(restTemplateProvider)
+        .targetApp("bidrag-dokument-journalpost")
+        .build();
 
     return new BidragDokumentConsumer(consumerTarget);
   }
 
   @Bean
-  @Qualifier("arkiv")
+  @Qualifier(ARKIV_QUALIFIER)
   public BidragDokumentConsumer bidragArkivConsumer(
       @Value("${BIDRAG_ARKIV_URL}") String bidragArkivBaseUrl,
       OidcTokenManager oidcTokenManager,
@@ -110,7 +114,9 @@ public class BidragDokumentConfig {
   ) {
     LOGGER.info("BidragArkivConsumer med base url: " + bidragArkivBaseUrl);
     var consumerTarget = ConsumerTarget.builder().azureRestTemplate(azureRestTemplate(KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV, bidragArkivBaseUrl))
-        .issoRestTemplate(issoRestTemplate(bidragArkivBaseUrl, oidcTokenManager)).restTemplateProvider(restTemplateProvider).build();
+        .issoRestTemplate(issoRestTemplate(bidragArkivBaseUrl, oidcTokenManager)).restTemplateProvider(restTemplateProvider)
+        .targetApp("bidrag-dokument-arkiv")
+        .build();
     return new BidragDokumentConsumer(consumerTarget);
   }
 
@@ -122,7 +128,9 @@ public class BidragDokumentConfig {
   ) {
     LOGGER.info("DokumentConsumer med base url: " + journalpostBaseUrl);
     var consumerTarget = ConsumerTarget.builder().azureRestTemplate(azureRestTemplate(KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST, journalpostBaseUrl))
-        .issoRestTemplate(issoRestTemplate(journalpostBaseUrl, oidcTokenManager)).restTemplateProvider(restTemplateProvider).build();
+        .issoRestTemplate(issoRestTemplate(journalpostBaseUrl, oidcTokenManager)).restTemplateProvider(restTemplateProvider)
+        .targetApp("bidrag-dokument-journalpost")
+        .build();
     return new DokumentConsumer(consumerTarget);
   }
 

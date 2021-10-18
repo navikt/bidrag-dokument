@@ -1,5 +1,6 @@
 package no.nav.bidrag.dokument.consumer;
 
+import static no.nav.bidrag.dokument.BidragDokumentConfig.MIDL_BREVLAGER_QUALIFIER;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -28,7 +29,7 @@ import org.springframework.test.context.ActiveProfiles;
 class BidragJournalpostConsumerTest {
 
   @Autowired
-  @Qualifier("journalpost")
+  @Qualifier(MIDL_BREVLAGER_QUALIFIER)
   private BidragDokumentConsumer bidragJournalpostConsumer;
 
   @Autowired

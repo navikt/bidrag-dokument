@@ -1,6 +1,8 @@
 package no.nav.bidrag.dokument.service;
 
 import static no.nav.bidrag.commons.KildesystemIdenfikator.Kildesystem.BIDRAG;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.ARKIV_QUALIFIER;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.MIDL_BREVLAGER_QUALIFIER;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +25,8 @@ public class JournalpostService {
   private final BidragDokumentConsumer bidragArkivConsumer;
 
   public JournalpostService(
-      @Qualifier("arkiv") BidragDokumentConsumer bidragArkivConsumer,
-      @Qualifier("journalpost") BidragDokumentConsumer bidragJournalpostConsumer
+      @Qualifier(ARKIV_QUALIFIER) BidragDokumentConsumer bidragArkivConsumer,
+      @Qualifier(MIDL_BREVLAGER_QUALIFIER) BidragDokumentConsumer bidragJournalpostConsumer
   ) {
     this.bidragArkivConsumer = bidragArkivConsumer;
     this.bidragJournalpostConsumer = bidragJournalpostConsumer;

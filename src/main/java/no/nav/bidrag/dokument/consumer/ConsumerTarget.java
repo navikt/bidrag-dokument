@@ -12,6 +12,7 @@ public class ConsumerTarget {
   private RestTemplate azureRestTemplate;
   private RestTemplate issoRestTemplate;
   private RestTemplateProvider restTemplateProvider;
+  private String targetApp;
 
   public RestTemplate henteRestTemplateForIssuer() {
     return restTemplateProvider.provideRestTemplate(this);
