@@ -45,7 +45,7 @@ public class JournalpostService {
       return bidragJournalpostConsumer.finnAvvik(saksnummer, kildesystemIdenfikator.getPrefiksetJournalpostId());
     }
 
-    return HttpResponse.from(HttpStatus.BAD_REQUEST, Collections.emptyList());
+    return bidragArkivConsumer.finnAvvik(saksnummer, kildesystemIdenfikator.getPrefiksetJournalpostId());
   }
 
   public HttpResponse<BehandleAvvikshendelseResponse> behandleAvvik(
@@ -55,7 +55,7 @@ public class JournalpostService {
       return bidragJournalpostConsumer.behandleAvvik(enhet, kildesystemIdenfikator.getPrefiksetJournalpostId(), avvikshendelse);
     }
 
-    return HttpResponse.from(HttpStatus.BAD_REQUEST);
+    return bidragArkivConsumer.behandleAvvik(enhet, kildesystemIdenfikator.getPrefiksetJournalpostId(), avvikshendelse);
   }
 
   public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
