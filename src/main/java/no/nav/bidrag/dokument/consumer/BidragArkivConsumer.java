@@ -51,7 +51,7 @@ public class BidragArkivConsumer {
       path = String.format(PATH_AVVIK_PA_JOURNALPOST, journalpostId);
     }
 
-    LOGGER.info("Finner avvik på journalpost fra bidrag-dokument-journalpost{}", path);
+    LOGGER.info("Finner avvik på journalpost fra bidrag-dokument-arkiv{}", path);
 
     var avviksResponse = consumerTarget.henteRestTemplateForIssuer().exchange(path, HttpMethod.GET, null, typereferansenErListeMedAvvikstyper());
     return new HttpResponse<>(avviksResponse);
@@ -60,7 +60,7 @@ public class BidragArkivConsumer {
 
   public HttpResponse<BehandleAvvikshendelseResponse> behandleAvvik(String enhetsnummer, String journalpostId, Avvikshendelse avvikshendelse) {
     var path = String.format(PATH_JOURNALPOST_UTEN_SAK + "/avvik", journalpostId);
-    LOGGER.info("bidrag-dokument-journalpost{}: {}", path, avvikshendelse);
+    LOGGER.info("bidrag-dokument-arkiv{}: {}", path, avvikshendelse);
 
     var avviksResponse = consumerTarget.henteRestTemplateForIssuer()
         .exchange(path, HttpMethod.POST, new HttpEntity<>(avvikshendelse, createEnhetHeader(enhetsnummer)), BehandleAvvikshendelseResponse.class);
