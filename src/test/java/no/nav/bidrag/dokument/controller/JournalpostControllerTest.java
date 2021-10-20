@@ -1,12 +1,15 @@
 package no.nav.bidrag.dokument.controller;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.reset;
+import static com.github.tomakehurst.wiremock.client.WireMock.resetAllScenarios;
+import static com.github.tomakehurst.wiremock.client.WireMock.resetToDefault;
 import static no.nav.bidrag.commons.web.EnhetFilter.X_ENHET_HEADER;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
-import static no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer.PATH_AVVIK_PA_JOURNALPOST;
-import static no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer.PATH_JOURNALPOST_UTEN_SAK;
-import static no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer.PATH_SAK_JOURNAL;
-import static no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer.createEnhetHeader;
+import static no.nav.bidrag.dokument.consumer.BidragDokumentConsumer.PATH_AVVIK_PA_JOURNALPOST;
+import static no.nav.bidrag.dokument.consumer.BidragDokumentConsumer.PATH_JOURNALPOST_UTEN_SAK;
+import static no.nav.bidrag.dokument.consumer.BidragDokumentConsumer.PATH_SAK_JOURNAL;
+import static no.nav.bidrag.dokument.consumer.BidragDokumentConsumer.createEnhetHeader;
 import static no.nav.bidrag.dokument.consumer.stub.RestConsumerStub.generereJournalpostrespons;
 import static no.nav.bidrag.dokument.consumer.stub.RestConsumerStub.lesResponsfilSomStreng;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,6 +33,7 @@ import no.nav.bidrag.dokument.dto.BehandleAvvikshendelseResponse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -90,6 +94,12 @@ class JournalpostControllerTest {
   private record CustomHeader(String name, String value) {
 
   }
+  @BeforeEach
+  void cleanup(){
+    resetToDefault();
+    resetAllScenarios();
+    reset();
+  }
 
   @Nested
   @DisplayName("hent journalpost")
@@ -104,7 +114,7 @@ class JournalpostControllerTest {
       var queryParams = new HashMap<String, StringValuePattern>();
       queryParams.put("saksnummer", equalTo(saksnr));
 
-      restConsumerStub.runHenteJournalpost(jpId, queryParams, HttpStatus.NO_CONTENT, "");
+      restConsumerStub.runHenteJournalpostArkiv(jpId, queryParams, HttpStatus.NO_CONTENT, "");
 
       var journalpostResponseEntity = httpHeaderTestRestTemplate
           .exchange(initEndpointUrl(String.format(PATH_JOURNALPOST_UTEN_SAK, jpId) + "?saksnummer=" + saksnr), HttpMethod.GET, null,
@@ -124,7 +134,7 @@ class JournalpostControllerTest {
       queryParams.put("saksnummer", equalTo(saksnr));
       var responsfilnavn = "journalpostInnholdMidlertidig.json";
 
-      restConsumerStub.runHenteJournalpost(jpId, queryParams, HttpStatus.OK, lesResponsfilSomStreng(responsfilnavn));
+      restConsumerStub.runHenteJournalpostArkiv(jpId, queryParams, HttpStatus.OK, lesResponsfilSomStreng(responsfilnavn));
 
       var url = initEndpointUrl("/journal/joark-2?saksnummer=007");
       var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.GET, null, JournalpostResponse.class);
@@ -275,9 +285,30 @@ class JournalpostControllerTest {
     }
 
     @Test
+    @DisplayName("skal finne avvikshendelser på en joark journalpost")
+    void skalFinneAvvikshendelserForJoarkJournalpost() {
+      final var jpId = "JOARK-1";
+      final var saksnr = "1001";
+      final var path = String.format(PATH_AVVIK_PA_JOURNALPOST, jpId);
+      var queryParams = new HashMap<String, StringValuePattern>();
+      queryParams.put("saksnummer", equalTo(saksnr));
+      final var respons = String.join("\n", " [", "\"BESTILL_ORIGINAL\"", "]");
+
+      restConsumerStub.runGetArkiv(path, queryParams, HttpStatus.OK, respons);
+
+      var url = initEndpointUrl(path + "?saksnummer=1001");
+
+      // when
+      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.GET, null, responseTypeErListeMedAvvikType());
+
+      assertAll(() -> assertThat(responseEntity.getStatusCode()).as("status").isEqualTo(HttpStatus.OK),
+          () -> assertThat(responseEntity.getBody()).as("avvik").hasSize(1),
+          () -> assertThat(responseEntity.getBody()).as("avvik").contains(AvvikType.BESTILL_ORIGINAL));
+    }
+
+    @Test
     @DisplayName("skal opprette et avvik på en journalpost")
-    @Disabled // feilet når RequestFactory fra apache ble lagt til i RestTemplate grunnet endring av PUT -> PATCH... ???
-    void skalOppretteAvvikPaJournalpost() {
+    void skalOppretteAvvikPaJournalpost() throws InterruptedException {
 
       // given
       final var jpId = "BID-4";
@@ -287,6 +318,31 @@ class JournalpostControllerTest {
       final var respons = String.join("\n", " {", "\"avvikType\":", "\"" + avvikshendelse.getAvvikType() + "\"", "}");
 
       restConsumerStub.runPost(path, HttpStatus.CREATED, respons);
+
+      var bestillOriginalEntity = initHttpEntity(avvikshendelse, new CustomHeader(X_ENHET_HEADER, "1234"));
+      var url = initEndpointUrl(path);
+
+      // when
+      var responseEntity = httpHeaderTestRestTemplate.exchange(url, HttpMethod.POST, bestillOriginalEntity, BehandleAvvikshendelseResponse.class);
+
+      // then
+      assertAll(
+          () -> assertThat(responseEntity.getStatusCode()).as("status").isEqualTo(HttpStatus.CREATED),
+          () -> assertThat(responseEntity.getBody()).as("body").isEqualTo(new BehandleAvvikshendelseResponse(AvvikType.BESTILL_ORIGINAL)));
+    }
+
+    @Test
+    @DisplayName("skal opprette et avvik på en Joark journalpost")
+    void skalOppretteAvvikPaJoarkJournalpost() {
+
+      // given
+      final var jpId = "JOARK-4";
+      final var enhetsnummer = "4806";
+      final var avvikshendelse = new Avvikshendelse(AvvikType.BESTILL_ORIGINAL.name(), enhetsnummer);
+      final var path = String.format(PATH_AVVIK_PA_JOURNALPOST, jpId);
+      final var respons = String.join("\n", " {", "\"avvikType\":", "\"" + avvikshendelse.getAvvikType() + "\"", "}");
+
+      restConsumerStub.runPostArkiv(path, HttpStatus.CREATED, respons);
 
       var bestillOriginalEntity = initHttpEntity(avvikshendelse, new CustomHeader(X_ENHET_HEADER, "1234"));
       var url = initEndpointUrl(path);
@@ -435,6 +491,7 @@ class JournalpostControllerTest {
 
       // Bruker en fellestub for journalpost og arkiv pga identisk path. Kan evnt sette opp egne
       // WireMock-instanser for hver app, men det krever mer arbeid.
+      restConsumerStub.runGetArkiv(path, HttpStatus.OK, lesResponsfilSomStreng(navnResponsfil));
       restConsumerStub.runGet(path, HttpStatus.OK, lesResponsfilSomStreng(navnResponsfil));
 
       // when
@@ -470,6 +527,7 @@ class JournalpostControllerTest {
 
       // Bruker en fellestub for journalpost og arkiv pga identisk path. Kan evnt sette opp egne
       // WireMock-instanser for hver app, men det krever mer arbeid.
+      restConsumerStub.runGetArkiv(path, HttpStatus.OK, lesResponsfilSomStreng(navnResponsfil));
       restConsumerStub.runGet(path, HttpStatus.OK, lesResponsfilSomStreng(navnResponsfil));
 
       var listeMedJournalposterResponse = httpHeaderTestRestTemplate

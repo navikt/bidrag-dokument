@@ -1,8 +1,9 @@
 package no.nav.bidrag.dokument.consumer;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.ARKIV_QUALIFIER;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
-import static no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer.PATH_JOURNALPOST_UTEN_SAK;
+import static no.nav.bidrag.dokument.consumer.BidragDokumentConsumer.PATH_JOURNALPOST_UTEN_SAK;
 import static no.nav.bidrag.dokument.consumer.stub.RestConsumerStub.generereJournalpostrespons;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -18,6 +19,7 @@ import no.nav.security.token.support.test.jersey.TestTokenGeneratorResource;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
@@ -31,7 +33,8 @@ import org.springframework.test.context.ActiveProfiles;
 class BidragArkivConsumerTest {
 
   @Autowired
-  private BidragArkivConsumer bidragArkivConsumer;
+  @Qualifier(ARKIV_QUALIFIER)
+  private BidragDokumentConsumer bidragArkivConsumer;
 
   @Autowired
   private RestConsumerStub restConsumerStub;
@@ -59,7 +62,7 @@ class BidragArkivConsumerTest {
     var idToken = generateTestToken();
 
     when(oidcTokenManager.fetchToken()).thenReturn(idToken);
-    restConsumerStub.runGet(path, queryParams, HttpStatus.OK, generereJournalpostrespons(journalpostelementer));
+    restConsumerStub.runGetArkiv(path, queryParams, HttpStatus.OK, generereJournalpostrespons(journalpostelementer));
 
     var httpResponse = bidragArkivConsumer.hentJournalpost(saksnr, jpId);
     var journalpostResponse = httpResponse.fetchBody().orElseThrow(() -> new AssertionError("BidragArkivConsumer kunne ikke finne journalpost!"));

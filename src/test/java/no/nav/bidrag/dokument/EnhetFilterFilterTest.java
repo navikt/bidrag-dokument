@@ -1,7 +1,7 @@
 package no.nav.bidrag.dokument;
 
 import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
-import static no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer.createEnhetHeader;
+import static no.nav.bidrag.dokument.consumer.BidragDokumentConsumer.createEnhetHeader;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;

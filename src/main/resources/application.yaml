@@ -72,9 +72,9 @@ wiremock.server.port: 8085
 
 ISSO_ISSUER_URL: https://isso-q.adeo.no:443/isso/oauth2
 # For enkelhetsskyld brukes samme wiremock-instans for både arkiv og journalpost
-BIDRAG_ARKIV_URL: http://localhost:${wiremock.server.port}/
+BIDRAG_ARKIV_URL: http://localhost:${wiremock.server.port}/arkiv
 JOURNALPOST_URL: http://localhost:${wiremock.server.port}/
-SECURITY_TOKEN_URL: https://security-token-service-nais-preprod.local
+SECURITY_TOKEN_URL: http://localhost:${wiremock.server.port}/sts
 SRVBIDRAG_USERNAME: srvbidrag-dokument
 SRVBIDRAG_PASSWORD: bareForTest
 

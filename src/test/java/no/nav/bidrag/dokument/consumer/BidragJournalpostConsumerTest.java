@@ -1,5 +1,6 @@
 package no.nav.bidrag.dokument.consumer;
 
+import static no.nav.bidrag.dokument.BidragDokumentConfig.MIDL_BREVLAGER_QUALIFIER;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
@@ -27,7 +29,8 @@ import org.springframework.test.context.ActiveProfiles;
 class BidragJournalpostConsumerTest {
 
   @Autowired
-  private BidragJournalpostConsumer bidragJournalpostConsumer;
+  @Qualifier(MIDL_BREVLAGER_QUALIFIER)
+  private BidragDokumentConsumer bidragJournalpostConsumer;
 
   @Autowired
   private RestConsumerStub restConsumerStub;

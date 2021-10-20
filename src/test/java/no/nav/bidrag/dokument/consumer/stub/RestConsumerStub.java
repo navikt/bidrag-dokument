@@ -6,9 +6,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.patch;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
-import static no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer.PATH_JOURNALPOST_UTEN_SAK;
-import static no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer.PATH_SAK_JOURNAL;
+import static no.nav.bidrag.dokument.consumer.BidragDokumentConsumer.PATH_JOURNALPOST_UTEN_SAK;
+import static no.nav.bidrag.dokument.consumer.BidragDokumentConsumer.PATH_SAK_JOURNAL;
 import static no.nav.bidrag.dokument.consumer.DokumentConsumer.PATH_DOKUMENT_TILGANG;
 
 import com.github.tomakehurst.wiremock.http.HttpHeader;
@@ -60,6 +61,11 @@ public class RestConsumerStub {
             .withBody(Files.readString(Path.of("src/test/resources/stubrespons/bdj-respons.json"), StandardCharsets.UTF_8))));
   }
 
+  public void runHenteJournalpostArkiv(String jpId, Map<String, StringValuePattern> queryParams, HttpStatus status, String respons) {
+    stubFor(get(urlPathMatching(String.format("/arkiv"+PATH_JOURNALPOST_UTEN_SAK, jpId))).withQueryParams(queryParams)
+        .willReturn(aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withStatus(status.value()).withBody(respons)));
+  }
+
   public void runHenteJournalpost(String jpId, Map<String, StringValuePattern> queryParams, HttpStatus status, String respons) {
     stubFor(get(urlPathMatching(String.format(PATH_JOURNALPOST_UTEN_SAK, jpId))).withQueryParams(queryParams)
         .willReturn(aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withStatus(status.value()).withBody(respons)));
@@ -83,19 +89,37 @@ public class RestConsumerStub {
             .withBody(String.join("\n", "{", "\"dokumentUrl\": \"" + dokurl + "\",", "\"type\": \"" + type + "\"", "}"))));
   }
 
+  public void runGetArkiv(String path, Map<String, StringValuePattern> queryParams, HttpStatus status, String respons) {
+     runGet("/arkiv"+path, queryParams, status, respons);
+  }
+
+  public void runGetArkiv(String path, HttpStatus status, String respons) {
+    runGet("/arkiv"+path, status, respons);
+  }
+
   public void runGet(String path, Map<String, StringValuePattern> queryParams, HttpStatus status, String respons) {
 
-    stubFor(get(urlPathMatching(path)).withQueryParams(queryParams)
-        .willReturn(aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withStatus(status.value()).withBody(respons)));
+    stubFor(get(urlPathEqualTo(path)).withQueryParams(queryParams)
+        .willReturn(aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+            .withHeader("Connection", "close")
+            .withStatus(status.value()).withBody(respons)));
   }
 
   public void runGet(String path, HttpStatus status, String respons) {
-    stubFor(get(urlPathMatching(path))
-        .willReturn(aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withStatus(status.value()).withBody(respons)));
+    stubFor(get(urlPathEqualTo(path))
+        .willReturn(aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+            .withHeader("Connection", "close")
+            .withStatus(status.value()).withBody(respons)));
+  }
+
+  public void runPostArkiv(String path, HttpStatus status, String respons) {
+      runPost("/arkiv"+path, status, respons);
   }
 
   public void runPost(String path, HttpStatus status, String respons) {
-    stubFor(post(urlPathMatching(path))
+    stubFor(post(urlPathEqualTo(path))
         .willReturn(aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withStatus(status.value()).withBody(respons)));
   }
+
+
 }

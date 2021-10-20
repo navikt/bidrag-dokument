@@ -1,5 +1,7 @@
 package no.nav.bidrag.dokument.service;
 
+import static no.nav.bidrag.dokument.BidragDokumentConfig.ARKIV_QUALIFIER;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.MIDL_BREVLAGER_QUALIFIER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -9,14 +11,13 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import no.nav.bidrag.commons.KildesystemIdenfikator;
 import no.nav.bidrag.commons.web.HttpResponse;
-import no.nav.bidrag.dokument.consumer.BidragArkivConsumer;
-import no.nav.bidrag.dokument.consumer.BidragJournalpostConsumer;
+import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
@@ -25,12 +26,16 @@ import org.springframework.http.HttpStatus;
 @ExtendWith(MockitoExtension.class)
 class JournalpostServiceTest {
 
-  @Mock
-  private BidragArkivConsumer bidragArkivConsumerMock;
-  @Mock
-  private BidragJournalpostConsumer bidragJournalpostConsumerMock;
-  @InjectMocks
+  @Mock(name=ARKIV_QUALIFIER)
+  private BidragDokumentConsumer bidragArkivConsumerMock;
+  @Mock(name=MIDL_BREVLAGER_QUALIFIER)
+  private BidragDokumentConsumer bidragJournalpostConsumerMock;
   private JournalpostService journalpostService;
+
+  @BeforeEach
+  void createServiceWithMocks(){
+    journalpostService = new JournalpostService(bidragArkivConsumerMock, bidragJournalpostConsumerMock);
+  }
 
   @Test
   @DisplayName("skal ikke hente journalpost")
