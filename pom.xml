@@ -179,17 +179,6 @@
     </dependency>
   </dependencies>
 
-  <dependencyManagement>
-    <dependencies>
-      <!-- Ovverride vulnerable dependencies -->
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>1.13</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <distributionManagement>
     <repository>
       <id>maven-release</id>
