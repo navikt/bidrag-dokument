@@ -25,7 +25,7 @@
     <!-- dependent versions other than from spring-boot -->
     <bidrag-commons.version>0.5.16</bidrag-commons.version>
     <bidrag-commons-test.version>0.2.2</bidrag-commons-test.version>
-    <bidrag-dokument-dto.version>0.22.1</bidrag-dokument-dto.version>
+    <bidrag-dokument-dto.version>0.22.2</bidrag-dokument-dto.version>
     <logback.encoder.version>6.6</logback.encoder.version>
     <springdoc-openapi-ui.version>1.5.12</springdoc-openapi-ui.version>
     <springframework-cloud.version>3.0.4</springframework-cloud.version>
@@ -216,33 +216,6 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <reuseForks>false</reuseForks>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <configuration>
-          <includes>
-            <reuseForks>false</reuseForks>
-            <forkCount>1</forkCount>
-          </includes>
-          <threadCount>20</threadCount>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <release>${java.version}</release>
-        </configuration>
       </plugin>
 
       <plugin>
