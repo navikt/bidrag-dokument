@@ -15,17 +15,12 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - run: kubectl config use-context dev-fss
       - name: restart bidrag-testdata
         if: github.ref == 'refs/heads/main'
-        run: |
-          PODS_TESTDATA=$(kubectl get pods -n bidrag -l app=bidrag-testdata | awk '{print $1}' | grep -v NAME)
-          kubectl delete pods -n bidrag $(echo $PODS_TESTDATA | sed 's;\n; ;')
+        run: "curl -X 'POST' 'https://bidrag-testdata.dev.adeo.no/bidrag-testdata/restart' -H 'accept: */*' -d ''"
       - name: restart bidrag-testdata-feature
         if: github.ref != 'refs/heads/main'
-        run: |
-          PODS_TESTDATA=$(kubectl get pods -n bidrag -l app=bidrag-testdata-feature  | awk '{print $1}' | grep -v NAME)
-          kubectl delete pods -n bidrag $(echo $PODS_TESTDATA | sed 's;\n; ;')
+        run: "curl -X 'POST' 'https://bidrag-testdata-feature.dev.adeo.no/bidrag-testdata/restart' -H 'accept: */*' -d ''"
 
   build:
     name: Build with maven and docker
@@ -44,7 +39,7 @@ jobs:
       - uses: actions/setup-java@v1
         if: env.NOT_FOUND == 'true'
         with:
-          java-version: '17'
+          java-version: 17
       - uses: actions/cache@v1
         if: env.NOT_FOUND == 'true'
         with:
