@@ -18,6 +18,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 public class BidragDokumentConsumer {
@@ -89,14 +90,19 @@ public class BidragDokumentConsumer {
   public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
     var uri = UriComponentsBuilder.fromPath(String.format(PATH_JOURNAL, saksnummer)).queryParam(PARAM_FAGOMRADE, fagomrade).toUriString();
 
-    var journalposterFraArkiv = consumerTarget.henteRestTemplateForIssuer()
-        .exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter());
-    var httpStatus = journalposterFraArkiv.getStatusCode();
+    try {
+      var journalposterFraArkiv = consumerTarget.henteRestTemplateForIssuer()
+          .exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter());
+      var httpStatus = journalposterFraArkiv.getStatusCode();
 
-    LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} på fagområde {} fra {}", httpStatus,
-        saksnummer, fagomrade, consumerTarget.getTargetApp());
+      LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} på fagområde {} fra {}", httpStatus,
+          saksnummer, fagomrade, consumerTarget.getTargetApp());
 
-    return Optional.ofNullable(journalposterFraArkiv.getBody()).orElse(Collections.emptyList());
+      return Optional.ofNullable(journalposterFraArkiv.getBody()).orElse(Collections.emptyList());
+    } catch (HttpStatusCodeException statusCodeException){
+        return Collections.emptyList();
+    }
+
   }
 
   public HttpResponse<Void> endre(String enhet, EndreJournalpostCommand endreJournalpostCommand) {
