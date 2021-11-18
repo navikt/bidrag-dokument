@@ -23,4 +23,8 @@ env:
     value: TBA
   - name: BIDRAG_DOKUMENT_ARKIV_CLIENT_ID
     value: TBA
+  - name: STS_URL
+    value: https://security-token-service.dev.adeo.no/rest/v1/sts
+  - name: ACCEPTED_SERVICE_USER_AUDIENCE
+    value: srvbisys
 path: dev

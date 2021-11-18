@@ -32,7 +32,7 @@ no.nav.security.jwt:
   issuer.aad:
     discovery_url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/v2.0/.well-known/openid-configuration
     accepted_audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}, ${ACCEPTED_AUDIENCE}
-    proxy-url: http://webproxy.nais:8088
+#    proxy-url: http://webproxy.nais:8088
   client:
     registration:
       bidrag-dokument-journalpost:
@@ -54,6 +54,9 @@ no.nav.security.jwt:
   issuer.isso:
     accepted_audience: ${ACCEPTED_AUDIENCE}
     discoveryurl: ${ISSO_ISSUER_URL}/.well-known/openid-configuration
+  issuer.system:
+    discoveryurl: ${STS_URL}/.well-known/openid-configuration
+    accepted_audience: ${ACCEPTED_SERVICE_USER_AUDIENCE}
 
 ---
 
