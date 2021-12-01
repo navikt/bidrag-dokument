@@ -99,6 +99,7 @@ jobs:
 
     env:
       INGRESS_ARKIV: https://bidrag-dokument-arkiv.dev.intern.nav.no
+      INGRESS_CUCUMBER: https://bidrag-cucumber-onprem.dev.adeo.no
       INGRESS_DOKARKIV: https://dokarkiv-q2.dev.adeo.no
       INGRESS_DOKUMENT: https://bidrag-dokument.dev.intern.nav.no
       INGRESS_DOKUMENT_JOURNALPOST: https://bidrag-dokument-journalpost.dev.adeo.no
