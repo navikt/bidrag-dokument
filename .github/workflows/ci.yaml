@@ -92,6 +92,44 @@ jobs:
           RESOURCE: deploy/.nais/nais.yaml
           VARS: deploy/.nais/feature.yaml
 
+  cucumber-onprem:
+    runs-on: self-hosted
+    name: Tests on cucumber-onprem
+    needs: deploy
+
+    env:
+      INGRESS_ARKIV: https://bidrag-dokument-arkiv.dev.intern.nav.no
+      INGRESS_DOKARKIV: https://dokarkiv-q2.dev.adeo.no
+      INGRESS_DOKUMENT: https://bidrag-dokument.dev.intern.nav.no
+      INGRESS_DOKUMENT_JOURNALPOST: https://bidrag-dokument-journalpost.dev.adeo.no
+      INGRESS_TESTDATA: https://bidrag-testdata.dev.adeo.no
+
+    steps:
+      - run: |
+          echo "INGRESS_ARKIV=https://bidrag-dokument-arkiv-feature.dev.intern.nav.no" >> $GITHUB_ENV
+          echo "INGRESS_CUCUMBER=https://bidrag-cucumber-onprem-feature.dev.adeo.no" >> $GITHUB_ENV
+          echo "INGRESS_DOKARKIV=https://dokarkiv-q1.dev.adeo.no" >> $GITHUB_ENV
+          echo "INGRESS_DOKUMENT=https://bidrag-dokument-feature.dev.intern.nav.no" >> $GITHUB_ENV
+          echo "INGRESS_DOKUMENT_JOURNALPOST=https://bidrag-dokument-journalpost-feature.dev.adeo.no" >> $GITHUB_ENV
+          echo "INGRESS_TESTDATA=https://bidrag-testdata-feature.dev.adeo.no" >> $GITHUB_ENV
+        if: github.ref != 'refs/heads/main'
+      - name: "@bda-samt-bdj"
+        run: |
+          curl -X 'POST' '${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-onprem/run' -i \
+            -H 'accept: */*' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "tags":["@bda-samt-bdj"], "navUsername": "j104364", "testUsername": "z992903",
+              "noContextPathForApps":["dokarkiv-api"],"ingressesForApps":[
+                "${{ env.INGRESS_ARKIV }}@no-tag:bidrag-dokument-arkiv",
+                "${{ env.INGRESS_DOKARKIV }}@no-tag:dokarkiv-api",
+                "${{ env.INGRESS_DOKUMENT }}@no-tag:bidrag-dokument",
+                "${{ env.INGRESS_DOKUMENT_JOURNALPOST }}@no-tag:bidrag-dokument-journalpost",
+                "${{ env.INGRESS_TESTDATA }}@no-tag:bidrag-testdata"
+              ]
+            }' | tee .cucumber-result
+          cat .cucumber-result | grep HTTP/1.1 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
+
   run_cucumber:
     runs-on: self-hosted
     name: Run cucumber integration tests
@@ -122,7 +160,9 @@ jobs:
     runs-on: ubuntu-latest
     name: Bump SNAPSHOT version
     if: github.ref == 'refs/heads/main'
-    needs: run_cucumber
+    needs:
+      - run_cucumber
+      - cucumber-onprem
 
     steps:
       - uses: actions/checkout@v2
