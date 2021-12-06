@@ -122,11 +122,11 @@ jobs:
             -d '{
               "tags":["@bda-samt-bdj"], "navUsername": "j104364", "testUsername": "z992903",
               "noContextPathForApps":["dokarkiv-api"],"ingressesForApps":[
-                "${{ env.INGRESS_ARKIV }}@no-tag:bidrag-dokument-arkiv",
-                "${{ env.INGRESS_DOKARKIV }}@no-tag:dokarkiv-api",
-                "${{ env.INGRESS_DOKUMENT }}@no-tag:bidrag-dokument",
-                "${{ env.INGRESS_DOKUMENT_JOURNALPOST }}@no-tag:bidrag-dokument-journalpost",
-                "${{ env.INGRESS_TESTDATA }}@no-tag:bidrag-testdata"
+                "${{ env.INGRESS_ARKIV }}@bidrag-dokument-arkiv",
+                "${{ env.INGRESS_DOKARKIV }}@dokarkiv-api",
+                "${{ env.INGRESS_DOKUMENT }}@bidrag-dokument",
+                "${{ env.INGRESS_DOKUMENT_JOURNALPOST }}@bidrag-dokument-journalpost",
+                "${{ env.INGRESS_TESTDATA }}@bidrag-testdata"
               ]
             }' | tee .cucumber-result
           cat .cucumber-result | grep HTTP/1.1 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
@@ -167,20 +167,4 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - run: mvn release:update-versions
-      - run: |
-          BUMPED_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          echo ::set-output name=version::${BUMPED_VERSION}
-        id: snapshot
-      - uses: navikt/bidrag-git/commit@v5
-        with:
-          commit_message: "Bumped to new version: ${{ steps.snapshot.outputs.version }}"
-          pattern: "pom.xml"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: navikt/bidrag-git/tag-snap@v1-tag-snap
