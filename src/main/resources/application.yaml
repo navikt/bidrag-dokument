@@ -51,9 +51,13 @@ no.nav.security.jwt:
           client-id: ${AZURE_APP_CLIENT_ID}
           client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
-  issuer.isso:
-    accepted_audience: ${ACCEPTED_AUDIENCE}
-    discoveryurl: ${ISSO_ISSUER_URL}/.well-known/openid-configuration
+  issuer:
+    isso:
+      accepted_audience: ${ACCEPTED_AUDIENCE}
+      discoveryurl: ${ISSO_ISSUER_URL}/.well-known/openid-configuration
+    sts:
+      accepted_audience: ${ACCEPTED_SERVICE_USER_AUDIENCE}
+      discoveryurl: ${STS_URL}/rest/v1/sts/.well-known/openid-configuration
 
 ---
 
