@@ -26,5 +26,5 @@ env:
   - name: STS_URL
     value: https://security-token-service.dev.adeo.no
   - name: ACCEPTED_SERVICE_USER_AUDIENCE
-    value: srvbisys
+    value: srvbdarkivering
 path: dev
