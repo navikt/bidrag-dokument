@@ -23,7 +23,7 @@ env:
     value: TBA
   - name: BIDRAG_DOKUMENT_ARKIV_CLIENT_ID
     value: TBA
-  - name: STS_URL
+  - name: STS_ISSUER_URL
     value: https://security-token-service.dev.adeo.no
   - name: ACCEPTED_SERVICE_USER_AUDIENCE
     value: srvbdarkivering

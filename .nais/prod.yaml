@@ -18,7 +18,7 @@ env:
     value: https://security-token-service.nais.adeo.no/rest/v1/sts/token
   - name: SRVBIDRAG_USERNAME
     value: srvbidrag-dokument
-  - name: STS_URL
+  - name: STS_ISSUER_URL
     value: https://security-token-service.nais.adeo.no
   - name: ACCEPTED_SERVICE_USER_AUDIENCE
     value: srvbdarkivering
