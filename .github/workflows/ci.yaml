@@ -120,7 +120,7 @@ jobs:
             -H 'accept: */*' \
             -H 'Content-Type: application/json' \
             -d '{
-              "tags":["@bda-samt-bdj"], "navUsername": "j104364", "testUsername": "z992903",
+              "tags":["@bda-samt-bdj"], "navUsername": "c151787", "testUsername": "z992903",
               "noContextPathForApps":["dokarkiv-api"],"ingressesForApps":[
                 "${{ env.INGRESS_ARKIV }}@bidrag-dokument-arkiv",
                 "${{ env.INGRESS_DOKARKIV }}@dokarkiv-api",
@@ -151,7 +151,7 @@ jobs:
         id: creator
         with:
           cucumber_tag: bidrag-dokument
-          user: j104364
+          user: c151787
       - run: ${{ steps.creator.outputs.created_shell }}
         env:
           USER_AUTHENTICATION: ${{ secrets.USER_AUTHENTICATION }}
