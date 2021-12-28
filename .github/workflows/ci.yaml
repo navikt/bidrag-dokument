@@ -92,9 +92,9 @@ jobs:
           RESOURCE: deploy/.nais/nais.yaml
           VARS: deploy/.nais/feature.yaml
 
-  cucumber-onprem:
+  run_cucumber:
     runs-on: self-hosted
-    name: Tests on cucumber-onprem
+    name: Run cucumber tests
     needs: deploy
 
     env:
@@ -130,32 +130,73 @@ jobs:
               ]
             }' | tee .cucumber-result
           cat .cucumber-result | grep HTTP/1.1 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
-
-  run_cucumber:
-    runs-on: self-hosted
-    name: Run cucumber integration tests
-    needs: deploy
-
-    steps:
-      - uses: navikt/bidrag-integration/cucumber-clone@v5
-        id: clone
-        with:
-          extra_clones: bidrag-testdata
-        env:
-          EXTRA_CLONES_CREDENTIALS: "jactor-rises:${{ secrets.EXTRA_CLONES_TOKEN }}"
-      - uses: navikt/bidrag-integration/input-json@v5
-        with:
-          base_path: ${{ steps.clone.outputs.cucumber_path }}
-          test_username: z992903
-      - uses: navikt/bidrag-scripts/create-cucumber-shell@v1
-        id: creator
-        with:
-          cucumber_tag: bidrag-dokument
-          user: c151787
-      - run: ${{ steps.creator.outputs.created_shell }}
-        env:
-          USER_AUTHENTICATION: ${{ secrets.USER_AUTHENTICATION }}
-          TEST_USER_AUTHENTICATION: ${{ secrets.TEST_USER_AUTHENTICATION }}
+      - name: "@sakjournal"
+        run: |
+          curl -X 'POST' '${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-onprem/run' -i \
+            -H 'accept: */*' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "tags":["@sakjournal"], "navUsername": "c151787", "testUsername": "z992903",
+              "ingressesForApps":["${{ env.INGRESS_DOKUMENT }}@bidrag-dokument"]
+            }' | tee .cucumber-result
+          cat .cucumber-result | grep HTTP/1.1 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
+      - name: "@avviksbehandling"
+        run: |
+          curl -X 'POST' '${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-onprem/run' -i \
+            -H 'accept: */*' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "tags":["@avviksbehandling"], "navUsername": "c151787", "testUsername": "z992903",
+              "ingressesForApps":[
+                "${{ env.INGRESS_DOKUMENT }}@bidrag-dokument",
+                "${{ env.INGRESS_TESTDATA }}@bidrag-testdata"
+              ]
+            }' | tee .cucumber-result
+          cat .cucumber-result | grep HTTP/1.1 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
+      - name: "@bdok-journalpost"
+        run: |
+          curl -X 'POST' '${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-onprem/run' -i \
+            -H 'accept: */*' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "tags":["@bdok-journalpost"], "navUsername": "c151787", "testUsername": "z992903",
+              "ingressesForApps":[
+                "${{ env.INGRESS_DOKUMENT }}@bidrag-dokument",
+                "${{ env.INGRESS_TESTDATA }}@bidrag-testdata"
+              ]
+            }' | tee .cucumber-result
+          cat .cucumber-result | grep HTTP/1.1 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
+      - name: "@bdok-mottaksregistrert"
+        run: |
+          curl -X 'POST' '${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-onprem/run' -i \
+            -H 'accept: */*' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "tags":["@bdok-mottaksregistrert"], "navUsername": "c151787", "testUsername": "z992903",
+              "ingressesForApps":[
+                "${{ env.INGRESS_DOKUMENT }}@bidrag-dokument",
+                "${{ env.INGRESS_TESTDATA }}@bidrag-testdata"
+              ]
+            }' | tee .cucumber-result
+          cat .cucumber-result | grep HTTP/1.1 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
+      - name: "@bdok-mot-avvik-*"
+        run: |
+          curl -X 'POST' '${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-onprem/run' -i \
+            -H 'accept: */*' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "tags":[
+                "@bdok-mot-avvik-best-org", "@bdok-mot-avvik-best-reskan", "@bdok-mot-avvik-best-splitt",
+                "@bdok-mot-avvik-endre-fagomrade", "@bdok-mot-avvik-inn2ut"
+              ],
+              "navUsername": "c151787", "testUsername": "z992903",
+              "noContextPathForApps":["dokarkiv-api"], "ingressesForApps":[
+                "${{ env.INGRESS_DOKARKIV }}@dokarkiv-api",
+                "${{ env.INGRESS_DOKUMENT }}@bidrag-dokument",
+                "${{ env.INGRESS_TESTDATA }}@bidrag-testdata"
+              ]
+            }' | tee .cucumber-result
+          cat .cucumber-result | grep HTTP/1.1 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
 
   bump_dev_version:
     runs-on: ubuntu-latest
@@ -163,7 +204,6 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs:
       - run_cucumber
-      - cucumber-onprem
 
     steps:
       - uses: actions/checkout@v2
