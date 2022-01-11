@@ -93,10 +93,12 @@ public class BidragDokumentConsumer {
         .exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter());
     var httpStatus = journalposterFraArkiv.getStatusCode();
 
-    LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} på fagområde {} fra {}", httpStatus,
-        saksnummer, fagomrade, consumerTarget.getTargetApp());
+    var responseBody = journalposterFraArkiv.getBody();
+    var antallSaker = responseBody == null ? 0 : responseBody.size();
+    LOGGER.info("Fikk http status {} fra journalposter i bidragssak med saksnummer {} på fagområde {} og med {} saker i respons fra {}", httpStatus,
+        saksnummer, fagomrade, antallSaker, consumerTarget.getTargetApp());
 
-    return Optional.ofNullable(journalposterFraArkiv.getBody()).orElse(Collections.emptyList());
+    return Optional.ofNullable(responseBody).orElse(Collections.emptyList());
   }
 
   public HttpResponse<Void> endre(String enhet, EndreJournalpostCommand endreJournalpostCommand) {
