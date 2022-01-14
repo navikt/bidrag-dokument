@@ -36,17 +36,12 @@ jobs:
       - run: echo NOT_FOUND=${{ steps.dockerimage.outputs.not_found }} >> $GITHUB_ENV
       - uses: actions/checkout@v2
         if: env.NOT_FOUND == 'true'
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-java@v2
         if: env.NOT_FOUND == 'true'
         with:
+          cache: maven
+          distribution: temurin
           java-version: 17
-      - uses: actions/cache@v1
-        if: env.NOT_FOUND == 'true'
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
       - uses: navikt/bidrag-maven/setup@v7
         if: env.NOT_FOUND == 'true'
         with:
