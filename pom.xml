@@ -27,7 +27,7 @@
     <bidrag-commons-test.version>0.2.2</bidrag-commons-test.version>
     <bidrag-dokument-dto.version>1.2.0</bidrag-dokument-dto.version>
     <logback.encoder.version>6.6</logback.encoder.version>
-    <springdoc-openapi-ui.version>1.5.13</springdoc-openapi-ui.version>
+    <springdoc-openapi-ui.version>1.6.4</springdoc-openapi-ui.version>
     <springframework-cloud.version>3.0.4</springframework-cloud.version>
     <token-support.version>1.3.9</token-support.version>
 
