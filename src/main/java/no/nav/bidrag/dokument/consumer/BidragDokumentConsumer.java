@@ -116,7 +116,7 @@ public class BidragDokumentConsumer {
 
   public HttpResponse<DistribuerJournalpostResponse> distribuerJournalpost(String journalpostId, String enhet, DistribuerJournalpostRequest distribuerJournalpostRequest) {
     var path = String.format(PATH_DISTRIBUER, journalpostId);
-    LOGGER.info("Distribuer journalpost BidragDokument: {}, path {}", journalpostId, path);
+    LOGGER.info("Distribuer journalpost: {}, path {}", journalpostId, path);
 
     var distribuerJournalpostResponse = consumerTarget.henteRestTemplateForIssuer()
         .exchange(path, HttpMethod.POST, new HttpEntity<>(distribuerJournalpostRequest, createEnhetHeader(enhet)), DistribuerJournalpostResponse.class);
