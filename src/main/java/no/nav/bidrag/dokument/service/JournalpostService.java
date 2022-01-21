@@ -12,6 +12,8 @@ import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer;
 import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.BehandleAvvikshendelseResponse;
+import no.nav.bidrag.dokument.dto.DistribuerJournalpostRequest;
+import no.nav.bidrag.dokument.dto.DistribuerJournalpostResponse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
@@ -68,5 +70,12 @@ public class JournalpostService {
       return bidragJournalpostConsumer.endre(enhet, endreJournalpostCommand);
     }
     return bidragArkivConsumer.endre(enhet, endreJournalpostCommand);
+  }
+
+  public HttpResponse<DistribuerJournalpostResponse> distribuerJournalpost(String enhet, KildesystemIdenfikator kildesystemIdenfikator, DistribuerJournalpostRequest distribuerJournalpostRequest) {
+    if (kildesystemIdenfikator.erFor(BIDRAG)) {
+      return bidragJournalpostConsumer.distribuerJournalpost(kildesystemIdenfikator.getPrefiksetJournalpostId(), enhet, distribuerJournalpostRequest);
+    }
+    return bidragArkivConsumer.distribuerJournalpost(kildesystemIdenfikator.getPrefiksetJournalpostId(), enhet, distribuerJournalpostRequest);
   }
 }
