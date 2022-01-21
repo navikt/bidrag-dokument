@@ -9,6 +9,8 @@ import no.nav.bidrag.commons.web.HttpResponse;
 import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.BehandleAvvikshendelseResponse;
+import no.nav.bidrag.dokument.dto.DistribuerJournalpostRequest;
+import no.nav.bidrag.dokument.dto.DistribuerJournalpostResponse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
@@ -27,6 +29,7 @@ public class BidragDokumentConsumer {
   public static final String PATH_JOURNALPOST_UTEN_SAK = "/journal/%s";
   public static final String PATH_SAK_JOURNAL = "/sak/%s/journal";
   private static final String PATH_JOURNALPOST = "/journal/%s";
+  private static final String PATH_DISTRIBUER = "/journal/distribuer/%s";
   private static final String PATH_JOURNALPOST_MED_SAKPARAM = "/journal/%s?saksnummer=%s";
   private static final String PARAM_FAGOMRADE = "fagomrade";
   private static final String PARAM_SAKSNUMMER = "saksnummer";
@@ -110,6 +113,19 @@ public class BidragDokumentConsumer {
 
     return new HttpResponse<>(endretJournalpostResponse);
   }
+
+  public HttpResponse<DistribuerJournalpostResponse> distribuerJournalpost(String journalpostId, String enhet, DistribuerJournalpostRequest distribuerJournalpostRequest) {
+    var path = String.format(PATH_DISTRIBUER, journalpostId);
+    LOGGER.info("Distribuer journalpost: {}, path {}", journalpostId, path);
+
+    var distribuerJournalpostResponse = consumerTarget.henteRestTemplateForIssuer()
+        .exchange(path, HttpMethod.POST, new HttpEntity<>(distribuerJournalpostRequest, createEnhetHeader(enhet)), DistribuerJournalpostResponse.class);
+
+    LOGGER.info("Distribuer journalpost fikk http status {}", distribuerJournalpostResponse.getStatusCode());
+
+    return new HttpResponse<>(distribuerJournalpostResponse);
+  }
+
 
   public static HttpHeaders createEnhetHeader(String enhet) {
     var header = new HttpHeaders();

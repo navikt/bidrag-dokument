@@ -19,6 +19,8 @@ import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.BehandleAvvikshendelseResponse;
+import no.nav.bidrag.dokument.dto.DistribuerJournalpostRequest;
+import no.nav.bidrag.dokument.dto.DistribuerJournalpostResponse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
@@ -37,6 +39,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -204,5 +207,37 @@ public class JournalpostController {
     endreJournalpostCommand.setJournalpostId(journalpostIdForKildesystem);
 
     return journalpostService.endre(enhet, kildesystemIdenfikator, endreJournalpostCommand).getResponseEntity();
+  }
+
+  @PostMapping("/journal/distribuer/{joarkJournalpostId}")
+  @Operation(description = "Bestill distribusjon av journalpost")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Distribusjon av journalpost er bestilt"),
+      @ApiResponse(responseCode = "400", description = "Journalpost mangler mottakerid eller adresse er ikke oppgitt i kallet"),
+      @ApiResponse(responseCode = "401", description = "Sikkerhetstoken er ikke gyldig"),
+      @ApiResponse(responseCode = "403", description = "Sikkerhetstoke1n er ikke gyldig, eller det er ikke gitt adgang til kode 6 og 7 (nav-ansatt)"),
+      @ApiResponse(responseCode = "404", description = "Fant ikke journalpost som skal distribueres")
+  })
+  @ResponseBody
+  public ResponseEntity<DistribuerJournalpostResponse> distribuerJournalpost(
+      @RequestBody(required = false) DistribuerJournalpostRequest distribuerJournalpostRequest,
+      @PathVariable String joarkJournalpostId,
+      @RequestHeader(EnhetFilter.X_ENHET_HEADER) String enhet
+  ) {
+    LOGGER.info("Distribuerer journalpost {} for enhet {}", joarkJournalpostId, enhet);
+    KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(joarkJournalpostId);
+
+    if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
+      var msgBadRequest = String.format("Id har ikke riktig prefix: %s", joarkJournalpostId);
+
+      LOGGER.warn(msgBadRequest);
+
+      return ResponseEntity
+          .badRequest()
+          .header(HttpHeaders.WARNING, msgBadRequest)
+          .build();
+    }
+
+    return journalpostService.distribuerJournalpost(enhet, kildesystemIdenfikator, distribuerJournalpostRequest).getResponseEntity();
   }
 }
