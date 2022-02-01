@@ -30,6 +30,7 @@ public class BidragDokumentConsumer {
   public static final String PATH_SAK_JOURNAL = "/sak/%s/journal";
   private static final String PATH_JOURNALPOST = "/journal/%s";
   private static final String PATH_DISTRIBUER = "/journal/distribuer/%s";
+  private static final String PATH_DISTRIBUER_ENABLED = "/journal/distribuer/%s/enabled";
   private static final String PATH_JOURNALPOST_MED_SAKPARAM = "/journal/%s?saksnummer=%s";
   private static final String PARAM_FAGOMRADE = "fagomrade";
   private static final String PARAM_SAKSNUMMER = "saksnummer";
@@ -122,6 +123,18 @@ public class BidragDokumentConsumer {
         .exchange(path, HttpMethod.POST, new HttpEntity<>(distribuerJournalpostRequest, createEnhetHeader(enhet)), DistribuerJournalpostResponse.class);
 
     LOGGER.info("Distribuer journalpost fikk http status {}", distribuerJournalpostResponse.getStatusCode());
+
+    return new HttpResponse<>(distribuerJournalpostResponse);
+  }
+
+  public HttpResponse<Void> kanDistribuereJournalpost(String journalpostId, String enhet) {
+    var path = String.format(PATH_DISTRIBUER_ENABLED, journalpostId);
+    LOGGER.info("Sjekk om journalpost: {}, path {} kan distribueres", journalpostId, path);
+
+    var distribuerJournalpostResponse = consumerTarget.henteRestTemplateForIssuer()
+        .exchange(path, HttpMethod.GET, new HttpEntity<>(createEnhetHeader(enhet)), Void.class);
+
+    LOGGER.info("Sjekk distribuer journalpost fikk http status {}", distribuerJournalpostResponse.getStatusCode());
 
     return new HttpResponse<>(distribuerJournalpostResponse);
   }
