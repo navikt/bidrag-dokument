@@ -78,4 +78,11 @@ public class JournalpostService {
     }
     return bidragArkivConsumer.distribuerJournalpost(kildesystemIdenfikator.getPrefiksetJournalpostId(), enhet, distribuerJournalpostRequest);
   }
+
+  public HttpResponse<Void> kanDistribuereJournalpost(String enhet, KildesystemIdenfikator kildesystemIdenfikator) {
+    if (kildesystemIdenfikator.erFor(BIDRAG)) {
+      return bidragJournalpostConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.getPrefiksetJournalpostId(), enhet);
+    }
+    return bidragArkivConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.getPrefiksetJournalpostId(), enhet);
+  }
 }

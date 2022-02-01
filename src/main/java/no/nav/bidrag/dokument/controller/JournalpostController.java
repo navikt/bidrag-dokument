@@ -240,4 +240,35 @@ public class JournalpostController {
 
     return journalpostService.distribuerJournalpost(enhet, kildesystemIdenfikator, distribuerJournalpostRequest).getResponseEntity();
   }
+
+  @GetMapping("/journal/distribuer/{journalpostId}/enabled")
+  @Operation(description = "Sjekk om distribusjon av journalpost kan bestilles")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Distribusjon av journalpost kan bestilles"),
+      @ApiResponse(responseCode = "406", description = "Distribusjon av journalpost kan ikke bestilles"),
+      @ApiResponse(responseCode = "401", description = "Sikkerhetstoken er ikke gyldig"),
+      @ApiResponse(responseCode = "403", description = "Sikkerhetstoke1n er ikke gyldig, eller det er ikke gitt adgang til kode 6 og 7 (nav-ansatt)"),
+      @ApiResponse(responseCode = "404", description = "Fant ikke journalpost som skal distribueres")
+  })
+  @ResponseBody
+  public ResponseEntity<Void> kanDistribuerJournalpost(
+      @PathVariable String journalpostId,
+      @RequestHeader(EnhetFilter.X_ENHET_HEADER) String enhet
+  ) {
+    LOGGER.info("Sjekker om journalpost {} for enhet {} kan distribueres", journalpostId, enhet);
+    KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostId);
+
+    if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
+      var msgBadRequest = String.format("Id har ikke riktig prefix: %s", journalpostId);
+
+      LOGGER.warn(msgBadRequest);
+
+      return ResponseEntity
+          .badRequest()
+          .header(HttpHeaders.WARNING, msgBadRequest)
+          .build();
+    }
+
+    return journalpostService.kanDistribuereJournalpost(enhet, kildesystemIdenfikator).getResponseEntity();
+  }
 }
