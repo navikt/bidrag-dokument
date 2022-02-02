@@ -25,10 +25,9 @@ public class BidragDokumentRestControllerAdvice extends ResponseEntityExceptionH
 
   @ResponseBody
   @ExceptionHandler
-  public ResponseEntity<?> handleHttClientErrorException(
-      HttpClientErrorException httpClientErrorException) {
+  public ResponseEntity<?> handleHttClientErrorException(HttpClientErrorException httpClientErrorException) {
     return ResponseEntity.status(httpClientErrorException.getStatusCode())
-        .header(HttpHeaders.WARNING, "Http client says: " + httpClientErrorException.getMessage())
+        .header(HttpHeaders.WARNING, getWarningHeader(httpClientErrorException))
         .build();
   }
 
@@ -45,5 +44,17 @@ public class BidragDokumentRestControllerAdvice extends ResponseEntityExceptionH
         initHttpHeadersWith(HttpHeaders.WARNING, message),
         HttpStatus.UNAUTHORIZED,
         request);
+  }
+
+  private String getWarningHeader(HttpClientErrorException httpClientErrorException){
+    var message = httpClientErrorException.getMessage();
+    if (httpClientErrorException.getResponseHeaders() == null) {
+      return message;
+    }
+    var warningHeaders = httpClientErrorException.getResponseHeaders().get(HttpHeaders.WARNING);
+    if (warningHeaders == null || warningHeaders.isEmpty()){
+      return message;
+    }
+    return warningHeaders.get(0);
   }
 }
