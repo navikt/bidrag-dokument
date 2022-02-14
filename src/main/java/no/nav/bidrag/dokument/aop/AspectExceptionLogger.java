@@ -1,5 +1,6 @@
 package no.nav.bidrag.dokument.aop;
 
+import java.util.Arrays;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
@@ -14,6 +15,6 @@ public class AspectExceptionLogger {
 
   @AfterThrowing(pointcut = "within (no.nav.bidrag.dokument.controller..*)", throwing = "exception")
   public void logException(JoinPoint joinPoint, Exception exception) {
-    LOGGER.warn("Det skjedde en feil i controller metoden {}", joinPoint.getSourceLocation().getWithinType(), exception);
+    LOGGER.warn("Det skjedde en feil i controller metoden {}", joinPoint.getSignature().toShortString() + "| Args => " + Arrays.asList(joinPoint.getArgs()), exception);
   }
 }
