@@ -33,6 +33,7 @@ public class BidragDokumentConsumer {
   private static final String PATH_DISTRIBUER_ENABLED = "/journal/distribuer/%s/enabled";
   private static final String PATH_JOURNALPOST_MED_SAKPARAM = "/journal/%s?saksnummer=%s";
   private static final String PARAM_FAGOMRADE = "fagomrade";
+  private static final String PARAM_BATCHID = "batchId";
   private static final String PARAM_SAKSNUMMER = "saksnummer";
   public static final String PATH_AVVIK_PA_JOURNALPOST_MED_SAK_PARAM = "/journal/%s/avvik?" + PARAM_SAKSNUMMER + "=%s";
   public static final String PATH_AVVIK_PA_JOURNALPOST = "/journal/%s/avvik";
@@ -115,12 +116,12 @@ public class BidragDokumentConsumer {
     return new HttpResponse<>(endretJournalpostResponse);
   }
 
-  public HttpResponse<DistribuerJournalpostResponse> distribuerJournalpost(String journalpostId, String enhet, DistribuerJournalpostRequest distribuerJournalpostRequest) {
-    var path = String.format(PATH_DISTRIBUER, journalpostId);
-    LOGGER.info("Distribuer journalpost: {}, path {}", journalpostId, path);
+  public HttpResponse<DistribuerJournalpostResponse> distribuerJournalpost(String journalpostId, String enhet, String batchId, DistribuerJournalpostRequest distribuerJournalpostRequest) {
+    var uri = UriComponentsBuilder.fromPath(String.format(PATH_DISTRIBUER, journalpostId)).queryParam(PARAM_BATCHID, batchId).toUriString();
+    LOGGER.info("Distribuer journalpost: {}, path {}", journalpostId, uri);
 
     var distribuerJournalpostResponse = consumerTarget.henteRestTemplateForIssuer()
-        .exchange(path, HttpMethod.POST, new HttpEntity<>(distribuerJournalpostRequest, createEnhetHeader(enhet)), DistribuerJournalpostResponse.class);
+        .exchange(uri, HttpMethod.POST, new HttpEntity<>(distribuerJournalpostRequest, createEnhetHeader(enhet)), DistribuerJournalpostResponse.class);
 
     LOGGER.info("Distribuer journalpost fikk http status {}", distribuerJournalpostResponse.getStatusCode());
 
