@@ -14,6 +14,7 @@ import no.nav.bidrag.dokument.dto.DistribuerJournalpostResponse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
+import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -143,7 +144,9 @@ public class BidragDokumentConsumer {
 
   public static HttpHeaders createEnhetHeader(String enhet) {
     var header = new HttpHeaders();
-    header.add(X_ENHET_HEADER, enhet);
+    if (Strings.isNotEmpty(enhet)){
+      header.add(X_ENHET_HEADER, enhet);
+    }
     return header;
   }
 
