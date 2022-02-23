@@ -223,7 +223,7 @@ public class JournalpostController {
       @RequestBody(required = false) DistribuerJournalpostRequest distribuerJournalpostRequest,
       @PathVariable String joarkJournalpostId,
       @RequestParam(required = false) String batchId,
-      @RequestHeader(value = EnhetFilter.X_ENHET_HEADER, required = false) String enhet
+      @RequestHeader(EnhetFilter.X_ENHET_HEADER) String enhet
   ) {
     LOGGER.info("Distribuerer journalpost {} for enhet {}", joarkJournalpostId, enhet);
     KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(joarkJournalpostId);
@@ -254,7 +254,7 @@ public class JournalpostController {
   @ResponseBody
   public ResponseEntity<Void> kanDistribuerJournalpost(
       @PathVariable String journalpostId,
-      @RequestHeader(value = EnhetFilter.X_ENHET_HEADER, required = false) String enhet
+      @RequestHeader(EnhetFilter.X_ENHET_HEADER) String enhet
   ) {
     LOGGER.info("Sjekker om journalpost {} for enhet {} kan distribueres", journalpostId, enhet);
     KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostId);
