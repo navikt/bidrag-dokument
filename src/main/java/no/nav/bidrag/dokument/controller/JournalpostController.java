@@ -254,7 +254,7 @@ public class JournalpostController {
   @ResponseBody
   public ResponseEntity<Void> kanDistribuerJournalpost(
       @PathVariable String journalpostId,
-      @RequestHeader(EnhetFilter.X_ENHET_HEADER) String enhet
+      @RequestHeader(value = EnhetFilter.X_ENHET_HEADER, required = false) String enhet
   ) {
     LOGGER.info("Sjekker om journalpost {} for enhet {} kan distribueres", journalpostId, enhet);
     KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostId);
