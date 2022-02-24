@@ -197,7 +197,7 @@ public class BidragDokumentConfig {
     var httpHeaderRestTemplate = new HttpHeaderRestTemplate();
 
     httpHeaderRestTemplate.addHeaderGenerator(HttpHeaders.AUTHORIZATION, () -> "Bearer " + oidcTokenManager.fetchToken());
-    httpHeaderRestTemplate.addHeaderGenerator(CorrelationIdFilter.CORRELATION_ID_HEADER, CorrelationIdFilter::fetchCorrelationIdForThread);
+    httpHeaderRestTemplate.withDefaultHeaders();
     httpHeaderRestTemplate.setRequestFactory(requestFactory);
     httpHeaderRestTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
 

@@ -14,6 +14,7 @@ import no.nav.bidrag.dokument.dto.DistribuerJournalpostResponse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
+import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -33,6 +34,7 @@ public class BidragDokumentConsumer {
   private static final String PATH_DISTRIBUER_ENABLED = "/journal/distribuer/%s/enabled";
   private static final String PATH_JOURNALPOST_MED_SAKPARAM = "/journal/%s?saksnummer=%s";
   private static final String PARAM_FAGOMRADE = "fagomrade";
+  private static final String PARAM_BATCHID = "batchId";
   private static final String PARAM_SAKSNUMMER = "saksnummer";
   public static final String PATH_AVVIK_PA_JOURNALPOST_MED_SAK_PARAM = "/journal/%s/avvik?" + PARAM_SAKSNUMMER + "=%s";
   public static final String PATH_AVVIK_PA_JOURNALPOST = "/journal/%s/avvik";
@@ -115,24 +117,26 @@ public class BidragDokumentConsumer {
     return new HttpResponse<>(endretJournalpostResponse);
   }
 
-  public HttpResponse<DistribuerJournalpostResponse> distribuerJournalpost(String journalpostId, String enhet, DistribuerJournalpostRequest distribuerJournalpostRequest) {
-    var path = String.format(PATH_DISTRIBUER, journalpostId);
-    LOGGER.info("Distribuer journalpost: {}, path {}", journalpostId, path);
+  public HttpResponse<DistribuerJournalpostResponse> distribuerJournalpost(String journalpostId, String batchId, DistribuerJournalpostRequest distribuerJournalpostRequest) {
+    var uriBuilder = UriComponentsBuilder.fromPath(String.format(PATH_DISTRIBUER, journalpostId));
+    if (Strings.isNotEmpty(batchId)){
+      uriBuilder = uriBuilder.queryParam(PARAM_BATCHID, batchId);
+    }
+
+    var uri = uriBuilder.toUriString();
 
     var distribuerJournalpostResponse = consumerTarget.henteRestTemplateForIssuer()
-        .exchange(path, HttpMethod.POST, new HttpEntity<>(distribuerJournalpostRequest, createEnhetHeader(enhet)), DistribuerJournalpostResponse.class);
+        .exchange(uri, HttpMethod.POST, new HttpEntity<>(distribuerJournalpostRequest), DistribuerJournalpostResponse.class);
 
     LOGGER.info("Distribuer journalpost fikk http status {}", distribuerJournalpostResponse.getStatusCode());
 
     return new HttpResponse<>(distribuerJournalpostResponse);
   }
 
-  public HttpResponse<Void> kanDistribuereJournalpost(String journalpostId, String enhet) {
+  public HttpResponse<Void> kanDistribuereJournalpost(String journalpostId) {
     var path = String.format(PATH_DISTRIBUER_ENABLED, journalpostId);
-    LOGGER.info("Sjekk om journalpost: {}, path {} kan distribueres", journalpostId, path);
 
-    var distribuerJournalpostResponse = consumerTarget.henteRestTemplateForIssuer()
-        .exchange(path, HttpMethod.GET, new HttpEntity<>(createEnhetHeader(enhet)), Void.class);
+    var distribuerJournalpostResponse = consumerTarget.henteRestTemplateForIssuer().exchange(path, HttpMethod.GET, null, Void.class);
 
     LOGGER.info("Sjekk distribuer journalpost fikk http status {}", distribuerJournalpostResponse.getStatusCode());
 

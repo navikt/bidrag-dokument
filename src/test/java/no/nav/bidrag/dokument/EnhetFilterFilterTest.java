@@ -82,7 +82,7 @@ class EnhetFilterFilterTest {
           var loggingEvents = loggingEventCaptor.getAllValues();
           var allMsgs = loggingEvents.stream().map(ILoggingEvent::getFormattedMessage).collect(Collectors.joining("\n"));
 
-          assertThat(allMsgs).contains("behandler request '/bidrag-dokument/journal/BID-123' uten informasjon om enhetsnummer.");
+          assertThat(allMsgs).contains("Behandler request '/bidrag-dokument/journal/BID-123' uten informasjon om enhetsnummer.");
         }
     );
   }
