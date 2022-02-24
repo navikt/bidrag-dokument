@@ -49,14 +49,13 @@ public class JournalpostService {
     return bidragArkivConsumer.finnAvvik(saksnummer, kildesystemIdenfikator.getPrefiksetJournalpostId());
   }
 
-  public HttpResponse<BehandleAvvikshendelseResponse> behandleAvvik(
-      String enhet, KildesystemIdenfikator kildesystemIdenfikator, Avvikshendelse avvikshendelse
+  public HttpResponse<BehandleAvvikshendelseResponse> behandleAvvik(KildesystemIdenfikator kildesystemIdenfikator, Avvikshendelse avvikshendelse
   ) {
     if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.behandleAvvik(enhet, kildesystemIdenfikator.getPrefiksetJournalpostId(), avvikshendelse);
+      return bidragJournalpostConsumer.behandleAvvik(kildesystemIdenfikator.getPrefiksetJournalpostId(), avvikshendelse);
     }
 
-    return bidragArkivConsumer.behandleAvvik(enhet, kildesystemIdenfikator.getPrefiksetJournalpostId(), avvikshendelse);
+    return bidragArkivConsumer.behandleAvvik(kildesystemIdenfikator.getPrefiksetJournalpostId(), avvikshendelse);
   }
 
   public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
@@ -65,11 +64,11 @@ public class JournalpostService {
     return sakjournal;
   }
 
-  public HttpResponse<Void> endre(String enhet, KildesystemIdenfikator kildesystemIdenfikator, EndreJournalpostCommand endreJournalpostCommand) {
+  public HttpResponse<Void> endre(KildesystemIdenfikator kildesystemIdenfikator, EndreJournalpostCommand endreJournalpostCommand) {
     if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.endre(enhet, endreJournalpostCommand);
+      return bidragJournalpostConsumer.endre(endreJournalpostCommand);
     }
-    return bidragArkivConsumer.endre(enhet, endreJournalpostCommand);
+    return bidragArkivConsumer.endre(endreJournalpostCommand);
   }
 
   public HttpResponse<DistribuerJournalpostResponse> distribuerJournalpost(String batchId, KildesystemIdenfikator kildesystemIdenfikator, DistribuerJournalpostRequest distribuerJournalpostRequest) {
