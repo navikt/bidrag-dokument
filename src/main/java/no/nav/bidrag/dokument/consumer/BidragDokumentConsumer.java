@@ -14,6 +14,7 @@ import no.nav.bidrag.dokument.dto.DistribuerJournalpostResponse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
+import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
@@ -117,7 +118,12 @@ public class BidragDokumentConsumer {
   }
 
   public HttpResponse<DistribuerJournalpostResponse> distribuerJournalpost(String journalpostId, String batchId, DistribuerJournalpostRequest distribuerJournalpostRequest) {
-    var uri = UriComponentsBuilder.fromPath(String.format(PATH_DISTRIBUER, journalpostId)).queryParam(PARAM_BATCHID, batchId).toUriString();
+    var uriBuilder = UriComponentsBuilder.fromPath(String.format(PATH_DISTRIBUER, journalpostId));
+    if (Strings.isNotEmpty(batchId)){
+      uriBuilder = uriBuilder.queryParam(PARAM_BATCHID, batchId);
+    }
+
+    var uri = uriBuilder.toUriString();
 
     var distribuerJournalpostResponse = consumerTarget.henteRestTemplateForIssuer()
         .exchange(uri, HttpMethod.POST, new HttpEntity<>(distribuerJournalpostRequest), DistribuerJournalpostResponse.class);
