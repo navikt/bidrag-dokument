@@ -72,17 +72,17 @@ public class JournalpostService {
     return bidragArkivConsumer.endre(enhet, endreJournalpostCommand);
   }
 
-  public HttpResponse<DistribuerJournalpostResponse> distribuerJournalpost(String enhet, String batchId, KildesystemIdenfikator kildesystemIdenfikator, DistribuerJournalpostRequest distribuerJournalpostRequest) {
+  public HttpResponse<DistribuerJournalpostResponse> distribuerJournalpost(String batchId, KildesystemIdenfikator kildesystemIdenfikator, DistribuerJournalpostRequest distribuerJournalpostRequest) {
     if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.distribuerJournalpost(kildesystemIdenfikator.getPrefiksetJournalpostId(), enhet, batchId, distribuerJournalpostRequest);
+      return bidragJournalpostConsumer.distribuerJournalpost(kildesystemIdenfikator.getPrefiksetJournalpostId(), batchId, distribuerJournalpostRequest);
     }
-    return bidragArkivConsumer.distribuerJournalpost(kildesystemIdenfikator.getPrefiksetJournalpostId(), enhet, batchId, distribuerJournalpostRequest);
+    return bidragArkivConsumer.distribuerJournalpost(kildesystemIdenfikator.getPrefiksetJournalpostId(), batchId, distribuerJournalpostRequest);
   }
 
-  public HttpResponse<Void> kanDistribuereJournalpost(String enhet, KildesystemIdenfikator kildesystemIdenfikator) {
+  public HttpResponse<Void> kanDistribuereJournalpost(KildesystemIdenfikator kildesystemIdenfikator) {
     if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.getPrefiksetJournalpostId(), enhet);
+      return bidragJournalpostConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.getPrefiksetJournalpostId());
     }
-    return bidragArkivConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.getPrefiksetJournalpostId(), enhet);
+    return bidragArkivConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.getPrefiksetJournalpostId());
   }
 }

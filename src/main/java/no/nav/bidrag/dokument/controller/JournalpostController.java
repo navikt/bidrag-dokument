@@ -222,10 +222,9 @@ public class JournalpostController {
   public ResponseEntity<DistribuerJournalpostResponse> distribuerJournalpost(
       @RequestBody(required = false) DistribuerJournalpostRequest distribuerJournalpostRequest,
       @PathVariable String joarkJournalpostId,
-      @RequestParam(required = false) String batchId,
-      @RequestHeader(EnhetFilter.X_ENHET_HEADER) String enhet
+      @RequestParam(required = false) String batchId
   ) {
-    LOGGER.info("Distribuerer journalpost {} for enhet {}", joarkJournalpostId, enhet);
+    LOGGER.info("Distribuerer journalpost {}", joarkJournalpostId);
     KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(joarkJournalpostId);
 
     if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
@@ -239,7 +238,7 @@ public class JournalpostController {
           .build();
     }
 
-    return journalpostService.distribuerJournalpost(enhet, batchId, kildesystemIdenfikator, distribuerJournalpostRequest).getResponseEntity();
+    return journalpostService.distribuerJournalpost(batchId, kildesystemIdenfikator, distribuerJournalpostRequest).getResponseEntity();
   }
 
   @GetMapping("/journal/distribuer/{journalpostId}/enabled")
@@ -252,11 +251,8 @@ public class JournalpostController {
       @ApiResponse(responseCode = "404", description = "Fant ikke journalpost som skal distribueres")
   })
   @ResponseBody
-  public ResponseEntity<Void> kanDistribuerJournalpost(
-      @PathVariable String journalpostId,
-      @RequestHeader(EnhetFilter.X_ENHET_HEADER) String enhet
-  ) {
-    LOGGER.info("Sjekker om journalpost {} for enhet {} kan distribueres", journalpostId, enhet);
+  public ResponseEntity<Void> kanDistribuerJournalpost(@PathVariable String journalpostId) {
+    LOGGER.info("Sjekker om journalpost {} kan distribueres", journalpostId);
     KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostId);
 
     if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
@@ -270,6 +266,6 @@ public class JournalpostController {
           .build();
     }
 
-    return journalpostService.kanDistribuereJournalpost(enhet, kildesystemIdenfikator).getResponseEntity();
+    return journalpostService.kanDistribuereJournalpost(kildesystemIdenfikator).getResponseEntity();
   }
 }

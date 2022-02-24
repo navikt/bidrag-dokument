@@ -116,24 +116,21 @@ public class BidragDokumentConsumer {
     return new HttpResponse<>(endretJournalpostResponse);
   }
 
-  public HttpResponse<DistribuerJournalpostResponse> distribuerJournalpost(String journalpostId, String enhet, String batchId, DistribuerJournalpostRequest distribuerJournalpostRequest) {
+  public HttpResponse<DistribuerJournalpostResponse> distribuerJournalpost(String journalpostId, String batchId, DistribuerJournalpostRequest distribuerJournalpostRequest) {
     var uri = UriComponentsBuilder.fromPath(String.format(PATH_DISTRIBUER, journalpostId)).queryParam(PARAM_BATCHID, batchId).toUriString();
-    LOGGER.info("Distribuer journalpost: {}, path {}", journalpostId, uri);
 
     var distribuerJournalpostResponse = consumerTarget.henteRestTemplateForIssuer()
-        .exchange(uri, HttpMethod.POST, new HttpEntity<>(distribuerJournalpostRequest, createEnhetHeader(enhet)), DistribuerJournalpostResponse.class);
+        .exchange(uri, HttpMethod.POST, new HttpEntity<>(distribuerJournalpostRequest), DistribuerJournalpostResponse.class);
 
     LOGGER.info("Distribuer journalpost fikk http status {}", distribuerJournalpostResponse.getStatusCode());
 
     return new HttpResponse<>(distribuerJournalpostResponse);
   }
 
-  public HttpResponse<Void> kanDistribuereJournalpost(String journalpostId, String enhet) {
+  public HttpResponse<Void> kanDistribuereJournalpost(String journalpostId) {
     var path = String.format(PATH_DISTRIBUER_ENABLED, journalpostId);
-    LOGGER.info("Sjekk om journalpost: {}, path {} kan distribueres", journalpostId, path);
 
-    var distribuerJournalpostResponse = consumerTarget.henteRestTemplateForIssuer()
-        .exchange(path, HttpMethod.GET, new HttpEntity<>(createEnhetHeader(enhet)), Void.class);
+    var distribuerJournalpostResponse = consumerTarget.henteRestTemplateForIssuer().exchange(path, HttpMethod.GET, null, Void.class);
 
     LOGGER.info("Sjekk distribuer journalpost fikk http status {}", distribuerJournalpostResponse.getStatusCode());
 
