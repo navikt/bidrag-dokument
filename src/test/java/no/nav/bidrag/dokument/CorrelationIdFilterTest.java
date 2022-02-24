@@ -77,11 +77,6 @@ class CorrelationIdFilterTest {
         () -> {
           var loggingEventCaptor = ArgumentCaptor.forClass(ILoggingEvent.class);
           verify(appenderMock, atLeastOnce()).doAppend(loggingEventCaptor.capture());
-
-          var loggingEvents = loggingEventCaptor.getAllValues();
-          var allMsgs = loggingEvents.stream().map(ILoggingEvent::getFormattedMessage).collect(Collectors.joining("\n"));
-
-          assertThat(allMsgs).containsIgnoringCase("Prosessing GET /bidrag-dokument/journal/BID-123");
         }
     );
   }
