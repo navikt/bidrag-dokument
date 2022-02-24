@@ -65,12 +65,12 @@ public class BidragDokumentConsumer {
   }
 
 
-  public HttpResponse<BehandleAvvikshendelseResponse> behandleAvvik(String journalpostId, Avvikshendelse avvikshendelse) {
+  public HttpResponse<BehandleAvvikshendelseResponse> behandleAvvik(String enhetsnummer, String journalpostId, Avvikshendelse avvikshendelse) {
     var path = String.format(PATH_JOURNALPOST_UTEN_SAK + "/avvik", journalpostId);
     LOGGER.info("{}{}: {}", consumerTarget.getTargetApp(), path, avvikshendelse);
 
     var avviksResponse = consumerTarget.henteRestTemplateForIssuer()
-        .exchange(path, HttpMethod.POST, new HttpEntity<>(avvikshendelse), BehandleAvvikshendelseResponse.class);
+        .exchange(path, HttpMethod.POST, new HttpEntity<>(avvikshendelse, createEnhetHeader(enhetsnummer)), BehandleAvvikshendelseResponse.class);
 
     return new HttpResponse<>(avviksResponse);
   }
@@ -104,12 +104,12 @@ public class BidragDokumentConsumer {
     return Optional.ofNullable(journalposterFraArkiv.getBody()).orElse(Collections.emptyList());
   }
 
-  public HttpResponse<Void> endre(EndreJournalpostCommand endreJournalpostCommand) {
+  public HttpResponse<Void> endre(String enhet, EndreJournalpostCommand endreJournalpostCommand) {
     var path = String.format(PATH_JOURNALPOST_UTEN_SAK, endreJournalpostCommand.getJournalpostId());
     LOGGER.info("Endre journalpost BidragDokument: {}, path {}", endreJournalpostCommand, path);
 
     var endretJournalpostResponse = consumerTarget.henteRestTemplateForIssuer()
-        .exchange(path, HttpMethod.PATCH, new HttpEntity<>(endreJournalpostCommand), Void.class);
+        .exchange(path, HttpMethod.PATCH, new HttpEntity<>(endreJournalpostCommand, createEnhetHeader(enhet)), Void.class);
 
     LOGGER.info("Endre journalpost fikk http status {}", endretJournalpostResponse.getStatusCode());
 

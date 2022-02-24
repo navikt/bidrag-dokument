@@ -149,7 +149,6 @@ public class JournalpostController {
       @ApiResponse(responseCode = "404", description = "Fant ikke journalpost som det skal lages avvik på eller feil prefix/id på journalposten"),
       @ApiResponse(responseCode = "503", description = "Oppretting av oppgave for avviket feilet")
   })
-  @SuppressWarnings("unused")
   public ResponseEntity<BehandleAvvikshendelseResponse> behandleAvvik(
       @RequestHeader(X_ENHET_HEADER) String enhet,
       @PathVariable String journalpostIdForKildesystem,
@@ -172,7 +171,7 @@ public class JournalpostController {
       return new ResponseEntity<>(initHttpHeadersWith(HttpHeaders.WARNING, "Ugyldig prefix på journalpostId"), HttpStatus.BAD_REQUEST);
     }
 
-    return journalpostService.behandleAvvik(kildesystemIdenfikator, avvikshendelse).getResponseEntity();
+    return journalpostService.behandleAvvik(enhet, kildesystemIdenfikator, avvikshendelse).getResponseEntity();
   }
 
   @PatchMapping("/journal/{journalpostIdForKildesystem}")
@@ -193,7 +192,6 @@ public class JournalpostController {
       @ApiResponse(responseCode = "403", description = "Saksbehandler har ikke tilgang til aktuell journalpost/sak"),
       @ApiResponse(responseCode = "404", description = "Fant ikke journalpost som skal endres")
   })
-  @SuppressWarnings("unused")
   public ResponseEntity<Void> patchJournalpost(
       @RequestBody EndreJournalpostCommand endreJournalpostCommand,
       @PathVariable String journalpostIdForKildesystem,
@@ -208,7 +206,7 @@ public class JournalpostController {
 
     endreJournalpostCommand.setJournalpostId(journalpostIdForKildesystem);
 
-    return journalpostService.endre(kildesystemIdenfikator, endreJournalpostCommand).getResponseEntity();
+    return journalpostService.endre(enhet, kildesystemIdenfikator, endreJournalpostCommand).getResponseEntity();
   }
 
   @PostMapping("/journal/distribuer/{joarkJournalpostId}")

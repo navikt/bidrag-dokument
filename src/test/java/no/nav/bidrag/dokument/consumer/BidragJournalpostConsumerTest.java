@@ -73,7 +73,7 @@ class BidragJournalpostConsumerTest {
 
     restConsumerStub.runEndreJournalpost(request.getJournalpostId(), HttpStatus.OK);
 
-    var respons = bidragJournalpostConsumer.endre(endreJournalpostCommandMedId101());
+    var respons = bidragJournalpostConsumer.endre("4802", endreJournalpostCommandMedId101());
     Assertions.assertTrue(respons.is2xxSuccessful());
   }
 
