@@ -1,0 +1,36 @@
+# default port for tester som ikke bruker wiremock
+wiremock.server.port: 8085
+
+ISSO_ISSUER_URL: http://localhost:${mock-oauth2-server.port}/isso
+AZURE_OPENID_CONFIG_ISSUER: http://localhost:${mock-oauth2-server.port}/aad
+STS_ISSUER_URL: http://localhost:${mock-oauth2-server.port}/sts
+# For enkelhetsskyld brukes samme wiremock-instans for både arkiv og journalpost
+BIDRAG_ARKIV_URL: http://localhost:${wiremock.server.port}/arkiv
+JOURNALPOST_URL: http://localhost:${wiremock.server.port}/
+SECURITY_TOKEN_URL: http://localhost:${wiremock.server.port}/sts
+SRVBIDRAG_USERNAME: srvbidrag-dokument
+SRVBIDRAG_PASSWORD: bareForTest
+
+no.nav.security.jwt:
+  issuer.isso:
+    discoveryurl: ${ISSO_ISSUER_URL}/.well-known/openid-configuration
+    accepted_audience: aud-localhost
+  client:
+    registration:
+      bidrag-dokument-journalpost:
+        token-endpoint-url: https://login.microsoftonline.com/123/oauth2/v2.0/token
+        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        scope: api://123/.default
+        authentication:
+          client-id: 123
+          client-secret: 123
+          client-auth-method: client_secret_basic
+      bidrag-dokument-arkiv:
+        token-endpoint-url: https://login.microsoftonline.com/123/oauth2/v2.0/token
+        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        scope: api://123/.default
+        authentication:
+          client-id: 123
+          client-secret: 123
+          client-auth-method: client_secret_basic
+

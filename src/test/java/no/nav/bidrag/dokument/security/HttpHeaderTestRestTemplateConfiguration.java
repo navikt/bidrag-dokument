@@ -3,7 +3,8 @@ package no.nav.bidrag.dokument.security;
 import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
 
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
-import no.nav.security.token.support.test.jersey.TestTokenGeneratorResource;
+import no.nav.security.mock.oauth2.MockOAuth2Server;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,17 +14,18 @@ import org.springframework.http.HttpHeaders;
 @Configuration
 @Profile(TEST_PROFILE)
 public class HttpHeaderTestRestTemplateConfiguration {
-
+  @Autowired
+  private MockOAuth2Server mockOAuth2Server;
   @Bean
-  public HttpHeaderTestRestTemplate securedTestRestTemplate(TestRestTemplate testRestTemplate) {
-    var httpHeaderTestRestTemplate = new HttpHeaderTestRestTemplate(testRestTemplate);
-    httpHeaderTestRestTemplate.add(HttpHeaders.AUTHORIZATION, this::generateTestToken);
+  HttpHeaderTestRestTemplate securedTestRestTemplate(TestRestTemplate testRestTemplate) {
+    HttpHeaderTestRestTemplate httpHeaderTestRestTemplate = new HttpHeaderTestRestTemplate(testRestTemplate);
+    httpHeaderTestRestTemplate.add(HttpHeaders.AUTHORIZATION, ()->generateTestToken());
 
     return httpHeaderTestRestTemplate;
   }
 
   private String generateTestToken() {
-    TestTokenGeneratorResource testTokenGeneratorResource = new TestTokenGeneratorResource();
-    return "Bearer " + testTokenGeneratorResource.issueToken("localhost-idtoken");
+    var token = mockOAuth2Server.issueToken("isso", "aud-localhost", "aud-localhost");
+    return "Bearer " + token.serialize();
   }
 }

@@ -18,6 +18,12 @@ springdoc:
 
 ---
 
+spring.config.activate.on-profile: nais
+
+http.proxy.parametername: prevent.isso.proxy.fss(hack)
+
+---
+
 ####################################################################
 # 
 # Profiles: live
@@ -28,11 +34,6 @@ spring.config.activate.on-profile: live
 
 # OIDC          
 no.nav.security.jwt:
-  issuers: aad, isso
-  issuer.aad:
-    discovery_url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/v2.0/.well-known/openid-configuration
-    accepted_audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}, ${ACCEPTED_AUDIENCE}
-    proxy-url: http://webproxy.nais:8088
   client:
     registration:
       bidrag-dokument-journalpost:
@@ -52,61 +53,12 @@ no.nav.security.jwt:
           client-secret: ${AZURE_APP_CLIENT_SECRET}
           client-auth-method: client_secret_basic
   issuer:
+    aad:
+      discovery_url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/v2.0/.well-known/openid-configuration
+      accepted_audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}, ${AZURE_ACCEPTED_AUDIENCE}
     isso:
-      accepted_audience: ${ACCEPTED_AUDIENCE}
+      accepted_audience: ${ISSO_ACCEPTED_AUDIENCE}
       discoveryurl: ${ISSO_ISSUER_URL}/.well-known/openid-configuration
     sts:
-      accepted_audience: ${ACCEPTED_SERVICE_USER_AUDIENCE}
+      accepted_audience: ${STS_ACCEPTED_AUDIENCE}
       discoveryurl: ${STS_ISSUER_URL}/rest/v1/sts/.well-known/openid-configuration
-
----
-
-####################################################################
-# 
-# Profiles: test, secure-test
-#
-# Use test token
-#							
-####################################################################
-
-spring.config.activate.on-profile: test, secure-test
-
-# default port for tester som ikke bruker wiremock
-wiremock.server.port: 8085
-
-ISSO_ISSUER_URL: https://isso-q.adeo.no:443/isso/oauth2
-# For enkelhetsskyld brukes samme wiremock-instans for både arkiv og journalpost
-BIDRAG_ARKIV_URL: http://localhost:${wiremock.server.port}/arkiv
-JOURNALPOST_URL: http://localhost:${wiremock.server.port}/
-SECURITY_TOKEN_URL: http://localhost:${wiremock.server.port}/sts
-SRVBIDRAG_USERNAME: srvbidrag-dokument
-SRVBIDRAG_PASSWORD: bareForTest
-
-no.nav.security.jwt:
-  issuers: isso
-  issuer.isso:
-    discoveryurl: http://metadata
-    accepted_audience: aud-localhost
-    cookie_name: localhost-idtoken
-  client:
-    registration:
-      bidrag-dokument-journalpost:
-        token-endpoint-url: https://login.microsoftonline.com/123/oauth2/v2.0/token
-        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
-        scope: api://123/.default
-        authentication:
-          client-id: 123
-          client-secret: 123
-          client-auth-method: client_secret_basic
-      bidrag-dokument-arkiv:
-        token-endpoint-url: https://login.microsoftonline.com/123/oauth2/v2.0/token
-        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
-        scope: api://123/.default
-        authentication:
-          client-id: 123
-          client-secret: 123
-          client-auth-method: client_secret_basic
-
-
-
----

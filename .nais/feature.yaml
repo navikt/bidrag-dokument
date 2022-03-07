@@ -1,14 +1,22 @@
 name: bidrag-dokument-feature
 azure:
-  tenant: trygdeetaten.no
+  inbound:
+    rules:
+      - application: bidrag-ui-feature
+        namespace: bidrag
+        cluster: dev-fss
 ingresses:
   - https://bidrag-dokument-q1.nais.preprod.local/
   - https://bidrag-dokument-feature.dev.adeo.no/
   - https://bidrag-dokument-feature.dev.intern.nav.no/
   - https://bidrag-dokument-feature.dev-fss-pub.nais.io
 env:
-  - name: ACCEPTED_AUDIENCE
+  - name: ISSO_ACCEPTED_AUDIENCE
     value: bisys-q1,bidrag-ui-q1,bidrag-ui-feature-q1,bidrag-dokument-ui-q1,bidrag-q-localhost,ida-q
+  - name: STS_ACCEPTED_AUDIENCE
+    value: srvbdarkivering,srvbisys
+  - name: AZURE_ACCEPTED_AUDIENCE
+    value: TBA
   - name: BIDRAG_ARKIV_URL
     value: https://bidrag-dokument-arkiv-feature.dev.adeo.no/bidrag-dokument-arkiv
   - name: ISSO_ISSUER_URL
@@ -20,11 +28,9 @@ env:
   - name: SRVBIDRAG_USERNAME
     value: srvbidrag-dokument
   - name: BIDRAG_DOKUMENT_JOURNALPOST_CLIENT_ID
-    value: TBA
+    value: dev-fss.bidrag.bidrag-dokument-journalpost-feature
   - name: BIDRAG_DOKUMENT_ARKIV_CLIENT_ID
-    value: TBA
+    value: dev-fss.bidrag.bidrag-dokument-arkiv-feature
   - name: STS_ISSUER_URL
     value: https://security-token-service.dev.adeo.no
-  - name: ACCEPTED_SERVICE_USER_AUDIENCE
-    value: srvbdarkivering,srvbisys
 path: dev

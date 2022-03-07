@@ -8,6 +8,7 @@ import java.io.IOException;
 import no.nav.bidrag.dokument.dto.AktorDto;
 import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, classes = BidragDokumentLocal.class)
 @ActiveProfiles(TEST_PROFILE)
+@EnableMockOAuth2Server
 class DtoMapperTest {
 
   @Autowired

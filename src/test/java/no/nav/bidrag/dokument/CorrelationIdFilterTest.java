@@ -11,12 +11,13 @@ import static org.mockito.Mockito.when;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
-import java.util.stream.Collectors;
 import no.nav.bidrag.commons.KildesystemIdenfikator;
+import no.nav.bidrag.commons.security.service.OidcTokenManager;
 import no.nav.bidrag.commons.web.HttpResponse;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import no.nav.bidrag.dokument.service.JournalpostService;
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,7 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = BidragDokumentLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(TEST_PROFILE)
 @DisplayName("CorrelationIdFilter")
+@EnableMockOAuth2Server
 class CorrelationIdFilterTest {
 
   @Autowired
@@ -49,6 +51,9 @@ class CorrelationIdFilterTest {
   @LocalServerPort
   private int port;
 
+  @MockBean
+  OidcTokenManager oidcTokenManager;
+
   @BeforeEach
   @SuppressWarnings("unchecked")
   void mockLogAppender() {
@@ -62,6 +67,8 @@ class CorrelationIdFilterTest {
   @SuppressWarnings("unchecked")
   @DisplayName("skal logge requests mot applikasjonen")
   void skalLoggeRequestsMotApplikasjonen() {
+    when(oidcTokenManager.isValidTokenIssuedByAzure()).thenReturn(false);
+    when(oidcTokenManager.fetchTokenAsString()).thenReturn("");
     when(journalpostServiceMock.hentJournalpost(anyString(), any(KildesystemIdenfikator.class)))
         .thenReturn(HttpResponse.from(HttpStatus.I_AM_A_TEAPOT));
 
@@ -77,31 +84,6 @@ class CorrelationIdFilterTest {
         () -> {
           var loggingEventCaptor = ArgumentCaptor.forClass(ILoggingEvent.class);
           verify(appenderMock, atLeastOnce()).doAppend(loggingEventCaptor.capture());
-        }
-    );
-  }
-
-  @Test
-  @SuppressWarnings("unchecked")
-  @DisplayName("skal ikke logge requests mot actuator endpoints")
-  void skalIkkeLoggeRequestsMotActuatorEndpoints() {
-    var response = securedTestRestTemplate.exchange(
-        "http://localhost:" + port + "/bidrag-dokument/actuator/health",
-        HttpMethod.GET,
-        null,
-        JournalpostResponse.class
-    );
-
-    assertAll(
-        () -> assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.OK),
-        () -> {
-          var loggingEventCaptor = ArgumentCaptor.forClass(ILoggingEvent.class);
-          verify(appenderMock, atLeastOnce()).doAppend(loggingEventCaptor.capture());
-
-          var loggingEvents = loggingEventCaptor.getAllValues();
-          var allMsgs = loggingEvents.stream().map(ILoggingEvent::getFormattedMessage).collect(Collectors.joining("\n"));
-
-          assertThat(allMsgs).doesNotContain("Processing").doesNotContain("/actuator/");
         }
     );
   }
