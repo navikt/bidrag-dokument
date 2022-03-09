@@ -17,6 +17,7 @@ import no.nav.bidrag.commons.KildesystemIdenfikator;
 import no.nav.bidrag.commons.web.HttpResponse;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.bidrag.dokument.service.JournalpostService;
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,7 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = BidragDokumentLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(TEST_PROFILE)
 @DisplayName("EnhetFilter")
+@EnableMockOAuth2Server
 class EnhetFilterFilterTest {
 
   @Autowired

@@ -33,6 +33,7 @@ import no.nav.bidrag.dokument.dto.BehandleAvvikshendelseResponse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -57,6 +58,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @AutoConfigureWireMock(port = 0)
 @ActiveProfiles(TEST_PROFILE)
 @DisplayName("JournalpostController")
+@EnableMockOAuth2Server
 class JournalpostControllerTest {
 
   @LocalServerPort
