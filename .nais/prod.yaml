@@ -14,8 +14,6 @@ env:
     value: bisys-p,bidrag-ui-p,bidrag-dokument-ui-p
   - name: STS_ACCEPTED_AUDIENCE
     value: srvbdarkivering,srvbisys
-  - name: AZURE_ACCEPTED_AUDIENCE
-    value: TBA
   - name: BIDRAG_ARKIV_URL
     value: https://bidrag-dokument-arkiv.nais.adeo.no/bidrag-dokument-arkiv
   - name: ISSO_ISSUER_URL
