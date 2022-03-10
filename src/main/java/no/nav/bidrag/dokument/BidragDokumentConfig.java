@@ -12,7 +12,6 @@ import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer;
-import no.nav.bidrag.dokument.consumer.ConsumerTarget;
 import no.nav.bidrag.dokument.consumer.DokumentConsumer;
 import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client;
 import org.slf4j.Logger;
@@ -55,39 +54,33 @@ public class BidragDokumentConfig {
   @Qualifier(MIDL_BREVLAGER_QUALIFIER)
   public BidragDokumentConsumer bidragJournalpostConsumer(
       @Value("${JOURNALPOST_URL}") String journalpostBaseUrl,
-      SecurityTokenService securityTokenService,
-      RestTemplateProvider restTemplateProvider
+      SecurityTokenService securityTokenService
   ) {
     LOGGER.info("BidragJournalpostConsumer med base url: " + journalpostBaseUrl);
-    var restTemplate = issoRestTemplate(journalpostBaseUrl, securityTokenService, KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST);
-    var consumerTarget = new ConsumerTarget(restTemplate, restTemplateProvider,"bidrag-dokument-journalpost");
+    var restTemplate = createRestTemplate(journalpostBaseUrl, securityTokenService, KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST);
 
-    return new BidragDokumentConsumer(consumerTarget);
+    return new BidragDokumentConsumer(restTemplate, KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST);
   }
 
   @Bean
   @Qualifier(ARKIV_QUALIFIER)
   public BidragDokumentConsumer bidragArkivConsumer(
       @Value("${BIDRAG_ARKIV_URL}") String bidragArkivBaseUrl,
-      SecurityTokenService securityTokenService,
-      RestTemplateProvider restTemplateProvider
+      SecurityTokenService securityTokenService
   ) {
     LOGGER.info("BidragArkivConsumer med base url: " + bidragArkivBaseUrl);
-    var restTemplate = issoRestTemplate(bidragArkivBaseUrl, securityTokenService, KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV);
-    var consumerTarget = new ConsumerTarget(restTemplate, restTemplateProvider,"bidrag-dokument-arkiv");
-    return new BidragDokumentConsumer(consumerTarget);
+    var restTemplate = createRestTemplate(bidragArkivBaseUrl, securityTokenService, KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV);
+    return new BidragDokumentConsumer(restTemplate, KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV);
   }
 
   @Bean
   public DokumentConsumer dokumentConsumer(
       @Value("${JOURNALPOST_URL}") String journalpostBaseUrl,
-      SecurityTokenService securityTokenService,
-      RestTemplateProvider restTemplateProvider
+      SecurityTokenService securityTokenService
   ) {
     LOGGER.info("DokumentConsumer med base url: " + journalpostBaseUrl);
-    var restTemplate = issoRestTemplate(journalpostBaseUrl, securityTokenService, KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST);
-    var consumerTarget = new ConsumerTarget(restTemplate, restTemplateProvider,"bidrag-dokument-journalpost");
-    return new DokumentConsumer(consumerTarget);
+    var restTemplate = createRestTemplate(journalpostBaseUrl, securityTokenService, KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST);
+    return new DokumentConsumer(restTemplate);
   }
 
   @Bean
@@ -107,12 +100,7 @@ public class BidragDokumentConfig {
     return new ExceptionLogger(BidragDokument.class.getSimpleName());
   }
 
-  @Bean
-  public RestTemplateProvider restTemplateProvider() {
-    return ConsumerTarget::getIssoRestTemplate;
-  }
-
-  private RestTemplate issoRestTemplate(String baseUrl, SecurityTokenService securityTokenService, String clientId) {
+  private RestTemplate createRestTemplate(String baseUrl, SecurityTokenService securityTokenService, String clientId) {
     var requestFactory = new HttpComponentsClientHttpRequestFactory();
     requestFactory.setConnectTimeout(0);
     requestFactory.setReadTimeout(0);
@@ -127,9 +115,4 @@ public class BidragDokumentConfig {
     return httpHeaderRestTemplate;
   }
 
-  @FunctionalInterface
-  public interface RestTemplateProvider {
-
-    RestTemplate provideRestTemplate(ConsumerTarget consumerTarget);
-  }
 }
