@@ -9,7 +9,15 @@ spec:
   azure:
     application:
       enabled: true
-      tenant: {{ azure.tenant }}
+  accessPolicy:
+    inbound:
+      rules:
+      {{#each azure.inbound.rules}}
+        - application: {{this.application}}
+          namespace: {{this.namespace}}
+          cluster: {{this.cluster}}
+      {{/each}}
+  webproxy: true
   image: {{ image }}
   liveness:
     path: /bidrag-dokument/actuator/health

@@ -4,17 +4,21 @@ import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Optional;
+import no.nav.bidrag.commons.security.service.OidcTokenManager;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
 import no.nav.bidrag.dokument.consumer.stub.RestConsumerStub;
 import no.nav.bidrag.dokument.dto.DokumentTilgangResponse;
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
@@ -27,6 +31,7 @@ import org.springframework.test.context.ActiveProfiles;
 @DisplayName("DokumentController")
 @AutoConfigureWireMock(port = 0)
 @SpringBootTest(classes = BidragDokumentLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@EnableMockOAuth2Server
 class DokumentControllerTest {
 
   @Autowired
@@ -38,6 +43,9 @@ class DokumentControllerTest {
   @Autowired
   private RestConsumerStub restConsumerStub;
 
+  @MockBean
+  OidcTokenManager oidcTokenManager;
+
   @Test
   @DisplayName("skal spørre brevserver om tilgang til dokument")
   void skalVideresendeRequestOmTilgangTilDokument() throws IOException {
@@ -47,6 +55,8 @@ class DokumentControllerTest {
     var dokumentUrl = "https://dokument-url.no/";
     var type = "BREVLAGER";
 
+    when(oidcTokenManager.isValidTokenIssuedByAzure()).thenReturn(false);
+    when(oidcTokenManager.fetchTokenAsString()).thenReturn("");
     restConsumerStub
         .runGiTilgangTilDokument(journalpostId, dokumentReferanse, dokumentUrl, type, HttpStatus.OK.value());
 

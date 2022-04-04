@@ -6,11 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import no.nav.bidrag.dokument.BidragDokumentConfig.OidcTokenManager;
+import no.nav.bidrag.commons.security.service.OidcTokenManager;
 import no.nav.bidrag.dokument.BidragDokumentLocal;
 import no.nav.bidrag.dokument.consumer.stub.RestConsumerStub;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
-import no.nav.security.token.support.test.jersey.TestTokenGeneratorResource;
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,6 +26,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles(TEST_PROFILE)
 @DisplayName("BidragJournalpostConsumer")
 @AutoConfigureWireMock(port = 0)
+@EnableMockOAuth2Server
 class BidragJournalpostConsumerTest {
 
   @Autowired
@@ -39,8 +40,7 @@ class BidragJournalpostConsumerTest {
   private OidcTokenManager oidcTokenManager;
 
   private static String generateTestToken() {
-    TestTokenGeneratorResource testTokenGeneratorResource = new TestTokenGeneratorResource();
-    return testTokenGeneratorResource.issueToken("localhost-idtoken");
+    return "Token";
   }
 
   @Test
@@ -54,8 +54,8 @@ class BidragJournalpostConsumerTest {
 
     var idToken = generateTestToken();
 
-    when(oidcTokenManager.fetchToken()).thenReturn(idToken);
-
+    when(oidcTokenManager.isValidTokenIssuedByAzure()).thenReturn(false);
+    when(oidcTokenManager.fetchTokenAsString()).thenReturn("");
     // when
     var respons = bidragJournalpostConsumer.finnJournalposter(saksnr, "BID");
 
@@ -69,7 +69,8 @@ class BidragJournalpostConsumerTest {
     var idToken = generateTestToken();
     var request = endreJournalpostCommandMedId101();
 
-    when(oidcTokenManager.fetchToken()).thenReturn(idToken);
+    when(oidcTokenManager.isValidTokenIssuedByAzure()).thenReturn(false);
+    when(oidcTokenManager.fetchTokenAsString()).thenReturn("");
 
     restConsumerStub.runEndreJournalpost(request.getJournalpostId(), HttpStatus.OK);
 

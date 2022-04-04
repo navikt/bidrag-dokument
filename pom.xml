@@ -13,7 +13,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.6.1</version>
+    <version>2.6.6</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
@@ -23,13 +23,14 @@
     <java.version>17</java.version>
 
     <!-- dependent versions other than from spring-boot -->
-    <bidrag-commons.version>0.5.24</bidrag-commons.version>
+    <bidrag-commons.version>0.6.6</bidrag-commons.version>
     <bidrag-commons-test.version>0.2.2</bidrag-commons-test.version>
     <bidrag-dokument-dto.version>1.4.4</bidrag-dokument-dto.version>
     <logback.encoder.version>6.6</logback.encoder.version>
     <springdoc-openapi-ui.version>1.6.6</springdoc-openapi-ui.version>
     <springframework-cloud.version>3.0.4</springframework-cloud.version>
-    <token-support.version>1.3.10</token-support.version>
+    <token-support.version>2.0.5</token-support.version>
+    <squareup.version>4.9.2</squareup.version>
 
     <!-- build -->
     <build-helper-maven.version>3.2.0</build-helper-maven.version>
@@ -66,18 +67,6 @@
       <groupId>no.nav.bidrag.dokument</groupId>
       <artifactId>bidrag-dokument-dto</artifactId>
       <version>${bidrag-dokument-dto.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>no.nav.security</groupId>
-      <artifactId>token-validation-spring</artifactId>
-      <version>${token-support.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>no.nav.security</groupId>
-      <artifactId>token-client-spring</artifactId>
-      <version>${token-support.version}</version>
     </dependency>
 
     <dependency>
@@ -153,11 +142,22 @@
     <!-- test dependencies -->
     <dependency>
       <groupId>no.nav.security</groupId>
-      <artifactId>token-validation-test-support</artifactId>
+      <artifactId>token-validation-spring-test</artifactId>
       <version>${token-support.version}</version>
       <scope>test</scope>
     </dependency>
-
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>mockwebserver</artifactId>
+      <version>${squareup.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>okhttp</artifactId>
+      <version>${squareup.version}</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>no.nav.bidrag</groupId>
       <artifactId>bidrag-commons-test</artifactId>

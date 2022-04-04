@@ -4,5 +4,5 @@ LABEL maintainer="Team Bidrag" \
 
 COPY ./target/app-exec.jar app.jar
 COPY init-scripts /init-scripts
-
+ENV SPRING_PROFILES_ACTIVE=nais
 EXPOSE 8080
