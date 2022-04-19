@@ -107,7 +107,7 @@ public class BidragDokumentConfig {
 
     var httpHeaderRestTemplate = new HttpHeaderRestTemplate();
 
-    httpHeaderRestTemplate.getInterceptors().add(securityTokenService.authTokenInterceptor(clientId));
+    httpHeaderRestTemplate.getInterceptors().add(securityTokenService.authTokenInterceptor(clientId, false));
     httpHeaderRestTemplate.withDefaultHeaders();
     httpHeaderRestTemplate.setRequestFactory(requestFactory);
     httpHeaderRestTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
