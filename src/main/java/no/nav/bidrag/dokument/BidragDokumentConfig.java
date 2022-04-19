@@ -59,7 +59,7 @@ public class BidragDokumentConfig {
     LOGGER.info("BidragJournalpostConsumer med base url: " + journalpostBaseUrl);
     var restTemplate = createRestTemplate(journalpostBaseUrl, securityTokenService, KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST);
 
-    return new BidragDokumentConsumer(restTemplate, KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST);
+    return new BidragDokumentConsumer(restTemplate);
   }
 
   @Bean
@@ -70,7 +70,7 @@ public class BidragDokumentConfig {
   ) {
     LOGGER.info("BidragArkivConsumer med base url: " + bidragArkivBaseUrl);
     var restTemplate = createRestTemplate(bidragArkivBaseUrl, securityTokenService, KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV);
-    return new BidragDokumentConsumer(restTemplate, KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV);
+    return new BidragDokumentConsumer(restTemplate);
   }
 
   @Bean
@@ -107,7 +107,7 @@ public class BidragDokumentConfig {
 
     var httpHeaderRestTemplate = new HttpHeaderRestTemplate();
 
-    httpHeaderRestTemplate.getInterceptors().add(securityTokenService.authTokenInterceptor(clientId));
+    httpHeaderRestTemplate.getInterceptors().add(securityTokenService.authTokenInterceptor(clientId, true));
     httpHeaderRestTemplate.withDefaultHeaders();
     httpHeaderRestTemplate.setRequestFactory(requestFactory);
     httpHeaderRestTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));

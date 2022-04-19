@@ -2,6 +2,7 @@ package no.nav.bidrag.dokument.controller;
 
 import static no.nav.bidrag.commons.web.EnhetFilter.X_ENHET_HEADER;
 import static no.nav.bidrag.commons.web.WebUtil.initHttpHeadersWith;
+import static no.nav.bidrag.dokument.BidragDokument.SECURE_LOGGER;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.DELIMTER;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_BIDRAG;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
@@ -67,7 +68,7 @@ public class JournalpostController {
   })
   public ResponseEntity<List<JournalpostDto>> hentJournal(@PathVariable String saksnummer, @RequestParam String fagomrade) {
 
-    LOGGER.info("request: bidrag-dokument/sak/{}?fagomrade={}", saksnummer, fagomrade);
+    LOGGER.info("Henter journal for sak {} og fagomrade {}", saksnummer, fagomrade);
 
     if (saksnummer.matches(NON_DIGITS)) {
       LOGGER.warn("Ugyldig saksnummer: {}", saksnummer);
@@ -98,7 +99,7 @@ public class JournalpostController {
       return new ResponseEntity<>(initHttpHeadersWith(HttpHeaders.WARNING, "Ugyldig prefix på journalpostId"), HttpStatus.BAD_REQUEST);
     }
 
-    LOGGER.info("request: bidrag-dokument/journal/{}?saksnummer={}", journalpostIdForKildesystem, saksnummer);
+    LOGGER.info("Henter journalpost {} for saksnummer {}", journalpostIdForKildesystem, saksnummer);
 
     var response =  journalpostService.hentJournalpost(saksnummer, kildesystemIdenfikator);
     return response.clearContentHeaders().getResponseEntity();
@@ -118,7 +119,7 @@ public class JournalpostController {
   })
   public ResponseEntity<List<AvvikType>> hentAvvik(@PathVariable String journalpostIdForKildesystem,
       @Parameter(name = "saksnummer", description = "journalposten tilhører sak") @RequestParam(required = false) String saksnummer) {
-    LOGGER.info("request: bidrag-dokument/journal/{}/avvik", journalpostIdForKildesystem);
+    LOGGER.info("Henter avvik for journalpost {}", journalpostIdForKildesystem);
 
     KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
     if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
@@ -154,7 +155,8 @@ public class JournalpostController {
       @PathVariable String journalpostIdForKildesystem,
       @RequestBody Avvikshendelse avvikshendelse
   ) {
-    LOGGER.info("opprett: bidrag-dokument/journal/{}/avvik - {}", journalpostIdForKildesystem, avvikshendelse);
+    LOGGER.info("Behandler avvik for journalpost {}", journalpostIdForKildesystem);
+    SECURE_LOGGER.info("Behandler avvik for journalpost {} med avvikshendelse {}", journalpostIdForKildesystem, avvikshendelse);
 
     try {
       AvvikType.valueOf(avvikshendelse.getAvvikType());
@@ -197,7 +199,8 @@ public class JournalpostController {
       @PathVariable String journalpostIdForKildesystem,
       @RequestHeader(EnhetFilter.X_ENHET_HEADER) String enhet
   ) {
-    LOGGER.info("patch endret: bidrag-dokument/journal/{}\n \\-> {}", journalpostIdForKildesystem, endreJournalpostCommand);
+    LOGGER.info("Endrer journalpost {}", journalpostIdForKildesystem);
+    SECURE_LOGGER.info("Endrer journalpost {} med endringer {}", journalpostIdForKildesystem, endreJournalpostCommand);
 
     KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
     if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {

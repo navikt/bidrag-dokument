@@ -55,7 +55,9 @@ class BidragJournalpostConsumerTest {
     var idToken = generateTestToken();
 
     when(oidcTokenManager.isValidTokenIssuedByAzure()).thenReturn(false);
+    when(oidcTokenManager.isValidTokenIssuedBySTS()).thenReturn(false);
     when(oidcTokenManager.fetchTokenAsString()).thenReturn("");
+    when(oidcTokenManager.getIssuer()).thenReturn("");
     // when
     var respons = bidragJournalpostConsumer.finnJournalposter(saksnr, "BID");
 
@@ -70,7 +72,9 @@ class BidragJournalpostConsumerTest {
     var request = endreJournalpostCommandMedId101();
 
     when(oidcTokenManager.isValidTokenIssuedByAzure()).thenReturn(false);
+    when(oidcTokenManager.isValidTokenIssuedBySTS()).thenReturn(false);
     when(oidcTokenManager.fetchTokenAsString()).thenReturn("");
+    when(oidcTokenManager.getIssuer()).thenReturn("");
 
     restConsumerStub.runEndreJournalpost(request.getJournalpostId(), HttpStatus.OK);
 
