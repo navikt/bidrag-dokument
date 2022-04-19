@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import no.nav.bidrag.commons.ExceptionLogger;
+import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration;
 import no.nav.bidrag.commons.security.service.SecurityTokenService;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.EnhetFilter;
@@ -36,6 +37,7 @@ import org.springframework.web.client.RestTemplate;
     scheme = "bearer",
     type = SecuritySchemeType.HTTP
 )
+@EnableSecurityConfiguration
 public class BidragDokumentConfig {
 
   public static final String DELIMTER = "-";

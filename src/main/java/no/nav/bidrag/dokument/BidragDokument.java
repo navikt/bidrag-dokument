@@ -2,7 +2,6 @@ package no.nav.bidrag.dokument;
 
 import static no.nav.bidrag.dokument.BidragDokumentConfig.LIVE_PROFILE;
 
-import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration;
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,6 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 
 @SpringBootApplication(exclude = { SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class })
 @EnableJwtTokenValidation(ignore = {"org.springdoc"})
-@EnableSecurityConfiguration
 public class BidragDokument {
   public static final Logger SECURE_LOGGER = LoggerFactory.getLogger("secureLogger");
 
