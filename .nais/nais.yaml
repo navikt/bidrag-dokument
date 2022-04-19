@@ -9,6 +9,8 @@ spec:
   azure:
     application:
       enabled: true
+  secureLogs:
+    enabled: true
   accessPolicy:
     inbound:
       rules:
