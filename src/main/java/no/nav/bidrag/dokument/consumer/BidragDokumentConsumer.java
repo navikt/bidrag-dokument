@@ -19,6 +19,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -36,6 +37,7 @@ public class BidragDokumentConsumer {
   private static final String PARAM_SAKSNUMMER = "saksnummer";
   public static final String PATH_AVVIK_PA_JOURNALPOST_MED_SAK_PARAM = "/journal/%s/avvik?" + PARAM_SAKSNUMMER + "=%s";
   public static final String PATH_AVVIK_PA_JOURNALPOST = "/journal/%s/avvik";
+  public static final String PATH_HENT_DOKUMENT = "/dokument/%s";
 
   private final RestTemplate restTemplate;
 
@@ -125,6 +127,14 @@ public class BidragDokumentConsumer {
     var distribuerJournalpostResponse = restTemplate.exchange(path, HttpMethod.GET, null, Void.class);
 
     return new HttpResponse<>(distribuerJournalpostResponse);
+  }
+
+  public ResponseEntity<byte[]> hentDokument(String journalpostId, String dokumentreferanse) {
+
+    var dokumentReferanseUrl = Strings.isNotEmpty(dokumentreferanse) ? "/" +dokumentreferanse : "";
+    var dokumentUrl = String.format(PATH_HENT_DOKUMENT, journalpostId) + dokumentReferanseUrl;
+
+    return restTemplate.exchange(dokumentUrl, HttpMethod.GET, HttpEntity.EMPTY, byte[].class);
   }
 
 
