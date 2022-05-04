@@ -35,8 +35,8 @@ public class DokumentService {
 
   public ResponseEntity<byte[]> hentDokument(KildesystemIdenfikator kildesystemIdenfikator, String dokumentreferanse) {
     if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.hentDokument(kildesystemIdenfikator.hentJournalpostIdLong().toString(), dokumentreferanse);
+      return bidragJournalpostConsumer.hentDokument(kildesystemIdenfikator.getPrefiksetJournalpostId(), dokumentreferanse);
     }
-    return bidragArkivConsumer.hentDokument(kildesystemIdenfikator.hentJournalpostIdLong().toString(), dokumentreferanse);
+    return bidragArkivConsumer.hentDokument(kildesystemIdenfikator.getPrefiksetJournalpostId(), dokumentreferanse);
   }
 }
