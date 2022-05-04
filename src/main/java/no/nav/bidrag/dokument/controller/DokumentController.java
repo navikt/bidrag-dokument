@@ -1,5 +1,6 @@
 package no.nav.bidrag.dokument.controller;
 
+import no.nav.bidrag.commons.KildesystemIdenfikator;
 import no.nav.bidrag.dokument.dto.DokumentTilgangResponse;
 import no.nav.bidrag.dokument.service.DokumentService;
 import no.nav.security.token.support.core.api.Protected;
@@ -32,5 +33,13 @@ public class DokumentController {
         .format("tilgang til dokument: %s, status: %s", dokumentUrlResponse.fetchBody(), dokumentUrlResponse.getResponseEntity().getStatusCode()));
 
     return dokumentUrlResponse.getResponseEntity();
+  }
+
+  @GetMapping("/dokument/{journalpostId}/{dokumentreferanse}")
+  public ResponseEntity<byte[]> hentDokument(@PathVariable String journalpostId, @PathVariable String dokumentreferanse) {
+    LOGGER.info("Henter dokument med journalpostId={} og dokumentreferanse={} ", journalpostId, dokumentreferanse);
+    KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostId);
+
+    return dokumentService.hentDokument(kildesystemIdenfikator, dokumentreferanse);
   }
 }

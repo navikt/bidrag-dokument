@@ -12,7 +12,7 @@ import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer;
-import no.nav.bidrag.dokument.consumer.DokumentConsumer;
+import no.nav.bidrag.dokument.consumer.DokumentTilgangConsumer;
 import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,13 +74,13 @@ public class BidragDokumentConfig {
   }
 
   @Bean
-  public DokumentConsumer dokumentConsumer(
+  public DokumentTilgangConsumer dokumentConsumer(
       @Value("${JOURNALPOST_URL}") String journalpostBaseUrl,
       SecurityTokenService securityTokenService
   ) {
     LOGGER.info("DokumentConsumer med base url: " + journalpostBaseUrl);
     var restTemplate = createRestTemplate(journalpostBaseUrl, securityTokenService, KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST);
-    return new DokumentConsumer(restTemplate);
+    return new DokumentTilgangConsumer(restTemplate);
   }
 
   @Bean
