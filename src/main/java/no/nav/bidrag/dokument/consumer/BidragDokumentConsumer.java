@@ -134,8 +134,7 @@ public class BidragDokumentConsumer {
     var dokumentReferanseUrl = Strings.isNotEmpty(dokumentreferanse) ? "/" +dokumentreferanse : "";
     var dokumentUrl = String.format(PATH_HENT_DOKUMENT, journalpostId) + dokumentReferanseUrl;
 
-    return restTemplate
-        .exchange(dokumentUrl, HttpMethod.GET, null, byte[].class);
+    return restTemplate.exchange(dokumentUrl, HttpMethod.GET, HttpEntity.EMPTY, byte[].class);
   }
 
 

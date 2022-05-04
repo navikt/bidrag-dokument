@@ -35,8 +35,8 @@ public class DokumentController {
     return dokumentUrlResponse.getResponseEntity();
   }
 
-  @GetMapping("/dokument/{journalpostId}/{dokumentreferanse}")
-  public ResponseEntity<byte[]> hentDokument(@PathVariable String journalpostId, @PathVariable String dokumentreferanse) {
+  @GetMapping({"/dokument/{journalpostId}/{dokumentreferanse}", "/dokument/{journalpostId}"})
+  public ResponseEntity<byte[]> hentDokument(@PathVariable String journalpostId, @PathVariable(required = false) String dokumentreferanse) {
     LOGGER.info("Henter dokument med journalpostId={} og dokumentreferanse={} ", journalpostId, dokumentreferanse);
     KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostId);
 
