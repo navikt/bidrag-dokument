@@ -52,7 +52,7 @@ public class DokumentService {
   }
 
   public ResponseEntity<byte[]> hentDokument(DokumentRef dokumentRef, boolean resizeToA4) {
-    if (!dokumentRef.hasDokumentId()){
+    if (!dokumentRef.hasDokumentId() && dokumentRef.erForKilde(Kilde.JOARK)){
       var dokumentReferanser = hentAlleJournalpostDokumentReferanser(dokumentRef);
       return hentDokumenterData(dokumentReferanser, resizeToA4);
     }
