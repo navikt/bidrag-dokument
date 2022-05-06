@@ -2,6 +2,11 @@ package no.nav.bidrag.dokument.consumer;
 
 import static no.nav.bidrag.commons.web.EnhetFilter.X_ENHET_HEADER;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -16,10 +21,12 @@ import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -130,7 +137,10 @@ public class BidragDokumentConsumer {
   }
 
   public ResponseEntity<byte[]> hentDokument(String journalpostId, String dokumentreferanse) {
-
+//      return ResponseEntity.ok()
+//          .contentType(MediaType.APPLICATION_PDF)
+//          .header(HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=%s", "test.pdf"))
+//          .body(getPdfDokument().get());
     var dokumentReferanseUrl = Strings.isNotEmpty(dokumentreferanse) ? "/" +dokumentreferanse : "";
     var dokumentUrl = String.format(PATH_HENT_DOKUMENT, journalpostId) + dokumentReferanseUrl;
 
@@ -147,5 +157,17 @@ public class BidragDokumentConsumer {
   private ParameterizedTypeReference<List<AvvikType>> typereferansenErListeMedAvvikstyper() {
     return new ParameterizedTypeReference<>() {
     };
+  }
+
+  private Optional<byte[]> getPdfDokument(){
+    try {
+      var inputstream = new ClassPathResource("testdata/Testdoc.pdf").getInputStream();
+      File targetFile = File.createTempFile("pdfdoc", "pdf");
+      OutputStream outStream = new FileOutputStream(targetFile);
+      FileCopyUtils.copy(inputstream, outStream);
+      return Optional.of(Files.readAllBytes(targetFile.toPath()));
+    } catch (IOException e) {
+      throw new RuntimeException("Kunne ikke laste fil");
+    }
   }
 }

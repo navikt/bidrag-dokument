@@ -16,7 +16,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ActiveProfiles(TEST_PROFILE)
 @DisplayName("BidragDokument")
 @EnableMockOAuth2Server
-class BidragDokumentTest {
+class BidragDokumentTestRef {
 
   @Test
   @DisplayName("skal laste spring-context")
