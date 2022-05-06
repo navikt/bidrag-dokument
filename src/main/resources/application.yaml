@@ -11,7 +11,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "*, openapi, swaggerui"
+        include: "prometheus,health"
 
 springdoc:
   packages-to-scan: no.nav.bidrag.dokument.controller
