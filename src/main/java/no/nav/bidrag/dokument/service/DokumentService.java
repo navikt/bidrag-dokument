@@ -82,7 +82,7 @@ public class DokumentService {
   }
 
   private ResponseEntity<byte[]> hentDokumenterData(List<DokumentRef> dokumentRefList, boolean resizeToA4){
-    var mergedFileName = "alle_dokumenter.pdf";
+    var mergedFileName = "dokumenter_sammenslatt.pdf";
     var mergedFileNameTmp = "/tmp/"+mergedFileName+"_"+ UUID.randomUUID();
     try {
       hentOgMergeAlleDokumenter(dokumentRefList, mergedFileNameTmp, resizeToA4);

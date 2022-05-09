@@ -29,8 +29,6 @@ public class PDFDokumentProcessor {
       this.document = document;
       this.pdfRenderer = new PDFRenderer(document);
       processPages();
-
-      this.document.setAllSecurityToBeRemoved(true);
       this.document.save(documentByteStream);
       this.document.close();
       return documentByteStream.toByteArray();
