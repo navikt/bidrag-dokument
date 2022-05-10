@@ -29,7 +29,7 @@ public class PDFDokumentProcessor {
     try (PDDocument document = PDDocument.load(dokumentFil)) {
       this.document = document;
       this.pdfRenderer = new PDFRenderer(document);
-      LOGGER.info("Konverterer {} sider til A4 størrelse. Filstørrelse {}", document.getNumberOfPages(), bytesIntoHumanReadable(dokumentFil.length));
+      LOGGER.debug("Konverterer {} sider til A4 størrelse. Filstørrelse {}", document.getNumberOfPages(), bytesIntoHumanReadable(dokumentFil.length));
       processPages();
       this.document.save(documentByteStream);
       this.document.close();

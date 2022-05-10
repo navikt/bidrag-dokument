@@ -104,7 +104,6 @@ public class DokumentService {
     mergedDocument.setDestinationFileName(mergedFileName);
     for (var dokument: dokumentList){
       var dokumentResponse = hentDokument(dokument, resizeToA4);
-      LOGGER.info("Merger dokument {} med størrelse {}", dokument, PDFDokumentProcessor.bytesIntoHumanReadable(dokumentResponse.getBody().length));
       var dokumentInputStream = ByteSource.wrap(dokumentResponse.getBody()).openStream();
       mergedDocument.addSource(dokumentInputStream);
       dokumentInputStream.close();
