@@ -1,6 +1,5 @@
 package no.nav.bidrag.dokument.service;
 
-import io.micrometer.core.annotation.Timed;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -25,7 +24,6 @@ public class PDFDokumentProcessor {
   private PDDocument document;
   private PDFRenderer pdfRenderer;
 
-  @Timed("konverterSiderTilA4")
   public byte[] konverterAlleSiderTilA4(byte[] dokumentFil) {
     ByteArrayOutputStream documentByteStream = new ByteArrayOutputStream();
     try (PDDocument document = PDDocument.load(dokumentFil)) {
@@ -99,7 +97,7 @@ public class PDFDokumentProcessor {
     return byteArray;
   }
 
-  private String bytesIntoHumanReadable(long bytes) {
+  public static String bytesIntoHumanReadable(long bytes) {
     long kilobyte = 1024;
     long megabyte = kilobyte * 1024;
     long gigabyte = megabyte * 1024;

@@ -40,7 +40,7 @@ spec:
       memory: 2048Mi
     requests:
       cpu: 500m
-      memory: 512Mi
+      memory: 1024Mi
   ingresses:
   {{#each ingresses as |url|}}
     - {{url}}
