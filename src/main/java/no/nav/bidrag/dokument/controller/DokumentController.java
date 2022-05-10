@@ -47,8 +47,8 @@ public class DokumentController {
 
   @GetMapping({ "/dokument"})
   public ResponseEntity<byte[]> hentDokumenter(
-      @RequestParam(required = false) boolean resizeToA4,
-      @Parameter(name = "dokument", description = "Liste med dokumenter formatert <Kilde>-<journalpostId>:<dokumentReferanse>") @RequestParam(required = false, name = "dokument") List<String> dokumentreferanseList) {
+      @Parameter(name = "dokument", description = "Liste med dokumenter formatert <Kilde>-<journalpostId>:<dokumentReferanse>") @RequestParam(name = "dokument") List<String> dokumentreferanseList,
+      @RequestParam(required = false) boolean resizeToA4) {
     LOGGER.info("Henter dokumenter {} med resizeToA4={} ", dokumentreferanseList, resizeToA4);
     return dokumentService.hentDokumenter(dokumentreferanseList, resizeToA4);
   }

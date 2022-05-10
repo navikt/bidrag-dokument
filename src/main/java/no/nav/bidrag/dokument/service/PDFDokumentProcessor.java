@@ -1,5 +1,6 @@
 package no.nav.bidrag.dokument.service;
 
+import io.micrometer.core.annotation.Timed;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -23,11 +24,14 @@ public class PDFDokumentProcessor {
 
   private PDDocument document;
   private PDFRenderer pdfRenderer;
+
+  @Timed("konverterSiderTilA4")
   public byte[] konverterAlleSiderTilA4(byte[] dokumentFil) {
     ByteArrayOutputStream documentByteStream = new ByteArrayOutputStream();
-    try (PDDocument document = PDDocument.load(dokumentFil);) {
+    try (PDDocument document = PDDocument.load(dokumentFil)) {
       this.document = document;
       this.pdfRenderer = new PDFRenderer(document);
+      LOGGER.info("Konverterer {} sider til A4 størrelse. Filstørrelse {}", document.getNumberOfPages(), bytesIntoHumanReadable(dokumentFil.length));
       processPages();
       this.document.save(documentByteStream);
       this.document.close();
@@ -93,5 +97,31 @@ public class PDFDokumentProcessor {
     inputStream.read(byteArray);
     inputStream.close();
     return byteArray;
+  }
+
+  private String bytesIntoHumanReadable(long bytes) {
+    long kilobyte = 1024;
+    long megabyte = kilobyte * 1024;
+    long gigabyte = megabyte * 1024;
+    long terabyte = gigabyte * 1024;
+
+    if ((bytes >= 0) && (bytes < kilobyte)) {
+      return bytes + " B";
+
+    } else if ((bytes >= kilobyte) && (bytes < megabyte)) {
+      return (bytes / kilobyte) + " KB";
+
+    } else if ((bytes >= megabyte) && (bytes < gigabyte)) {
+      return (bytes / megabyte) + " MB";
+
+    } else if ((bytes >= gigabyte) && (bytes < terabyte)) {
+      return (bytes / gigabyte) + " GB";
+
+    } else if (bytes >= terabyte) {
+      return (bytes / terabyte) + " TB";
+
+    } else {
+      return bytes + " Bytes";
+    }
   }
 }

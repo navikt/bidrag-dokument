@@ -92,7 +92,6 @@ public class BidragDokumentConsumer {
 
     var journalposterFraArkiv = restTemplate
         .exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter());
-    var httpStatus = journalposterFraArkiv.getStatusCode();
 
     return Optional.ofNullable(journalposterFraArkiv.getBody()).orElse(Collections.emptyList());
   }

@@ -5,6 +5,7 @@ import static no.nav.bidrag.dokument.BidragDokumentConfig.MIDL_BREVLAGER_QUALIFI
 import static no.nav.bidrag.dokument.service.PDFDokumentProcessor.fileToByte;
 
 import com.google.common.io.ByteSource;
+import io.micrometer.core.annotation.Timed;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -51,6 +52,7 @@ public class DokumentService {
     return dokumentTilgangConsumer.hentTilgangUrl(journalpostId, dokumentreferanse);
   }
 
+  @Timed("hentDokument")
   public ResponseEntity<byte[]> hentDokument(DokumentRef dokumentRef, boolean resizeToA4) {
     if (!dokumentRef.hasDokumentId() && dokumentRef.erForKilde(Kilde.JOARK)){
       var dokumentReferanser = hentAlleJournalpostDokumentReferanser(dokumentRef);
@@ -69,6 +71,7 @@ public class DokumentService {
     return response;
   }
 
+  @Timed("hentDokumenter")
   public ResponseEntity<byte[]> hentDokumenter(List<String> dokumenterString, boolean resizeToA4){
       var dokumenter = parseDokumentString(dokumenterString);
       return hentDokumenterData(dokumenter, resizeToA4);
