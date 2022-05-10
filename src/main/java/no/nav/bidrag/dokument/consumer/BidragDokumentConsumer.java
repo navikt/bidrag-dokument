@@ -92,7 +92,6 @@ public class BidragDokumentConsumer {
 
     var journalposterFraArkiv = restTemplate
         .exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter());
-    var httpStatus = journalposterFraArkiv.getStatusCode();
 
     return Optional.ofNullable(journalposterFraArkiv.getBody()).orElse(Collections.emptyList());
   }
@@ -130,7 +129,6 @@ public class BidragDokumentConsumer {
   }
 
   public ResponseEntity<byte[]> hentDokument(String journalpostId, String dokumentreferanse) {
-
     var dokumentReferanseUrl = Strings.isNotEmpty(dokumentreferanse) ? "/" +dokumentreferanse : "";
     var dokumentUrl = String.format(PATH_HENT_DOKUMENT, journalpostId) + dokumentReferanseUrl;
 

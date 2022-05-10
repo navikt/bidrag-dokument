@@ -32,7 +32,7 @@ import org.springframework.test.context.ActiveProfiles;
 @AutoConfigureWireMock(port = 0)
 @SpringBootTest(classes = BidragDokumentLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @EnableMockOAuth2Server
-class DokumentControllerTest {
+class DokumentRefControllerTest {
 
   @Autowired
   private HttpHeaderTestRestTemplate securedTestRestTemplate;

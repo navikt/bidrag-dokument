@@ -14,9 +14,11 @@ import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.BehandleAvvikshendelseResponse;
 import no.nav.bidrag.dokument.dto.DistribuerJournalpostRequest;
 import no.nav.bidrag.dokument.dto.DistribuerJournalpostResponse;
+import no.nav.bidrag.dokument.dto.DokumentRef;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
+import no.nav.bidrag.dokument.dto.Kilde;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +34,13 @@ public class JournalpostService {
   ) {
     this.bidragArkivConsumer = bidragArkivConsumer;
     this.bidragJournalpostConsumer = bidragJournalpostConsumer;
+  }
+
+  public HttpResponse<JournalpostResponse> hentJournalpost(DokumentRef dokumentRef, String saksnummer) {
+    if (dokumentRef.erForKilde(Kilde.BIDRAG)) {
+      return bidragJournalpostConsumer.hentJournalpost(saksnummer, dokumentRef.getJournalpostId());
+    }
+    return bidragArkivConsumer.hentJournalpost(saksnummer, dokumentRef.getJournalpostId());
   }
 
   public HttpResponse<JournalpostResponse> hentJournalpost(String saksnummer, KildesystemIdenfikator kildesystemIdenfikator) {

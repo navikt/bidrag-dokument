@@ -1,5 +1,7 @@
 package no.nav.bidrag.dokument;
 
+import io.micrometer.core.aop.TimedAspect;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
@@ -21,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RootUriTemplateHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
@@ -37,6 +40,7 @@ import org.springframework.web.client.RestTemplate;
     scheme = "bearer",
     type = SecuritySchemeType.HTTP
 )
+@EnableAspectJAutoProxy
 @EnableSecurityConfiguration
 public class BidragDokumentConfig {
 
@@ -113,6 +117,11 @@ public class BidragDokumentConfig {
     httpHeaderRestTemplate.setUriTemplateHandler(new RootUriTemplateHandler(baseUrl));
 
     return httpHeaderRestTemplate;
+  }
+
+  @Bean
+  public TimedAspect timedAspect(MeterRegistry registry) {
+    return new TimedAspect(registry);
   }
 
 }

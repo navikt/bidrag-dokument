@@ -21,6 +21,7 @@
 
     <!-- language -->
     <java.version>17</java.version>
+    <kotlin.version>1.6.10</kotlin.version>
 
     <!-- dependent versions other than from spring-boot -->
     <bidrag-commons.version>0.7.4</bidrag-commons.version>
@@ -120,6 +121,25 @@
       <artifactId>slf4j-api</artifactId>
     </dependency>
 
+    <!-- kotlin -->
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-stdlib-jdk8</artifactId>
+      <version>${kotlin.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.pdfbox</groupId>
+      <artifactId>pdfbox</artifactId>
+      <version>2.0.26</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>31.1-jre</version>
+    </dependency>
+
     <!-- ws -->
     <dependency>
       <groupId>org.springframework.ws</groupId>
@@ -200,6 +220,40 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-maven-plugin</artifactId>
+        <version>${kotlin.version}</version>
+        <executions>
+          <execution>
+            <id>compile</id>
+            <phase>process-sources</phase>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+            <configuration>
+              <sourceDirs>
+                <source>src/main/java</source>
+                <source>src/main/kotlin</source>
+              </sourceDirs>
+            </configuration>
+          </execution>
+          <execution>
+            <id>test-compile</id>
+            <phase>process-test-sources</phase>
+            <goals>
+              <goal>test-compile</goal>
+            </goals>
+            <configuration>
+              <sourceDirs>
+                <source>src/test/java</source>
+                <source>src/test/kotlin</source>
+              </sourceDirs>
+            </configuration>
+          </execution>
+
+        </executions>
+      </plugin>
 
       <plugin>
         <groupId>org.springframework.boot</groupId>
