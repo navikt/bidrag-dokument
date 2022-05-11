@@ -32,7 +32,7 @@ public class DokumentController {
 
     var dokumentUrlResponse = dokumentService.hentTilgangUrl(journalpostId, dokumentreferanse);
 
-    LOGGER.info("Gitt tilgang til dokument {}" + dokumentreferanse);
+    LOGGER.info("Gitt tilgang til dokument {}", dokumentreferanse);
 
     return dokumentUrlResponse.getResponseEntity();
   }
