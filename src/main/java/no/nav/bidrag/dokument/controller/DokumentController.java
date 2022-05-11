@@ -5,6 +5,7 @@ import java.util.List;
 import no.nav.bidrag.dokument.dto.DokumentRef;
 import no.nav.bidrag.dokument.dto.DokumentTilgangResponse;
 import no.nav.bidrag.dokument.service.DokumentService;
+import no.nav.bidrag.dokument.service.PDFDokumentProcessor;
 import no.nav.security.token.support.core.api.Protected;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +29,10 @@ public class DokumentController {
 
   @GetMapping("/tilgang/{journalpostId}/{dokumentreferanse}")
   public ResponseEntity<DokumentTilgangResponse> giTilgangTilDokument(@PathVariable String journalpostId, @PathVariable String dokumentreferanse) {
-    LOGGER.info("Spør om tilgang til dokument: " + dokumentreferanse);
 
     var dokumentUrlResponse = dokumentService.hentTilgangUrl(journalpostId, dokumentreferanse);
 
-    LOGGER.info(String
-        .format("tilgang til dokument: %s, status: %s", dokumentUrlResponse.fetchBody(), dokumentUrlResponse.getResponseEntity().getStatusCode()));
+    LOGGER.info("Gitt tilgang til dokument {}", dokumentreferanse);
 
     return dokumentUrlResponse.getResponseEntity();
   }
@@ -42,7 +41,9 @@ public class DokumentController {
   public ResponseEntity<byte[]> hentDokument(@PathVariable String journalpostId, @PathVariable(required = false) String dokumentreferanse, @RequestParam(required = false) boolean resizeToA4) {
     LOGGER.info("Henter dokument med journalpostId={} og dokumentreferanse={}, resizeToA4={}", journalpostId, dokumentreferanse, resizeToA4);
     var dokument = new DokumentRef(journalpostId, dokumentreferanse);
-    return dokumentService.hentDokument(dokument, resizeToA4);
+    var response = dokumentService.hentDokument(dokument, resizeToA4);
+    LOGGER.info("Hentet dokument med journalpostId={} og dokumentreferanse={} med total størrelse {}", journalpostId, dokumentreferanse, PDFDokumentProcessor.bytesIntoHumanReadable(response.getBody().length));
+    return response;
   }
 
   @GetMapping({ "/dokument"})
@@ -50,6 +51,8 @@ public class DokumentController {
       @Parameter(name = "dokument", description = "Liste med dokumenter formatert <Kilde>-<journalpostId>:<dokumentReferanse>") @RequestParam(name = "dokument") List<String> dokumentreferanseList,
       @RequestParam(required = false) boolean resizeToA4) {
     LOGGER.info("Henter dokumenter {} med resizeToA4={} ", dokumentreferanseList, resizeToA4);
-    return dokumentService.hentDokumenter(dokumentreferanseList, resizeToA4);
+    var response =  dokumentService.hentDokumenter(dokumentreferanseList, resizeToA4);
+    LOGGER.info("Hentet dokumenter {} med total størrelse {}", dokumentreferanseList, PDFDokumentProcessor.bytesIntoHumanReadable(response.getBody().length));
+    return response;
   }
 }
