@@ -104,7 +104,7 @@ public class JournalpostController {
       return new ResponseEntity<>(initHttpHeadersWith(HttpHeaders.WARNING, "Ugyldig prefix på journalpostId"), HttpStatus.BAD_REQUEST);
     }
 
-    LOGGER.info("Henter journalpost {} for saksnummer {}", journalpostIdForKildesystem, saksnummer);
+    LOGGER.info("Henter journalpost {} for saksnummer {}", journalpostId, saksnummer);
 
     var response =  journalpostService.hentJournalpost(saksnummer, kildesystemIdenfikator);
     return response.clearContentHeaders().getResponseEntity();
