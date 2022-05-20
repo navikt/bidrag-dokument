@@ -98,6 +98,7 @@ public class JournalpostController {
     var journalpostId = journalpostIdForKildesystem;
     if (!Strings.isNullOrEmpty(journalpostIdForKildesystem) && journalpostIdForKildesystem.contains(":")){
       journalpostId = journalpostIdForKildesystem.split(":")[0];
+      LOGGER.warn("Mottok ugyldig journalpostId {}, forsøket korreksjon til journalpostId {}", journalpostIdForKildesystem, journalpostId);
     }
     KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostId);
     if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
