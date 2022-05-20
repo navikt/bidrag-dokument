@@ -7,6 +7,7 @@ import static no.nav.bidrag.dokument.BidragDokumentConfig.DELIMTER;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_BIDRAG;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
 
+import com.google.common.base.Strings;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -94,7 +95,11 @@ public class JournalpostController {
   })
   public ResponseEntity<JournalpostResponse> hentJournalpost(@PathVariable String journalpostIdForKildesystem,
       @Parameter(name = "saksnummer", description = "journalposten tilhører sak") @RequestParam(required = false) String saksnummer) {
-    KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostIdForKildesystem);
+    var journalpostId = journalpostIdForKildesystem;
+    if (!Strings.isNullOrEmpty(journalpostIdForKildesystem) && journalpostIdForKildesystem.contains(":")){
+      journalpostId = journalpostIdForKildesystem.split(":")[0];
+    }
+    KildesystemIdenfikator kildesystemIdenfikator = new KildesystemIdenfikator(journalpostId);
     if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
       return new ResponseEntity<>(initHttpHeadersWith(HttpHeaders.WARNING, "Ugyldig prefix på journalpostId"), HttpStatus.BAD_REQUEST);
     }
