@@ -112,6 +112,7 @@ public class DokumentService {
       var dokumentResponse = hentDokument(dokument, resizeToA4);
       var dokumentInputStream = ByteSource.wrap(dokumentResponse.getBody()).openStream();
       mergedDocument.addSource(dokumentInputStream);
+      dokumentInputStream.close();
     }
     mergedDocument.mergeDocuments(MemoryUsageSetting.setupTempFileOnly());
     return getByteDataAndDeleteFile(mergedFileName);
