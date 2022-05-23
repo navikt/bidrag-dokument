@@ -28,6 +28,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
 
 @Service
 public class DokumentService {
@@ -85,24 +86,26 @@ public class DokumentService {
   }
 
   private ResponseEntity<byte[]> hentDokumenterData(List<DokumentRef> dokumentRefList, boolean resizeToA4){
-    var mergedFileName = "dokumenter_sammenslatt.pdf";
-    var mergedFileNameTmp = "/tmp/"+mergedFileName+"_"+ UUID.randomUUID();
     try {
-      var dokumentByte = hentOgMergeAlleDokumenter(dokumentRefList, mergedFileNameTmp, resizeToA4);
+      var dokumentByte = hentOgMergeAlleDokumenter(dokumentRefList, resizeToA4);
       return ResponseEntity.ok()
           .contentType(MediaType.APPLICATION_PDF)
-          .header(HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=%s", mergedFileName))
+          .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=dokumenter_sammenslatt.pdf")
           .body(dokumentByte);
     } catch (Exception e){
       LOGGER.error("Det skjedde en feil ved henting av dokumenter {}", dokumentRefList, e);
+      if (e instanceof HttpStatusCodeException){
+        return ResponseEntity.status(((HttpStatusCodeException) e).getStatusCode()).build();
+      }
       return ResponseEntity.internalServerError().build();
     }
   }
 
-  private byte[] hentOgMergeAlleDokumenter(List<DokumentRef> dokumentList, String mergedFileName, boolean resizeToA4) throws IOException {
+  private byte[] hentOgMergeAlleDokumenter(List<DokumentRef> dokumentList, boolean resizeToA4) throws IOException {
     if (dokumentList.size() == 1){
       return hentDokument(dokumentList.get(0), resizeToA4).getBody();
     }
+    var mergedFileName = "/tmp/" + UUID.randomUUID();
     PDFMergerUtility mergedDocument = new PDFMergerUtility();
     mergedDocument.setDestinationFileName(mergedFileName);
     for (var dokument: dokumentList){
