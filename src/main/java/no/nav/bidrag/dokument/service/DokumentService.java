@@ -21,6 +21,7 @@ import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import no.nav.bidrag.dokument.dto.Kilde;
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
+import org.apache.pdfbox.multipdf.PDFMergerUtility.DocumentMergeMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -88,27 +89,31 @@ public class DokumentService {
     var mergedFileName = "dokumenter_sammenslatt.pdf";
     var mergedFileNameTmp = "/tmp/"+mergedFileName+"_"+ UUID.randomUUID();
     try {
-      hentOgMergeAlleDokumenter(dokumentRefList, mergedFileNameTmp, resizeToA4);
+      var dokumentByte = hentOgMergeAlleDokumenter(dokumentRefList, mergedFileNameTmp, resizeToA4);
       return ResponseEntity.ok()
           .contentType(MediaType.APPLICATION_PDF)
           .header(HttpHeaders.CONTENT_DISPOSITION, String.format("inline; filename=%s", mergedFileName))
-          .body(getByteDataAndDeleteFile(mergedFileNameTmp));
+          .body(dokumentByte);
     } catch (Exception e){
       LOGGER.error("Det skjedde en feil ved henting av dokumenter {}", dokumentRefList, e);
       return ResponseEntity.internalServerError().build();
     }
   }
 
-  private void hentOgMergeAlleDokumenter(List<DokumentRef> dokumentList, String mergedFileName, boolean resizeToA4) throws IOException {
+  private byte[] hentOgMergeAlleDokumenter(List<DokumentRef> dokumentList, String mergedFileName, boolean resizeToA4) throws IOException {
+    if (dokumentList.size() == 1){
+      return hentDokument(dokumentList.get(0), resizeToA4).getBody();
+    }
     PDFMergerUtility mergedDocument = new PDFMergerUtility();
+    mergedDocument.setDocumentMergeMode(DocumentMergeMode.OPTIMIZE_RESOURCES_MODE);
     mergedDocument.setDestinationFileName(mergedFileName);
     for (var dokument: dokumentList){
       var dokumentResponse = hentDokument(dokument, resizeToA4);
       var dokumentInputStream = ByteSource.wrap(dokumentResponse.getBody()).openStream();
       mergedDocument.addSource(dokumentInputStream);
-      dokumentInputStream.close();
     }
     mergedDocument.mergeDocuments(MemoryUsageSetting.setupTempFileOnly());
+    return getByteDataAndDeleteFile(mergedFileName);
   }
 
   private byte[] getByteDataAndDeleteFile(String filename) throws IOException {
