@@ -21,7 +21,6 @@ import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import no.nav.bidrag.dokument.dto.Kilde;
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
-import org.apache.pdfbox.multipdf.PDFMergerUtility.DocumentMergeMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -105,7 +104,6 @@ public class DokumentService {
       return hentDokument(dokumentList.get(0), resizeToA4).getBody();
     }
     PDFMergerUtility mergedDocument = new PDFMergerUtility();
-    mergedDocument.setDocumentMergeMode(DocumentMergeMode.OPTIMIZE_RESOURCES_MODE);
     mergedDocument.setDestinationFileName(mergedFileName);
     for (var dokument: dokumentList){
       var dokumentResponse = hentDokument(dokument, resizeToA4);
