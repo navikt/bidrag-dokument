@@ -83,6 +83,7 @@ public class PDFDokumentProcessor {
     }
 
     page.setMediaBox(PDRectangle.A4);
+    page.setCropBox(PDRectangle.A4);
   }
 
   private boolean isSameWithMargin(Float val1, Float val2, Float margin){
