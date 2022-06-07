@@ -15,6 +15,7 @@ import no.nav.bidrag.commons.web.HttpResponse;
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer;
 import no.nav.bidrag.dokument.consumer.DokumentTilgangConsumer;
 import no.nav.bidrag.dokument.dto.DokumentDto;
+import no.nav.bidrag.dokument.dto.DocumentProperties;
 import no.nav.bidrag.dokument.dto.DokumentRef;
 import no.nav.bidrag.dokument.dto.DokumentTilgangResponse;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
@@ -54,28 +55,24 @@ public class DokumentService {
   }
 
   @Timed("hentDokument")
-  public ResponseEntity<byte[]> hentDokument(DokumentRef dokumentRef, boolean resizeToA4) {
+  public ResponseEntity<byte[]> hentDokument(DokumentRef dokumentRef, DocumentProperties documentProperties) {
     if (!dokumentRef.hasDokumentId() && dokumentRef.erForKilde(Kilde.JOARK)){
       var dokumentReferanser = hentAlleJournalpostDokumentReferanser(dokumentRef);
-      return hentDokumenterData(dokumentReferanser, resizeToA4);
+      return hentDokumenterData(dokumentReferanser, documentProperties);
     }
 
     ResponseEntity<byte[]> response = hentDokumentData(dokumentRef);
 
-    if (resizeToA4){
-      return ResponseEntity.ok()
-          .contentType(MediaType.APPLICATION_PDF)
-          .header(HttpHeaders.CONTENT_DISPOSITION, response.getHeaders().getContentDisposition().toString())
-          .body(new PDFDokumentProcessor().konverterAlleSiderTilA4(response.getBody()));
-    }
-
-    return response;
+    return ResponseEntity.ok()
+        .contentType(MediaType.APPLICATION_PDF)
+        .header(HttpHeaders.CONTENT_DISPOSITION, response.getHeaders().getContentDisposition().toString())
+        .body(new PDFDokumentProcessor().process(response.getBody(), documentProperties));
   }
 
   @Timed("hentDokumenter")
-  public ResponseEntity<byte[]> hentDokumenter(List<String> dokumenterString, boolean resizeToA4){
+  public ResponseEntity<byte[]> hentDokumenter(List<String> dokumenterString, DocumentProperties documentProperties){
       var dokumenter = parseDokumentString(dokumenterString);
-      return hentDokumenterData(dokumenter, resizeToA4);
+      return hentDokumenterData(dokumenter, documentProperties);
   }
 
   private ResponseEntity<byte[]> hentDokumentData(DokumentRef dokument) {
@@ -85,9 +82,9 @@ public class DokumentService {
     return bidragArkivConsumer.hentDokument(dokument.getJournalpostId(), dokument.getDokumentId());
   }
 
-  private ResponseEntity<byte[]> hentDokumenterData(List<DokumentRef> dokumentRefList, boolean resizeToA4){
+  private ResponseEntity<byte[]> hentDokumenterData(List<DokumentRef> dokumentRefList, DocumentProperties documentProperties){
     try {
-      var dokumentByte = hentOgMergeAlleDokumenter(dokumentRefList, resizeToA4);
+      var dokumentByte = hentOgMergeAlleDokumenter(dokumentRefList, documentProperties);
       return ResponseEntity.ok()
           .contentType(MediaType.APPLICATION_PDF)
           .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=dokumenter_sammenslatt.pdf")
@@ -101,15 +98,16 @@ public class DokumentService {
     }
   }
 
-  private byte[] hentOgMergeAlleDokumenter(List<DokumentRef> dokumentList, boolean resizeToA4) throws IOException {
+  private byte[] hentOgMergeAlleDokumenter(List<DokumentRef> dokumentList, DocumentProperties documentProperties) throws IOException {
+    documentProperties.setNumberOfDocuments(dokumentList.size());
     if (dokumentList.size() == 1){
-      return hentDokument(dokumentList.get(0), resizeToA4).getBody();
+      return hentDokument(dokumentList.get(0), documentProperties).getBody();
     }
     var mergedFileName = "/tmp/" + UUID.randomUUID();
     PDFMergerUtility mergedDocument = new PDFMergerUtility();
     mergedDocument.setDestinationFileName(mergedFileName);
     for (var dokument: dokumentList){
-      var dokumentResponse = hentDokument(dokument, resizeToA4);
+      var dokumentResponse = hentDokument(dokument, new DocumentProperties(documentProperties, dokumentList.indexOf(dokument)));
       var dokumentInputStream = ByteSource.wrap(dokumentResponse.getBody()).openStream();
       mergedDocument.addSource(dokumentInputStream);
       dokumentInputStream.close();

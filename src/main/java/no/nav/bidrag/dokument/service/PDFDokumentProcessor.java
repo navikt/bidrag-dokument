@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import no.nav.bidrag.dokument.dto.DocumentProperties;
 import org.apache.pdfbox.io.IOUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -24,22 +25,46 @@ public class PDFDokumentProcessor {
   private PDDocument document;
   private PDFRenderer pdfRenderer;
 
-  public byte[] konverterAlleSiderTilA4(byte[] dokumentFil) {
+  private byte[] originalDocument;
+
+  private DocumentProperties documentProperties;
+
+  public byte[] process(byte[] dokumentFil, DocumentProperties documentProperties){
+    this.originalDocument = dokumentFil;
+    this.documentProperties = documentProperties;
     ByteArrayOutputStream documentByteStream = new ByteArrayOutputStream();
     try (PDDocument document = PDDocument.load(dokumentFil)) {
       this.document = document;
       this.pdfRenderer = new PDFRenderer(document);
-      LOGGER.debug("Konverterer {} sider til A4 størrelse. Filstørrelse {}", document.getNumberOfPages(), bytesIntoHumanReadable(dokumentFil.length));
-      processPages();
+
+      if (documentProperties.resizeToA4()){
+        konverterAlleSiderTilA4();
+      }
+
+      if (documentProperties.optimizeForPrint()){
+        optimaliserForDobbelsidigPrinting();
+      }
+
       this.document.save(documentByteStream);
       this.document.close();
       return documentByteStream.toByteArray();
     } catch (Exception e) {
-      LOGGER.error("Det skjedde en feil ved konverting av PDF dokument til A4 størrelse", e);
+      LOGGER.error("Det skjedde en feil ved prossesering av PDF dokument", e);
       return dokumentFil;
     } finally {
       IOUtils.closeQuietly(documentByteStream);
     }
+  }
+
+  public void optimaliserForDobbelsidigPrinting(){
+    if (documentHasOddNumberOfPages() && documentProperties.hasMoreThanOneDocument() && !documentProperties.isLastDocument()){
+      LOGGER.debug("Dokumentet har oddetall antall sider. Legger til en blank side på slutten av dokumentet.");
+      document.addPage(new PDPage(PDRectangle.A4));
+    }
+  }
+
+  private boolean documentHasOddNumberOfPages(){
+    return document.getNumberOfPages() % 2 != 0;
   }
 
   private boolean isPageSizeA4(PDPage pdPage){
@@ -48,7 +73,8 @@ public class PDFDokumentProcessor {
     return isSameWithMargin(pageMediaBox.getHeight(), a4PageMediaBox.getHeight(), 1F) && isSameWithMargin(pageMediaBox.getWidth(), a4PageMediaBox.getWidth(), 1F);
   }
 
-  private void processPages() throws IOException {
+  private void konverterAlleSiderTilA4() throws IOException {
+    LOGGER.debug("Konverterer {} sider til A4 størrelse. Filstørrelse {}", document.getNumberOfPages(), bytesIntoHumanReadable(this.originalDocument.length));
     for (int pageNumber = 0; pageNumber < document.getNumberOfPages(); pageNumber++) {
       var page = document.getPage(pageNumber);
       page.setRotation(0);
