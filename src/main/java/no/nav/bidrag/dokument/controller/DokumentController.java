@@ -3,6 +3,7 @@ package no.nav.bidrag.dokument.controller;
 import io.swagger.v3.oas.annotations.Parameter;
 import java.util.List;
 import java.util.Optional;
+import no.nav.bidrag.dokument.dto.DocumentProperties;
 import no.nav.bidrag.dokument.dto.DokumentRef;
 import no.nav.bidrag.dokument.dto.DokumentTilgangResponse;
 import no.nav.bidrag.dokument.service.DokumentService;
@@ -39,10 +40,10 @@ public class DokumentController {
   }
 
   @GetMapping({"/dokument/{journalpostId}/{dokumentreferanse}", "/dokument/{journalpostId}"})
-  public ResponseEntity<byte[]> hentDokument(@PathVariable String journalpostId, @PathVariable(required = false) String dokumentreferanse, @RequestParam(required = false) boolean resizeToA4) {
+  public ResponseEntity<byte[]> hentDokument(@PathVariable String journalpostId, @PathVariable(required = false) String dokumentreferanse, @RequestParam(required = false) boolean resizeToA4, @RequestParam(required = false, defaultValue = "true") boolean optimizeForPrint) {
     LOGGER.info("Henter dokument med journalpostId={} og dokumentreferanse={}, resizeToA4={}", journalpostId, dokumentreferanse, resizeToA4);
     var dokument = new DokumentRef(journalpostId, dokumentreferanse);
-    var response = dokumentService.hentDokument(dokument, resizeToA4);
+    var response = dokumentService.hentDokument(dokument, new DocumentProperties(resizeToA4, optimizeForPrint));
     Optional.ofNullable(response.getBody())
         .ifPresent((documentByte)-> LOGGER.info("Hentet dokument med journalpostId={} og dokumentreferanse={} med total størrelse {}", journalpostId, dokumentreferanse, PDFDokumentProcessor.bytesIntoHumanReadable(documentByte.length)));
     return response;
@@ -51,9 +52,10 @@ public class DokumentController {
   @GetMapping({ "/dokument"})
   public ResponseEntity<byte[]> hentDokumenter(
       @Parameter(name = "dokument", description = "Liste med dokumenter formatert <Kilde>-<journalpostId>:<dokumentReferanse>") @RequestParam(name = "dokument") List<String> dokumentreferanseList,
+      @RequestParam(required = false, defaultValue = "true") boolean optimizeForPrint,
       @RequestParam(required = false) boolean resizeToA4) {
-    LOGGER.info("Henter dokumenter {} med resizeToA4={} ", dokumentreferanseList, resizeToA4);
-    var response =  dokumentService.hentDokumenter(dokumentreferanseList, resizeToA4);
+    LOGGER.info("Henter dokumenter {} med resizeToA4={}, optimizeForPrint={}", dokumentreferanseList, resizeToA4, optimizeForPrint);
+    var response =  dokumentService.hentDokumenter(dokumentreferanseList, new DocumentProperties(resizeToA4, optimizeForPrint));
     Optional.ofNullable(response.getBody())
         .ifPresent((documentByte)-> LOGGER.info("Hentet dokumenter {} med total størrelse {}", dokumentreferanseList, PDFDokumentProcessor.bytesIntoHumanReadable(documentByte.length)));
     return response;
