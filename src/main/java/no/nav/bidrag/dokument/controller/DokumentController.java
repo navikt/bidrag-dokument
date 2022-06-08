@@ -43,7 +43,7 @@ public class DokumentController {
   public ResponseEntity<byte[]> hentDokument(@PathVariable String journalpostId, @PathVariable(required = false) String dokumentreferanse, @RequestParam(required = false) boolean resizeToA4, @RequestParam(required = false) boolean optimizeForPrint) {
     LOGGER.info("Henter dokument med journalpostId={} og dokumentreferanse={}, resizeToA4={}", journalpostId, dokumentreferanse, resizeToA4);
     var dokument = new DokumentRef(journalpostId, dokumentreferanse);
-    var response = dokumentService.hentDokument(dokument, new DocumentProperties(resizeToA4, true));
+    var response = dokumentService.hentDokument(dokument, new DocumentProperties(resizeToA4, false));
     Optional.ofNullable(response.getBody())
         .ifPresent((documentByte)-> LOGGER.info("Hentet dokument med journalpostId={} og dokumentreferanse={} med total størrelse {}", journalpostId, dokumentreferanse, PDFDokumentProcessor.bytesIntoHumanReadable(documentByte.length)));
     return response;
