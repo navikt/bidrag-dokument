@@ -40,7 +40,7 @@ public class DokumentController {
   }
 
   @GetMapping({"/dokument/{journalpostId}/{dokumentreferanse}", "/dokument/{journalpostId}"})
-  public ResponseEntity<byte[]> hentDokument(@PathVariable String journalpostId, @PathVariable(required = false) String dokumentreferanse, @RequestParam(required = false) boolean resizeToA4, @RequestParam(required = false, defaultValue = true) boolean optimizeForPrint) {
+  public ResponseEntity<byte[]> hentDokument(@PathVariable String journalpostId, @PathVariable(required = false) String dokumentreferanse, @RequestParam(required = false) boolean resizeToA4, @RequestParam(required = false, defaultValue = "true") boolean optimizeForPrint) {
     LOGGER.info("Henter dokument med journalpostId={} og dokumentreferanse={}, resizeToA4={}", journalpostId, dokumentreferanse, resizeToA4);
     var dokument = new DokumentRef(journalpostId, dokumentreferanse);
     var response = dokumentService.hentDokument(dokument, new DocumentProperties(resizeToA4, optimizeForPrint));
@@ -52,7 +52,7 @@ public class DokumentController {
   @GetMapping({ "/dokument"})
   public ResponseEntity<byte[]> hentDokumenter(
       @Parameter(name = "dokument", description = "Liste med dokumenter formatert <Kilde>-<journalpostId>:<dokumentReferanse>") @RequestParam(name = "dokument") List<String> dokumentreferanseList,
-      @RequestParam(required = false, defaultValue = true) boolean optimizeForPrint,
+      @RequestParam(required = false, defaultValue = "true") boolean optimizeForPrint,
       @RequestParam(required = false) boolean resizeToA4) {
     LOGGER.info("Henter dokumenter {} med resizeToA4={}, optimizeForPrint={}", dokumentreferanseList, resizeToA4, optimizeForPrint);
     var response =  dokumentService.hentDokumenter(dokumentreferanseList, new DocumentProperties(resizeToA4, optimizeForPrint));
