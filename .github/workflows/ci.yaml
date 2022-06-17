@@ -104,11 +104,13 @@ jobs:
       INGRESS_DOKUMENT: https://bidrag-dokument.dev.intern.nav.no
       INGRESS_DOKUMENT_JOURNALPOST: https://bidrag-dokument-journalpost.dev.adeo.no
       INGRESS_TESTDATA: https://bidrag-testdata.dev.adeo.no
+      INGRESS_OPPGAVE: https://oppgave-q2.nais.preprod.local
 
     steps:
       - run: |
           echo "INGRESS_ARKIV=https://bidrag-dokument-arkiv-feature.dev.intern.nav.no" >> $GITHUB_ENV
           echo "INGRESS_CUCUMBER=https://bidrag-cucumber-onprem-feature.dev.adeo.no" >> $GITHUB_ENV
+          echo "INGRESS_OPPGAVE=https://oppgave.nais.preprod.local" >> $GITHUB_ENV
           echo "INGRESS_DOKARKIV=https://dokarkiv-q1.dev.adeo.no" >> $GITHUB_ENV
           echo "INGRESS_DOKUMENT=https://bidrag-dokument-feature.dev.intern.nav.no" >> $GITHUB_ENV
           echo "INGRESS_DOKUMENT_JOURNALPOST=https://bidrag-dokument-journalpost-feature.dev.adeo.no" >> $GITHUB_ENV
@@ -121,9 +123,10 @@ jobs:
             -H 'Content-Type: application/json' \
             -d '{
               "tags":["@bda-samt-bdj"], "navUsername": "c151787", "testUsername": "z992903",
-              "noContextPathForApps":["dokarkiv-api"],"ingressesForApps":[
+              "noContextPathForApps":["dokarkiv-api", "oppgave-api"],"ingressesForApps":[
                 "${{ env.INGRESS_ARKIV }}@bidrag-dokument-arkiv",
                 "${{ env.INGRESS_DOKARKIV }}@dokarkiv-api",
+                "${{ env.INGRESS_OPPGAVE }}@oppgave-api", 
                 "${{ env.INGRESS_DOKUMENT }}@bidrag-dokument",
                 "${{ env.INGRESS_DOKUMENT_JOURNALPOST }}@bidrag-dokument-journalpost",
                 "${{ env.INGRESS_TESTDATA }}@bidrag-testdata"
@@ -190,8 +193,9 @@ jobs:
                 "@bdok-mot-avvik-endre-fagomrade", "@bdok-mot-avvik-inn2ut"
               ],
               "navUsername": "c151787", "testUsername": "z992903",
-              "noContextPathForApps":["dokarkiv-api"], "ingressesForApps":[
+              "noContextPathForApps":["dokarkiv-api", "oppgave-api"], "ingressesForApps":[
                 "${{ env.INGRESS_DOKARKIV }}@dokarkiv-api",
+                "${{ env.INGRESS_OPPGAVE }}@oppgave-api", 
                 "${{ env.INGRESS_DOKUMENT }}@bidrag-dokument",
                 "${{ env.INGRESS_TESTDATA }}@bidrag-testdata"
               ]

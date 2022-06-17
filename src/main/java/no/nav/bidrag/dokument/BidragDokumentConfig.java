@@ -11,6 +11,7 @@ import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration;
 import no.nav.bidrag.commons.security.service.SecurityTokenService;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
+import no.nav.bidrag.commons.web.CorsFilter;
 import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer;
@@ -100,12 +101,19 @@ public class BidragDokumentConfig {
   }
 
   @Bean
+  @Order(3)
+  public CorsFilter corsFilter() {
+    return new CorsFilter();
+  }
+
+  @Bean
   public ExceptionLogger exceptionLogger() {
     return new ExceptionLogger(BidragDokument.class.getSimpleName());
   }
 
   private RestTemplate createRestTemplate(String baseUrl, SecurityTokenService securityTokenService, String clientId) {
     var requestFactory = new HttpComponentsClientHttpRequestFactory();
+
     requestFactory.setConnectTimeout(0);
     requestFactory.setReadTimeout(0);
 
