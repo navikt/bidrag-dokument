@@ -2,7 +2,7 @@ name: bidrag-dokument
 azure:
   inbound:
     rules:
-      - application: bidrag-dokument-ui
+      - application: bidrag-ui
         namespace: bidrag
         cluster: prod-fss
 ingresses:

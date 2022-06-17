@@ -100,6 +100,12 @@ public class BidragDokumentConfig {
   }
 
   @Bean
+  @Order(3)
+  public CorsFilter corsFilter() {
+    return new CorsFilter();
+  }
+
+  @Bean
   public ExceptionLogger exceptionLogger() {
     return new ExceptionLogger(BidragDokument.class.getSimpleName());
   }
