@@ -102,7 +102,8 @@ public class PDFDokumentProcessor {
     Matrix matrix = new Matrix();
     float xScale = PDRectangle.A4.getWidth() / page.getMediaBox().getWidth();
     float yScale = PDRectangle.A4.getHeight() / page.getMediaBox().getHeight();
-    matrix.scale(xScale, yScale);
+    var newScale = Math.min(xScale, yScale);
+    matrix.scale(newScale, newScale);
 
     try (PDPageContentStream contentStream = new PDPageContentStream(document, page, AppendMode.PREPEND, false)) {
       contentStream.transform(matrix);
