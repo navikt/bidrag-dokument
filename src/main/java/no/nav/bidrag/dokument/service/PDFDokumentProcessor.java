@@ -102,15 +102,14 @@ public class PDFDokumentProcessor {
     Matrix matrix = new Matrix();
     float xScale = PDRectangle.A4.getWidth() / page.getMediaBox().getWidth();
     float yScale = PDRectangle.A4.getHeight() / page.getMediaBox().getHeight();
-    matrix.scale(xScale, 1);
+    matrix.scale(xScale, yScale);
 
     try (PDPageContentStream contentStream = new PDPageContentStream(document, page, AppendMode.PREPEND, false)) {
       contentStream.transform(matrix);
     }
 
-    var updatedMediaBox = new PDRectangle(PDRectangle.A4.getWidth(), page.getMediaBox().getHeight());
-    page.setMediaBox(updatedMediaBox);
-    page.setCropBox(updatedMediaBox);
+    page.setMediaBox(PDRectangle.A4);
+    page.setCropBox(PDRectangle.A4);
   }
 
   private boolean isSameWithMargin(Float val1, Float val2, Float margin){
