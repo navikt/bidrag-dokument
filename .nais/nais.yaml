@@ -14,12 +14,11 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: bisys
-        {{#each azure.inbound.rules}}
+      {{#each azure.inbound.rules}}
         - application: {{this.application}}
           namespace: {{this.namespace}}
           cluster: {{this.cluster}}
-        {{/each}}
+      {{/each}}
   webproxy: true
   image: {{ image }}
   liveness:
