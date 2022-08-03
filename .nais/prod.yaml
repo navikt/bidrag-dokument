@@ -8,6 +8,9 @@ azure:
       - application: bidrag-dokument-arkivering
         namespace: bidrag
         cluster: prod-fss
+      - application: bisys
+        namespace: bidrag
+        cluster: prod-fss
 ingresses:
   - https://bidrag-dokument.nais.adeo.no/
   - https://bidrag-dokument.prod-fss.nais.io
