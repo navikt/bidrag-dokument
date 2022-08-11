@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
-import java.util.Arrays;
 import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration;
 import no.nav.bidrag.commons.security.service.SecurityTokenService;
@@ -29,12 +28,6 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @Configuration
 @EnableOAuth2Client(cacheEnabled = true)
