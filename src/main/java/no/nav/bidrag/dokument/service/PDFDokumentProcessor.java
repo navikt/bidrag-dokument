@@ -1,23 +1,29 @@
 package no.nav.bidrag.dokument.service;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import no.nav.bidrag.dokument.dto.DocumentProperties;
+import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.io.IOUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode;
+import org.apache.pdfbox.pdmodel.PDResources;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
+import org.apache.pdfbox.pdmodel.graphics.PDXObject;
+import org.apache.pdfbox.pdmodel.graphics.form.PDFormXObject;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.util.Matrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.awt.image.RenderedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PDFDokumentProcessor {
   private static final Logger LOGGER = LoggerFactory.getLogger(PDFDokumentProcessor.class);
@@ -70,31 +76,62 @@ public class PDFDokumentProcessor {
   private boolean isPageSizeA4(PDPage pdPage){
     var a4PageMediaBox = PDRectangle.A4;
     var pageMediaBox = pdPage.getMediaBox();
-    return isSameWithMargin(pageMediaBox.getHeight(), a4PageMediaBox.getHeight(), 1F) && isSameWithMargin(pageMediaBox.getWidth(), a4PageMediaBox.getWidth(), 1F);
+    var hasSameHeightAndWidth = isSameWithMargin(pageMediaBox.getHeight(), a4PageMediaBox.getHeight(), 1F) && isSameWithMargin(pageMediaBox.getWidth(), a4PageMediaBox.getWidth(), 1F);
+    var hasSameHeightAndWidthRotated = isSameWithMargin(pageMediaBox.getWidth(), a4PageMediaBox.getHeight(), 1F) && isSameWithMargin(pageMediaBox.getHeight(), a4PageMediaBox.getWidth(), 1F);
+    return hasSameHeightAndWidth || hasSameHeightAndWidthRotated;
   }
 
   private void konverterAlleSiderTilA4() throws IOException {
     LOGGER.debug("Konverterer {} sider til A4 størrelse. Filstørrelse {}", document.getNumberOfPages(), bytesIntoHumanReadable(this.originalDocument.length));
     for (int pageNumber = 0; pageNumber < document.getNumberOfPages(); pageNumber++) {
       var page = document.getPage(pageNumber);
-      page.setRotation(0);
+      correctPageRotation(page);
       if (!isPageSizeA4(page)) {
         convertPageToA4(page);
       }
     }
   }
 
-  private void convertPageToA4Slow(PDPage newPage, int pageNumber) throws IOException {
-    Double renderScale = 4D;
-    Double pageScale = 1 / renderScale;
-    BufferedImage bufferedImage = pdfRenderer.renderImage(pageNumber, renderScale.floatValue());
-    PDImageXObject pdImage = LosslessFactory.createFromImage(document, bufferedImage);
-    Double heightScaled = pdImage.getHeight() * pageScale;
-    Double widthScaled = pdImage.getWidth() * pageScale;
-
-    try (PDPageContentStream contentStream = new PDPageContentStream(document, newPage, AppendMode.OVERWRITE, false, true)) {
-      contentStream.drawImage(pdImage, newPage.getMediaBox().getLowerLeftX(), newPage.getMediaBox().getLowerLeftY(), PDRectangle.A4.getWidth(), PDRectangle.A4.getHeight());
+  private void correctPageRotation(PDPage page){
+    if (shouldSetRotationToZero(page)){
+      page.setRotation(0);
     }
+  }
+
+  /*
+      Sjekker om dokument inneholder bare et bilde og dimensjonene til bildet er vertikal.
+      En side kan ha rotasjon 270 grader men fordi bildet er horiozontalt så vil dokumentet har riktig rotasjon
+   */
+  private boolean shouldSetRotationToZero(PDPage page) {
+    try {
+      List<RenderedImage> images = getImagesFromResources(page.getResources());
+      if (images.size() == 1){
+        return isImageDimensionsVertical(images.get(0));
+      }
+      return true;
+    } catch (Exception e){
+      return true;
+    }
+  }
+
+  private boolean isImageDimensionsVertical(RenderedImage image){
+    return image.getHeight() > image.getWidth();
+  }
+
+  private List<RenderedImage> getImagesFromResources(PDResources resources) throws IOException {
+    List<RenderedImage> images = new ArrayList<>();
+
+    for (COSName xObjectName : resources.getXObjectNames()) {
+      PDXObject xObject = resources.getXObject(xObjectName);
+
+      if (xObject instanceof PDFormXObject) {
+        images.addAll(getImagesFromResources(((PDFormXObject) xObject).getResources()));
+      } else if (xObject instanceof PDImageXObject) {
+        images.add(((PDImageXObject) xObject).getImage());
+      }
+    }
+
+    return images;
   }
 
   private void convertPageToA4(PDPage page) throws IOException {
