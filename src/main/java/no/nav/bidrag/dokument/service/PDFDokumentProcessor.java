@@ -24,12 +24,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class PDFDokumentProcessor {
   private static final Logger LOGGER = LoggerFactory.getLogger(PDFDokumentProcessor.class);
 
   private PDDocument document;
-  private PDFRenderer pdfRenderer;
 
   private byte[] originalDocument;
 
@@ -41,7 +41,6 @@ public class PDFDokumentProcessor {
     ByteArrayOutputStream documentByteStream = new ByteArrayOutputStream();
     try (PDDocument document = PDDocument.load(dokumentFil)) {
       this.document = document;
-      this.pdfRenderer = new PDFRenderer(document);
 
       if (documentProperties.resizeToA4()){
         konverterAlleSiderTilA4();
@@ -99,52 +98,10 @@ public class PDFDokumentProcessor {
   }
 
   /*
-     Sjekker om dokument inneholder bare et bilde og dimensjonene til bildet er vertikal.
-     En side kan ha rotasjon 270 grader men fordi bildet er horiozontalt så vil dokumentet har riktig rotasjon
-  */
-  private boolean shouldSetRotationTo90(PDPage page) {
-    try {
-       return page.getRotation() == 0 && page.getMediaBox().getWidth() > page.getMediaBox().getHeight();
-    } catch (Exception e){
-      return true;
-    }
-  }
-
-  /*
-      Sjekker om siden bør roteres eller beholde rotasjonen
-      Noen tilfeller så kan en side være vertikal selv om rotasjon er ulik 0.
-      Dette kan skyldes at innholdet er en bildet som har en annen rotasjon enn 0. Da kan det hende at er rotert for tilpasse innholdet.
+     En side skal roteres til å være vertikalt kun hvis siden er dimensjonert slik at høyden > bredden. Ellers skal det ignoreres
    */
   private boolean shouldUpdatePageRotationToZero(PDPage page) {
-    try {
-      List<RenderedImage> images = getImagesFromResources(page.getResources());
-      if (images.size() == 1){
-        return isImageDimensionsVertical(images.get(0));
-      }
-      return true;
-    } catch (Exception e){
-      return true;
-    }
-  }
-
-  private boolean isImageDimensionsVertical(RenderedImage image){
-    return image.getHeight() > image.getWidth();
-  }
-
-  private List<RenderedImage> getImagesFromResources(PDResources resources) throws IOException {
-    List<RenderedImage> images = new ArrayList<>();
-
-    for (COSName xObjectName : resources.getXObjectNames()) {
-      PDXObject xObject = resources.getXObject(xObjectName);
-
-      if (xObject instanceof PDFormXObject) {
-        images.addAll(getImagesFromResources(((PDFormXObject) xObject).getResources()));
-      } else if (xObject instanceof PDImageXObject) {
-        images.add(((PDImageXObject) xObject).getImage());
-      }
-    }
-
-    return images;
+      return Optional.ofNullable(page.getMediaBox()).map((mediaBox)->mediaBox.getHeight()>mediaBox.getWidth()).orElse(false);
   }
 
   private void convertPageToA4(PDPage page) throws IOException {
