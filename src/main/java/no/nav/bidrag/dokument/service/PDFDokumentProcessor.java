@@ -1,10 +1,5 @@
 package no.nav.bidrag.dokument.service;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import no.nav.bidrag.dokument.dto.DocumentProperties;
 import org.apache.pdfbox.io.IOUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -12,18 +7,20 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
-import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.util.Matrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Optional;
 
 public class PDFDokumentProcessor {
   private static final Logger LOGGER = LoggerFactory.getLogger(PDFDokumentProcessor.class);
 
   private PDDocument document;
-  private PDFRenderer pdfRenderer;
 
   private byte[] originalDocument;
 
@@ -35,7 +32,6 @@ public class PDFDokumentProcessor {
     ByteArrayOutputStream documentByteStream = new ByteArrayOutputStream();
     try (PDDocument document = PDDocument.load(dokumentFil)) {
       this.document = document;
-      this.pdfRenderer = new PDFRenderer(document);
 
       if (documentProperties.resizeToA4()){
         konverterAlleSiderTilA4();
@@ -70,31 +66,33 @@ public class PDFDokumentProcessor {
   private boolean isPageSizeA4(PDPage pdPage){
     var a4PageMediaBox = PDRectangle.A4;
     var pageMediaBox = pdPage.getMediaBox();
-    return isSameWithMargin(pageMediaBox.getHeight(), a4PageMediaBox.getHeight(), 1F) && isSameWithMargin(pageMediaBox.getWidth(), a4PageMediaBox.getWidth(), 1F);
+    var hasSameHeightAndWidth = isSameWithMargin(pageMediaBox.getHeight(), a4PageMediaBox.getHeight(), 1F) && isSameWithMargin(pageMediaBox.getWidth(), a4PageMediaBox.getWidth(), 1F);
+    var hasSameHeightAndWidthRotated = isSameWithMargin(pageMediaBox.getWidth(), a4PageMediaBox.getHeight(), 1F) && isSameWithMargin(pageMediaBox.getHeight(), a4PageMediaBox.getWidth(), 1F);
+    return hasSameHeightAndWidth || hasSameHeightAndWidthRotated;
   }
 
   private void konverterAlleSiderTilA4() throws IOException {
     LOGGER.debug("Konverterer {} sider til A4 størrelse. Filstørrelse {}", document.getNumberOfPages(), bytesIntoHumanReadable(this.originalDocument.length));
     for (int pageNumber = 0; pageNumber < document.getNumberOfPages(); pageNumber++) {
       var page = document.getPage(pageNumber);
-      page.setRotation(0);
+      updatePageRotationToVertical(page);
       if (!isPageSizeA4(page)) {
         convertPageToA4(page);
       }
     }
   }
 
-  private void convertPageToA4Slow(PDPage newPage, int pageNumber) throws IOException {
-    Double renderScale = 4D;
-    Double pageScale = 1 / renderScale;
-    BufferedImage bufferedImage = pdfRenderer.renderImage(pageNumber, renderScale.floatValue());
-    PDImageXObject pdImage = LosslessFactory.createFromImage(document, bufferedImage);
-    Double heightScaled = pdImage.getHeight() * pageScale;
-    Double widthScaled = pdImage.getWidth() * pageScale;
-
-    try (PDPageContentStream contentStream = new PDPageContentStream(document, newPage, AppendMode.OVERWRITE, false, true)) {
-      contentStream.drawImage(pdImage, newPage.getMediaBox().getLowerLeftX(), newPage.getMediaBox().getLowerLeftY(), PDRectangle.A4.getWidth(), PDRectangle.A4.getHeight());
+  private void updatePageRotationToVertical(PDPage page){
+    if (shouldUpdatePageRotationToZero(page)){
+      page.setRotation(0);
     }
+  }
+
+  /*
+     En side skal roteres til å være vertikalt kun hvis siden er dimensjonert slik at høyden > bredden. Ellers skal det ignoreres
+   */
+  private boolean shouldUpdatePageRotationToZero(PDPage page) {
+      return Optional.ofNullable(page.getMediaBox()).map((mediaBox)->mediaBox.getHeight()>mediaBox.getWidth()).orElse(false);
   }
 
   private void convertPageToA4(PDPage page) throws IOException {
