@@ -85,24 +85,37 @@ public class PDFDokumentProcessor {
     LOGGER.debug("Konverterer {} sider til A4 størrelse. Filstørrelse {}", document.getNumberOfPages(), bytesIntoHumanReadable(this.originalDocument.length));
     for (int pageNumber = 0; pageNumber < document.getNumberOfPages(); pageNumber++) {
       var page = document.getPage(pageNumber);
-      correctPageRotation(page);
+      updatePageRotationToVertical(page);
       if (!isPageSizeA4(page)) {
         convertPageToA4(page);
       }
     }
   }
 
-  private void correctPageRotation(PDPage page){
-    if (shouldSetRotationToZero(page)){
+  private void updatePageRotationToVertical(PDPage page){
+    if (shouldUpdatePageRotationToZero(page)){
       page.setRotation(0);
     }
   }
 
   /*
-      Sjekker om dokument inneholder bare et bilde og dimensjonene til bildet er vertikal.
-      En side kan ha rotasjon 270 grader men fordi bildet er horiozontalt så vil dokumentet har riktig rotasjon
+     Sjekker om dokument inneholder bare et bilde og dimensjonene til bildet er vertikal.
+     En side kan ha rotasjon 270 grader men fordi bildet er horiozontalt så vil dokumentet har riktig rotasjon
+  */
+  private boolean shouldSetRotationTo90(PDPage page) {
+    try {
+       return page.getRotation() == 0 && page.getMediaBox().getWidth() > page.getMediaBox().getHeight();
+    } catch (Exception e){
+      return true;
+    }
+  }
+
+  /*
+      Sjekker om siden bør roteres eller beholde rotasjonen
+      Noen tilfeller så kan en side være vertikal selv om rotasjon er ulik 0.
+      Dette kan skyldes at innholdet er en bildet som har en annen rotasjon enn 0. Da kan det hende at er rotert for tilpasse innholdet.
    */
-  private boolean shouldSetRotationToZero(PDPage page) {
+  private boolean shouldUpdatePageRotationToZero(PDPage page) {
     try {
       List<RenderedImage> images = getImagesFromResources(page.getResources());
       if (images.size() == 1){
