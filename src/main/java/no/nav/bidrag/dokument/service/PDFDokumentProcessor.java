@@ -85,7 +85,7 @@ public class PDFDokumentProcessor {
   private void updatePageRotationToVertical(PDPage page){
     if (isVertical(page) && page.getRotation() != 0){
       page.setRotation(0);
-    } else if (isHorizontal(page) && page.getRotation() == 0){
+    } else if (isHorizontal(page) && page.getRotation() == 0 && !isPageSizeA4(page)){
       page.setRotation(90);
     }
   }
