@@ -83,15 +83,20 @@ public class PDFDokumentProcessor {
   }
 
   private void updatePageRotationToVertical(PDPage page){
-    if (shouldUpdatePageRotationToZero(page)){
+    if (isVertical(page) && page.getRotation() != 0){
       page.setRotation(0);
+    } else if (isHorizontal(page) && page.getRotation() == 0){
+      page.setRotation(90);
     }
   }
 
+  private boolean isHorizontal(PDPage page){
+    return !isVertical(page);
+  }
   /*
      En side skal roteres til å være vertikalt kun hvis siden er dimensjonert slik at høyden > bredden. Ellers skal det ignoreres
    */
-  private boolean shouldUpdatePageRotationToZero(PDPage page) {
+  private boolean isVertical(PDPage page) {
       return Optional.ofNullable(page.getMediaBox()).map((mediaBox)->mediaBox.getHeight()>mediaBox.getWidth()).orElse(false);
   }
 
