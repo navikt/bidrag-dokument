@@ -1,6 +1,6 @@
 package no.nav.bidrag.dokument.security;
 
-import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
+import static no.nav.bidrag.dokument.BidragDokumentTest.TEST_PROFILE;
 
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.security.mock.oauth2.MockOAuth2Server;

@@ -1,13 +1,13 @@
 package no.nav.bidrag.dokument.consumer;
 
 import static no.nav.bidrag.dokument.BidragDokumentConfig.MIDL_BREVLAGER_QUALIFIER;
-import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
+import static no.nav.bidrag.dokument.BidragDokumentTest.TEST_PROFILE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import no.nav.bidrag.commons.security.service.OidcTokenManager;
-import no.nav.bidrag.dokument.BidragDokumentLocal;
+import no.nav.bidrag.dokument.BidragDokumentTest;
 import no.nav.bidrag.dokument.consumer.stub.RestConsumerStub;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
@@ -22,7 +22,7 @@ import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest(classes = {BidragDokumentLocal.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = {BidragDokumentTest.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(TEST_PROFILE)
 @DisplayName("BidragJournalpostConsumer")
 @AutoConfigureWireMock(port = 0)

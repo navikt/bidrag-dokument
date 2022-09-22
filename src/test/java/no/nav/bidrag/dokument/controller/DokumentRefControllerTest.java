@@ -1,6 +1,6 @@
 package no.nav.bidrag.dokument.controller;
 
-import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
+import static no.nav.bidrag.dokument.BidragDokumentTest.TEST_PROFILE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.Optional;
 import no.nav.bidrag.commons.security.service.OidcTokenManager;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
-import no.nav.bidrag.dokument.BidragDokumentLocal;
+import no.nav.bidrag.dokument.BidragDokumentTest;
 import no.nav.bidrag.dokument.consumer.stub.RestConsumerStub;
 import no.nav.bidrag.dokument.dto.DokumentTilgangResponse;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
@@ -30,7 +30,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles(TEST_PROFILE)
 @DisplayName("DokumentController")
 @AutoConfigureWireMock(port = 0)
-@SpringBootTest(classes = BidragDokumentLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = BidragDokumentTest.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @EnableMockOAuth2Server
 class DokumentRefControllerTest {
 

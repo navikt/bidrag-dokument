@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -25,7 +26,15 @@ public class BidragDokumentRestControllerAdvice extends ResponseEntityExceptionH
 
   @ResponseBody
   @ExceptionHandler
-  public ResponseEntity<?> handleHttClientErrorException(HttpClientErrorException httpClientErrorException) {
+  public ResponseEntity<?> handleOtherExceptions(Exception exception) {
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .header(HttpHeaders.WARNING, "Det skjedde en ukjent feil: " + exception.getMessage())
+        .build();
+  }
+
+  @ResponseBody
+  @ExceptionHandler
+  public ResponseEntity<?> handleHttClientErrorException(HttpStatusCodeException httpClientErrorException) {
     return ResponseEntity.status(httpClientErrorException.getStatusCode())
         .header(HttpHeaders.WARNING, getWarningHeader(httpClientErrorException))
         .build();
@@ -46,7 +55,7 @@ public class BidragDokumentRestControllerAdvice extends ResponseEntityExceptionH
         request);
   }
 
-  private String getWarningHeader(HttpClientErrorException httpClientErrorException){
+  private String getWarningHeader(HttpStatusCodeException httpClientErrorException){
     var message = httpClientErrorException.getMessage();
     if (httpClientErrorException.getResponseHeaders() == null) {
       return message;

@@ -2,7 +2,7 @@ package no.nav.bidrag.dokument.consumer;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.ARKIV_QUALIFIER;
-import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
+import static no.nav.bidrag.dokument.BidragDokumentTest.TEST_PROFILE;
 import static no.nav.bidrag.dokument.consumer.BidragDokumentConsumer.PATH_JOURNALPOST_UTEN_SAK;
 import static no.nav.bidrag.dokument.consumer.stub.RestConsumerStub.generereJournalpostrespons;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -12,7 +12,7 @@ import com.github.tomakehurst.wiremock.matching.StringValuePattern;
 import java.util.HashMap;
 import java.util.Map;
 import no.nav.bidrag.commons.security.service.OidcTokenManager;
-import no.nav.bidrag.dokument.BidragDokumentLocal;
+import no.nav.bidrag.dokument.BidragDokumentTest;
 import no.nav.bidrag.dokument.consumer.stub.RestConsumerStub;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
@@ -27,7 +27,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 
 @DisplayName("BidragArkivConsumer")
-@SpringBootTest(classes = {BidragDokumentLocal.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = {BidragDokumentTest.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(TEST_PROFILE)
 @EnableMockOAuth2Server
 @AutoConfigureWireMock(port = 0)
