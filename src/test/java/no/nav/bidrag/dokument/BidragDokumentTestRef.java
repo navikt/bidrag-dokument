@@ -1,6 +1,6 @@
 package no.nav.bidrag.dokument;
 
-import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
+import static no.nav.bidrag.dokument.BidragDokumentTest.TEST_PROFILE;
 
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.DisplayName;
@@ -12,7 +12,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith({SpringExtension.class})
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, classes = BidragDokumentLocal.class)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, classes = BidragDokumentTest.class)
 @ActiveProfiles(TEST_PROFILE)
 @DisplayName("BidragDokument")
 @EnableMockOAuth2Server

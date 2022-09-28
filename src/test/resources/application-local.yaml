@@ -1,0 +1,15 @@
+ISSO_ACCEPTED_AUDIENCE: bisys-q1,bidrag-ui-q1,bidrag-ui-feature-q1,bidrag-dokument-ui-q1,bidrag-q-localhost,ida-q
+STS_ACCEPTED_AUDIENCE: srvbdarkivering,srvbisys
+BIDRAG_ARKIV_URL: https://bidrag-dokument-arkiv-feature.dev.adeo.no/bidrag-dokument-arkiv
+ISSO_ISSUER_URL: http://localhost:8888/isso
+JOURNALPOST_URL: https://bidrag-dokument-journalpost-feature.dev.adeo.no/bidrag-dokument-journalpost
+SECURITY_TOKEN_URL: https://security-token-service.dev.adeo.no/rest/v1/sts/token
+SRVBIDRAG_USERNAME: srvbidrag-dokument
+BIDRAG_DOKUMENT_JOURNALPOST_CLIENT_ID: dev-fss.bidrag.bidrag-dokument-journalpost-feature
+BIDRAG_DOKUMENT_ARKIV_CLIENT_ID: dev-fss.bidrag.bidrag-dokument-arkiv-feature
+STS_ISSUER_URL: http://localhost:8888/sts
+SRVBIDRAG_PASSWORD: <changme>
+AZURE_APP_CLIENT_SECRET: <changme>
+AZURE_APP_CLIENT_ID: d220e284-c0f0-43f1-a585-5c5b5c63dc0a
+AZURE_APP_TENANT_ID: 966ac572-f5b7-4bbe-aa88-c76419c0f851
+server.port: 8099

@@ -5,7 +5,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.reset;
 import static com.github.tomakehurst.wiremock.client.WireMock.resetAllScenarios;
 import static com.github.tomakehurst.wiremock.client.WireMock.resetToDefault;
 import static no.nav.bidrag.commons.web.EnhetFilter.X_ENHET_HEADER;
-import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
+import static no.nav.bidrag.dokument.BidragDokumentTest.TEST_PROFILE;
 import static no.nav.bidrag.dokument.consumer.BidragDokumentConsumer.PATH_AVVIK_PA_JOURNALPOST;
 import static no.nav.bidrag.dokument.consumer.BidragDokumentConsumer.PATH_JOURNALPOST_UTEN_SAK;
 import static no.nav.bidrag.dokument.consumer.BidragDokumentConsumer.PATH_SAK_JOURNAL;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
-import no.nav.bidrag.dokument.BidragDokumentLocal;
+import no.nav.bidrag.dokument.BidragDokumentTest;
 import no.nav.bidrag.dokument.consumer.stub.RestConsumerStub;
 import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
@@ -54,7 +54,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.util.UriComponentsBuilder;
 
-@SpringBootTest(classes = BidragDokumentLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = BidragDokumentTest.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWireMock(port = 0)
 @ActiveProfiles(TEST_PROFILE)
 @DisplayName("JournalpostController")

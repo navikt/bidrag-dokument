@@ -1,6 +1,6 @@
 package no.nav.bidrag.dokument;
 
-import static no.nav.bidrag.dokument.BidragDokumentLocal.TEST_PROFILE;
+import static no.nav.bidrag.dokument.BidragDokumentTest.TEST_PROFILE;
 import static no.nav.bidrag.dokument.consumer.BidragDokumentConsumer.createEnhetHeader;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -34,7 +34,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest(classes = BidragDokumentLocal.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = BidragDokumentTest.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(TEST_PROFILE)
 @DisplayName("EnhetFilter")
 @EnableMockOAuth2Server
