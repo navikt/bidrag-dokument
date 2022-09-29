@@ -11,6 +11,9 @@ azure:
       - application: bisys
         namespace: bidrag
         cluster: prod-fss
+      - application: bidrag-arbeidsflyt
+        namespace: bidrag
+        cluster: prod-gcp
 ingresses:
   - https://bidrag-dokument.nais.adeo.no/
   - https://bidrag-dokument.prod-fss.nais.io
