@@ -14,4 +14,6 @@ data class DocumentProperties(
 
     fun resizeToA4(): Boolean = resizeToA4 == true
     fun optimizeForPrint(): Boolean = optimizeForPrint == true
+
+    fun shouldProcess(): Boolean = resizeToA4() || optimizeForPrint()
 }

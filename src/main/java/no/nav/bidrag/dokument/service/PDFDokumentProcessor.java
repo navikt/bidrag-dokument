@@ -27,6 +27,8 @@ public class PDFDokumentProcessor {
   private DocumentProperties documentProperties;
 
   public byte[] process(byte[] dokumentFil, DocumentProperties documentProperties){
+    if (!documentProperties.shouldProcess()){return dokumentFil;}
+
     this.originalDocument = dokumentFil;
     this.documentProperties = documentProperties;
     ByteArrayOutputStream documentByteStream = new ByteArrayOutputStream();
