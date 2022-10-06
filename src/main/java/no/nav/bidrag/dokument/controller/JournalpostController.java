@@ -235,7 +235,7 @@ public class JournalpostController {
       @RequestBody OpprettJournalpostRequest opprettJournalpostRequest,
       @PathVariable ArkivSystem arkivSystem
   ) {
-    SECURE_LOGGER.info("Oppretter journalpost {}", opprettJournalpostRequest);
+    SECURE_LOGGER.info("Oppretter journalpost {} for arkivsystem {}", opprettJournalpostRequest, arkivSystem);
 
     return journalpostService.opprett(opprettJournalpostRequest, arkivSystem).getResponseEntity();
   }
