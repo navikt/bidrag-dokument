@@ -9,6 +9,7 @@ import java.util.List;
 import no.nav.bidrag.commons.KildesystemIdenfikator;
 import no.nav.bidrag.commons.web.HttpResponse;
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer;
+import no.nav.bidrag.dokument.dto.ArkivSystem;
 import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.BehandleAvvikshendelseResponse;
@@ -19,6 +20,8 @@ import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
 import no.nav.bidrag.dokument.dto.Kilde;
+import no.nav.bidrag.dokument.dto.OpprettJournalpostRequest;
+import no.nav.bidrag.dokument.dto.OpprettJournalpostResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -79,6 +82,13 @@ public class JournalpostService {
       return bidragJournalpostConsumer.endre(enhet, endreJournalpostCommand);
     }
     return bidragArkivConsumer.endre(enhet, endreJournalpostCommand);
+  }
+
+  public HttpResponse<OpprettJournalpostResponse> opprett(OpprettJournalpostRequest opprettJournalpostRequest, ArkivSystem arkivSystem) {
+    if (ArkivSystem.BIDRAG.equals(arkivSystem)) {
+      return bidragJournalpostConsumer.opprett(opprettJournalpostRequest);
+    }
+    return bidragArkivConsumer.opprett(opprettJournalpostRequest);
   }
 
   public HttpResponse<DistribuerJournalpostResponse> distribuerJournalpost(String batchId, KildesystemIdenfikator kildesystemIdenfikator, DistribuerJournalpostRequest distribuerJournalpostRequest) {

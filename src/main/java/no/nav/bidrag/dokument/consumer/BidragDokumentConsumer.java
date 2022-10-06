@@ -14,6 +14,8 @@ import no.nav.bidrag.dokument.dto.DistribuerJournalpostResponse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
+import no.nav.bidrag.dokument.dto.OpprettJournalpostRequest;
+import no.nav.bidrag.dokument.dto.OpprettJournalpostResponse;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -26,6 +28,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class BidragDokumentConsumer {
 
   private static final String PATH_JOURNAL = "/sak/%s/journal";
+  private static final String PATH_OPPRETT_JOURNALPOST = "/journalpost";
   public static final String PATH_JOURNALPOST_UTEN_SAK = "/journal/%s";
   public static final String PATH_SAK_JOURNAL = "/sak/%s/journal";
   private static final String PATH_JOURNALPOST = "/journal/%s";
@@ -101,6 +104,14 @@ public class BidragDokumentConsumer {
 
     var endretJournalpostResponse = restTemplate
         .exchange(path, HttpMethod.PATCH, new HttpEntity<>(endreJournalpostCommand, createEnhetHeader(enhet)), Void.class);
+
+
+    return new HttpResponse<>(endretJournalpostResponse);
+  }
+
+  public HttpResponse<OpprettJournalpostResponse> opprett(OpprettJournalpostRequest opprettJournalpostRequest) {
+    var endretJournalpostResponse = restTemplate
+        .exchange(PATH_OPPRETT_JOURNALPOST, HttpMethod.POST, new HttpEntity<>(opprettJournalpostRequest), OpprettJournalpostResponse.class);
 
 
     return new HttpResponse<>(endretJournalpostResponse);

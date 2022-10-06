@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import no.nav.bidrag.commons.KildesystemIdenfikator;
 import no.nav.bidrag.commons.web.EnhetFilter;
+import no.nav.bidrag.dokument.dto.ArkivSystem;
 import no.nav.bidrag.dokument.dto.AvvikType;
 import no.nav.bidrag.dokument.dto.Avvikshendelse;
 import no.nav.bidrag.dokument.dto.BehandleAvvikshendelseResponse;
@@ -26,6 +27,8 @@ import no.nav.bidrag.dokument.dto.DistribuerJournalpostResponse;
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
 import no.nav.bidrag.dokument.dto.JournalpostDto;
 import no.nav.bidrag.dokument.dto.JournalpostResponse;
+import no.nav.bidrag.dokument.dto.OpprettJournalpostRequest;
+import no.nav.bidrag.dokument.dto.OpprettJournalpostResponse;
 import no.nav.bidrag.dokument.service.JournalpostService;
 import no.nav.security.token.support.core.api.Protected;
 import org.slf4j.Logger;
@@ -217,6 +220,26 @@ public class JournalpostController {
 
     return journalpostService.endre(enhet, kildesystemIdenfikator, endreJournalpostCommand).getResponseEntity();
   }
+
+  @PostMapping("/journalpost/{arkivSystem}")
+  @Operation(
+      security = {@SecurityRequirement(name = "bearer-key")},
+      description = "Opprett utgående journalpost i midlertidlig brevlager. Denne operasjonen er ikke støttet for"
+  )
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Journalpost er opprettet"),
+      @ApiResponse(responseCode = "400", description = "Opprett journalpost med ugyldig data"),
+      @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig")
+  })
+  public ResponseEntity<OpprettJournalpostResponse> opprettJournalpost(
+      @RequestBody OpprettJournalpostRequest opprettJournalpostRequest,
+      @PathVariable ArkivSystem arkivSystem
+  ) {
+    SECURE_LOGGER.info("Oppretter journalpost {}", opprettJournalpostRequest);
+
+    return journalpostService.opprett(opprettJournalpostRequest, arkivSystem).getResponseEntity();
+  }
+
 
   @PostMapping("/journal/distribuer/{joarkJournalpostId}")
   @Operation(description = "Bestill distribusjon av journalpost")
