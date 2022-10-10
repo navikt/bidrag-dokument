@@ -14,6 +14,9 @@ azure:
       - application: bidrag-arbeidsflyt-feature
         namespace: bidrag
         cluster: dev-gcp
+      - application: bidrag-dokument-bestilling-feature
+        namespace: bidrag
+        cluster: dev-gcp
 ingresses:
   - https://bidrag-dokument-q1.nais.preprod.local/
   - https://bidrag-dokument-feature.dev.adeo.no/
