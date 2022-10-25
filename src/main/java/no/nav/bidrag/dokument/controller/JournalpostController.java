@@ -224,11 +224,11 @@ public class JournalpostController {
   @PostMapping("/journalpost/{arkivSystem}")
   @Operation(
       security = {@SecurityRequirement(name = "bearer-key")},
-      description = "Opprett utgående journalpost i midlertidlig brevlager. Denne operasjonen er ikke støttet for"
+      description = "Opprett notat eller utgående journalpost i midlertidlig brevlager."
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Journalpost er opprettet"),
-      @ApiResponse(responseCode = "400", description = "Opprett journalpost med ugyldig data"),
+      @ApiResponse(responseCode = "400", description = "Input inneholder ugyldig data"),
       @ApiResponse(responseCode = "401", description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig")
   })
   public ResponseEntity<OpprettJournalpostResponse> opprettJournalpost(
