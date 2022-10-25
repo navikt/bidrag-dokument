@@ -14,6 +14,9 @@ azure:
       - application: bidrag-arbeidsflyt-feature
         namespace: bidrag
         cluster: dev-gcp
+      - application: bidrag-dokument-bestilling-feature
+        namespace: bidrag
+        cluster: dev-gcp
 ingresses:
   - https://bidrag-dokument-q1.nais.preprod.local/
   - https://bidrag-dokument-feature.dev.adeo.no/
@@ -21,7 +24,7 @@ ingresses:
   - https://bidrag-dokument-feature.dev-fss-pub.nais.io
 env:
   - name: ISSO_ACCEPTED_AUDIENCE
-    value: bisys-q1,bidrag-ui-q1,bidrag-ui-feature-q1,bidrag-dokument-ui-q1,bidrag-q-localhost,ida-q
+    value: bisys-q4,bisys-q1,bidrag-ui-q1,bidrag-ui-feature-q1,bidrag-dokument-ui-q1,bidrag-q-localhost,ida-q
   - name: STS_ACCEPTED_AUDIENCE
     value: srvbdarkivering,srvbisys
   - name: BIDRAG_ARKIV_URL
