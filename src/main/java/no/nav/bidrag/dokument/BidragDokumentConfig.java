@@ -9,11 +9,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import no.nav.bidrag.commons.ExceptionLogger;
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration;
+import no.nav.bidrag.commons.security.service.OidcTokenManager;
 import no.nav.bidrag.commons.security.service.SecurityTokenService;
 import no.nav.bidrag.commons.web.CorrelationIdFilter;
 import no.nav.bidrag.commons.web.DefaultCorsFilter;
 import no.nav.bidrag.commons.web.EnhetFilter;
 import no.nav.bidrag.commons.web.HttpHeaderRestTemplate;
+import no.nav.bidrag.commons.web.UserMdcFilter;
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer;
 import no.nav.bidrag.dokument.consumer.DokumentTilgangConsumer;
 import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client;
@@ -100,7 +102,10 @@ public class BidragDokumentConfig {
     return new EnhetFilter();
   }
 
-
+  @Bean
+  public UserMdcFilter userMdcFilter(OidcTokenManager oidcTokenManager) {
+    return new UserMdcFilter(oidcTokenManager);
+  }
   @Bean
   public DefaultCorsFilter corsFilter() {
     return new DefaultCorsFilter();
