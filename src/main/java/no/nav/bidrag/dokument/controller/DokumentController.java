@@ -1,5 +1,6 @@
 package no.nav.bidrag.dokument.controller;
 
+import io.micrometer.core.annotation.Timed;
 import io.swagger.v3.oas.annotations.Parameter;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Protected
+@Timed
 public class DokumentController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DokumentController.class);

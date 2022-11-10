@@ -12,6 +12,9 @@ spec:
   azure:
     application:
       enabled: true
+      claims:
+        extra:
+          - "azp_name"
   secureLogs:
     enabled: true
   accessPolicy:

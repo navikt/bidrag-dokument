@@ -119,9 +119,6 @@ public class BidragDokumentConfig {
   private RestTemplate createRestTemplate(String baseUrl, SecurityTokenService securityTokenService, String clientId) {
     var requestFactory = new HttpComponentsClientHttpRequestFactory();
 
-    requestFactory.setConnectTimeout(0);
-    requestFactory.setReadTimeout(0);
-
     var httpHeaderRestTemplate = new HttpHeaderRestTemplate();
 
     httpHeaderRestTemplate.getInterceptors().add(securityTokenService.authTokenInterceptor(clientId, true));
