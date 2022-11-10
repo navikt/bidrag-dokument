@@ -13,7 +13,7 @@ import static no.nav.bidrag.dokument.BidragDokumentTest.TEST_PROFILE;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 
 @SpringBootApplication(exclude = { SecurityAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class })
-@EnableJwtTokenValidation(ignore = {"springfox.documentation.swagger.web.ApiResourceController"})
+@EnableJwtTokenValidation(ignore = {"org.springdoc"})
 @ActiveProfiles("local")
 @ComponentScan(excludeFilters = {@Filter(type = ASSIGNABLE_TYPE, value = BidragDokument.class)})
 public class BidragDokumentLocal {

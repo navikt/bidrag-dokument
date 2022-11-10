@@ -24,12 +24,12 @@
     <kotlin.version>1.7.20</kotlin.version>
 
     <!-- dependent versions other than from spring-boot -->
-    <bidrag-commons.version>0.7.14</bidrag-commons.version>
+    <bidrag-commons.version>0.7.15</bidrag-commons.version>
     <bidrag-commons-test.version>0.2.2</bidrag-commons-test.version>
     <bidrag-dokument-dto.version>1.5.14</bidrag-dokument-dto.version>
     <logback.encoder.version>7.2</logback.encoder.version>
     <springdoc-openapi-ui.version>1.6.12</springdoc-openapi-ui.version>
-    <springframework-cloud.version>3.1.4</springframework-cloud.version>
+    <springframework-cloud.version>3.1.5</springframework-cloud.version>
     <token-support.version>2.1.6</token-support.version>
     <squareup.version>4.10.0</squareup.version>
 

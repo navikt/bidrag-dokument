@@ -8,6 +8,7 @@ import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_BIDRAG;
 import static no.nav.bidrag.dokument.BidragDokumentConfig.PREFIX_JOARK;
 
 import com.google.common.base.Strings;
+import io.micrometer.core.annotation.Timed;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -49,6 +50,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Protected
+@Timed
 public class JournalpostController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(JournalpostController.class);
