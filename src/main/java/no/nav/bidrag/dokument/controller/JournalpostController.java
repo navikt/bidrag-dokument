@@ -226,7 +226,10 @@ public class JournalpostController {
   @PostMapping("/journalpost/{arkivSystem}")
   @Operation(
       security = {@SecurityRequirement(name = "bearer-key")},
-      description = "Opprett notat eller utgående journalpost i midlertidlig brevlager."
+      description = """
+          Opprett notat eller utgående journalpost i midlertidlig brevlager.
+          Opprett inngående, notat eller utgående journalpost i Joark
+          """
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Journalpost er opprettet"),
