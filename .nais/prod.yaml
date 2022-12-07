@@ -17,6 +17,9 @@ azure:
       - application: bidrag-dokument-bestilling
         namespace: bidrag
         cluster: prod-gcp
+      - application: bidrag-reisekostnad-api
+        namespace: bidrag
+        cluster: prod-gcp
 ingresses:
   - https://bidrag-dokument.nais.adeo.no/
   - https://bidrag-dokument.prod-fss.nais.io
