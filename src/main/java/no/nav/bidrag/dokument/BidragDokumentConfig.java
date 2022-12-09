@@ -103,8 +103,8 @@ public class BidragDokumentConfig {
   }
 
   @Bean
-  public UserMdcFilter userMdcFilter() {
-    return new UserMdcFilter();
+  public UserMdcFilter userMdcFilter(OidcTokenManager oidcTokenManager) {
+    return new UserMdcFilter(oidcTokenManager);
   }
   @Bean
   public DefaultCorsFilter corsFilter() {

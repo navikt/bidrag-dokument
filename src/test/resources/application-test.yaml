@@ -1,7 +1,7 @@
 # default port for tester som ikke bruker wiremock
 wiremock.server.port: 8085
 
-AAD_ISSUER_URL: http://localhost:${mock-oauth2-server.port}/isso
+AAD_ISSUER_URL: http://localhost:${mock-oauth2-server.port}/aad
 AZURE_OPENID_CONFIG_ISSUER: http://localhost:${mock-oauth2-server.port}/aad
 STS_ISSUER_URL: http://localhost:${mock-oauth2-server.port}/sts
 # For enkelhetsskyld brukes samme wiremock-instans for både arkiv og journalpost
@@ -18,7 +18,7 @@ no.nav.security.jwt:
   client:
     registration:
       bidrag-dokument-journalpost:
-        token-endpoint-url: https://login.microsoftonline.com/123/oauth2/v2.0/token
+        token-endpoint-url: ${AAD_ISSUER_URL}/oauth2/v2.0/token
         grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
         scope: api://123/.default
         authentication:
@@ -26,7 +26,7 @@ no.nav.security.jwt:
           client-secret: 123
           client-auth-method: client_secret_basic
       bidrag-dokument-arkiv:
-        token-endpoint-url: https://login.microsoftonline.com/123/oauth2/v2.0/token
+        token-endpoint-url: ${AAD_ISSUER_URL}/oauth2/v2.0/token
         grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
         scope: api://123/.default
         authentication:
