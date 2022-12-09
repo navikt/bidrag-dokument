@@ -25,14 +25,10 @@ ingresses:
   - https://bidrag-dokument.prod-fss.nais.io
   - https://bidrag-dokument.prod-fss-pub.nais.io
 env:
-  - name: ISSO_ACCEPTED_AUDIENCE
-    value: bisys-p,bidrag-ui-p,bidrag-dokument-ui-p
   - name: STS_ACCEPTED_AUDIENCE
     value: srvbdarkivering,srvbisys
   - name: BIDRAG_ARKIV_URL
     value: https://bidrag-dokument-arkiv.nais.adeo.no/bidrag-dokument-arkiv
-  - name: ISSO_ISSUER_URL
-    value: https://isso.adeo.no:443/isso/oauth2
   - name: JOURNALPOST_URL
     value: https://bidrag-dokument-journalpost.nais.adeo.no/bidrag-dokument-journalpost
   - name: SECURITY_TOKEN_URL
