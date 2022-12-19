@@ -47,7 +47,7 @@ Etter applikasjon er startet kan den nåes med browser på
 ### Profiler
 Applikasjonen er satt opp med følgende profiler:
 
-#### live-profil
+#### nais-profil
 Formål: Kjøring i produksjon og dev-cluster. 
 
 #### test-profil

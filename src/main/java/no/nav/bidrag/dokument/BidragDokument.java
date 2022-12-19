@@ -1,6 +1,6 @@
 package no.nav.bidrag.dokument;
 
-import static no.nav.bidrag.dokument.BidragDokumentConfig.LIVE_PROFILE;
+import static no.nav.bidrag.dokument.BidragDokumentConfig.NAIS_PROFILE;
 
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation;
 import org.slf4j.Logger;
@@ -17,7 +17,7 @@ public class BidragDokument {
 
   public static void main(String[] args) {
 
-    String profile = args.length < 1 ? LIVE_PROFILE : args[0];
+    String profile = args.length < 1 ? NAIS_PROFILE : args[0];
 
     SpringApplication app = new SpringApplication(BidragDokument.class);
     app.setAdditionalProfiles(profile);

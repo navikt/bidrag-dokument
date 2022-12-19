@@ -18,19 +18,13 @@ springdoc:
 
 ---
 
-spring.config.activate.on-profile: nais
-
-http.proxy.parametername: prevent.isso.proxy.fss(hack)
-
----
-
 ####################################################################
 # 
-# Profiles: live
+# Profiles: nais
 #							
 ####################################################################
 
-spring.config.activate.on-profile: live
+spring.config.activate.on-profile: nais
 
 # OIDC          
 no.nav.security.jwt:
