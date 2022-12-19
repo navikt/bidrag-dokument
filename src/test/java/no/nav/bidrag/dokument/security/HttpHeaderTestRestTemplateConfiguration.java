@@ -25,7 +25,7 @@ public class HttpHeaderTestRestTemplateConfiguration {
   }
 
   private String generateTestToken() {
-    var token = mockOAuth2Server.issueToken("isso", "aud-localhost", "aud-localhost");
+    var token = mockOAuth2Server.issueToken("aad", "aud-localhost", "aud-localhost");
     return "Bearer " + token.serialize();
   }
 }

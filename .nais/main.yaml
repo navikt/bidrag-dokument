@@ -29,14 +29,10 @@ ingresses:
   - https://bidrag-dokument.dev.intern.nav.no/
   - https://bidrag-dokument.dev-fss-pub.nais.io/
 env:
-  - name: ISSO_ACCEPTED_AUDIENCE
-    value: bisys-q2,bidrag-ui-q2,bidrag-dokument-ui-q2,bidrag-q-localhost,ida-q
   - name: STS_ACCEPTED_AUDIENCE
     value: srvbdarkivering,srvbisys
   - name: BIDRAG_ARKIV_URL
     value: https://bidrag-dokument-arkiv.dev.adeo.no/bidrag-dokument-arkiv
-  - name: ISSO_ISSUER_URL
-    value: https://isso-q.adeo.no:443/isso/oauth2
   - name: JOURNALPOST_URL
     value: https://bidrag-dokument-journalpost.dev.adeo.no/bidrag-dokument-journalpost
   - name: SECURITY_TOKEN_URL

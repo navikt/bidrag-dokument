@@ -18,19 +18,13 @@ springdoc:
 
 ---
 
-spring.config.activate.on-profile: nais
-
-http.proxy.parametername: prevent.isso.proxy.fss(hack)
-
----
-
 ####################################################################
 # 
-# Profiles: live
+# Profiles: nais
 #							
 ####################################################################
 
-spring.config.activate.on-profile: live
+spring.config.activate.on-profile: nais
 
 # OIDC          
 no.nav.security.jwt:
@@ -56,9 +50,6 @@ no.nav.security.jwt:
     aad:
       discovery_url: https://login.microsoftonline.com/${AZURE_APP_TENANT_ID}/v2.0/.well-known/openid-configuration
       accepted_audience: ${AZURE_APP_CLIENT_ID}, api://${AZURE_APP_CLIENT_ID}
-    isso:
-      accepted_audience: ${ISSO_ACCEPTED_AUDIENCE}
-      discoveryurl: ${ISSO_ISSUER_URL}/.well-known/openid-configuration
     sts:
       accepted_audience: ${STS_ACCEPTED_AUDIENCE}
       discoveryurl: ${STS_ISSUER_URL}/rest/v1/sts/.well-known/openid-configuration

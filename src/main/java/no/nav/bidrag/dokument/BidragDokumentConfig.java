@@ -54,7 +54,7 @@ public class BidragDokumentConfig {
   public static final String ARKIV_QUALIFIER = "arkiv";
   public static final String KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV = "bidrag-dokument-arkiv";
   public static final String KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST = "bidrag-dokument-journalpost";
-  static final String LIVE_PROFILE = "live";
+  static final String NAIS_PROFILE = "nais";
   private static final Logger LOGGER = LoggerFactory.getLogger(BidragDokumentConfig.class);
 
   @Bean
