@@ -33,6 +33,8 @@ env:
     value: srvbdarkivering,srvbisys
   - name: BIDRAG_ARKIV_URL
     value: https://bidrag-dokument-arkiv.dev.adeo.no/bidrag-dokument-arkiv
+  - name: BIDRAG_FORSENDELSE_URL
+    value: https://bidrag-dokument-forsendelse.dev.intern.nav.no/api/forsendelse/legacy
   - name: JOURNALPOST_URL
     value: https://bidrag-dokument-journalpost.dev.adeo.no/bidrag-dokument-journalpost
   - name: SECURITY_TOKEN_URL
@@ -43,6 +45,8 @@ env:
     value: dev-fss.bidrag.bidrag-dokument-journalpost
   - name: BIDRAG_DOKUMENT_ARKIV_CLIENT_ID
     value: dev-fss.bidrag.bidrag-dokument-arkiv
+  - name: BIDRAG_DOKUMENT_FORSENDELSE_CLIENT_ID
+    value: dev-gcp.bidrag.bidrag-dokument-forsendelse
   - name: STS_ISSUER_URL
     value: https://security-token-service.dev.adeo.no
   - name: JAVA_OPTS

@@ -1,71 +1,70 @@
-package no.nav.bidrag.dokument.service;
+package no.nav.bidrag.dokument.service
 
-import static no.nav.bidrag.dokument.BidragDokumentConfig.ARKIV_QUALIFIER;
-import static no.nav.bidrag.dokument.BidragDokumentConfig.MIDL_BREVLAGER_QUALIFIER;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Collections;
-import no.nav.bidrag.commons.KildesystemIdenfikator;
-import no.nav.bidrag.commons.web.HttpResponse;
-import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer;
-import no.nav.bidrag.dokument.dto.JournalpostDto;
-import no.nav.bidrag.dokument.dto.JournalpostResponse;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
+import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
+import io.mockk.verify
+import no.nav.bidrag.commons.KildesystemIdenfikator
+import no.nav.bidrag.commons.web.HttpResponse
+import no.nav.bidrag.dokument.BidragDokumentConfig
+import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer
+import no.nav.bidrag.dokument.dto.JournalpostDto
+import no.nav.bidrag.dokument.dto.JournalpostResponse
+import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.function.Executable
+import org.mockito.ArgumentMatchers
+import org.mockito.Mock
+import org.mockito.Mockito
+import org.springframework.http.HttpStatus
 
 @DisplayName("JournalpostService")
-@ExtendWith(MockitoExtension.class)
-class JournalpostServiceTest {
+@ExtendWith(MockKExtension::class)
+internal class JournalpostServiceTest {
+    @MockK(name = BidragDokumentConfig.ARKIV_QUALIFIER)
+    lateinit var bidragArkivConsumer: BidragDokumentConsumer
 
-  @Mock(name=ARKIV_QUALIFIER)
-  private BidragDokumentConsumer bidragArkivConsumerMock;
-  @Mock(name=MIDL_BREVLAGER_QUALIFIER)
-  private BidragDokumentConsumer bidragJournalpostConsumerMock;
-  private JournalpostService journalpostService;
+    @MockK(name = BidragDokumentConfig.MIDL_BREVLAGER_QUALIFIER)
+    lateinit var bidragJournalpostConsumer: BidragDokumentConsumer
 
-  @BeforeEach
-  void createServiceWithMocks(){
-    journalpostService = new JournalpostService(bidragArkivConsumerMock, bidragJournalpostConsumerMock);
-  }
+    @MockK(name = BidragDokumentConfig.FORSENDELSE_QUALIFIER)
+    lateinit var bidragForsendelseConsumer: BidragDokumentConsumer
 
-  @Test
-  @DisplayName("skal ikke hente journalpost")
-  void skalIkkeHenteJournalpostGittId() {
-    when(bidragArkivConsumerMock.hentJournalpost(anyString(), anyString())).thenReturn(HttpResponse.from(HttpStatus.NO_CONTENT));
+    @InjectMockKs
+    lateinit var journalpostService: JournalpostService
 
-    var httpStatusResponse = journalpostService.hentJournalpost("69", new KildesystemIdenfikator("joark-2"));
-    assertThat(httpStatusResponse.fetchBody()).isNotPresent();
-  }
+    @Test
+    @DisplayName("skal ikke hente journalpost")
+    fun skalIkkeHenteJournalpostGittId() {
+        every {  bidragArkivConsumer.hentJournalpost(any(), any()) } returns HttpResponse.from(HttpStatus.NO_CONTENT)
+        val httpStatusResponse = journalpostService.hentJournalpost("69", KildesystemIdenfikator("joark-2"))
+        Assertions.assertThat(httpStatusResponse.fetchBody()).isNotPresent
+    }
 
-  @Test
-  @DisplayName("skal hente journalpost gitt id")
-  void skalHenteJournalpostGittId() {
-    when(bidragArkivConsumerMock.hentJournalpost(anyString(), anyString())).thenReturn(HttpResponse.from(HttpStatus.OK, new JournalpostResponse()));
+    @Test
+    @DisplayName("skal hente journalpost gitt id")
+    fun skalHenteJournalpostGittId() {
+        every {  bidragArkivConsumer.hentJournalpost(any(), any()) } returns HttpResponse.from(HttpStatus.OK, JournalpostResponse())
+        val httpStatusResponse = journalpostService.hentJournalpost("69", KildesystemIdenfikator("joark-3"))
+        Assertions.assertThat(httpStatusResponse.fetchBody()).isPresent
+    }
 
-    var httpStatusResponse = journalpostService.hentJournalpost("69", new KildesystemIdenfikator("joark-3"));
-    assertThat(httpStatusResponse.fetchBody()).isPresent();
-  }
+    @Test
+    @DisplayName("skal kombinere resultat fra BidragDokumentJournalpostConsumer samt BidragDokumentArkivConsumer")
+    fun skalKombinereResultaterFraJournalpostOgArkiv() {
+        every {  bidragArkivConsumer.finnJournalposter("1", "FAG") } returns listOf(JournalpostDto())
+        every {  bidragForsendelseConsumer.finnJournalposter("1", "FAG") } returns listOf(JournalpostDto())
+        every {  bidragJournalpostConsumer.finnJournalposter("1", "FAG") } returns listOf(JournalpostDto())
 
-  @Test
-  @DisplayName("skal kombinere resultat fra BidragDokumentJournalpostConsumer samt BidragDokumentArkivConsumer")
-  void skalKombinereResultaterFraJournalpostOgArkiv() {
-    when(bidragJournalpostConsumerMock.finnJournalposter("1", "FAG"))
-        .thenReturn(Collections.singletonList(new JournalpostDto()));
-
-    var journalposter = journalpostService.finnJournalposter("1", "FAG");
-
-    assertAll(
-        () -> assertThat(journalposter).hasSize(1),
-        () -> verify(bidragJournalpostConsumerMock).finnJournalposter("1", "FAG")
-    );
-  }
+        val journalposter = journalpostService.finnJournalposter("1", "FAG")
+        org.junit.jupiter.api.Assertions.assertAll(
+            Executable { Assertions.assertThat(journalposter).hasSize(3) },
+            Executable { verify { bidragJournalpostConsumer.finnJournalposter("1", "FAG") } }
+        )
+    }
 }

@@ -20,12 +20,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class BidragDokumentRestControllerAdvice extends ResponseEntityExceptionHandler {
   private static final Logger LOGGER = LoggerFactory.getLogger(BidragDokumentRestControllerAdvice.class);
 
-  private final ExceptionLogger exceptionLogger;
-
-  public BidragDokumentRestControllerAdvice(ExceptionLogger exceptionLogger) {
-    this.exceptionLogger = exceptionLogger;
-  }
-
   @ResponseBody
   @ExceptionHandler
   public ResponseEntity<?> handleOtherExceptions(Exception exception) {
@@ -47,8 +41,6 @@ public class BidragDokumentRestControllerAdvice extends ResponseEntityExceptionH
   protected ResponseEntity<Object> handeUnauthorized(
       final JwtTokenUnauthorizedException ex, final WebRequest request) {
     var message = "Ugyldig sikkerhetstoken";
-
-    exceptionLogger.logException(ex, "RestResponseEntityExceptionHandler");
 
     return handleExceptionInternal(
         ex,

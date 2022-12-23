@@ -5,10 +5,11 @@ data class DokumentRef(
     val dokumentId: String?
 ){
     fun erForKilde(kilde: Kilde): Boolean{
-        if (kilde == Kilde.BIDRAG){
-            return journalpostId.startsWith(Kilde.BIDRAG.prefix)
+        return when(kilde){
+            Kilde.BIDRAG -> journalpostId.startsWith(Kilde.BIDRAG.prefix)
+            Kilde.JOARK -> journalpostId.startsWith(Kilde.JOARK.prefix)
+            Kilde.FORSENDELSE -> journalpostId.startsWith(Kilde.FORSENDELSE.prefix)
         }
-        return journalpostId.startsWith(Kilde.JOARK.prefix)
     }
 
     fun hasDokumentId(): Boolean = dokumentId?.isNotEmpty() == true
@@ -24,5 +25,6 @@ data class DokumentRef(
 
 enum class Kilde(var prefix: String) {
     JOARK("JOARK"),
-    BIDRAG("BID")
+    BIDRAG("BID"),
+    FORSENDELSE("BIF")
 }

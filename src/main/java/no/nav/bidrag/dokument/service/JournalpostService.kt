@@ -1,107 +1,90 @@
-package no.nav.bidrag.dokument.service;
+package no.nav.bidrag.dokument.service
 
-import static no.nav.bidrag.commons.KildesystemIdenfikator.Kildesystem.BIDRAG;
-import static no.nav.bidrag.dokument.BidragDokumentConfig.ARKIV_QUALIFIER;
-import static no.nav.bidrag.dokument.BidragDokumentConfig.MIDL_BREVLAGER_QUALIFIER;
-
-import java.util.ArrayList;
-import java.util.List;
-import no.nav.bidrag.commons.KildesystemIdenfikator;
-import no.nav.bidrag.commons.web.HttpResponse;
-import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer;
-import no.nav.bidrag.dokument.dto.ArkivSystem;
-import no.nav.bidrag.dokument.dto.AvvikType;
-import no.nav.bidrag.dokument.dto.Avvikshendelse;
-import no.nav.bidrag.dokument.dto.BehandleAvvikshendelseResponse;
-import no.nav.bidrag.dokument.dto.DistribuerJournalpostRequest;
-import no.nav.bidrag.dokument.dto.DistribuerJournalpostResponse;
-import no.nav.bidrag.dokument.dto.DokumentRef;
-import no.nav.bidrag.dokument.dto.EndreJournalpostCommand;
-import no.nav.bidrag.dokument.dto.JournalpostDto;
-import no.nav.bidrag.dokument.dto.JournalpostResponse;
-import no.nav.bidrag.dokument.dto.Kilde;
-import no.nav.bidrag.dokument.dto.OpprettJournalpostRequest;
-import no.nav.bidrag.dokument.dto.OpprettJournalpostResponse;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import no.nav.bidrag.commons.KildesystemIdenfikator
+import no.nav.bidrag.commons.KildesystemIdenfikator.Kildesystem
+import no.nav.bidrag.commons.web.HttpResponse
+import no.nav.bidrag.dokument.BidragDokumentConfig
+import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer
+import no.nav.bidrag.dokument.dto.ArkivSystem
+import no.nav.bidrag.dokument.dto.AvvikType
+import no.nav.bidrag.dokument.dto.Avvikshendelse
+import no.nav.bidrag.dokument.dto.BehandleAvvikshendelseResponse
+import no.nav.bidrag.dokument.dto.DistribuerJournalpostRequest
+import no.nav.bidrag.dokument.dto.DistribuerJournalpostResponse
+import no.nav.bidrag.dokument.dto.DokumentRef
+import no.nav.bidrag.dokument.dto.EndreJournalpostCommand
+import no.nav.bidrag.dokument.dto.JournalpostDto
+import no.nav.bidrag.dokument.dto.JournalpostResponse
+import no.nav.bidrag.dokument.dto.Kilde
+import no.nav.bidrag.dokument.dto.OpprettJournalpostRequest
+import no.nav.bidrag.dokument.dto.OpprettJournalpostResponse
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.stereotype.Component
 
 @Component
-public class JournalpostService {
-
-  private final BidragDokumentConsumer bidragJournalpostConsumer;
-  private final BidragDokumentConsumer bidragArkivConsumer;
-
-  public JournalpostService(
-      @Qualifier(ARKIV_QUALIFIER) BidragDokumentConsumer bidragArkivConsumer,
-      @Qualifier(MIDL_BREVLAGER_QUALIFIER) BidragDokumentConsumer bidragJournalpostConsumer
-  ) {
-    this.bidragArkivConsumer = bidragArkivConsumer;
-    this.bidragJournalpostConsumer = bidragJournalpostConsumer;
-  }
-
-  public HttpResponse<JournalpostResponse> hentJournalpost(DokumentRef dokumentRef, String saksnummer) {
-    if (dokumentRef.erForKilde(Kilde.BIDRAG)) {
-      return bidragJournalpostConsumer.hentJournalpost(saksnummer, dokumentRef.getJournalpostId());
-    }
-    return bidragArkivConsumer.hentJournalpost(saksnummer, dokumentRef.getJournalpostId());
-  }
-
-  public HttpResponse<JournalpostResponse> hentJournalpost(String saksnummer, KildesystemIdenfikator kildesystemIdenfikator) {
-    if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.hentJournalpost(saksnummer, kildesystemIdenfikator.getPrefiksetJournalpostId());
-    }
-    return bidragArkivConsumer.hentJournalpost(saksnummer, kildesystemIdenfikator.getPrefiksetJournalpostId());
-  }
-
-  public HttpResponse<List<AvvikType>> finnAvvik(String saksnummer, KildesystemIdenfikator kildesystemIdenfikator) {
-    if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.finnAvvik(saksnummer, kildesystemIdenfikator.getPrefiksetJournalpostId());
+class JournalpostService(
+    @Qualifier(BidragDokumentConfig.FORSENDELSE_QUALIFIER) private val bidragForsendelseConsumer: BidragDokumentConsumer,
+    @Qualifier(BidragDokumentConfig.ARKIV_QUALIFIER) private val bidragArkivConsumer: BidragDokumentConsumer,
+    @Qualifier(BidragDokumentConfig.MIDL_BREVLAGER_QUALIFIER) private val bidragJournalpostConsumer: BidragDokumentConsumer
+) {
+    fun hentJournalpost(dokumentRef: DokumentRef, saksnummer: String?): HttpResponse<JournalpostResponse> {
+        return if (dokumentRef.erForKilde(Kilde.BIDRAG)) bidragJournalpostConsumer.hentJournalpost(saksnummer, dokumentRef.journalpostId)
+            else if (dokumentRef.erForKilde(Kilde.JOARK)) bidragArkivConsumer.hentJournalpost(saksnummer, dokumentRef.journalpostId)
+            else bidragForsendelseConsumer.hentJournalpost(saksnummer, dokumentRef.journalpostId)
     }
 
-    return bidragArkivConsumer.finnAvvik(saksnummer, kildesystemIdenfikator.getPrefiksetJournalpostId());
-  }
-
-  public HttpResponse<BehandleAvvikshendelseResponse> behandleAvvik(
-      String enhet, KildesystemIdenfikator kildesystemIdenfikator, Avvikshendelse avvikshendelse
-  ) {
-    if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.behandleAvvik(enhet, kildesystemIdenfikator.getPrefiksetJournalpostId(), avvikshendelse);
+    fun hentJournalpost(saksnummer: String?, kildesystemIdenfikator: KildesystemIdenfikator): HttpResponse<JournalpostResponse> {
+        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.hentJournalpost(saksnummer, kildesystemIdenfikator.prefiksetJournalpostId)
+        else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) bidragArkivConsumer.hentJournalpost(saksnummer, kildesystemIdenfikator.prefiksetJournalpostId)
+        else bidragForsendelseConsumer.hentJournalpost(saksnummer, kildesystemIdenfikator.prefiksetJournalpostId)
     }
 
-    return bidragArkivConsumer.behandleAvvik(enhet, kildesystemIdenfikator.getPrefiksetJournalpostId(), avvikshendelse);
-  }
-
-  public List<JournalpostDto> finnJournalposter(String saksnummer, String fagomrade) {
-    var sakjournal = new ArrayList<>(bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade));
-    sakjournal.addAll(bidragArkivConsumer.finnJournalposter(saksnummer, fagomrade));
-    return sakjournal;
-  }
-
-  public HttpResponse<Void> endre(String enhet, KildesystemIdenfikator kildesystemIdenfikator, EndreJournalpostCommand endreJournalpostCommand) {
-    if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.endre(enhet, endreJournalpostCommand);
+    fun finnAvvik(saksnummer: String?, kildesystemIdenfikator: KildesystemIdenfikator): HttpResponse<List<AvvikType>> {
+        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.finnAvvik(saksnummer, kildesystemIdenfikator.prefiksetJournalpostId)
+        else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) bidragArkivConsumer.finnAvvik(saksnummer, kildesystemIdenfikator.prefiksetJournalpostId)
+        else bidragForsendelseConsumer.finnAvvik(saksnummer, kildesystemIdenfikator.prefiksetJournalpostId)
     }
-    return bidragArkivConsumer.endre(enhet, endreJournalpostCommand);
-  }
 
-  public HttpResponse<OpprettJournalpostResponse> opprett(OpprettJournalpostRequest opprettJournalpostRequest, ArkivSystem arkivSystem) {
-    if (ArkivSystem.BIDRAG.equals(arkivSystem)) {
-      return bidragJournalpostConsumer.opprett(opprettJournalpostRequest);
+    fun behandleAvvik(
+        enhet: String?, kildesystemIdenfikator: KildesystemIdenfikator, avvikshendelse: Avvikshendelse?
+    ): HttpResponse<BehandleAvvikshendelseResponse> {
+        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.behandleAvvik(enhet, kildesystemIdenfikator.prefiksetJournalpostId, avvikshendelse)
+        else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) bidragArkivConsumer.behandleAvvik(enhet, kildesystemIdenfikator.prefiksetJournalpostId, avvikshendelse)
+        else bidragForsendelseConsumer.behandleAvvik(enhet, kildesystemIdenfikator.prefiksetJournalpostId, avvikshendelse)
     }
-    return bidragArkivConsumer.opprett(opprettJournalpostRequest);
-  }
 
-  public HttpResponse<DistribuerJournalpostResponse> distribuerJournalpost(String batchId, KildesystemIdenfikator kildesystemIdenfikator, DistribuerJournalpostRequest distribuerJournalpostRequest) {
-    if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.distribuerJournalpost(kildesystemIdenfikator.getPrefiksetJournalpostId(), batchId, distribuerJournalpostRequest);
+    fun finnJournalposter(saksnummer: String?, fagomrade: String?): List<JournalpostDto> {
+        val sakjournal = ArrayList(bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade))
+        sakjournal.addAll(bidragArkivConsumer.finnJournalposter(saksnummer, fagomrade))
+        sakjournal.addAll(bidragForsendelseConsumer.finnJournalposter(saksnummer, fagomrade))
+        return sakjournal
     }
-    return bidragArkivConsumer.distribuerJournalpost(kildesystemIdenfikator.getPrefiksetJournalpostId(), batchId, distribuerJournalpostRequest);
-  }
 
-  public HttpResponse<Void> kanDistribuereJournalpost(KildesystemIdenfikator kildesystemIdenfikator) {
-    if (kildesystemIdenfikator.erFor(BIDRAG)) {
-      return bidragJournalpostConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.getPrefiksetJournalpostId());
+    fun endre(enhet: String?, kildesystemIdenfikator: KildesystemIdenfikator, endreJournalpostCommand: EndreJournalpostCommand): HttpResponse<Void> {
+        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.endre(enhet, endreJournalpostCommand)
+        else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) bidragArkivConsumer.endre(enhet, endreJournalpostCommand)
+        else bidragForsendelseConsumer.endre(enhet, endreJournalpostCommand)
     }
-    return bidragArkivConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.getPrefiksetJournalpostId());
-  }
+
+    fun opprett(opprettJournalpostRequest: OpprettJournalpostRequest, arkivSystem: ArkivSystem): HttpResponse<OpprettJournalpostResponse> {
+        return if (ArkivSystem.BIDRAG == arkivSystem) {
+            bidragJournalpostConsumer.opprett(opprettJournalpostRequest)
+        } else bidragArkivConsumer.opprett(opprettJournalpostRequest)
+    }
+
+    fun distribuerJournalpost(
+        batchId: String?,
+        kildesystemIdenfikator: KildesystemIdenfikator,
+        distribuerJournalpostRequest: DistribuerJournalpostRequest
+    ): HttpResponse<DistribuerJournalpostResponse> {
+        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.distribuerJournalpost(kildesystemIdenfikator.prefiksetJournalpostId, batchId, distribuerJournalpostRequest)
+        else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) bidragArkivConsumer.distribuerJournalpost(kildesystemIdenfikator.prefiksetJournalpostId, batchId, distribuerJournalpostRequest)
+        else bidragForsendelseConsumer.distribuerJournalpost(kildesystemIdenfikator.prefiksetJournalpostId, batchId, distribuerJournalpostRequest)
+    }
+
+    fun kanDistribuereJournalpost(kildesystemIdenfikator: KildesystemIdenfikator): HttpResponse<Void> {
+        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.prefiksetJournalpostId)
+        else if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragArkivConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.prefiksetJournalpostId)
+        else bidragForsendelseConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.prefiksetJournalpostId)
+    }
 }
