@@ -36,7 +36,7 @@ env:
   - name: BIDRAG_ARKIV_URL
     value: https://bidrag-dokument-arkiv-feature.dev.adeo.no/bidrag-dokument-arkiv
   - name: BIDRAG_FORSENDELSE_URL
-    value: https://bidrag-dokument-forsendelse-feature.dev.intern.nav.no/api/forsendelse/legacy
+    value: https://bidrag-dokument-forsendelse-feature.dev.intern.nav.no/api/forsendelse
   - name: JOURNALPOST_URL
     value: https://bidrag-dokument-journalpost-feature.dev.adeo.no/bidrag-dokument-journalpost
   - name: SECURITY_TOKEN_URL

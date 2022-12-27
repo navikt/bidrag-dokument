@@ -30,7 +30,7 @@ env:
   - name: BIDRAG_ARKIV_URL
     value: https://bidrag-dokument-arkiv.nais.adeo.no/bidrag-dokument-arkiv
   - name: BIDRAG_FORSENDELSE_URL
-    value: https://bidrag-dokument-forsendelse.intern.nav.no/api/forsendelse/legacy
+    value: https://bidrag-dokument-forsendelse.intern.nav.no/api/forsendelse
   - name: JOURNALPOST_URL
     value: https://bidrag-dokument-journalpost.nais.adeo.no/bidrag-dokument-journalpost
   - name: SECURITY_TOKEN_URL
