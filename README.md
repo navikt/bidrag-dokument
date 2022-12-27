@@ -77,26 +77,6 @@ AUD bidrag-q-localhost er lagt til for å støtte localhost redirect i preprod. 
 preprod-tjenester uten å måtte legge inn host-mappinger. bidrag-q-localhost-agenten er satt opp vha https://github.com/navikt/amag. Denne er ikke, 
 og skal heller ikke være tilgjengelig i prod.
 
-#### Swagger Authorize 
-Den grønne authorize-knappen øverst i Swagger-ui kan brukes til å autentisere requester om du har tilgang på et gyldig OIDC-token. For å benytte authorize må følgende legges i value-feltet:
- - "Bearer id-token" (hvor id-token er en gyldig jwt-tekst-streng)
- 
- For localhost kan et gyldig id-token hentes med følgende URL dersom BidragDokumentArkivLocal er startet på port 8090:
-   - [http://localhost:8090/bidrag-dokument/local/jwt](http://localhost:8090/bidrag-dokument/local/jwt)<br>
-   
-For preprod kan følgende CURL-kommando benyttes (krever tilgang til isso-agent-passord i Fasit for aktuelt miljø):
- 
-```
-curl -X POST \
-  -u "{isso-agent-brukernavn}:{isso-agent-passord}" \
-	-d "grant_type=client_credentials&scope=openid" \
-	{isso-issuer-url}/access_token
-```
-
-hvor <code>{isso-agent-brukernavn}</code> og <code>{isso-agent-passord}</code> hentes fra Fasit-ressurs OpenIdConnect bidrag-dokument-ui-oidc for aktuelt miljø (f.eks [https://fasit.adeo.no/resources/6419841](https://fasit.adeo.no/resources/6419841) for q2),
-
-og <code>{isso-issuer-url}</code> hentes fra Fasit-ressurs BaseUrl isso-issuer (f.eks [https://fasit.adeo.no/resources/2291405](https://fasit.adeo.no/resources/2291405) for q2.
-
 #### Oppskrift for kjøring med test-token i Swagger
 (ved integrasjonstesting mot AM eller ABAC må token hentes fra bidrag-ui.<domene-navn>/session)
  - Start BidragDokumentLocal som standard Java-applikasjon
@@ -104,3 +84,27 @@ og <code>{isso-issuer-url}</code> hentes fra Fasit-ressurs BaseUrl isso-issuer (
  - Åpne Swagger (http://localhost:8090/bidrag-dokument/swagger-ui.html)
  - Trykk Authorize, og oppdater value-feltet med: Bearer <testtoken-streng> fra steg 2.
 
+
+
+### Lokal kjøring mot nais
+For å kunne kjøre lokalt mot sky må du gjøre følgende
+
+Åpne terminal på root mappen til `bidrag-dokument`
+Konfigurer kubectl til å gå mot kluster `dev-fss`
+```bash
+# Sett cluster til dev-fss
+kubectx dev-fss
+# Sett namespace til bidrag
+kubens bidrag 
+
+# -- Eller hvis du ikke har kubectx/kubens installert 
+# (da må -n=bidrag legges til etter exec i neste kommando)
+kubectl config use dev-fss
+```
+Deretter kjør følgende kommando for å importere secrets. Viktig at filen som opprettes ikke committes til git
+
+```bash
+kubectl exec --tty deployment/bidrag-dokument-feature printenv | grep -E 'AZURE_|TOKEN_X|_URL|SCOPE|CLIENT_ID' > src/main/resources/application-lokal-nais-secrets.properties
+```
+
+Deretter kan tokenet brukes til å logge inn på swagger-ui http://localhost:8080/bidrag-dokument/swagger-ui/index.html og teste ut ulike api kall

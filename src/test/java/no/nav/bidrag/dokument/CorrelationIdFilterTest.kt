@@ -7,7 +7,7 @@ import com.ninjasquad.springmockk.MockkBean
 import io.kotest.assertions.any
 import io.kotest.assertions.assertSoftly
 import io.mockk.every
-import no.nav.bidrag.commons.KildesystemIdenfikator
+import no.nav.bidrag.commons.util.KildesystemIdenfikator
 import no.nav.bidrag.commons.web.HttpResponse
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate
 import no.nav.bidrag.dokument.dto.JournalpostResponse

@@ -19,7 +19,7 @@ import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 public class BidragDokumentLocal {
   public static void main(String[] args) {
     SpringApplication app = new SpringApplication(BidragDokumentLocal.class);
-    app.setAdditionalProfiles("nais", "local");
+    app.setAdditionalProfiles("nais", "local", "lokal-nais-secrets");
     app.run(args);
   }
 

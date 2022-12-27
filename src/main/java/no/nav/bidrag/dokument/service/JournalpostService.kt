@@ -1,7 +1,7 @@
 package no.nav.bidrag.dokument.service
 
-import no.nav.bidrag.commons.KildesystemIdenfikator
-import no.nav.bidrag.commons.KildesystemIdenfikator.Kildesystem
+import no.nav.bidrag.commons.util.KildesystemIdenfikator
+import no.nav.bidrag.commons.util.KildesystemIdenfikator.Kildesystem
 import no.nav.bidrag.commons.web.HttpResponse
 import no.nav.bidrag.dokument.BidragDokumentConfig
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer
@@ -84,7 +84,7 @@ class JournalpostService(
 
     fun kanDistribuereJournalpost(kildesystemIdenfikator: KildesystemIdenfikator): HttpResponse<Void> {
         return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.prefiksetJournalpostId)
-        else if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragArkivConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.prefiksetJournalpostId)
+        else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) bidragArkivConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.prefiksetJournalpostId)
         else bidragForsendelseConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.prefiksetJournalpostId)
     }
 }
