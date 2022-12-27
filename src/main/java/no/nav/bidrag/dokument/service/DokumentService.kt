@@ -7,6 +7,7 @@ import no.nav.bidrag.dokument.BidragDokumentConfig
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer
 import no.nav.bidrag.dokument.consumer.DokumentTilgangConsumer
 import no.nav.bidrag.dokument.dto.DocumentProperties
+import no.nav.bidrag.dokument.dto.DokumentArkivSystemDto
 import no.nav.bidrag.dokument.dto.DokumentDto
 import no.nav.bidrag.dokument.dto.DokumentRef
 import no.nav.bidrag.dokument.dto.DokumentTilgangResponse
@@ -109,7 +110,12 @@ class DokumentService(
         val (journalpost) = journalpostService.hentJournalpost(dokumentRef, null).fetchBody().get()
         return journalpost!!.dokumenter
             .stream()
-            .map { (dokumentreferanse, journalpostId): DokumentDto -> DokumentRef(journalpostId ?: dokumentRef.journalpostId, dokumentreferanse) }
+            .map { dokument: DokumentDto -> DokumentRef(dokument.journalpostId ?: dokumentRef.journalpostId, dokumentId = dokument.dokumentreferanse, kilde = when(dokument.arkivSystem){
+                DokumentArkivSystemDto.MIDL_BREVLAGER -> Kilde.BIDRAG
+                DokumentArkivSystemDto.JOARK -> Kilde.JOARK
+                DokumentArkivSystemDto.BIDRAG -> Kilde.FORSENDELSE
+                else -> null
+            }) }
             .collect(Collectors.toList())
     }
 

@@ -7,6 +7,7 @@ import java.util.Optional;
 import no.nav.bidrag.dokument.dto.DocumentProperties;
 import no.nav.bidrag.dokument.dto.DokumentRef;
 import no.nav.bidrag.dokument.dto.DokumentTilgangResponse;
+import no.nav.bidrag.dokument.dto.Kilde;
 import no.nav.bidrag.dokument.service.DokumentService;
 import no.nav.bidrag.dokument.service.PDFDokumentProcessor;
 import no.nav.security.token.support.core.api.Protected;
@@ -42,9 +43,13 @@ public class DokumentController {
   }
 
   @GetMapping({"/dokument/{journalpostId}/{dokumentreferanse}", "/dokument/{journalpostId}"})
-  public ResponseEntity<byte[]> hentDokument(@PathVariable String journalpostId, @PathVariable(required = false) String dokumentreferanse, @RequestParam(required = false) boolean resizeToA4, @RequestParam(required = false, defaultValue = "true") boolean optimizeForPrint) {
+  public ResponseEntity<byte[]> hentDokument(@PathVariable(required = false)  String journalpostId,
+      @PathVariable(required = false) String dokumentreferanse,
+      @RequestParam(required = false) boolean resizeToA4,
+      @RequestParam(required = false, defaultValue = "true") boolean optimizeForPrint
+  ) {
     LOGGER.info("Henter dokument med journalpostId={} og dokumentreferanse={}, resizeToA4={}", journalpostId, dokumentreferanse, resizeToA4);
-    var dokument = new DokumentRef(journalpostId, dokumentreferanse);
+    var dokument = new DokumentRef(journalpostId, dokumentreferanse, null);
     var response = dokumentService.hentDokument(dokument, new DocumentProperties(resizeToA4, optimizeForPrint));
     Optional.ofNullable(response.getBody())
         .ifPresent((documentByte)-> LOGGER.info("Hentet dokument med journalpostId={} og dokumentreferanse={} med total størrelse {}", journalpostId, dokumentreferanse, PDFDokumentProcessor.bytesIntoHumanReadable(documentByte.length)));

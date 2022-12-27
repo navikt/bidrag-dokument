@@ -86,8 +86,14 @@ class BidragDokumentConsumer(private val restTemplate: RestTemplate) {
     }
 
     fun hentDokument(journalpostId: String?, dokumentreferanse: String?): ResponseEntity<ByteArray> {
+        if (journalpostId.isNullOrEmpty()) return hentDokument(dokumentreferanse)
         val dokumentReferanseUrl = if (!dokumentreferanse.isNullOrEmpty()) "/$dokumentreferanse" else ""
         val dokumentUrl = String.format(PATH_HENT_DOKUMENT, journalpostId) + dokumentReferanseUrl
+        return restTemplate.exchange(dokumentUrl, HttpMethod.GET, HttpEntity.EMPTY, ByteArray::class.java)
+    }
+
+    fun hentDokument(dokumentreferanse: String?): ResponseEntity<ByteArray> {
+        val dokumentUrl = String.format(PATH_HENT_DOKUMENT_REFERANSE, dokumentreferanse)
         return restTemplate.exchange(dokumentUrl, HttpMethod.GET, HttpEntity.EMPTY, ByteArray::class.java)
     }
 
@@ -110,6 +116,7 @@ class BidragDokumentConsumer(private val restTemplate: RestTemplate) {
         const val PATH_AVVIK_PA_JOURNALPOST_MED_SAK_PARAM = "/journal/%s/avvik?" + PARAM_SAKSNUMMER + "=%s"
         const val PATH_AVVIK_PA_JOURNALPOST = "/journal/%s/avvik"
         const val PATH_HENT_DOKUMENT = "/dokument/%s"
+        const val PATH_HENT_DOKUMENT_REFERANSE = "/dokumentreferanse/%s"
         private fun typereferansenErListeMedJournalposter(): ParameterizedTypeReference<List<JournalpostDto>> {
             return object : ParameterizedTypeReference<List<JournalpostDto>>() {}
         }

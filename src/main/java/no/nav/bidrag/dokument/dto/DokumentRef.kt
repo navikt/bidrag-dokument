@@ -1,14 +1,16 @@
 package no.nav.bidrag.dokument.dto
 
 data class DokumentRef(
-    val journalpostId: String,
-    val dokumentId: String?
+    val journalpostId: String?,
+    val dokumentId: String?,
+    val kilde: Kilde? = null
 ){
-    fun erForKilde(kilde: Kilde): Boolean{
-        return when(kilde){
-            Kilde.BIDRAG -> journalpostId.startsWith(Kilde.BIDRAG.prefix)
-            Kilde.JOARK -> journalpostId.startsWith(Kilde.JOARK.prefix)
-            Kilde.FORSENDELSE -> journalpostId.startsWith(Kilde.FORSENDELSE.prefix)
+    fun erForKilde(kilde: Kilde): Boolean {
+        return if (this.kilde != null) this.kilde == kilde
+        else when(kilde){
+            Kilde.BIDRAG -> journalpostId?.startsWith(Kilde.BIDRAG.prefix) == true
+            Kilde.JOARK -> journalpostId?.startsWith(Kilde.JOARK.prefix) == true
+            Kilde.FORSENDELSE -> journalpostId.isNullOrEmpty() || journalpostId.startsWith(Kilde.FORSENDELSE.prefix)
         }
     }
 
