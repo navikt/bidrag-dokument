@@ -85,8 +85,8 @@ class BidragDokumentConsumer(private val restTemplate: RestTemplate) {
         return HttpResponse(distribuerJournalpostResponse)
     }
 
-    fun hentDokument(journalpostId: String?, dokumentreferanse: String): ResponseEntity<ByteArray> {
-        val dokumentReferanseUrl = if (Strings.isNotEmpty(dokumentreferanse)) "/$dokumentreferanse" else ""
+    fun hentDokument(journalpostId: String?, dokumentreferanse: String?): ResponseEntity<ByteArray> {
+        val dokumentReferanseUrl = if (!dokumentreferanse.isNullOrEmpty()) "/$dokumentreferanse" else ""
         val dokumentUrl = String.format(PATH_HENT_DOKUMENT, journalpostId) + dokumentReferanseUrl
         return restTemplate.exchange(dokumentUrl, HttpMethod.GET, HttpEntity.EMPTY, ByteArray::class.java)
     }
