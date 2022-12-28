@@ -26,7 +26,7 @@
     <!-- dependent versions other than from spring-boot -->
     <bidrag-commons.version>0.7.29</bidrag-commons.version>
     <bidrag-commons-test.version>0.2.2</bidrag-commons-test.version>
-    <bidrag-dokument-dto.version>1.6.4</bidrag-dokument-dto.version>
+    <bidrag-dokument-dto.version>1.6.6</bidrag-dokument-dto.version>
     <logback.encoder.version>7.2</logback.encoder.version>
     <springdoc-openapi-ui.version>1.6.13</springdoc-openapi-ui.version>
     <springframework-cloud.version>3.1.5</springframework-cloud.version>
