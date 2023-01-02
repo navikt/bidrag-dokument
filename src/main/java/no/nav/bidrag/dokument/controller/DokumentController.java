@@ -42,7 +42,7 @@ public class DokumentController {
     return dokumentUrlResponse.getResponseEntity();
   }
 
-  @GetMapping({"/dokument/{journalpostId}/{dokumentreferanse}", "/dokument/{journalpostId}"})
+  @GetMapping({"/dokument/{journalpostId}/{dokumentreferanse}", "/dokument/{journalpostId}", "/dokumentreferanse/{dokumentreferanse}"})
   public ResponseEntity<byte[]> hentDokument(@PathVariable(required = false)  String journalpostId,
       @PathVariable(required = false) String dokumentreferanse,
       @RequestParam(required = false) boolean resizeToA4,
