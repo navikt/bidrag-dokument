@@ -75,8 +75,8 @@ class DokumentService(
 
     private fun hentDokumentRefMedRiktigKilde(dokumentRef: DokumentRef): DokumentRef {
        return if (dokumentRef.erForKilde(Kilde.FORSENDELSE)){
-            val (journalpost) = journalpostService.hentJournalpost(dokumentRef, null).fetchBody().get()
-            journalpost?.dokumenter?.find { jpDok -> jpDok.dokumentreferanse == dokumentRef.dokumentId }
+            val response = journalpostService.hentJournalpost(dokumentRef, null).fetchBody().orElse(null)
+           response?.journalpost?.dokumenter?.find { jpDok -> jpDok.dokumentreferanse == dokumentRef.dokumentId }
                 ?.let { mapDokumentTilDokumentRef(it, null) } ?: dokumentRef
         } else dokumentRef
     }
