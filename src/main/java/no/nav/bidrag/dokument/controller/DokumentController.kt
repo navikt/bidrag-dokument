@@ -37,7 +37,7 @@ class DokumentController(private val dokumentService: DokumentService) {
     fun hentDokumentMetadata(
         @PathVariable journalpostId: String,
         @PathVariable(required = false) dokumentreferanse: String?,
-    ): ÅpneDokumentMetadata {
+    ): List<ÅpneDokumentMetadata> {
         LOGGER.info("Henter dokument metadata med journalpostId=$journalpostId og dokumentreferanse=$dokumentreferanse")
         val dokument = DokumentRef(journalpostId, dokumentreferanse, null)
         return dokumentService.hentDokumentMetadata(dokument)

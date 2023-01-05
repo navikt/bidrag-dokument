@@ -43,8 +43,8 @@ class DokumentService(
     }
 
     @Timed("hentDokumentMetadata")
-    fun hentDokumentMetadata(dokumentRef: DokumentRef): ÅpneDokumentMetadata {
-       return hentDokumentMetaData(dokumentRef) ?: fantIkkeDokument("Fant ikke dokumentmetadata for $dokumentRef")
+    fun hentDokumentMetadata(dokumentRef: DokumentRef): List<ÅpneDokumentMetadata> {
+       return hentDokumentMetaData(dokumentRef)
     }
 
     @Timed("hentDokument")
@@ -81,10 +81,10 @@ class DokumentService(
         } else dokumentRef
     }
 
-    private fun hentDokumentMetaData(dokumentRef: DokumentRef): ÅpneDokumentMetadata? {
+    private fun hentDokumentMetaData(dokumentRef: DokumentRef): List<ÅpneDokumentMetadata> {
         return if (dokumentRef.erForKilde(Kilde.BIDRAG)) bidragJournalpostConsumer.hentDokumentMetadata(dokumentRef.journalpostId, dokumentRef.dokumentId)
         else if (dokumentRef.erForKilde(Kilde.FORSENDELSE)) bidragForsendelseConsumer.hentDokumentMetadata(dokumentRef.journalpostId, dokumentRef.dokumentId)
-        else ÅpneDokumentMetadata(format = DokumentFormatDto.PDF, status = DokumentStatusDto.FERDIGSTILT, journalpostId = dokumentRef.journalpostId, dokumentreferanse = dokumentRef.dokumentId)
+        else listOf(ÅpneDokumentMetadata(format = DokumentFormatDto.PDF, status = DokumentStatusDto.FERDIGSTILT, journalpostId = dokumentRef.journalpostId, dokumentreferanse = dokumentRef.dokumentId))
     }
 
     private fun hentDokumenterData(dokumentRefList: List<DokumentRef>, documentProperties: DocumentProperties): ResponseEntity<ByteArray> {

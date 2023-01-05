@@ -94,15 +94,15 @@ class BidragDokumentConsumer(private val restTemplate: RestTemplate) {
     }
 
 
-    fun hentDokumentMetadata(journalpostId: String?, dokumentreferanse: String?): ÅpneDokumentMetadata? {
-        if (journalpostId.isNullOrEmpty()) return hentDokumentMetadata(dokumentreferanse)
+    fun hentDokumentMetadata(journalpostId: String?, dokumentreferanse: String?): List<ÅpneDokumentMetadata> {
+        if (journalpostId.isNullOrEmpty()) return hentDokumentMetadata(dokumentreferanse) ?: emptyList()
         val dokumentReferanseUrl = if (!dokumentreferanse.isNullOrEmpty()) "/$dokumentreferanse" else ""
         val dokumentUrl = String.format(PATH_HENT_DOKUMENT, journalpostId) + dokumentReferanseUrl
-        return restTemplate.exchange(dokumentUrl, HttpMethod.OPTIONS, HttpEntity.EMPTY, ÅpneDokumentMetadata::class.java).body
+        return restTemplate.exchange(dokumentUrl, HttpMethod.OPTIONS, HttpEntity.EMPTY, object : ParameterizedTypeReference<List<ÅpneDokumentMetadata>>() {}).body ?: emptyList()
     }
-    fun hentDokumentMetadata(dokumentreferanse: String?): ÅpneDokumentMetadata? {
+    fun hentDokumentMetadata(dokumentreferanse: String?): List<ÅpneDokumentMetadata>? {
         val dokumentUrl = String.format(PATH_HENT_DOKUMENT_REFERANSE, dokumentreferanse)
-        return restTemplate.exchange(dokumentUrl, HttpMethod.OPTIONS, HttpEntity.EMPTY, ÅpneDokumentMetadata::class.java).body
+        return restTemplate.exchange(dokumentUrl, HttpMethod.OPTIONS, HttpEntity.EMPTY, object : ParameterizedTypeReference<List<ÅpneDokumentMetadata>>() {}).body
     }
     fun hentDokument(dokumentreferanse: String?): ResponseEntity<ByteArray> {
         val dokumentUrl = String.format(PATH_HENT_DOKUMENT_REFERANSE, dokumentreferanse)
