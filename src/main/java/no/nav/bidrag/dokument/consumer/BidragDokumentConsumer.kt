@@ -12,6 +12,7 @@ import no.nav.bidrag.dokument.dto.JournalpostDto
 import no.nav.bidrag.dokument.dto.JournalpostResponse
 import no.nav.bidrag.dokument.dto.OpprettJournalpostRequest
 import no.nav.bidrag.dokument.dto.OpprettJournalpostResponse
+import no.nav.bidrag.dokument.dto.ÅpneDokumentMetadata
 import org.apache.logging.log4j.util.Strings
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
@@ -92,6 +93,17 @@ class BidragDokumentConsumer(private val restTemplate: RestTemplate) {
         return restTemplate.exchange(dokumentUrl, HttpMethod.GET, HttpEntity.EMPTY, ByteArray::class.java)
     }
 
+
+    fun hentDokumentMetadata(journalpostId: String?, dokumentreferanse: String?): ÅpneDokumentMetadata? {
+        if (journalpostId.isNullOrEmpty()) return hentDokumentMetadata(dokumentreferanse)
+        val dokumentReferanseUrl = if (!dokumentreferanse.isNullOrEmpty()) "/$dokumentreferanse" else ""
+        val dokumentUrl = String.format(PATH_HENT_DOKUMENT, journalpostId) + dokumentReferanseUrl
+        return restTemplate.exchange(dokumentUrl, HttpMethod.OPTIONS, HttpEntity.EMPTY, ÅpneDokumentMetadata::class.java).body
+    }
+    fun hentDokumentMetadata(dokumentreferanse: String?): ÅpneDokumentMetadata? {
+        val dokumentUrl = String.format(PATH_HENT_DOKUMENT_REFERANSE, dokumentreferanse)
+        return restTemplate.exchange(dokumentUrl, HttpMethod.OPTIONS, HttpEntity.EMPTY, ÅpneDokumentMetadata::class.java).body
+    }
     fun hentDokument(dokumentreferanse: String?): ResponseEntity<ByteArray> {
         val dokumentUrl = String.format(PATH_HENT_DOKUMENT_REFERANSE, dokumentreferanse)
         return restTemplate.exchange(dokumentUrl, HttpMethod.GET, HttpEntity.EMPTY, ByteArray::class.java)
