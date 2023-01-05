@@ -33,9 +33,9 @@ class DokumentController(private val dokumentService: DokumentService) {
         return dokumentUrlResponse.responseEntity
     }
 
-    @RequestMapping(*["/dokument/{journalpostId}/{dokumentreferanse}", "/dokumentreferanse/{dokumentreferanse}"], method = [RequestMethod.OPTIONS])
+    @RequestMapping(*["/dokument/{journalpostId}/{dokumentreferanse}", "/dokument/{journalpostId}"], method = [RequestMethod.OPTIONS])
     fun hentDokumentMetadata(
-        @PathVariable(required = false) journalpostId: String?,
+        @PathVariable journalpostId: String,
         @PathVariable(required = false) dokumentreferanse: String?,
     ): ÅpneDokumentMetadata {
         LOGGER.info("Henter dokument metadata med journalpostId=$journalpostId og dokumentreferanse=$dokumentreferanse")
@@ -43,9 +43,9 @@ class DokumentController(private val dokumentService: DokumentService) {
         return dokumentService.hentDokumentMetadata(dokument)
     }
 
-    @GetMapping(*["/dokument/{journalpostId}/{dokumentreferanse}", "/dokument/{journalpostId}", "/dokumentreferanse/{dokumentreferanse}"])
+    @GetMapping(*["/dokument/{journalpostId}/{dokumentreferanse}", "/dokument/{journalpostId}"])
     fun hentDokument(
-        @PathVariable(required = false) journalpostId: String?,
+        @PathVariable journalpostId: String,
         @PathVariable(required = false) dokumentreferanse: String?,
         @RequestParam(required = false) resizeToA4: Boolean,
         @RequestParam(required = false, defaultValue = "true") optimizeForPrint: Boolean

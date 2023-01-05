@@ -82,10 +82,9 @@ class DokumentService(
     }
 
     private fun hentDokumentMetaData(dokumentRef: DokumentRef): ÅpneDokumentMetadata? {
-        val dokument = hentDokumentRefMedRiktigKilde(dokumentRef)
-        return if (dokument.erForKilde(Kilde.BIDRAG)) bidragJournalpostConsumer.hentDokumentMetadata(dokument.journalpostId, dokument.dokumentId)
-        else if (dokument.erForKilde(Kilde.FORSENDELSE)) bidragForsendelseConsumer.hentDokumentMetadata(dokument.journalpostId, dokument.dokumentId)
-        else ÅpneDokumentMetadata(format = DokumentFormatDto.PDF, status = DokumentStatusDto.FERDIGSTILT)
+        return if (dokumentRef.erForKilde(Kilde.BIDRAG)) bidragJournalpostConsumer.hentDokumentMetadata(dokumentRef.journalpostId, dokumentRef.dokumentId)
+        else if (dokumentRef.erForKilde(Kilde.FORSENDELSE)) bidragForsendelseConsumer.hentDokumentMetadata(dokumentRef.journalpostId, dokumentRef.dokumentId)
+        else ÅpneDokumentMetadata(format = DokumentFormatDto.PDF, status = DokumentStatusDto.FERDIGSTILT, journalpostId = dokumentRef.journalpostId, dokumentreferanse = dokumentRef.dokumentId)
     }
 
     private fun hentDokumenterData(dokumentRefList: List<DokumentRef>, documentProperties: DocumentProperties): ResponseEntity<ByteArray> {
