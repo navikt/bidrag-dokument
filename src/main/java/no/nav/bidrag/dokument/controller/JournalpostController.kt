@@ -237,7 +237,7 @@ class JournalpostController(private val journalpostService: JournalpostService) 
         @PathVariable arkivSystem: ArkivSystem
     ): ResponseEntity<OpprettJournalpostResponse> {
         SECURE_LOGGER.info("Oppretter journalpost $opprettJournalpostRequest for arkivsystem $arkivSystem")
-        return journalpostService.opprett(opprettJournalpostRequest!!, arkivSystem!!).responseEntity
+        return journalpostService.opprett(opprettJournalpostRequest, arkivSystem).responseEntity
     }
 
     @PostMapping("/journal/distribuer/{joarkJournalpostId}")
