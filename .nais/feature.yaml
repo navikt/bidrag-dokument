@@ -20,6 +20,9 @@ azure:
       - application: bidrag-cucumber-onprem-feature
         namespace: bidrag
         cluster: dev-fss
+      - application: bidrag-cucumber-cloud-feature
+        namespace: bidrag
+        cluster: dev-gcp
       - application: bidrag-reisekostnad-api
         namespace: bidrag
         cluster: dev-gcp
