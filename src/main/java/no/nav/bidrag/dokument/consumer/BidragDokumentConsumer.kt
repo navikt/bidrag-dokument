@@ -7,13 +7,12 @@ import no.nav.bidrag.dokument.dto.Avvikshendelse
 import no.nav.bidrag.dokument.dto.BehandleAvvikshendelseResponse
 import no.nav.bidrag.dokument.dto.DistribuerJournalpostRequest
 import no.nav.bidrag.dokument.dto.DistribuerJournalpostResponse
+import no.nav.bidrag.dokument.dto.DokumentMetadata
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand
 import no.nav.bidrag.dokument.dto.JournalpostDto
 import no.nav.bidrag.dokument.dto.JournalpostResponse
 import no.nav.bidrag.dokument.dto.OpprettJournalpostRequest
 import no.nav.bidrag.dokument.dto.OpprettJournalpostResponse
-import no.nav.bidrag.dokument.dto.ÅpneDokumentMetadata
-import org.apache.logging.log4j.util.Strings
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -94,15 +93,15 @@ class BidragDokumentConsumer(private val restTemplate: RestTemplate) {
     }
 
 
-    fun hentDokumentMetadata(journalpostId: String?, dokumentreferanse: String?): List<ÅpneDokumentMetadata> {
+    fun hentDokumentMetadata(journalpostId: String?, dokumentreferanse: String?): List<DokumentMetadata> {
         if (journalpostId.isNullOrEmpty()) return hentDokumentMetadata(dokumentreferanse) ?: emptyList()
         val dokumentReferanseUrl = if (!dokumentreferanse.isNullOrEmpty()) "/$dokumentreferanse" else ""
         val dokumentUrl = String.format(PATH_HENT_DOKUMENT, journalpostId) + dokumentReferanseUrl
-        return restTemplate.exchange(dokumentUrl, HttpMethod.OPTIONS, HttpEntity.EMPTY, object : ParameterizedTypeReference<List<ÅpneDokumentMetadata>>() {}).body ?: emptyList()
+        return restTemplate.exchange(dokumentUrl, HttpMethod.OPTIONS, HttpEntity.EMPTY, object : ParameterizedTypeReference<List<DokumentMetadata>>() {}).body ?: emptyList()
     }
-    fun hentDokumentMetadata(dokumentreferanse: String?): List<ÅpneDokumentMetadata>? {
+    fun hentDokumentMetadata(dokumentreferanse: String?): List<DokumentMetadata>? {
         val dokumentUrl = String.format(PATH_HENT_DOKUMENT_REFERANSE, dokumentreferanse)
-        return restTemplate.exchange(dokumentUrl, HttpMethod.OPTIONS, HttpEntity.EMPTY, object : ParameterizedTypeReference<List<ÅpneDokumentMetadata>>() {}).body
+        return restTemplate.exchange(dokumentUrl, HttpMethod.OPTIONS, HttpEntity.EMPTY, object : ParameterizedTypeReference<List<DokumentMetadata>>() {}).body
     }
     fun hentDokument(dokumentreferanse: String?): ResponseEntity<ByteArray> {
         val dokumentUrl = String.format(PATH_HENT_DOKUMENT_REFERANSE, dokumentreferanse)

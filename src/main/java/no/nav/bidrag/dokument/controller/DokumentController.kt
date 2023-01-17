@@ -3,9 +3,9 @@ package no.nav.bidrag.dokument.controller
 import io.micrometer.core.annotation.Timed
 import io.swagger.v3.oas.annotations.Parameter
 import no.nav.bidrag.dokument.dto.DocumentProperties
+import no.nav.bidrag.dokument.dto.DokumentMetadata
 import no.nav.bidrag.dokument.dto.DokumentRef
 import no.nav.bidrag.dokument.dto.DokumentTilgangResponse
-import no.nav.bidrag.dokument.dto.ÅpneDokumentMetadata
 import no.nav.bidrag.dokument.service.DokumentService
 import no.nav.bidrag.dokument.service.PDFDokumentProcessor
 import no.nav.security.token.support.core.api.Protected
@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import java.util.Optional
 
 @RestController
 @Protected
@@ -27,17 +26,17 @@ class DokumentController(private val dokumentService: DokumentService) {
     fun giTilgangTilDokument(
         @PathVariable journalpostId: String?,
         @PathVariable dokumentreferanse: String?
-    ): ResponseEntity<DokumentTilgangResponse> {
+    ): DokumentTilgangResponse? {
         val dokumentUrlResponse = dokumentService.hentTilgangUrl(journalpostId, dokumentreferanse)
         LOGGER.info("Gitt tilgang til dokument $dokumentreferanse")
-        return dokumentUrlResponse.responseEntity
+        return dokumentUrlResponse
     }
 
     @RequestMapping(*["/dokument/{journalpostId}/{dokumentreferanse}", "/dokument/{journalpostId}"], method = [RequestMethod.OPTIONS])
     fun hentDokumentMetadata(
         @PathVariable journalpostId: String,
         @PathVariable(required = false) dokumentreferanse: String?,
-    ): List<ÅpneDokumentMetadata> {
+    ): List<DokumentMetadata> {
         LOGGER.info("Henter dokument metadata med journalpostId=$journalpostId og dokumentreferanse=$dokumentreferanse")
         val dokument = DokumentRef(journalpostId, dokumentreferanse, null)
         return dokumentService.hentDokumentMetadata(dokument)

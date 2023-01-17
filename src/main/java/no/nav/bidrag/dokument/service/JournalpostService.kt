@@ -27,11 +27,6 @@ class JournalpostService(
     @Qualifier(BidragDokumentConfig.ARKIV_QUALIFIER) private val bidragArkivConsumer: BidragDokumentConsumer,
     @Qualifier(BidragDokumentConfig.MIDL_BREVLAGER_QUALIFIER) private val bidragJournalpostConsumer: BidragDokumentConsumer
 ) {
-    fun hentJournalpost(dokumentRef: DokumentRef, saksnummer: String?): HttpResponse<JournalpostResponse> {
-        return if (dokumentRef.erForKilde(Kilde.BIDRAG)) bidragJournalpostConsumer.hentJournalpost(saksnummer, dokumentRef.journalpostId)
-            else if (dokumentRef.erForKilde(Kilde.JOARK)) bidragArkivConsumer.hentJournalpost(saksnummer, dokumentRef.journalpostId)
-            else bidragForsendelseConsumer.hentJournalpost(saksnummer, dokumentRef.journalpostId)
-    }
 
     fun hentJournalpost(saksnummer: String?, kildesystemIdenfikator: KildesystemIdenfikator): HttpResponse<JournalpostResponse> {
         return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.hentJournalpost(saksnummer, kildesystemIdenfikator.prefiksetJournalpostId)

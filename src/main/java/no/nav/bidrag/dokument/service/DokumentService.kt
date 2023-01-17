@@ -2,20 +2,15 @@ package no.nav.bidrag.dokument.service
 
 import com.google.common.io.ByteSource
 import io.micrometer.core.annotation.Timed
-import no.nav.bidrag.commons.web.HttpResponse
 import no.nav.bidrag.dokument.BidragDokumentConfig
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer
 import no.nav.bidrag.dokument.consumer.DokumentTilgangConsumer
 import no.nav.bidrag.dokument.dto.DocumentProperties
 import no.nav.bidrag.dokument.dto.DokumentArkivSystemDto
-import no.nav.bidrag.dokument.dto.DokumentDto
-import no.nav.bidrag.dokument.dto.DokumentFormatDto
+import no.nav.bidrag.dokument.dto.DokumentMetadata
 import no.nav.bidrag.dokument.dto.DokumentRef
-import no.nav.bidrag.dokument.dto.DokumentStatusDto
 import no.nav.bidrag.dokument.dto.DokumentTilgangResponse
 import no.nav.bidrag.dokument.dto.Kilde
-import no.nav.bidrag.dokument.dto.fantIkkeDokument
-import no.nav.bidrag.dokument.dto.ÅpneDokumentMetadata
 import org.apache.pdfbox.io.MemoryUsageSetting
 import org.apache.pdfbox.multipdf.PDFMergerUtility
 import org.slf4j.LoggerFactory
@@ -32,18 +27,17 @@ import java.util.stream.Collectors
 
 @Service
 class DokumentService(
-    private val journalpostService: JournalpostService,
     private val dokumentTilgangConsumer: DokumentTilgangConsumer,
     @Qualifier(BidragDokumentConfig.ARKIV_QUALIFIER) private val bidragArkivConsumer: BidragDokumentConsumer,
     @Qualifier(BidragDokumentConfig.MIDL_BREVLAGER_QUALIFIER) private val bidragJournalpostConsumer: BidragDokumentConsumer,
     @Qualifier(BidragDokumentConfig.FORSENDELSE_QUALIFIER) private val bidragForsendelseConsumer: BidragDokumentConsumer
 ) {
-    fun hentTilgangUrl(journalpostId: String?, dokumentreferanse: String?): HttpResponse<DokumentTilgangResponse> {
+    fun hentTilgangUrl(journalpostId: String?, dokumentreferanse: String?): DokumentTilgangResponse? {
         return dokumentTilgangConsumer.hentTilgangUrl(journalpostId, dokumentreferanse)
     }
 
     @Timed("hentDokumentMetadata")
-    fun hentDokumentMetadata(dokumentRef: DokumentRef): List<ÅpneDokumentMetadata> {
+    fun hentDokumentMetadata(dokumentRef: DokumentRef): List<DokumentMetadata> {
        return hentDokumentMetaData(dokumentRef)
     }
 
@@ -75,16 +69,16 @@ class DokumentService(
 
     private fun hentDokumentRefMedRiktigKilde(dokumentRef: DokumentRef): DokumentRef {
        return if (dokumentRef.erForKilde(Kilde.FORSENDELSE)){
-            val response = journalpostService.hentJournalpost(dokumentRef, null).fetchBody().orElse(null)
-           response?.journalpost?.dokumenter?.find { jpDok -> jpDok.dokumentreferanse == dokumentRef.dokumentId }
+            val response = hentDokumentMetaData(dokumentRef)
+           response.find { jpDok -> jpDok.dokumentreferanse == dokumentRef.dokumentId }
                 ?.let { mapDokumentTilDokumentRef(it, null) } ?: dokumentRef
         } else dokumentRef
     }
 
-    private fun hentDokumentMetaData(dokumentRef: DokumentRef): List<ÅpneDokumentMetadata> {
+    private fun hentDokumentMetaData(dokumentRef: DokumentRef): List<DokumentMetadata> {
         return if (dokumentRef.erForKilde(Kilde.BIDRAG)) bidragJournalpostConsumer.hentDokumentMetadata(dokumentRef.journalpostId, dokumentRef.dokumentId)
         else if (dokumentRef.erForKilde(Kilde.FORSENDELSE)) bidragForsendelseConsumer.hentDokumentMetadata(dokumentRef.journalpostId, dokumentRef.dokumentId)
-        else listOf(ÅpneDokumentMetadata(format = DokumentFormatDto.PDF, status = DokumentStatusDto.FERDIGSTILT, journalpostId = dokumentRef.journalpostId, dokumentreferanse = dokumentRef.dokumentId, arkivsystem = DokumentArkivSystemDto.JOARK))
+        else bidragArkivConsumer.hentDokumentMetadata(dokumentRef.journalpostId, dokumentRef.dokumentId)
     }
 
     private fun hentDokumenterData(dokumentRefList: List<DokumentRef>, documentProperties: DocumentProperties): ResponseEntity<ByteArray> {
@@ -131,17 +125,14 @@ class DokumentService(
     }
 
     private fun hentAlleJournalpostDokumentReferanser(dokumentRef: DokumentRef): List<DokumentRef> {
-        val (journalpost) = journalpostService.hentJournalpost(dokumentRef, null).fetchBody().get()
-        return journalpost!!.dokumenter
-            .stream()
-            .map { dokument: DokumentDto -> mapDokumentTilDokumentRef(dokument, dokumentRef.journalpostId) }
-            .collect(Collectors.toList())
+        val metadataList = hentDokumentMetaData(dokumentRef)
+        return metadataList.map { dokumentMetadata -> mapDokumentTilDokumentRef(dokumentMetadata, dokumentRef.journalpostId) }
     }
 
     val String?.erForsendelseId get() = this?.startsWith(Kilde.FORSENDELSE.prefix) ?: false
-    private fun mapDokumentTilDokumentRef(dokument: DokumentDto, journalpostId: String?): DokumentRef {
-        val dokumentJournalpostId = if (dokument.arkivSystem != DokumentArkivSystemDto.BIDRAG && journalpostId.erForsendelseId) dokument.journalpostId else dokument.journalpostId ?: journalpostId
-        return DokumentRef(dokumentJournalpostId, dokumentId = dokument.dokumentreferanse, kilde = when(dokument.arkivSystem){
+    private fun mapDokumentTilDokumentRef(dokument: DokumentMetadata, journalpostId: String?): DokumentRef {
+        val dokumentJournalpostId = if (dokument.arkivsystem != DokumentArkivSystemDto.BIDRAG && journalpostId.erForsendelseId) dokument.journalpostId else dokument.journalpostId ?: journalpostId
+        return DokumentRef(dokumentJournalpostId, dokumentId = dokument.dokumentreferanse, kilde = when(dokument.arkivsystem){
             DokumentArkivSystemDto.MIDLERTIDLIG_BREVLAGER -> Kilde.BIDRAG
             DokumentArkivSystemDto.JOARK -> Kilde.JOARK
             DokumentArkivSystemDto.BIDRAG -> Kilde.FORSENDELSE
