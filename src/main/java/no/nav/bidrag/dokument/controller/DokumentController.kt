@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.RestController
 @Protected
 @Timed
 class DokumentController(private val dokumentService: DokumentService) {
-    @GetMapping("/tilgang/{journalpostId}/{dokumentreferanse}")
+    @GetMapping("/tilgang/{journalpostId}/{dokumentreferanse}", "/tilgang/dokumentreferanse/{dokumentreferanse}")
     fun giTilgangTilDokument(
-        @PathVariable journalpostId: String?,
+        @PathVariable(required = false) journalpostId: String?,
         @PathVariable dokumentreferanse: String?
     ): DokumentTilgangResponse? {
         val dokumentUrlResponse = dokumentService.hentTilgangUrl(journalpostId, dokumentreferanse)
@@ -42,9 +42,9 @@ class DokumentController(private val dokumentService: DokumentService) {
         return dokumentService.hentDokumentMetadata(dokument)
     }
 
-    @GetMapping(*["/dokument/{journalpostId}/{dokumentreferanse}", "/dokument/{journalpostId}"])
+    @GetMapping(*["/dokument/{journalpostId}/{dokumentreferanse}", "/dokument/{journalpostId}", "/dokumentreferanse/{dokumentreferanse}"])
     fun hentDokument(
-        @PathVariable journalpostId: String,
+        @PathVariable journalpostId: String?,
         @PathVariable(required = false) dokumentreferanse: String?,
         @RequestParam(required = false) resizeToA4: Boolean,
         @RequestParam(required = false, defaultValue = "true") optimizeForPrint: Boolean

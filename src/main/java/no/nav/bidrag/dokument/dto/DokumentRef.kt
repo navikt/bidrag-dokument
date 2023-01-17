@@ -8,7 +8,7 @@ data class DokumentRef(
     fun erForKilde(kilde: Kilde): Boolean {
         return if (this.kilde != null) this.kilde == kilde
         else when(kilde){
-            Kilde.BIDRAG -> journalpostId?.startsWith(Kilde.BIDRAG.prefix) == true
+            Kilde.MIDLERTIDLIG_BREVLAGER -> journalpostId?.startsWith(Kilde.MIDLERTIDLIG_BREVLAGER.prefix) == true
             Kilde.JOARK -> journalpostId?.startsWith(Kilde.JOARK.prefix) == true
             Kilde.FORSENDELSE -> journalpostId.isNullOrEmpty() || journalpostId.startsWith(Kilde.FORSENDELSE.prefix)
         }
@@ -27,6 +27,6 @@ data class DokumentRef(
 
 enum class Kilde(var prefix: String) {
     JOARK("JOARK"),
-    BIDRAG("BID"),
+    MIDLERTIDLIG_BREVLAGER("BID"),
     FORSENDELSE("BIF")
 }
