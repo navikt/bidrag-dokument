@@ -41,4 +41,6 @@ env:
     value: prod-fss.bidrag.bidrag-dokument-arkiv
   - name: STS_ISSUER_URL
     value: https://security-token-service.nais.adeo.no
+  - name: JAVA_OPTS
+    value: -Xmx1500m
 path: prod

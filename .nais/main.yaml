@@ -45,4 +45,6 @@ env:
     value: dev-fss.bidrag.bidrag-dokument-arkiv
   - name: STS_ISSUER_URL
     value: https://security-token-service.dev.adeo.no
+  - name: JAVA_OPTS
+    value: -Xmx1500m
 path: dev
