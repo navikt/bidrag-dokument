@@ -19,6 +19,7 @@ import org.springframework.boot.web.client.RootUriTemplateHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.EnableAspectJAutoProxy
+import org.springframework.context.annotation.Import
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.web.client.RestTemplate
 
@@ -27,6 +28,7 @@ import org.springframework.web.client.RestTemplate
 @SecurityScheme(bearerFormat = "JWT", name = "bearer-key", scheme = "bearer", type = SecuritySchemeType.HTTP)
 @EnableAspectJAutoProxy
 @EnableSecurityConfiguration
+@Import(EnhetFilter::class, DefaultCorsFilter::class, UserMdcFilter::class, CorrelationIdFilter::class)
 class BidragDokumentConfig {
     @Bean
     @Qualifier(MIDL_BREVLAGER_QUALIFIER)
@@ -67,18 +69,6 @@ class BidragDokumentConfig {
         val restTemplate = createRestTemplate(journalpostBaseUrl, securityTokenService, KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST)
         return DokumentTilgangConsumer(restTemplate)
     }
-
-    @Bean
-    fun correlationIdFilter(): CorrelationIdFilter = CorrelationIdFilter()
-
-    @Bean
-    fun enhetFilter(): EnhetFilter = EnhetFilter()
-
-    @Bean
-    fun userMdcFilter(): UserMdcFilter = UserMdcFilter()
-
-    @Bean
-    fun corsFilter(): DefaultCorsFilter = DefaultCorsFilter()
 
     private fun createRestTemplate(baseUrl: String, securityTokenService: SecurityTokenService, clientId: String): RestTemplate {
         val requestFactory = HttpComponentsClientHttpRequestFactory()
