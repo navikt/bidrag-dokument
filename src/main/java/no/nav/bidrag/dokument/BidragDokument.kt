@@ -11,11 +11,11 @@ val sikkerLogg = KotlinLogging.logger("secureLogger")
 
 @SpringBootApplication(exclude = [SecurityAutoConfiguration::class, ManagementWebSecurityAutoConfiguration::class])
 @EnableJwtTokenValidation(ignore = ["org.springdoc"])
-class BidragDokument {
-    fun main(args: Array<String>) {
-        val profile = if (args.isEmpty()) BidragDokumentConfig.NAIS_PROFILE else args[0]
-        val app = SpringApplication(BidragDokument::class.java)
-        app.setAdditionalProfiles(profile)
-        app.run(*args)
-    }
+class BidragDokument
+
+fun main(args: Array<String>) {
+    val profile = if (args.isEmpty()) BidragDokumentConfig.NAIS_PROFILE else args[0]
+    val app = SpringApplication(BidragDokument::class.java)
+    app.setAdditionalProfiles(profile)
+    app.run(*args)
 }
