@@ -64,7 +64,7 @@ class JournalpostController(private val journalpostService: JournalpostService) 
     fun hentJournalpost(
             @PathVariable journalpostIdForKildesystem: String,
             @Parameter(name = "saksnummer", description = "journalposten tilhører sak") @RequestParam(required = false) saksnummer: String?
-    ): ResponseEntity<JournalpostResponse> {
+    ): ResponseEntity<JournalpostResponse?> {
         var journalpostId = journalpostIdForKildesystem
         if (!Strings.isNullOrEmpty(journalpostIdForKildesystem) && journalpostIdForKildesystem.contains(":")) {
             journalpostId = journalpostIdForKildesystem.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
