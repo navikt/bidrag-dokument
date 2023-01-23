@@ -34,6 +34,7 @@
     <squareup.version>4.10.0</squareup.version>
     <mockk.version>4.0.0</mockk.version>
     <kotest.version>5.5.4</kotest.version>
+    <kotlin-logging-jvm.version>3.0.2</kotlin-logging-jvm.version>
 
     <!-- build -->
     <build-helper-maven.version>3.2.0</build-helper-maven.version>
@@ -46,6 +47,11 @@
 
   <dependencies>
 
+    <dependency>
+      <groupId>io.github.microutils</groupId>
+      <artifactId>kotlin-logging-jvm</artifactId>
+      <version>${kotlin-logging-jvm.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
