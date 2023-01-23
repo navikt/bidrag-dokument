@@ -7,13 +7,15 @@ import no.nav.bidrag.dokument.BidragDokumentConfig
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer
 import no.nav.bidrag.dokument.dto.*
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 @Component
 class JournalpostService(
         @Qualifier(BidragDokumentConfig.FORSENDELSE_QUALIFIER) private val bidragForsendelseConsumer: BidragDokumentConsumer,
         @Qualifier(BidragDokumentConfig.ARKIV_QUALIFIER) private val bidragArkivConsumer: BidragDokumentConsumer,
-        @Qualifier(BidragDokumentConfig.MIDL_BREVLAGER_QUALIFIER) private val bidragJournalpostConsumer: BidragDokumentConsumer
+        @Qualifier(BidragDokumentConfig.MIDL_BREVLAGER_QUALIFIER) private val bidragJournalpostConsumer: BidragDokumentConsumer,
+        @Value("\${FORSENDELSE_ENABLED}") private val forsendelseEnabled: Boolean
 ) {
 
     fun hentJournalpost(saksnummer: String?, kildesystemIdenfikator: KildesystemIdenfikator): HttpResponse<JournalpostResponse> {
@@ -39,7 +41,7 @@ class JournalpostService(
     fun finnJournalposter(saksnummer: String?, fagomrade: String?): List<JournalpostDto> {
         val sakjournal = ArrayList(bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade))
         sakjournal.addAll(bidragArkivConsumer.finnJournalposter(saksnummer, fagomrade))
-//        sakjournal.addAll(bidragForsendelseConsumer.finnJournalposter(saksnummer, fagomrade))
+        if (forsendelseEnabled) sakjournal.addAll(bidragForsendelseConsumer.finnJournalposter(saksnummer, fagomrade))
         return sakjournal
     }
 
