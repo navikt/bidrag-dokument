@@ -7,12 +7,12 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType
 import io.swagger.v3.oas.annotations.info.Info
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.security.SecurityScheme
+import mu.KotlinLogging
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration
 import no.nav.bidrag.commons.security.service.SecurityTokenService
 import no.nav.bidrag.commons.web.*
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer
 import no.nav.bidrag.dokument.consumer.DokumentTilgangConsumer
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RootUriTemplateHandler
@@ -22,6 +22,8 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy
 import org.springframework.context.annotation.Import
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.web.client.RestTemplate
+
+private val log = KotlinLogging.logger {}
 
 @Configuration
 @OpenAPIDefinition(info = Info(title = "bidrag-dokument", version = "v1"), security = [SecurityRequirement(name = "bearer-key")])
@@ -65,7 +67,6 @@ class BidragDokumentConfig {
             @Value("\${JOURNALPOST_URL}") journalpostBaseUrl: String,
             securityTokenService: SecurityTokenService
     ): DokumentTilgangConsumer {
-        LOGGER.info("DokumentConsumer med base url: $journalpostBaseUrl")
         val restTemplate = createRestTemplate(journalpostBaseUrl, securityTokenService, KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST)
         return DokumentTilgangConsumer(restTemplate)
     }
@@ -96,6 +97,5 @@ class BidragDokumentConfig {
         const val KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV = "bidrag-dokument-arkiv"
         const val KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST = "bidrag-dokument-journalpost"
         const val NAIS_PROFILE = "nais"
-        private val LOGGER = LoggerFactory.getLogger(BidragDokumentConfig::class.java)
     }
 }
