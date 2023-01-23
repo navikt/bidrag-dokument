@@ -25,22 +25,16 @@ ingresses:
   - https://bidrag-dokument.prod-fss.nais.io
   - https://bidrag-dokument.prod-fss-pub.nais.io
 env:
-  - name: STS_ACCEPTED_AUDIENCE
-    value: srvbdarkivering,srvbisys
-  - name: BIDRAG_ARKIV_URL
-    value: https://bidrag-dokument-arkiv.nais.adeo.no/bidrag-dokument-arkiv
-  - name: JOURNALPOST_URL
-    value: https://bidrag-dokument-journalpost.nais.adeo.no/bidrag-dokument-journalpost
-  - name: SECURITY_TOKEN_URL
-    value: https://security-token-service.nais.adeo.no/rest/v1/sts/token
-  - name: SRVBIDRAG_USERNAME
-    value: srvbidrag-dokument
-  - name: BIDRAG_DOKUMENT_JOURNALPOST_CLIENT_ID
-    value: prod-fss.bidrag.bidrag-dokument-journalpost
-  - name: BIDRAG_DOKUMENT_ARKIV_CLIENT_ID
-    value: prod-fss.bidrag.bidrag-dokument-arkiv
-  - name: STS_ISSUER_URL
-    value: https://security-token-service.nais.adeo.no
-  - name: JAVA_OPTS
-    value: -Xmx1500m
+    STS_ACCEPTED_AUDIENCE: srvbdarkivering,srvbisys
+    BIDRAG_ARKIV_URL: https://bidrag-dokument-arkiv.nais.adeo.no/bidrag-dokument-arkiv
+    BIDRAG_FORSENDELSE_URL: https://bidrag-dokument-forsendelse.intern.nav.no/api/forsendelse
+    JOURNALPOST_URL: https://bidrag-dokument-journalpost.nais.adeo.no/bidrag-dokument-journalpost
+    SECURITY_TOKEN_URL: https://security-token-service.nais.adeo.no/rest/v1/sts/token
+    SRVBIDRAG_USERNAME: srvbidrag-dokument
+    BIDRAG_DOKUMENT_JOURNALPOST_CLIENT_ID: prod-fss.bidrag.bidrag-dokument-journalpost
+    BIDRAG_DOKUMENT_ARKIV_CLIENT_ID: prod-fss.bidrag.bidrag-dokument-arkiv
+    BIDRAG_DOKUMENT_FORSENDELSE_CLIENT_ID: prod-gcp.bidrag.bidrag-dokument-forsendelse
+    STS_ISSUER_URL: https://security-token-service.nais.adeo.no
+    JAVA_OPTS: -Xmx1500m
+    FORSENDELSE_ENABLED: false
 path: prod

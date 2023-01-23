@@ -10,6 +10,6 @@ BIDRAG_DOKUMENT_ARKIV_CLIENT_ID: dev-fss.bidrag.bidrag-dokument-arkiv-feature
 STS_ISSUER_URL: http://localhost:8888/sts
 SRVBIDRAG_PASSWORD: <changme>
 AZURE_APP_CLIENT_SECRET: <changme>
-AZURE_APP_CLIENT_ID: d220e284-c0f0-43f1-a585-5c5b5c63dc0a
+AZURE_APP_CLIENT_ID: 87121e6c-b300-4703-9e2d-a24f23caa72c
 AZURE_APP_TENANT_ID: 966ac572-f5b7-4bbe-aa88-c76419c0f851
 server.port: 8099

@@ -13,7 +13,7 @@ import static org.mockito.Mockito.when;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.Appender;
 import java.util.stream.Collectors;
-import no.nav.bidrag.commons.KildesystemIdenfikator;
+import no.nav.bidrag.commons.util.KildesystemIdenfikator;
 import no.nav.bidrag.commons.web.HttpResponse;
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
 import no.nav.bidrag.dokument.service.JournalpostService;
@@ -55,7 +55,8 @@ class EnhetFilterFilterTest {
   @BeforeEach
   @SuppressWarnings("unchecked")
   void mockLogAppender() {
-    ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+    ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(
+        Logger.ROOT_LOGGER_NAME);
     when(appenderMock.getName()).thenReturn("MOCK");
     when(appenderMock.isStarted()).thenReturn(true);
     logger.addAppender(appenderMock);
@@ -66,7 +67,7 @@ class EnhetFilterFilterTest {
   @DisplayName("skal logge requests mot applikasjonen som ikke inneholder enhetsinformasjon i header")
   void skalLoggeRequestsMotApplikasjonenUtenHeaderInformasjon() {
     when(journalpostServiceMock.hentJournalpost(anyString(), any(KildesystemIdenfikator.class)))
-        .thenReturn(HttpResponse.from(HttpStatus.I_AM_A_TEAPOT));
+        .thenReturn(HttpResponse.Companion.from(HttpStatus.I_AM_A_TEAPOT));
 
     var response = securedTestRestTemplate.exchange(
         "http://localhost:" + port + "/bidrag-dokument/journal/BID-123?saksnummer=777",
@@ -76,15 +77,18 @@ class EnhetFilterFilterTest {
     );
 
     assertAll(
-        () -> assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.I_AM_A_TEAPOT),
+        () -> assertThat(response).extracting(ResponseEntity::getStatusCode)
+            .isEqualTo(HttpStatus.I_AM_A_TEAPOT),
         () -> {
           var loggingEventCaptor = ArgumentCaptor.forClass(ILoggingEvent.class);
           verify(appenderMock, atLeastOnce()).doAppend(loggingEventCaptor.capture());
 
           var loggingEvents = loggingEventCaptor.getAllValues();
-          var allMsgs = loggingEvents.stream().map(ILoggingEvent::getFormattedMessage).collect(Collectors.joining("\n"));
+          var allMsgs = loggingEvents.stream().map(ILoggingEvent::getFormattedMessage)
+              .collect(Collectors.joining("\n"));
 
-          assertThat(allMsgs).contains("Behandler request '/bidrag-dokument/journal/BID-123' uten informasjon om enhetsnummer.");
+          assertThat(allMsgs).contains(
+              "Behandler request '/bidrag-dokument/journal/BID-123' uten informasjon om enhetsnummer.");
         }
     );
   }
@@ -94,7 +98,7 @@ class EnhetFilterFilterTest {
   @DisplayName("skal logge requests mot applikasjonen som ikke inneholder enhetsinformasjon i header")
   void skalLoggeRequestsMotApplikasjonenMedHeaderInformasjon() {
     when(journalpostServiceMock.hentJournalpost(anyString(), any(KildesystemIdenfikator.class)))
-        .thenReturn(HttpResponse.from(HttpStatus.I_AM_A_TEAPOT));
+        .thenReturn(HttpResponse.Companion.from(HttpStatus.I_AM_A_TEAPOT));
 
     var enhet = "4802";
     var htpEntity = new HttpEntity<Void>(null, createEnhetHeader(enhet));
@@ -106,15 +110,19 @@ class EnhetFilterFilterTest {
     );
 
     assertAll(
-        () -> assertThat(response).extracting(ResponseEntity::getStatusCode).isEqualTo(HttpStatus.I_AM_A_TEAPOT),
+        () -> assertThat(response).extracting(ResponseEntity::getStatusCode)
+            .isEqualTo(HttpStatus.I_AM_A_TEAPOT),
         () -> {
           var loggingEventCaptor = ArgumentCaptor.forClass(ILoggingEvent.class);
           verify(appenderMock, atLeastOnce()).doAppend(loggingEventCaptor.capture());
 
           var loggingEvents = loggingEventCaptor.getAllValues();
-          var allMsgs = loggingEvents.stream().map(ILoggingEvent::getFormattedMessage).collect(Collectors.joining("\n"));
+          var allMsgs = loggingEvents.stream().map(ILoggingEvent::getFormattedMessage)
+              .collect(Collectors.joining("\n"));
 
-          assertThat(allMsgs).containsIgnoringCase("Behandler request '/bidrag-dokument/journal/BID-123' for enhet med enhetsnummer " + enhet);
+          assertThat(allMsgs).containsIgnoringCase(
+              "Behandler request '/bidrag-dokument/journal/BID-123' for enhet med enhetsnummer "
+                  + enhet);
         }
     );
   }

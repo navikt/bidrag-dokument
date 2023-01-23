@@ -495,6 +495,7 @@ class JournalpostControllerTest {
       // WireMock-instanser for hver app, men det krever mer arbeid.
       restConsumerStub.runGetArkiv(path, HttpStatus.OK, lesResponsfilSomStreng(navnResponsfil));
       restConsumerStub.runGet(path, HttpStatus.OK, lesResponsfilSomStreng(navnResponsfil));
+      restConsumerStub.runGetForsendelse(path, HttpStatus.OK, lesResponsfilSomStreng(navnResponsfil));
 
       // when
       var listeMedJournalposterResponse = httpHeaderTestRestTemplate
@@ -504,7 +505,7 @@ class JournalpostControllerTest {
       assertThat(optional(listeMedJournalposterResponse))
           .hasValueSatisfying(response -> assertAll(() -> assertThat(response.getStatusCode()).as("status").isEqualTo(HttpStatus.OK),
               // henter to journalposter fra journalpost og to fra arkiv (samme respons)
-              () -> assertThat(response.getBody()).as("body").hasSize(4)));
+              () -> assertThat(response.getBody()).as("body").hasSize(6)));
     }
 
     @Test
@@ -531,11 +532,12 @@ class JournalpostControllerTest {
       // WireMock-instanser for hver app, men det krever mer arbeid.
       restConsumerStub.runGetArkiv(path, HttpStatus.OK, lesResponsfilSomStreng(navnResponsfil));
       restConsumerStub.runGet(path, HttpStatus.OK, lesResponsfilSomStreng(navnResponsfil));
+      restConsumerStub.runGetForsendelse(path, HttpStatus.OK, lesResponsfilSomStreng(navnResponsfil));
 
       var listeMedJournalposterResponse = httpHeaderTestRestTemplate
           .exchange(lagUrlForFagomradeBid(path), HttpMethod.GET, null, responseTypeErListeMedJournalposter());
 
-      assertThat(listeMedJournalposterResponse.getBody()).hasSize(4); //  skal kalle også kalle bidrag-dokument-arkiv
+      assertThat(listeMedJournalposterResponse.getBody()).hasSize(6); //  skal kalle også kalle bidrag-dokument-arkiv
     }
 
     private String lagUrlForFagomradeBid(String path) {

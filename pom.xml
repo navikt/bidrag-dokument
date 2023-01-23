@@ -13,7 +13,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.7.3</version>
+    <version>2.7.8</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
@@ -21,17 +21,20 @@
 
     <!-- language -->
     <java.version>17</java.version>
-    <kotlin.version>1.7.21</kotlin.version>
+    <kotlin.version>1.8.0</kotlin.version>
 
     <!-- dependent versions other than from spring-boot -->
-    <bidrag-commons.version>0.7.15</bidrag-commons.version>
+    <bidrag-commons.version>0.7.39</bidrag-commons.version>
     <bidrag-commons-test.version>0.2.2</bidrag-commons-test.version>
-    <bidrag-dokument-dto.version>1.5.18</bidrag-dokument-dto.version>
+    <bidrag-dokument-dto.version>1.6.13</bidrag-dokument-dto.version>
     <logback.encoder.version>7.2</logback.encoder.version>
     <springdoc-openapi-ui.version>1.6.13</springdoc-openapi-ui.version>
     <springframework-cloud.version>3.1.5</springframework-cloud.version>
-    <token-support.version>2.1.6</token-support.version>
+    <token-support.version>2.1.9</token-support.version>
     <squareup.version>4.10.0</squareup.version>
+    <mockk.version>4.0.0</mockk.version>
+    <kotest.version>5.5.4</kotest.version>
+    <kotlin-logging-jvm.version>3.0.2</kotlin-logging-jvm.version>
 
     <!-- build -->
     <build-helper-maven.version>3.2.0</build-helper-maven.version>
@@ -43,7 +46,11 @@
   </properties>
 
   <dependencies>
-
+    <dependency>
+      <groupId>io.github.microutils</groupId>
+      <artifactId>kotlin-logging-jvm</artifactId>
+      <version>${kotlin-logging-jvm.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
@@ -74,6 +81,12 @@
       <groupId>no.nav.bidrag</groupId>
       <artifactId>bidrag-commons</artifactId>
       <version>${bidrag-commons.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId></groupId>
+          <artifactId></artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -184,6 +197,18 @@
       <version>${bidrag-commons-test.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.ninja-squad</groupId>
+      <artifactId>springmockk</artifactId>
+      <version>${mockk.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.kotest</groupId>
+      <artifactId>kotest-assertions-core-jvm</artifactId>
+      <version>${kotest.version}</version>
+      <scope>test</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -247,7 +272,7 @@
           </execution>
           <execution>
             <id>test-compile</id>
-            <phase>process-test-sources</phase>
+            <phase>test-compile</phase>
             <goals>
               <goal>test-compile</goal>
             </goals>
@@ -258,8 +283,28 @@
               </sourceDirs>
             </configuration>
           </execution>
-
         </executions>
+        <configuration>
+          <args>
+            <arg>-Xjsr305=strict</arg>
+          </args>
+          <compilerPlugins>
+            <plugin>spring</plugin>
+            <plugin>jpa</plugin>
+          </compilerPlugins>
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-maven-allopen</artifactId>
+            <version>${kotlin.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-maven-noarg</artifactId>
+            <version>${kotlin.version}</version>
+          </dependency>
+        </dependencies>
       </plugin>
 
       <plugin>
