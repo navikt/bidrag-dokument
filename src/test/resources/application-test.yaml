@@ -11,7 +11,7 @@ JOURNALPOST_URL: http://localhost:${wiremock.server.port}/
 SECURITY_TOKEN_URL: http://localhost:${wiremock.server.port}/sts
 SRVBIDRAG_USERNAME: srvbidrag-dokument
 SRVBIDRAG_PASSWORD: bareForTest
-
+FORSENDELSE_ENABLED: true
 no.nav.security.jwt:
   issuer.aad:
     discoveryurl: ${AAD_ISSUER_URL}/.well-known/openid-configuration
