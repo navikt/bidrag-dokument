@@ -11,6 +11,7 @@ metadata:
 spec:
   azure:
     application:
+      allowAllUsers: true
       enabled: true
       claims:
         extra:
