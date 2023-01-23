@@ -1,13 +1,7 @@
 package no.nav.bidrag.dokument.consumer
 
-import io.mockk.every
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockkClass
-import no.nav.bidrag.commons.security.service.SecurityTokenService
 import no.nav.bidrag.dokument.BidragDokumentConfig
-import no.nav.bidrag.dokument.BidragDokumentConfig.Companion.KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV
-import no.nav.bidrag.dokument.BidragDokumentConfig.Companion.KLIENTNAVN_BIDRAG_DOKUMENT_FORSENDELSE
-import no.nav.bidrag.dokument.BidragDokumentConfig.Companion.KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST
 import no.nav.bidrag.dokument.BidragDokumentTest
 import no.nav.bidrag.dokument.consumer.stub.RestConsumerStub
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand
@@ -18,12 +12,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.boot.devtools.remote.client.HttpHeaderInterceptor
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Primary
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 import java.io.IOException
@@ -64,7 +54,7 @@ internal class BidragJournalpostConsumerTest {
         val (journalpostId) = endreJournalpostCommandMedId101()
         restConsumerStub.runEndreJournalpost(journalpostId, HttpStatus.OK)
         val respons = bidragJournalpostConsumer.endre("4802", endreJournalpostCommandMedId101())
-        Assertions.assertTrue(respons.is2xxSuccessful)
+        Assertions.assertTrue(respons.is2xxSuccessful())
     }
 
     private fun endreJournalpostCommandMedId101(): EndreJournalpostCommand {
