@@ -6,11 +6,12 @@ AZURE_OPENID_CONFIG_ISSUER: http://localhost:${mock-oauth2-server.port}/aad
 STS_ISSUER_URL: http://localhost:${mock-oauth2-server.port}/sts
 # For enkelhetsskyld brukes samme wiremock-instans for både arkiv og journalpost
 BIDRAG_ARKIV_URL: http://localhost:${wiremock.server.port}/arkiv
+BIDRAG_FORSENDELSE_URL: http://localhost:${wiremock.server.port}/forsendelse
 JOURNALPOST_URL: http://localhost:${wiremock.server.port}/
 SECURITY_TOKEN_URL: http://localhost:${wiremock.server.port}/sts
 SRVBIDRAG_USERNAME: srvbidrag-dokument
 SRVBIDRAG_PASSWORD: bareForTest
-
+FORSENDELSE_ENABLED: true
 no.nav.security.jwt:
   issuer.aad:
     discoveryurl: ${AAD_ISSUER_URL}/.well-known/openid-configuration
@@ -26,6 +27,14 @@ no.nav.security.jwt:
           client-secret: 123
           client-auth-method: client_secret_basic
       bidrag-dokument-arkiv:
+        token-endpoint-url: ${AAD_ISSUER_URL}/oauth2/v2.0/token
+        grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+        scope: api://123/.default
+        authentication:
+          client-id: 123
+          client-secret: 123
+          client-auth-method: client_secret_basic
+      bidrag-dokument-forsendelse:
         token-endpoint-url: ${AAD_ISSUER_URL}/oauth2/v2.0/token
         grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
         scope: api://123/.default

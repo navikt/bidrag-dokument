@@ -95,6 +95,10 @@ public class RestConsumerStub {
     runGet("/arkiv"+path, status, respons);
   }
 
+  public void runGetForsendelse(String path, HttpStatus status, String respons) {
+    runGet("/forsendelse"+path, status, respons);
+  }
+
   public void runGet(String path, Map<String, StringValuePattern> queryParams, HttpStatus status, String respons) {
 
     stubFor(get(urlPathEqualTo(path)).withQueryParams(queryParams)

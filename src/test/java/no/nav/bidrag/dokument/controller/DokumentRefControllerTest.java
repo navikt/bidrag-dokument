@@ -43,9 +43,6 @@ class DokumentRefControllerTest {
   @Autowired
   private RestConsumerStub restConsumerStub;
 
-  @MockBean
-  OidcTokenManager oidcTokenManager;
-
   @Test
   @DisplayName("skal spørre brevserver om tilgang til dokument")
   void skalVideresendeRequestOmTilgangTilDokument() throws IOException {
@@ -55,8 +52,6 @@ class DokumentRefControllerTest {
     var dokumentUrl = "https://dokument-url.no/";
     var type = "BREVLAGER";
 
-    when(oidcTokenManager.isValidTokenIssuedByAzure()).thenReturn(false);
-    when(oidcTokenManager.fetchTokenAsString()).thenReturn("");
     restConsumerStub
         .runGiTilgangTilDokument(journalpostId, dokumentReferanse, dokumentUrl, type, HttpStatus.OK.value());
 

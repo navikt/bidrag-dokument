@@ -11,6 +11,7 @@ metadata:
 spec:
   azure:
     application:
+      allowAllUsers: true
       enabled: true
       claims:
         extra:
@@ -53,8 +54,8 @@ spec:
   {{/each}}
   env:
   {{#each env}}
-    - name: {{this.name}}
-      value: "{{this.value}}"
+     - name: {{@key}}
+       value: "{{this}}"
   {{/each}}
   vault:
     enabled: true

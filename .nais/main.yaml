@@ -20,6 +20,9 @@ azure:
       - application: bidrag-cucumber-onprem
         namespace: bidrag
         cluster: dev-fss
+      - application: bidrag-cucumber-cloud
+        namespace: bidrag
+        cluster: dev-gcp
       - application: bidrag-reisekostnad-api
         namespace: bidrag
         cluster: dev-gcp
@@ -29,22 +32,15 @@ ingresses:
   - https://bidrag-dokument.dev.intern.nav.no/
   - https://bidrag-dokument.dev-fss-pub.nais.io/
 env:
-  - name: STS_ACCEPTED_AUDIENCE
-    value: srvbdarkivering,srvbisys
-  - name: BIDRAG_ARKIV_URL
-    value: https://bidrag-dokument-arkiv.dev.adeo.no/bidrag-dokument-arkiv
-  - name: JOURNALPOST_URL
-    value: https://bidrag-dokument-journalpost.dev.adeo.no/bidrag-dokument-journalpost
-  - name: SECURITY_TOKEN_URL
-    value: https://security-token-service.dev.adeo.no/rest/v1/sts/token
-  - name: SRVBIDRAG_USERNAME
-    value: srvbidrag-dokument
-  - name: BIDRAG_DOKUMENT_JOURNALPOST_CLIENT_ID
-    value: dev-fss.bidrag.bidrag-dokument-journalpost
-  - name: BIDRAG_DOKUMENT_ARKIV_CLIENT_ID
-    value: dev-fss.bidrag.bidrag-dokument-arkiv
-  - name: STS_ISSUER_URL
-    value: https://security-token-service.dev.adeo.no
-  - name: JAVA_OPTS
-    value: -Xmx1500m
+    STS_ACCEPTED_AUDIENCE: srvbdarkivering,srvbisys
+    BIDRAG_ARKIV_URL: https://bidrag-dokument-arkiv.dev.adeo.no/bidrag-dokument-arkiv
+    BIDRAG_FORSENDELSE_URL: https://bidrag-dokument-forsendelse.dev.intern.nav.no/api/forsendelse
+    JOURNALPOST_URL: https://bidrag-dokument-journalpost.dev.adeo.no/bidrag-dokument-journalpost
+    SECURITY_TOKEN_URL: https://security-token-service.dev.adeo.no/rest/v1/sts/token
+    SRVBIDRAG_USERNAME: srvbidrag-dokument
+    BIDRAG_DOKUMENT_JOURNALPOST_CLIENT_ID: dev-fss.bidrag.bidrag-dokument-journalpost
+    BIDRAG_DOKUMENT_ARKIV_CLIENT_ID: dev-fss.bidrag.bidrag-dokument-arkiv
+    BIDRAG_DOKUMENT_FORSENDELSE_CLIENT_ID: dev-gcp.bidrag.bidrag-dokument-forsendelse
+    STS_ISSUER_URL: https://security-token-service.dev.adeo.no
+    FORSENDELSE_ENABLED: false
 path: dev
