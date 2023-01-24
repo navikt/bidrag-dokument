@@ -34,7 +34,7 @@
     <squareup.version>4.10.0</squareup.version>
     <mockk.version>4.0.0</mockk.version>
     <kotest.version>5.5.4</kotest.version>
-    <kotlin-logging-jvm.version>3.0.2</kotlin-logging-jvm.version>
+    <kotlin-logging-jvm.version>3.0.4</kotlin-logging-jvm.version>
 
     <!-- build -->
     <build-helper-maven.version>3.2.0</build-helper-maven.version>
@@ -83,8 +83,8 @@
       <version>${bidrag-commons.version}</version>
       <exclusions>
         <exclusion>
-          <groupId></groupId>
-          <artifactId></artifactId>
+          <groupId/>
+          <artifactId/>
         </exclusion>
       </exclusions>
     </dependency>
