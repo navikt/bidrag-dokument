@@ -33,9 +33,9 @@ ingresses:
   - https://bidrag-dokument.dev-fss-pub.nais.io/
 env:
     STS_ACCEPTED_AUDIENCE: srvbdarkivering,srvbisys
-    BIDRAG_ARKIV_URL: https://bidrag-dokument-arkiv.dev.adeo.no/bidrag-dokument-arkiv
+    BIDRAG_ARKIV_URL: https://bidrag-dokument-arkiv.dev.intern.nav.no/bidrag-dokument-arkiv
     BIDRAG_FORSENDELSE_URL: https://bidrag-dokument-forsendelse.dev.intern.nav.no/api/forsendelse
-    JOURNALPOST_URL: https://bidrag-dokument-journalpost.dev.adeo.no/bidrag-dokument-journalpost
+    JOURNALPOST_URL: https://bidrag-dokument-journalpost.dev.intern.nav.no/bidrag-dokument-journalpost
     SECURITY_TOKEN_URL: https://security-token-service.dev.adeo.no/rest/v1/sts/token
     SRVBIDRAG_USERNAME: srvbidrag-dokument
     BIDRAG_DOKUMENT_JOURNALPOST_CLIENT_ID: dev-fss.bidrag.bidrag-dokument-journalpost
