@@ -43,5 +43,5 @@ env:
     BIDRAG_DOKUMENT_FORSENDELSE_CLIENT_ID: dev-gcp.bidrag.bidrag-dokument-forsendelse
     STS_ISSUER_URL: https://security-token-service.dev.adeo.no
     JAVA_OPTS: -Xmx1500m
-    FORSENDELSE_ENABLED: false
+    FORSENDELSE_ENABLED: true
 path: dev
