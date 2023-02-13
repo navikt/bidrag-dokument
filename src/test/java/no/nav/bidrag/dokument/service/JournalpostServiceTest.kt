@@ -37,7 +37,7 @@ internal class JournalpostServiceTest {
 
     @BeforeEach
     fun init() {
-        journalpostService = JournalpostService(bidragForsendelseConsumer, bidragArkivConsumer, bidragJournalpostConsumer, true)
+        journalpostService = JournalpostService(bidragForsendelseConsumer, bidragArkivConsumer, bidragJournalpostConsumer)
     }
 
 
@@ -60,14 +60,14 @@ internal class JournalpostServiceTest {
     @Test
     @DisplayName("skal kombinere resultat fra BidragDokumentJournalpostConsumer samt BidragDokumentArkivConsumer")
     fun skalKombinereResultaterFraJournalpostOgArkiv() {
-        every { bidragArkivConsumer.finnJournalposter("1", "FAG") } returns listOf(JournalpostDto())
-        every { bidragForsendelseConsumer.finnJournalposter("1", "FAG") } returns listOf(JournalpostDto())
-        every { bidragJournalpostConsumer.finnJournalposter("1", "FAG") } returns listOf(JournalpostDto())
+        every { bidragArkivConsumer.finnJournalposter("1", listOf("FAG")) } returns listOf(JournalpostDto())
+        every { bidragForsendelseConsumer.finnJournalposter("1", listOf("FAG")) } returns listOf(JournalpostDto())
+        every { bidragJournalpostConsumer.finnJournalposter("1", listOf("FAG")) } returns listOf(JournalpostDto())
 
-        val journalposter = journalpostService.finnJournalposter("1", "FAG")
+        val journalposter = journalpostService.finnJournalposter("1", listOf("FAG"))
         org.junit.jupiter.api.Assertions.assertAll(
-                Executable { Assertions.assertThat(journalposter).hasSize(3) },
-                Executable { verify { bidragJournalpostConsumer.finnJournalposter("1", "FAG") } }
+            Executable { Assertions.assertThat(journalposter).hasSize(3) },
+            Executable { verify { bidragJournalpostConsumer.finnJournalposter("1", listOf("FAG")) } }
         )
     }
 }
