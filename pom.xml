@@ -28,13 +28,13 @@
     <bidrag-commons-test.version>0.2.2</bidrag-commons-test.version>
     <bidrag-dokument-dto.version>1.6.16</bidrag-dokument-dto.version>
     <logback.encoder.version>7.2</logback.encoder.version>
-    <springdoc-openapi-ui.version>1.6.13</springdoc-openapi-ui.version>
+    <springdoc-openapi-ui.version>1.6.14</springdoc-openapi-ui.version>
     <springframework-cloud.version>3.1.5</springframework-cloud.version>
     <token-support.version>2.1.9</token-support.version>
     <squareup.version>4.10.0</squareup.version>
     <mockk.version>4.0.0</mockk.version>
     <kotest.version>5.5.4</kotest.version>
-    <kotlin-logging-jvm.version>3.0.2</kotlin-logging-jvm.version>
+    <kotlin-logging-jvm.version>3.0.4</kotlin-logging-jvm.version>
 
     <!-- build -->
     <build-helper-maven.version>3.2.0</build-helper-maven.version>
@@ -81,12 +81,6 @@
       <groupId>no.nav.bidrag</groupId>
       <artifactId>bidrag-commons</artifactId>
       <version>${bidrag-commons.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId></groupId>
-          <artifactId></artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
