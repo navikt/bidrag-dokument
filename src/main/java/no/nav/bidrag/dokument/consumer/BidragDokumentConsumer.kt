@@ -3,9 +3,23 @@ package no.nav.bidrag.dokument.consumer
 import mu.KotlinLogging
 import no.nav.bidrag.commons.web.EnhetFilter
 import no.nav.bidrag.commons.web.HttpResponse
-import no.nav.bidrag.dokument.dto.*
+import no.nav.bidrag.dokument.dto.AvvikType
+import no.nav.bidrag.dokument.dto.Avvikshendelse
+import no.nav.bidrag.dokument.dto.BehandleAvvikshendelseResponse
+import no.nav.bidrag.dokument.dto.DistribuerJournalpostRequest
+import no.nav.bidrag.dokument.dto.DistribuerJournalpostResponse
+import no.nav.bidrag.dokument.dto.DokumentMetadata
+import no.nav.bidrag.dokument.dto.EndreJournalpostCommand
+import no.nav.bidrag.dokument.dto.JournalpostDto
+import no.nav.bidrag.dokument.dto.JournalpostResponse
+import no.nav.bidrag.dokument.dto.OpprettJournalpostRequest
+import no.nav.bidrag.dokument.dto.OpprettJournalpostResponse
 import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.*
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
@@ -23,7 +37,7 @@ class BidragDokumentConsumer(private val restTemplate: RestTemplate, private val
     fun behandleAvvik(enhetsnummer: String?, journalpostId: String?, avvikshendelse: Avvikshendelse?): HttpResponse<BehandleAvvikshendelseResponse> {
         val path = String.format("$PATH_JOURNALPOST_UTEN_SAK/avvik", journalpostId)
         val avviksResponse = restTemplate
-                .exchange(path, HttpMethod.POST, HttpEntity(avvikshendelse, createEnhetHeader(enhetsnummer)), BehandleAvvikshendelseResponse::class.java)
+            .exchange(path, HttpMethod.POST, HttpEntity(avvikshendelse, createEnhetHeader(enhetsnummer)), BehandleAvvikshendelseResponse::class.java)
         return HttpResponse(avviksResponse)
     }
 
@@ -34,14 +48,16 @@ class BidragDokumentConsumer(private val restTemplate: RestTemplate, private val
         return HttpResponse(journalpostExchange)
     }
 
-    fun finnJournalposter(saksnummer: String?, fagomrade: String?): List<JournalpostDto> {
-        val uri = UriComponentsBuilder.fromPath(String.format(PATH_JOURNAL, saksnummer)).queryParam(PARAM_FAGOMRADE, fagomrade).toUriString()
+    fun finnJournalposter(saksnummer: String?, fagomrade: List<String> = emptyList()): List<JournalpostDto> {
+        val uriBuilder = UriComponentsBuilder.fromPath(String.format(PATH_JOURNAL, saksnummer))
+        fagomrade.forEach { uriBuilder.queryParam(PARAM_FAGOMRADE, it) }
+        val uri = uriBuilder.toUriString()
         return try {
             val journalposterFraArkiv = restTemplate
-                    .exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter())
+                .exchange(uri, HttpMethod.GET, null, typereferansenErListeMedJournalposter())
             return journalposterFraArkiv.body ?: emptyList()
         } catch (e: HttpStatusCodeException) {
-            log.error(e) { "Det skjedde en feil ved henting av journal for sak $saksnummer og fagområde $fagomrade fra url $rootUri/$uri" }
+            log.error(e) { "Det skjedde en feil ved henting av journal for sak $saksnummer og fagområder ${fagomrade.joinToString(",")} fra url $rootUri/$uri" }
             if (e.statusCode == HttpStatus.NOT_FOUND) emptyList()
             else throw e
         }
@@ -51,20 +67,20 @@ class BidragDokumentConsumer(private val restTemplate: RestTemplate, private val
     fun endre(enhet: String?, endreJournalpostCommand: EndreJournalpostCommand): HttpResponse<Void> {
         val path = String.format(PATH_JOURNALPOST_UTEN_SAK, endreJournalpostCommand.journalpostId)
         val endretJournalpostResponse = restTemplate
-                .exchange(path, HttpMethod.PATCH, HttpEntity(endreJournalpostCommand, createEnhetHeader(enhet)), Void::class.java)
+            .exchange(path, HttpMethod.PATCH, HttpEntity(endreJournalpostCommand, createEnhetHeader(enhet)), Void::class.java)
         return HttpResponse(endretJournalpostResponse)
     }
 
     fun opprett(opprettJournalpostRequest: OpprettJournalpostRequest): HttpResponse<OpprettJournalpostResponse> {
         val endretJournalpostResponse = restTemplate
-                .exchange(PATH_OPPRETT_JOURNALPOST, HttpMethod.POST, HttpEntity(opprettJournalpostRequest), OpprettJournalpostResponse::class.java)
+            .exchange(PATH_OPPRETT_JOURNALPOST, HttpMethod.POST, HttpEntity(opprettJournalpostRequest), OpprettJournalpostResponse::class.java)
         return HttpResponse(endretJournalpostResponse)
     }
 
     fun distribuerJournalpost(
-            journalpostId: String?,
-            batchId: String?,
-            distribuerJournalpostRequest: DistribuerJournalpostRequest
+        journalpostId: String?,
+        batchId: String?,
+        distribuerJournalpostRequest: DistribuerJournalpostRequest
     ): HttpResponse<DistribuerJournalpostResponse> {
         var uriBuilder = UriComponentsBuilder.fromPath(String.format(PATH_DISTRIBUER, journalpostId))
         if (!batchId.isNullOrEmpty()) {
@@ -72,7 +88,7 @@ class BidragDokumentConsumer(private val restTemplate: RestTemplate, private val
         }
         val uri = uriBuilder.toUriString()
         val distribuerJournalpostResponse = restTemplate
-                .exchange(uri, HttpMethod.POST, HttpEntity(distribuerJournalpostRequest), DistribuerJournalpostResponse::class.java)
+            .exchange(uri, HttpMethod.POST, HttpEntity(distribuerJournalpostRequest), DistribuerJournalpostResponse::class.java)
         return HttpResponse(distribuerJournalpostResponse)
     }
 
@@ -92,16 +108,24 @@ class BidragDokumentConsumer(private val restTemplate: RestTemplate, private val
 
     fun hentDokumentMetadata(journalpostId: String?, dokumentreferanse: String?): List<DokumentMetadata> {
         if (journalpostId.isNullOrEmpty()) return hentDokumentMetadata(dokumentreferanse)
-                ?: emptyList()
+            ?: emptyList()
         val dokumentReferanseUrl = if (!dokumentreferanse.isNullOrEmpty()) "/$dokumentreferanse" else ""
         val dokumentUrl = String.format(PATH_HENT_DOKUMENT, journalpostId) + dokumentReferanseUrl
-        return restTemplate.exchange(dokumentUrl, HttpMethod.OPTIONS, HttpEntity.EMPTY, object : ParameterizedTypeReference<List<DokumentMetadata>>() {}).body
-                ?: emptyList()
+        return restTemplate.exchange(
+            dokumentUrl,
+            HttpMethod.OPTIONS,
+            HttpEntity.EMPTY,
+            object : ParameterizedTypeReference<List<DokumentMetadata>>() {}).body
+            ?: emptyList()
     }
 
     fun hentDokumentMetadata(dokumentreferanse: String?): List<DokumentMetadata>? {
         val dokumentUrl = String.format(PATH_HENT_DOKUMENT_REFERANSE, dokumentreferanse)
-        return restTemplate.exchange(dokumentUrl, HttpMethod.OPTIONS, HttpEntity.EMPTY, object : ParameterizedTypeReference<List<DokumentMetadata>>() {}).body
+        return restTemplate.exchange(
+            dokumentUrl,
+            HttpMethod.OPTIONS,
+            HttpEntity.EMPTY,
+            object : ParameterizedTypeReference<List<DokumentMetadata>>() {}).body
     }
 
     fun hentDokument(dokumentreferanse: String?): ResponseEntity<ByteArray> {

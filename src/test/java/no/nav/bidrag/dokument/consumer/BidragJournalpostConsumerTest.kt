@@ -41,7 +41,7 @@ internal class BidragJournalpostConsumerTest {
         val saksnr = "1900000"
         restConsumerStub.runHenteJournalpostForSak(saksnr)
         // when
-        val respons = bidragJournalpostConsumer.finnJournalposter(saksnr, "BID")
+        val respons = bidragJournalpostConsumer.finnJournalposter(saksnr, listOf("BID"))
 
         // then
         Assertions.assertEquals(2, respons.size)

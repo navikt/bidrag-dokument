@@ -40,5 +40,4 @@ env:
     BIDRAG_DOKUMENT_FORSENDELSE_CLIENT_ID: prod-gcp.bidrag.bidrag-dokument-forsendelse
     STS_ISSUER_URL: https://security-token-service.nais.adeo.no
     JAVA_OPTS: -Xmx1500m
-    FORSENDELSE_ENABLED: true
 path: prod

@@ -7,41 +7,59 @@ import no.nav.bidrag.dokument.BidragDokumentConfig
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer
 import no.nav.bidrag.dokument.dto.*
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 
 @Component
 class JournalpostService(
-        @Qualifier(BidragDokumentConfig.FORSENDELSE_QUALIFIER) private val bidragForsendelseConsumer: BidragDokumentConsumer,
-        @Qualifier(BidragDokumentConfig.ARKIV_QUALIFIER) private val bidragArkivConsumer: BidragDokumentConsumer,
-        @Qualifier(BidragDokumentConfig.MIDL_BREVLAGER_QUALIFIER) private val bidragJournalpostConsumer: BidragDokumentConsumer,
-        @Value("\${FORSENDELSE_ENABLED}") private val forsendelseEnabled: Boolean
+    @Qualifier(BidragDokumentConfig.FORSENDELSE_QUALIFIER) private val bidragForsendelseConsumer: BidragDokumentConsumer,
+    @Qualifier(BidragDokumentConfig.ARKIV_QUALIFIER) private val bidragArkivConsumer: BidragDokumentConsumer,
+    @Qualifier(BidragDokumentConfig.MIDL_BREVLAGER_QUALIFIER) private val bidragJournalpostConsumer: BidragDokumentConsumer
 ) {
 
     fun hentJournalpost(saksnummer: String?, kildesystemIdenfikator: KildesystemIdenfikator): HttpResponse<JournalpostResponse> {
-        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.hentJournalpost(saksnummer, kildesystemIdenfikator.prefiksetJournalpostId)
-        else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) bidragArkivConsumer.hentJournalpost(saksnummer, kildesystemIdenfikator.prefiksetJournalpostId)
+        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.hentJournalpost(
+            saksnummer,
+            kildesystemIdenfikator.prefiksetJournalpostId
+        )
+        else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) bidragArkivConsumer.hentJournalpost(
+            saksnummer,
+            kildesystemIdenfikator.prefiksetJournalpostId
+        )
         else bidragForsendelseConsumer.hentJournalpost(saksnummer, kildesystemIdenfikator.prefiksetJournalpostId)
     }
 
     fun finnAvvik(saksnummer: String?, kildesystemIdenfikator: KildesystemIdenfikator): HttpResponse<List<AvvikType>> {
-        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.finnAvvik(saksnummer, kildesystemIdenfikator.prefiksetJournalpostId)
-        else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) bidragArkivConsumer.finnAvvik(saksnummer, kildesystemIdenfikator.prefiksetJournalpostId)
+        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.finnAvvik(
+            saksnummer,
+            kildesystemIdenfikator.prefiksetJournalpostId
+        )
+        else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) bidragArkivConsumer.finnAvvik(
+            saksnummer,
+            kildesystemIdenfikator.prefiksetJournalpostId
+        )
         else bidragForsendelseConsumer.finnAvvik(saksnummer, kildesystemIdenfikator.prefiksetJournalpostId)
     }
 
     fun behandleAvvik(
-            enhet: String?, kildesystemIdenfikator: KildesystemIdenfikator, avvikshendelse: Avvikshendelse?
+        enhet: String?, kildesystemIdenfikator: KildesystemIdenfikator, avvikshendelse: Avvikshendelse?
     ): HttpResponse<BehandleAvvikshendelseResponse> {
-        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.behandleAvvik(enhet, kildesystemIdenfikator.prefiksetJournalpostId, avvikshendelse)
-        else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) bidragArkivConsumer.behandleAvvik(enhet, kildesystemIdenfikator.prefiksetJournalpostId, avvikshendelse)
+        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.behandleAvvik(
+            enhet,
+            kildesystemIdenfikator.prefiksetJournalpostId,
+            avvikshendelse
+        )
+        else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) bidragArkivConsumer.behandleAvvik(
+            enhet,
+            kildesystemIdenfikator.prefiksetJournalpostId,
+            avvikshendelse
+        )
         else bidragForsendelseConsumer.behandleAvvik(enhet, kildesystemIdenfikator.prefiksetJournalpostId, avvikshendelse)
     }
 
-    fun finnJournalposter(saksnummer: String?, fagomrade: String?): List<JournalpostDto> {
+    fun finnJournalposter(saksnummer: String, fagomrade: List<String> = emptyList()): List<JournalpostDto> {
         val sakjournal = ArrayList(bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade))
         sakjournal.addAll(bidragArkivConsumer.finnJournalposter(saksnummer, fagomrade))
-        if (forsendelseEnabled) sakjournal.addAll(bidragForsendelseConsumer.finnJournalposter(saksnummer, fagomrade))
+        sakjournal.addAll(bidragForsendelseConsumer.finnJournalposter(saksnummer, fagomrade))
         return sakjournal
     }
 
@@ -57,12 +75,20 @@ class JournalpostService(
     }
 
     fun distribuerJournalpost(
-            batchId: String?,
-            kildesystemIdenfikator: KildesystemIdenfikator,
-            distribuerJournalpostRequest: DistribuerJournalpostRequest
+        batchId: String?,
+        kildesystemIdenfikator: KildesystemIdenfikator,
+        distribuerJournalpostRequest: DistribuerJournalpostRequest
     ): HttpResponse<DistribuerJournalpostResponse> {
-        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.distribuerJournalpost(kildesystemIdenfikator.prefiksetJournalpostId, batchId, distribuerJournalpostRequest)
-        else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) bidragArkivConsumer.distribuerJournalpost(kildesystemIdenfikator.prefiksetJournalpostId, batchId, distribuerJournalpostRequest)
+        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.distribuerJournalpost(
+            kildesystemIdenfikator.prefiksetJournalpostId,
+            batchId,
+            distribuerJournalpostRequest
+        )
+        else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) bidragArkivConsumer.distribuerJournalpost(
+            kildesystemIdenfikator.prefiksetJournalpostId,
+            batchId,
+            distribuerJournalpostRequest
+        )
         else bidragForsendelseConsumer.distribuerJournalpost(kildesystemIdenfikator.prefiksetJournalpostId, batchId, distribuerJournalpostRequest)
     }
 
