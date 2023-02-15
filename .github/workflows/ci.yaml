@@ -91,7 +91,7 @@ jobs:
       INGRESS_DOKUMENT: https://bidrag-dokument.dev.intern.nav.no
       INGRESS_DOKUMENT_JOURNALPOST: https://bidrag-dokument-journalpost.dev.intern.nav.no
       INGRESS_TESTDATA: https://bidrag-testdata.dev.intern.nav.no
-      INGRESS_OPPGAVE: https://oppgave-q2.dev.intern.nav.no
+      INGRESS_OPPGAVE: https://oppgave.dev.intern.nav.no
 
     steps:
       - run: |
