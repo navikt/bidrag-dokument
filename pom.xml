@@ -21,7 +21,7 @@
 
     <!-- language -->
     <java.version>17</java.version>
-    <kotlin.version>1.8.0</kotlin.version>
+    <kotlin.version>1.8.10</kotlin.version>
 
     <!-- dependent versions other than from spring-boot -->
     <bidrag-commons.version>0.7.39</bidrag-commons.version>
