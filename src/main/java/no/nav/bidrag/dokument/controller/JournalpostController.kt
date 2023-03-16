@@ -282,6 +282,25 @@ class JournalpostController(private val journalpostService: JournalpostService) 
         return journalpostService.kanDistribuereJournalpost(kildesystemIdenfikator).responseEntity
     }
 
+    @GetMapping("/journal/distribuer/info/{journalpostId}")
+    @Operation(description = "Hent informasjon om distribusjon av journalpost")
+    @ResponseBody
+    fun hentDistribusjonsInfo(@PathVariable journalpostId: String): ResponseEntity<DistribusjonInfoDto> {
+        log.info("Henter distribusjonsinfo for journalpost {}", journalpostId)
+        val kildesystemIdenfikator = JournalpostId(journalpostId)
+        if (!kildesystemIdenfikator.erSystemJoark) {
+            val msgBadRequest = String.format("Id har ikke riktig prefix: %s", journalpostId)
+            log.warn(msgBadRequest)
+            return ResponseEntity
+                .badRequest()
+                .header(HttpHeaders.WARNING, msgBadRequest)
+                .build()
+        }
+
+        val distinfo = journalpostService.hentDistribusjonsInfo(kildesystemIdenfikator)
+        return ResponseEntity.ok(distinfo)
+    }
+
     companion object {
         private const val NON_DIGITS = "\\D+"
     }
