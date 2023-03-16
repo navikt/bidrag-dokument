@@ -8,6 +8,7 @@ import no.nav.bidrag.dokument.dto.Avvikshendelse
 import no.nav.bidrag.dokument.dto.BehandleAvvikshendelseResponse
 import no.nav.bidrag.dokument.dto.DistribuerJournalpostRequest
 import no.nav.bidrag.dokument.dto.DistribuerJournalpostResponse
+import no.nav.bidrag.dokument.dto.DistribusjonInfoDto
 import no.nav.bidrag.dokument.dto.DokumentMetadata
 import no.nav.bidrag.dokument.dto.EndreJournalpostCommand
 import no.nav.bidrag.dokument.dto.JournalpostDto
@@ -92,10 +93,16 @@ class BidragDokumentConsumer(private val restTemplate: RestTemplate, private val
         return HttpResponse(distribuerJournalpostResponse)
     }
 
+
     fun kanDistribuereJournalpost(journalpostId: String?): HttpResponse<Void> {
         val path = String.format(PATH_DISTRIBUER_ENABLED, journalpostId)
         val distribuerJournalpostResponse = restTemplate.exchange(path, HttpMethod.GET, null, Void::class.java)
         return HttpResponse(distribuerJournalpostResponse)
+    }
+
+    fun hentDistribusjonsInfo(journalpostId: String): DistribusjonInfoDto? {
+        val path = String.format(PATH_HENT_DIST_INFO, journalpostId)
+        return restTemplate.exchange(path, HttpMethod.GET, null, DistribusjonInfoDto::class.java).body
     }
 
     fun hentDokument(journalpostId: String?, dokumentreferanse: String?): ResponseEntity<ByteArray> {
@@ -145,6 +152,7 @@ class BidragDokumentConsumer(private val restTemplate: RestTemplate, private val
         private const val PATH_JOURNALPOST = "/journal/%s"
         private const val PATH_DISTRIBUER = "/journal/distribuer/%s"
         private const val PATH_DISTRIBUER_ENABLED = "/journal/distribuer/%s/enabled"
+        private const val PATH_HENT_DIST_INFO = "/journal/distribuer/info/%s"
         private const val PATH_JOURNALPOST_MED_SAKPARAM = "/journal/%s?saksnummer=%s"
         private const val PARAM_FAGOMRADE = "fagomrade"
         private const val PARAM_BATCHID = "batchId"

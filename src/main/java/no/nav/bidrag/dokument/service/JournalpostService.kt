@@ -97,4 +97,10 @@ class JournalpostService(
         else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) bidragArkivConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.prefiksetJournalpostId)
         else bidragForsendelseConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.prefiksetJournalpostId)
     }
+
+    fun hentDistribusjonsInfo(journalpostId: JournalpostId): DistribusjonInfoDto? {
+        return if (journalpostId.erSystemBidrag) bidragJournalpostConsumer.hentDistribusjonsInfo(journalpostId.medSystemPrefiks!!)
+        else if (journalpostId.erSystemJoark) bidragArkivConsumer.hentDistribusjonsInfo(journalpostId.medSystemPrefiks!!)
+        else bidragForsendelseConsumer.hentDistribusjonsInfo(journalpostId.medSystemPrefiks!!)
+    }
 }
