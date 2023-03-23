@@ -96,8 +96,9 @@ class JournalpostControllerTest {
   private record CustomHeader(String name, String value) {
 
   }
+
   @BeforeEach
-  void cleanup(){
+  void cleanup() {
     resetToDefault();
     resetAllScenarios();
     reset();
@@ -450,14 +451,15 @@ class JournalpostControllerTest {
 
     @Test
     @DisplayName("skal opprette avvik")
-    @Disabled // feilet når RequestFactory fra apache ble lagt til i RestTemplate grunnet endring av PUT -> PATCH... ???
+    @Disabled
+      // feilet når RequestFactory fra apache ble lagt til i RestTemplate grunnet endring av PUT -> PATCH... ???
     void skalOppretteAvvik() {
       // given
       final var jpId = "BID-666";
       final var enhetsnummer = "4806";
       final var avvikshendelse = new Avvikshendelse(AvvikType.ENDRE_FAGOMRADE.name(), enhetsnummer);
       final var path = String.format(PATH_AVVIK_PA_JOURNALPOST, jpId);
-      final var respons ="na";
+      final var respons = "na";
 
       restConsumerStub.runPost(path, HttpStatus.CREATED, respons);
 
@@ -509,6 +511,59 @@ class JournalpostControllerTest {
     }
 
     @Test
+    void skalHenteJournalposterMedFarskapUtelukket() throws IOException {
+
+      // given
+      final var saksnr = "1001";
+      final var path = String.format(PATH_SAK_JOURNAL, saksnr);
+      final var navnResponsfil = "bdj-respons.json";
+      final var navnResponsfilFarskapUtelukket = "respons_farskap_utelukket.json";
+
+      // Bruker en fellestub for journalpost og arkiv pga identisk path. Kan evnt sette opp egne
+      // WireMock-instanser for hver app, men det krever mer arbeid.
+      restConsumerStub.runGetArkiv(path, HttpStatus.OK, lesResponsfilSomStreng(navnResponsfil));
+      restConsumerStub.runGet(path, HttpStatus.OK, lesResponsfilSomStreng(navnResponsfilFarskapUtelukket));
+      restConsumerStub.runGetForsendelse(path, HttpStatus.OK, lesResponsfilSomStreng(navnResponsfil));
+
+      // when
+      var listeMedJournalposterResponse = httpHeaderTestRestTemplate
+          .exchange(lagUrlForFagomradeBid(path, true), HttpMethod.GET, null, responseTypeErListeMedJournalposter());
+
+      // then
+      assertThat(optional(listeMedJournalposterResponse))
+          .hasValueSatisfying(response -> assertAll(() -> assertThat(response.getStatusCode()).as("status").isEqualTo(HttpStatus.OK),
+              // henter to journalposter fra journalpost og to fra arkiv (samme respons)
+              () -> assertThat(response.getBody()).as("body").hasSize(7)));
+    }
+
+    @Test
+    void skalIkkeHenteJournalposterMedFarskapUtelukket() throws IOException {
+
+      // given
+      final var saksnr = "1001";
+      final var path = String.format(PATH_SAK_JOURNAL, saksnr);
+      final var navnResponsfil = "bdj-respons.json";
+      final var navnResponsfilFarskapUtelukket = "respons_farskap_utelukket.json";
+
+      // Bruker en fellestub for journalpost og arkiv pga identisk path. Kan evnt sette opp egne
+      // WireMock-instanser for hver app, men det krever mer arbeid.
+      restConsumerStub.runGetArkiv(path, HttpStatus.OK, lesResponsfilSomStreng(navnResponsfil));
+      restConsumerStub.runGet(path, HttpStatus.OK, lesResponsfilSomStreng(navnResponsfilFarskapUtelukket));
+      restConsumerStub.runGetForsendelse(path, HttpStatus.OK, lesResponsfilSomStreng(navnResponsfil));
+
+      // when
+      var listeMedJournalposterResponse = httpHeaderTestRestTemplate
+          .exchange(lagUrlForFagomradeBid(path, false), HttpMethod.GET, null, responseTypeErListeMedJournalposter());
+
+      // then
+      assertThat(optional(listeMedJournalposterResponse))
+          .hasValueSatisfying(response -> assertAll(() -> assertThat(response.getStatusCode()).as("status").isEqualTo(HttpStatus.OK),
+              // henter to journalposter fra journalpost og to fra arkiv (samme respons)
+              () -> assertThat(response.getBody()).as("body").hasSize(5)));
+    }
+
+
+    @Test
     @DisplayName("skal få BAD_REQUEST(400) som statuskode når saksnummer ikke er et heltall")
     void skalFaBadRequestNarSaksnummerIkkeErHeltall() {
       var journalposterResponse = httpHeaderTestRestTemplate
@@ -541,7 +596,13 @@ class JournalpostControllerTest {
     }
 
     private String lagUrlForFagomradeBid(String path) {
-      return UriComponentsBuilder.fromHttpUrl("http://localhost:" + localServerPort + "/bidrag-dokument" + path).queryParam("fagomrade", "BID")
+      return lagUrlForFagomradeBid(path, false);
+    }
+
+    private String lagUrlForFagomradeBid(String path, Boolean farskapUtelukket) {
+      return UriComponentsBuilder.fromHttpUrl("http://localhost:" + localServerPort + "/bidrag-dokument" + path)
+          .queryParam("fagomrade", "BID")
+          .queryParam("medFarskapUtelukket", farskapUtelukket ? "true" : "false")
           .toUriString();
     }
 

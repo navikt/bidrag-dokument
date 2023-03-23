@@ -1,6 +1,6 @@
 [
   {
-    "avsenderNavn": "Navn Navnesen",
+    "avsenderNavn": "Navn, Navnesen",
     "dokumenter": [
       {
         "dokumentreferanse": "3700519680",
@@ -11,9 +11,9 @@
     "dokumentDato": "2018-12-17",
     "fagomrade": "BID",
     "gjelderAktor": {
-      "ident": "4324324324"
+      "ident": "123213213123123"
     },
-    "innhold": "Vedtak bidrag",
+    "innhold": "Farskap utelukket: Dette er en vedtak",
     "journalforendeEnhet": "4860",
     "journalfortAv": "Navn Navnesen",
     "journalfortDato": "2018-12-21",
@@ -25,7 +25,7 @@
     "brevkode": null
   },
   {
-    "avsenderNavn": "Navn NAvnesen",
+    "avsenderNavn": "Navn Navnesen",
     "dokumenter": [
       {
         "dokumentreferanse": "3700754266",
@@ -36,11 +36,40 @@
     "dokumentDato": "2019-01-02",
     "fagomrade": "BID",
     "gjelderAktor": {
-      "ident": "123213213123"
+      "ident": "1412421412412421"
     },
-    "innhold": "Bidrag vedftak",
+    "innhold": "FARSKAP UTELUKKET: Dette er tittelen",
     "journalforendeEnhet": "4860",
-    "journalfortAv": "Navn NAvnesen",
+    "journalfortAv": "Navn, Navnesen",
+    "journalfortDato": "2019-01-02",
+    "journalpostId": "BID-37007542",
+    "mottattDato": "2019-01-02",
+    "dokumentType": "U",
+    "journalstatus": "E",
+    "feilfort": false,
+    "brevkode": {
+      "kode": "BI01S02 ",
+      "dekode": null,
+      "erGyldig": true
+    }
+  },
+  {
+    "avsenderNavn": "Navn Navnesen",
+    "dokumenter": [
+      {
+        "dokumentreferanse": "3700754266",
+        "dokumentType": "U",
+        "tittel": ""
+      }
+    ],
+    "dokumentDato": "2019-01-02",
+    "fagomrade": "BID",
+    "gjelderAktor": {
+      "ident": "1412421412412421"
+    },
+    "innhold": "Farskap ikke utelukket",
+    "journalforendeEnhet": "4860",
+    "journalfortAv": "Navn, Navnesen",
     "journalfortDato": "2019-01-02",
     "journalpostId": "BID-37007542",
     "mottattDato": "2019-01-02",
