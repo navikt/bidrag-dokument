@@ -41,15 +41,16 @@ class JournalpostController(private val journalpostService: JournalpostService) 
     fun hentJournal(
         @PathVariable saksnummer: String,
         @RequestParam fagomrade: List<String> = emptyList(),
-        @RequestParam(required = false, defaultValue = "false") medFarskapUtelukket: Boolean
+        @RequestParam(required = false, defaultValue = "false") bareFarskapUtelukket: Boolean
     ): ResponseEntity<List<JournalpostDto>> {
-        log.info("Henter journal for sak $saksnummer og fagomrader ${fagomrade.joinToString(",")} medFarskapUtelukket = $medFarskapUtelukket")
+        log.info("Henter journal for sak $saksnummer og fagomrader ${fagomrade.joinToString(",")} bareFarskapUtelukket = $bareFarskapUtelukket")
         if (saksnummer.matches(NON_DIGITS.toRegex())) {
             log.warn("Ugyldig saksnummer: $saksnummer")
             return ResponseEntity(WebUtil.initHttpHeadersWith(HttpHeaders.WARNING, "Ugyldig saksnummer"), HttpStatus.BAD_REQUEST)
         }
         val journalposter = journalpostService.finnJournalposter(saksnummer, fagomrade)
-            .filter { medFarskapUtelukket || !it.erFarskapUtelukket() }
+            .filter { if (bareFarskapUtelukket) it.erFarskapUtelukket() else !it.erFarskapUtelukket() }
+
         return ResponseEntity(journalposter, HttpStatus.OK)
     }
 
