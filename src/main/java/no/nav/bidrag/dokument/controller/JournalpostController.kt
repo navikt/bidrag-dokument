@@ -38,13 +38,18 @@ class JournalpostController(private val journalpostService: JournalpostService) 
         value = [ApiResponse(responseCode = "200", description = "Fant journalposter for saksnummer")]
     )
     @GlobalApiReponses
-    fun hentJournal(@PathVariable saksnummer: String, @RequestParam fagomrade: List<String> = emptyList()): ResponseEntity<List<JournalpostDto>> {
-        log.info("Henter journal for sak $saksnummer og fagomrader ${fagomrade.joinToString(",")}")
+    fun hentJournal(
+        @PathVariable saksnummer: String,
+        @RequestParam fagomrade: List<String> = emptyList(),
+        @RequestParam(required = false, defaultValue = "false") medFarskapUtelukket: Boolean
+    ): ResponseEntity<List<JournalpostDto>> {
+        log.info("Henter journal for sak $saksnummer og fagomrader ${fagomrade.joinToString(",")} medFarskapUtelukket = $medFarskapUtelukket")
         if (saksnummer.matches(NON_DIGITS.toRegex())) {
             log.warn("Ugyldig saksnummer: $saksnummer")
             return ResponseEntity(WebUtil.initHttpHeadersWith(HttpHeaders.WARNING, "Ugyldig saksnummer"), HttpStatus.BAD_REQUEST)
         }
         val journalposter = journalpostService.finnJournalposter(saksnummer, fagomrade)
+            .filter { medFarskapUtelukket || !it.erFarskapUtelukket() }
         return ResponseEntity(journalposter, HttpStatus.OK)
     }
 
