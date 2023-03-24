@@ -25,6 +25,56 @@
     "brevkode": null
   },
   {
+    "avsenderNavn": "Navn, Navnesen",
+    "dokumenter": [
+      {
+        "dokumentreferanse": "3700519680",
+        "dokumentType": "I",
+        "tittel": "Dette er tittelen"
+      }
+    ],
+    "dokumentDato": "2018-12-17",
+    "fagomrade": "FAR",
+    "gjelderAktor": {
+      "ident": "123213213123123"
+    },
+    "innhold": "Dette er en vedtak",
+    "journalforendeEnhet": "4860",
+    "journalfortAv": "Navn Navnesen",
+    "journalfortDato": "2018-12-21",
+    "journalpostId": "JOARK-37005196",
+    "mottattDato": "2018-12-21",
+    "dokumentType": "I",
+    "journalstatus": "J",
+    "feilfort": false,
+    "brevkode": null
+  },
+  {
+    "avsenderNavn": "Navn, Navnesen",
+    "dokumenter": [
+      {
+        "dokumentreferanse": "3700519680",
+        "dokumentType": "I",
+        "tittel": "Dette er tittelen"
+      }
+    ],
+    "dokumentDato": "2018-12-17",
+    "fagomrade": "FAR",
+    "gjelderAktor": {
+      "ident": "123213213123123"
+    },
+    "innhold": "Dette er en vedtak",
+    "journalforendeEnhet": "4860",
+    "journalfortAv": "Navn Navnesen",
+    "journalfortDato": "2018-12-21",
+    "journalpostId": "BID-37005196",
+    "mottattDato": "2018-12-21",
+    "dokumentType": "I",
+    "journalstatus": "J",
+    "feilfort": false,
+    "brevkode": null
+  },
+  {
     "avsenderNavn": "Navn Navnesen",
     "dokumenter": [
       {

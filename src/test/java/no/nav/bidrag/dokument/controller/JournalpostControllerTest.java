@@ -511,7 +511,7 @@ class JournalpostControllerTest {
     }
 
     @Test
-    void skalHenteJournalposterMedFarskapUtelukket() throws IOException {
+    void skalBareHenteJournalposterMedFarskapUtelukket() throws IOException {
 
       // given
       final var saksnr = "1001";
@@ -533,7 +533,7 @@ class JournalpostControllerTest {
       assertThat(optional(listeMedJournalposterResponse))
           .hasValueSatisfying(response -> assertAll(() -> assertThat(response.getStatusCode()).as("status").isEqualTo(HttpStatus.OK),
               // henter to journalposter fra journalpost og to fra arkiv (samme respons)
-              () -> assertThat(response.getBody()).as("body").hasSize(7)));
+              () -> assertThat(response.getBody()).as("body").hasSize(2)));
     }
 
     @Test
@@ -559,7 +559,7 @@ class JournalpostControllerTest {
       assertThat(optional(listeMedJournalposterResponse))
           .hasValueSatisfying(response -> assertAll(() -> assertThat(response.getStatusCode()).as("status").isEqualTo(HttpStatus.OK),
               // henter to journalposter fra journalpost og to fra arkiv (samme respons)
-              () -> assertThat(response.getBody()).as("body").hasSize(5)));
+              () -> assertThat(response.getBody()).as("body").hasSize(7)));
     }
 
 
@@ -602,7 +602,7 @@ class JournalpostControllerTest {
     private String lagUrlForFagomradeBid(String path, Boolean farskapUtelukket) {
       return UriComponentsBuilder.fromHttpUrl("http://localhost:" + localServerPort + "/bidrag-dokument" + path)
           .queryParam("fagomrade", "BID")
-          .queryParam("medFarskapUtelukket", farskapUtelukket ? "true" : "false")
+          .queryParam("bareFarskapUtelukket", farskapUtelukket ? "true" : "false")
           .toUriString();
     }
 
