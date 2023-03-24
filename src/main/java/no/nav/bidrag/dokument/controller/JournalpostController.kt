@@ -52,7 +52,7 @@ class JournalpostController(private val journalpostService: JournalpostService) 
             return ResponseEntity(WebUtil.initHttpHeadersWith(HttpHeaders.WARNING, "Ugyldig saksnummer"), HttpStatus.BAD_REQUEST)
         }
         val journalposter = journalpostService.finnJournalposter(saksnummer, fagomrade)
-            .filter { if (bareFarskapUtelukket) it.erFarskapUtelukketEllerBidragJournalpostMedTemaFar() else !it.erFarskapUtelukketEllerBidragJournalpostMedTemaFar() }
+            .filter { if (bareFarskapUtelukket) it.erFarskapUtelukket() else !it.erFarskapUtelukket() }
 
         return ResponseEntity(journalposter, HttpStatus.OK)
     }
