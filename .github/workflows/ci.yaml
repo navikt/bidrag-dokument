@@ -31,7 +31,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           java-version: '17'
-          distribution: 'corretto'
+          distribution: 'temurin'
       - uses: actions/cache@v3
         with:
           path: ~/.m2
