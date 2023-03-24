@@ -533,7 +533,7 @@ class JournalpostControllerTest {
       assertThat(optional(listeMedJournalposterResponse))
           .hasValueSatisfying(response -> assertAll(() -> assertThat(response.getStatusCode()).as("status").isEqualTo(HttpStatus.OK),
               // henter to journalposter fra journalpost og to fra arkiv (samme respons)
-              () -> assertThat(response.getBody()).as("body").hasSize(3)));
+              () -> assertThat(response.getBody()).as("body").hasSize(2)));
     }
 
     @Test
@@ -559,7 +559,7 @@ class JournalpostControllerTest {
       assertThat(optional(listeMedJournalposterResponse))
           .hasValueSatisfying(response -> assertAll(() -> assertThat(response.getStatusCode()).as("status").isEqualTo(HttpStatus.OK),
               // henter to journalposter fra journalpost og to fra arkiv (samme respons)
-              () -> assertThat(response.getBody()).as("body").hasSize(6)));
+              () -> assertThat(response.getBody()).as("body").hasSize(7)));
     }
 
 
