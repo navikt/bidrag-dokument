@@ -45,7 +45,13 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
   </properties>
-
+  <repositories>
+    <repository>
+      <id>github</id>
+      <name>GitHub felles Apache Maven Packages for navikt</name>
+      <url>https://maven.pkg.github.com/navikt/maven-release/</url>
+    </repository>
+  </repositories>
   <dependencies>
     <dependency>
       <groupId>io.github.microutils</groupId>
