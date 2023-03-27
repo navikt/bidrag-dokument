@@ -45,21 +45,21 @@ jobs:
       - uses: actions/checkout@v3
         with:
           path: deploy
-      - name: Deploy main branch to dev-gcp
+      - name: Deploy main branch to dev-fss
         if: github.ref == 'refs/heads/main'
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: dev-gcp
+          CLUSTER: dev-fss
           RESOURCE: deploy/.nais/nais.yaml
           VARS: deploy/.nais/main.yaml
           IMAGE: ${{ needs.build.outputs.image }}
-      - name: Deploy feature to dev-gcp
+      - name: Deploy feature to dev-fss
         if: github.ref != 'refs/heads/main'
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: dev-gcp
+          CLUSTER: dev-fss
           RESOURCE: deploy/.nais/nais.yaml
           VARS: deploy/.nais/feature.yaml
           IMAGE: ${{ needs.build.outputs.image }}

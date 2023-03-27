@@ -49,7 +49,7 @@ jobs:
       - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
-          CLUSTER: prod-gcp
+          CLUSTER: prod-fss
           RESOURCE: deploy/.nais/nais.yaml
           VARS: deploy/.nais/prod.yaml
           IMAGE: ${{ needs.build.outputs.image }}
