@@ -38,9 +38,13 @@ class DokumentService(
 
     @Timed("hentDokumentMetadata")
     fun hentDokumentMetadata(dokumentRef: DokumentRef): List<DokumentMetadata> {
-        return if (dokumentRef.erForKilde(Kilde.MIDLERTIDLIG_BREVLAGER)) bidragJournalpostConsumer.hentDokumentMetadata(dokumentRef.journalpostId, dokumentRef.dokumentId)
-        else if (dokumentRef.erForKilde(Kilde.FORSENDELSE)) bidragForsendelseConsumer.hentDokumentMetadata(dokumentRef.journalpostId, dokumentRef.dokumentId)
-        else bidragArkivConsumer.hentDokumentMetadata(dokumentRef.journalpostId, dokumentRef.dokumentId)
+        return if (dokumentRef.erForKilde(Kilde.MIDLERTIDLIG_BREVLAGER)) {
+            bidragJournalpostConsumer.hentDokumentMetadata(dokumentRef.journalpostId, dokumentRef.dokumentId)
+        } else if (dokumentRef.erForKilde(Kilde.FORSENDELSE)) {
+            bidragForsendelseConsumer.hentDokumentMetadata(dokumentRef.journalpostId, dokumentRef.dokumentId)
+        } else {
+            bidragArkivConsumer.hentDokumentMetadata(dokumentRef.journalpostId, dokumentRef.dokumentId)
+        }
     }
 
     @Timed("hentDokument")
@@ -64,17 +68,23 @@ class DokumentService(
 
     private fun hentDokumentData(dokumentRef: DokumentRef): ResponseEntity<ByteArray> {
         val dokument = hentDokumentRefMedRiktigKilde(dokumentRef)
-        return if (dokument.erForKilde(Kilde.MIDLERTIDLIG_BREVLAGER)) bidragJournalpostConsumer.hentDokument(dokument.journalpostId, dokument.dokumentId)
-        else if (dokument.erForKilde(Kilde.FORSENDELSE)) bidragForsendelseConsumer.hentDokument(dokument.journalpostId, dokument.dokumentId)
-        else bidragArkivConsumer.hentDokument(dokument.journalpostId, dokument.dokumentId)
+        return if (dokument.erForKilde(Kilde.MIDLERTIDLIG_BREVLAGER)) {
+            bidragJournalpostConsumer.hentDokument(dokument.journalpostId, dokument.dokumentId)
+        } else if (dokument.erForKilde(Kilde.FORSENDELSE)) {
+            bidragForsendelseConsumer.hentDokument(dokument.journalpostId, dokument.dokumentId)
+        } else {
+            bidragArkivConsumer.hentDokument(dokument.journalpostId, dokument.dokumentId)
+        }
     }
 
     private fun hentDokumentRefMedRiktigKilde(dokumentRef: DokumentRef): DokumentRef {
-       return if (dokumentRef.erForKilde(Kilde.FORSENDELSE)){
+        return if (dokumentRef.erForKilde(Kilde.FORSENDELSE)) {
             hentDokumentMetadata(dokumentRef)
                 .find { jpDok -> jpDok.dokumentreferanse == dokumentRef.dokumentId }
                 ?.let { mapDokumentTilDokumentRef(it) } ?: dokumentRef
-        } else dokumentRef
+        } else {
+            dokumentRef
+        }
     }
 
     private fun hentDokumenterData(dokumentRefList: List<DokumentRef>, documentProperties: DocumentProperties): ResponseEntity<ByteArray> {
@@ -86,8 +96,11 @@ class DokumentService(
                 .body(dokumentByte)
         } catch (e: Exception) {
             LOGGER.error("Det skjedde en feil ved henting av dokumenter {}", dokumentRefList, e)
-            if (e is HttpStatusCodeException) ResponseEntity.status(e.statusCode).build()
-            else ResponseEntity.internalServerError().build()
+            if (e is HttpStatusCodeException) {
+                ResponseEntity.status(e.statusCode).build()
+            } else {
+                ResponseEntity.internalServerError().build()
+            }
         }
     }
 
@@ -126,16 +139,20 @@ class DokumentService(
     }
 
     private fun mapDokumentTilDokumentRef(dokument: DokumentMetadata): DokumentRef {
-        return DokumentRef(journalpostId = dokument.journalpostId, dokumentId = dokument.dokumentreferanse, kilde = when(dokument.arkivsystem){
-            DokumentArkivSystemDto.MIDLERTIDLIG_BREVLAGER -> Kilde.MIDLERTIDLIG_BREVLAGER
-            DokumentArkivSystemDto.JOARK -> Kilde.JOARK
-            DokumentArkivSystemDto.BIDRAG -> Kilde.FORSENDELSE
-            else -> null
-        })
+        return DokumentRef(
+            journalpostId = dokument.journalpostId,
+            dokumentId = dokument.dokumentreferanse,
+            kilde = when (dokument.arkivsystem) {
+                DokumentArkivSystemDto.MIDLERTIDLIG_BREVLAGER -> Kilde.MIDLERTIDLIG_BREVLAGER
+                DokumentArkivSystemDto.JOARK -> Kilde.JOARK
+                DokumentArkivSystemDto.BIDRAG -> Kilde.FORSENDELSE
+                else -> null
+            }
+        )
     }
 
     private fun parseDokumentString(dokumenterString: List<String>): List<DokumentRef> {
-        return dokumenterString.stream().map { str: String? -> DokumentRef.parseFromString(str!!)}.collect(Collectors.toList())
+        return dokumenterString.stream().map { str: String? -> DokumentRef.parseFromString(str!!) }.collect(Collectors.toList())
     }
 
     companion object {

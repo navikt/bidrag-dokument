@@ -17,5 +17,4 @@ class AspectExceptionLogger {
         log.warn(exception) { "Det skjedde en feil i controller metoden ${joinPoint.signature.toShortString()}. Se sikkerlogg for detaljer" }
         sikkerLogg.warn(exception) { "Det skjedde en feil i controller metoden ${joinPoint.signature.toShortString()} | Argumenter => ${joinPoint.args.joinToString(", ")}" }
     }
-    
 }

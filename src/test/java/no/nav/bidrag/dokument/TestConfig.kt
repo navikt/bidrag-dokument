@@ -15,7 +15,7 @@ class TestConfig {
     @Bean
     @Primary
     fun securityTokenService2(): SecurityTokenService {
-        val securityTokenService =  mockkClass(SecurityTokenService::class)
+        val securityTokenService = mockkClass(SecurityTokenService::class)
         every { securityTokenService.authTokenInterceptor(any()) } returns HttpHeaderInterceptor("test", "test")
         return securityTokenService
     }

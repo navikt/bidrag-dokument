@@ -36,7 +36,6 @@ internal class BidragJournalpostConsumerTest {
     @DisplayName("skal hente journalpost til en sak")
     @Throws(IOException::class)
     fun skalHenteJournalpostTilSak() {
-
         // given
         val saksnr = "1900000"
         restConsumerStub.runHenteJournalpostForSak(saksnr)

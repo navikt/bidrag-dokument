@@ -29,8 +29,11 @@ private val log = KotlinLogging.logger {}
 
 class BidragDokumentConsumer(private val restTemplate: RestTemplate, private val rootUri: String) {
     fun finnAvvik(saksnummer: String?, journalpostId: String?): HttpResponse<List<AvvikType>> {
-        val path: String = if (saksnummer != null) String.format(PATH_AVVIK_PA_JOURNALPOST_MED_SAK_PARAM, journalpostId, saksnummer)
-        else String.format(PATH_AVVIK_PA_JOURNALPOST, journalpostId)
+        val path: String = if (saksnummer != null) {
+            String.format(PATH_AVVIK_PA_JOURNALPOST_MED_SAK_PARAM, journalpostId, saksnummer)
+        } else {
+            String.format(PATH_AVVIK_PA_JOURNALPOST, journalpostId)
+        }
         val avviksResponse = restTemplate.exchange(path, HttpMethod.GET, null, typereferansenErListeMedAvvikstyper())
         return HttpResponse(avviksResponse)
     }
@@ -43,8 +46,11 @@ class BidragDokumentConsumer(private val restTemplate: RestTemplate, private val
     }
 
     fun hentJournalpost(saksnummer: String?, id: String?): HttpResponse<JournalpostResponse> {
-        val url: String = if (saksnummer == null) String.format(PATH_JOURNALPOST, id)
-        else String.format(PATH_JOURNALPOST_MED_SAKPARAM, id, saksnummer)
+        val url: String = if (saksnummer == null) {
+            String.format(PATH_JOURNALPOST, id)
+        } else {
+            String.format(PATH_JOURNALPOST_MED_SAKPARAM, id, saksnummer)
+        }
         val journalpostExchange = restTemplate.exchange(url, HttpMethod.GET, null, JournalpostResponse::class.java)
         return HttpResponse(journalpostExchange)
     }
@@ -59,10 +65,12 @@ class BidragDokumentConsumer(private val restTemplate: RestTemplate, private val
             return journalposterFraArkiv.body ?: emptyList()
         } catch (e: HttpStatusCodeException) {
             log.error(e) { "Det skjedde en feil ved henting av journal for sak $saksnummer og fagområder ${fagomrade.joinToString(",")} fra url $rootUri/$uri" }
-            if (e.statusCode == HttpStatus.NOT_FOUND) emptyList()
-            else throw e
+            if (e.statusCode == HttpStatus.NOT_FOUND) {
+                emptyList()
+            } else {
+                throw e
+            }
         }
-
     }
 
     fun endre(enhet: String?, endreJournalpostCommand: EndreJournalpostCommand): HttpResponse<Void> {
@@ -93,7 +101,6 @@ class BidragDokumentConsumer(private val restTemplate: RestTemplate, private val
         return HttpResponse(distribuerJournalpostResponse)
     }
 
-
     fun kanDistribuereJournalpost(journalpostId: String?): HttpResponse<Void> {
         val path = String.format(PATH_DISTRIBUER_ENABLED, journalpostId)
         val distribuerJournalpostResponse = restTemplate.exchange(path, HttpMethod.GET, null, Void::class.java)
@@ -112,17 +119,19 @@ class BidragDokumentConsumer(private val restTemplate: RestTemplate, private val
         return restTemplate.exchange(dokumentUrl, HttpMethod.GET, HttpEntity.EMPTY, ByteArray::class.java)
     }
 
-
     fun hentDokumentMetadata(journalpostId: String?, dokumentreferanse: String?): List<DokumentMetadata> {
-        if (journalpostId.isNullOrEmpty()) return hentDokumentMetadata(dokumentreferanse)
-            ?: emptyList()
+        if (journalpostId.isNullOrEmpty()) {
+            return hentDokumentMetadata(dokumentreferanse)
+                ?: emptyList()
+        }
         val dokumentReferanseUrl = if (!dokumentreferanse.isNullOrEmpty()) "/$dokumentreferanse" else ""
         val dokumentUrl = String.format(PATH_HENT_DOKUMENT, journalpostId) + dokumentReferanseUrl
         return restTemplate.exchange(
             dokumentUrl,
             HttpMethod.OPTIONS,
             HttpEntity.EMPTY,
-            object : ParameterizedTypeReference<List<DokumentMetadata>>() {}).body
+            object : ParameterizedTypeReference<List<DokumentMetadata>>() {}
+        ).body
             ?: emptyList()
     }
 
@@ -132,7 +141,8 @@ class BidragDokumentConsumer(private val restTemplate: RestTemplate, private val
             dokumentUrl,
             HttpMethod.OPTIONS,
             HttpEntity.EMPTY,
-            object : ParameterizedTypeReference<List<DokumentMetadata>>() {}).body
+            object : ParameterizedTypeReference<List<DokumentMetadata>>() {}
+        ).body
     }
 
     fun hentDokument(dokumentreferanse: String?): ResponseEntity<ByteArray> {

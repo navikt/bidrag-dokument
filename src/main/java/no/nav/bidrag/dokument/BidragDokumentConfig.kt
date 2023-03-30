@@ -10,7 +10,11 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme
 import mu.KotlinLogging
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration
 import no.nav.bidrag.commons.security.service.SecurityTokenService
-import no.nav.bidrag.commons.web.*
+import no.nav.bidrag.commons.web.CorrelationIdFilter
+import no.nav.bidrag.commons.web.DefaultCorsFilter
+import no.nav.bidrag.commons.web.EnhetFilter
+import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
+import no.nav.bidrag.commons.web.UserMdcFilter
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer
 import no.nav.bidrag.dokument.consumer.DokumentTilgangConsumer
 import org.springframework.beans.factory.annotation.Qualifier
@@ -35,8 +39,8 @@ class BidragDokumentConfig {
     @Bean
     @Qualifier(MIDL_BREVLAGER_QUALIFIER)
     fun bidragJournalpostConsumer(
-            @Value("\${JOURNALPOST_URL}") journalpostBaseUrl: String,
-            securityTokenService: SecurityTokenService
+        @Value("\${JOURNALPOST_URL}") journalpostBaseUrl: String,
+        securityTokenService: SecurityTokenService
     ): BidragDokumentConsumer {
         val restTemplate = createRestTemplate(journalpostBaseUrl, securityTokenService, KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST)
         return BidragDokumentConsumer(restTemplate, journalpostBaseUrl)
@@ -45,8 +49,8 @@ class BidragDokumentConfig {
     @Bean
     @Qualifier(ARKIV_QUALIFIER)
     fun bidragArkivConsumer(
-            @Value("\${BIDRAG_ARKIV_URL}") bidragArkivBaseUrl: String,
-            securityTokenService: SecurityTokenService
+        @Value("\${BIDRAG_ARKIV_URL}") bidragArkivBaseUrl: String,
+        securityTokenService: SecurityTokenService
     ): BidragDokumentConsumer {
         val restTemplate = createRestTemplate(bidragArkivBaseUrl, securityTokenService, KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV)
         return BidragDokumentConsumer(restTemplate, bidragArkivBaseUrl)
@@ -55,8 +59,8 @@ class BidragDokumentConfig {
     @Bean
     @Qualifier(FORSENDELSE_QUALIFIER)
     fun bidragForsendelseConsumer(
-            @Value("\${BIDRAG_FORSENDELSE_URL}") bidragForsendelseUrl: String,
-            securityTokenService: SecurityTokenService
+        @Value("\${BIDRAG_FORSENDELSE_URL}") bidragForsendelseUrl: String,
+        securityTokenService: SecurityTokenService
     ): BidragDokumentConsumer {
         val restTemplate = createRestTemplate(bidragForsendelseUrl, securityTokenService, KLIENTNAVN_BIDRAG_DOKUMENT_FORSENDELSE)
         return BidragDokumentConsumer(restTemplate, bidragForsendelseUrl)
@@ -64,8 +68,8 @@ class BidragDokumentConfig {
 
     @Bean
     fun dokumentConsumer(
-            @Value("\${JOURNALPOST_URL}") journalpostBaseUrl: String,
-            securityTokenService: SecurityTokenService
+        @Value("\${JOURNALPOST_URL}") journalpostBaseUrl: String,
+        securityTokenService: SecurityTokenService
     ): DokumentTilgangConsumer {
         val restTemplate = createRestTemplate(journalpostBaseUrl, securityTokenService, KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST)
         return DokumentTilgangConsumer(restTemplate)

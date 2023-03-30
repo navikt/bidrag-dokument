@@ -3,25 +3,16 @@ package no.nav.bidrag.dokument.consumer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.matching.StringValuePattern
 import io.kotest.matchers.shouldBe
-import io.mockk.every
-import io.mockk.mockkClass
-import no.nav.bidrag.commons.security.service.SecurityTokenService
 import no.nav.bidrag.dokument.BidragDokumentConfig
 import no.nav.bidrag.dokument.BidragDokumentTest
 import no.nav.bidrag.dokument.consumer.stub.RestConsumerStub
-import no.nav.bidrag.dokument.dto.JournalpostDto
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
-import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.boot.devtools.remote.client.HttpHeaderInterceptor
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Primary
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 
