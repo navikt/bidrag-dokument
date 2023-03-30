@@ -39,16 +39,23 @@ class DokumentService(
     @Timed("hentDokumentMetadata")
     fun hentDokumentMetadata(dokumentRef: DokumentRef): List<DokumentMetadata> {
         return if (dokumentRef.erForKilde(Kilde.MIDLERTIDLIG_BREVLAGER)) {
-            bidragJournalpostConsumer.hentDokumentMetadata(dokumentRef.journalpostId, dokumentRef.dokumentId)
+            bidragJournalpostConsumer.hentDokumentMetadata(
+            dokumentRef.journalpostId,
+            dokumentRef.dokumentId
+        )
         } else if (dokumentRef.erForKilde(Kilde.FORSENDELSE)) {
-            bidragForsendelseConsumer.hentDokumentMetadata(dokumentRef.journalpostId, dokumentRef.dokumentId)
+            bidragForsendelseConsumer.hentDokumentMetadata(
+            dokumentRef.journalpostId,
+            dokumentRef.dokumentId
+        )
         } else {
             bidragArkivConsumer.hentDokumentMetadata(dokumentRef.journalpostId, dokumentRef.dokumentId)
         }
     }
 
     @Timed("hentDokument")
-    fun hentDokument(dokumentRef: DokumentRef, documentProperties: DocumentProperties): ResponseEntity<ByteArray> {
+    fun hentDokument(_dokumentRef: DokumentRef, documentProperties: DocumentProperties): ResponseEntity<ByteArray> {
+        val dokumentRef = hentDokumentRefMedRiktigKilde(_dokumentRef)
         if (!dokumentRef.hasDokumentId() && !dokumentRef.erForKilde(Kilde.MIDLERTIDLIG_BREVLAGER)) {
             val dokumentReferanser = hentAlleJournalpostDokumentReferanser(dokumentRef)
             return hentDokumenterData(dokumentReferanser, documentProperties)
@@ -66,10 +73,12 @@ class DokumentService(
         return hentDokumenterData(dokumenter, documentProperties)
     }
 
-    private fun hentDokumentData(dokumentRef: DokumentRef): ResponseEntity<ByteArray> {
-        val dokument = hentDokumentRefMedRiktigKilde(dokumentRef)
+    private fun hentDokumentData(dokument: DokumentRef): ResponseEntity<ByteArray> {
         return if (dokument.erForKilde(Kilde.MIDLERTIDLIG_BREVLAGER)) {
-            bidragJournalpostConsumer.hentDokument(dokument.journalpostId, dokument.dokumentId)
+            bidragJournalpostConsumer.hentDokument(
+            dokument.journalpostId,
+            dokument.dokumentId
+        )
         } else if (dokument.erForKilde(Kilde.FORSENDELSE)) {
             bidragForsendelseConsumer.hentDokument(dokument.journalpostId, dokument.dokumentId)
         } else {
@@ -78,9 +87,9 @@ class DokumentService(
     }
 
     private fun hentDokumentRefMedRiktigKilde(dokumentRef: DokumentRef): DokumentRef {
-        return if (dokumentRef.erForKilde(Kilde.FORSENDELSE)) {
+        return if (dokumentRef.erForKilde(Kilde.FORSENDELSE) && dokumentRef.hasDokumentId()) {
             hentDokumentMetadata(dokumentRef)
-                .find { jpDok -> jpDok.dokumentreferanse == dokumentRef.dokumentId }
+                .firstOrNull()
                 ?.let { mapDokumentTilDokumentRef(it) } ?: dokumentRef
         } else {
             dokumentRef
