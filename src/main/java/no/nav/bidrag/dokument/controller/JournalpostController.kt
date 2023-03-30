@@ -13,7 +13,19 @@ import no.nav.bidrag.commons.web.EnhetFilter
 import no.nav.bidrag.commons.web.WebUtil
 import no.nav.bidrag.dokument.BidragDokumentConfig
 import no.nav.bidrag.dokument.consumer.GlobalApiReponses
-import no.nav.bidrag.dokument.dto.*
+import no.nav.bidrag.dokument.dto.ArkivSystem
+import no.nav.bidrag.dokument.dto.AvvikType
+import no.nav.bidrag.dokument.dto.Avvikshendelse
+import no.nav.bidrag.dokument.dto.BehandleAvvikshendelseResponse
+import no.nav.bidrag.dokument.dto.DistribuerJournalpostRequest
+import no.nav.bidrag.dokument.dto.DistribuerJournalpostResponse
+import no.nav.bidrag.dokument.dto.DistribusjonInfoDto
+import no.nav.bidrag.dokument.dto.EndreJournalpostCommand
+import no.nav.bidrag.dokument.dto.JournalpostDto
+import no.nav.bidrag.dokument.dto.JournalpostId
+import no.nav.bidrag.dokument.dto.JournalpostResponse
+import no.nav.bidrag.dokument.dto.OpprettJournalpostRequest
+import no.nav.bidrag.dokument.dto.OpprettJournalpostResponse
 import no.nav.bidrag.dokument.service.JournalpostService
 import no.nav.bidrag.dokument.sikkerLogg
 import no.nav.security.token.support.core.api.Protected
@@ -21,7 +33,15 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ResponseBody
+import org.springframework.web.bind.annotation.RestController
 
 private val log = KotlinLogging.logger {}
 
@@ -75,7 +95,9 @@ class JournalpostController(private val journalpostService: JournalpostService) 
     @GlobalApiReponses
     fun hentJournalpost(
         @PathVariable journalpostIdForKildesystem: String,
-        @Parameter(name = "saksnummer", description = "journalposten tilhører sak") @RequestParam(required = false) saksnummer: String?
+        @Parameter(name = "saksnummer", description = "journalposten tilhører sak")
+        @RequestParam(required = false)
+        saksnummer: String?
     ): ResponseEntity<JournalpostResponse?> {
         var journalpostId = journalpostIdForKildesystem
         if (!Strings.isNullOrEmpty(journalpostIdForKildesystem) && journalpostIdForKildesystem.contains(":")) {
@@ -94,8 +116,8 @@ class JournalpostController(private val journalpostService: JournalpostService) 
     @GetMapping("/journal/{journalpostIdForKildesystem}/avvik")
     @Operation(
         security = [SecurityRequirement(name = "bearer-key")],
-        description = "Henter mulige avvik for en journalpost, id på formatet [" + BidragDokumentConfig.PREFIX_BIDRAG + '|' + BidragDokumentConfig.PREFIX_JOARK + ']' + BidragDokumentConfig.DELIMTER
-                + "<journalpostId>"
+        description = "Henter mulige avvik for en journalpost, id på formatet [" + BidragDokumentConfig.PREFIX_BIDRAG + '|' + BidragDokumentConfig.PREFIX_JOARK + ']' + BidragDokumentConfig.DELIMTER +
+            "<journalpostId>"
     )
     @ApiResponses(
         value = [
@@ -105,7 +127,7 @@ class JournalpostController(private val journalpostService: JournalpostService) 
             ),
             ApiResponse(
                 responseCode = "404",
-                description = "Fant ikke journalpost som det skal hentes avvik på",
+                description = "Fant ikke journalpost som det skal hentes avvik på"
             )
         ]
     )
@@ -113,7 +135,8 @@ class JournalpostController(private val journalpostService: JournalpostService) 
     fun hentAvvik(
         @PathVariable journalpostIdForKildesystem: String,
         @Parameter(name = "saksnummer", description = "journalposten tilhører sak")
-        @RequestParam(required = false) saksnummer: String?
+        @RequestParam(required = false)
+        saksnummer: String?
     ): ResponseEntity<List<AvvikType>> {
         log.info("Henter avvik for journalpost $journalpostIdForKildesystem")
         val kildesystemIdenfikator = KildesystemIdenfikator(journalpostIdForKildesystem)
@@ -122,9 +145,12 @@ class JournalpostController(private val journalpostService: JournalpostService) 
                 WebUtil.initHttpHeadersWith(
                     HttpHeaders.WARNING,
                     "Ugyldig prefix på journalpostId"
-                ), HttpStatus.BAD_REQUEST
+                ),
+                HttpStatus.BAD_REQUEST
             )
-        } else journalpostService.finnAvvik(saksnummer, kildesystemIdenfikator).responseEntity
+        } else {
+            journalpostService.finnAvvik(saksnummer, kildesystemIdenfikator).responseEntity
+        }
     }
 
     @PostMapping(value = ["/journal/{journalpostIdForKildesystem}/avvik"], consumes = [MediaType.APPLICATION_JSON_VALUE])
@@ -136,7 +162,8 @@ class JournalpostController(private val journalpostService: JournalpostService) 
         value = [
             ApiResponse(responseCode = "200", description = "Avvik på journalpost er behandlet"),
             ApiResponse(
-                responseCode = "400", description = """
+                responseCode = "400",
+                description = """
           En av følgende:
           - prefiks på journalpostId er ugyldig
           - avvikstypen mangler i avvikshendelsen
@@ -169,7 +196,9 @@ class JournalpostController(private val journalpostService: JournalpostService) 
         val kildesystemIdenfikator = KildesystemIdenfikator(journalpostIdForKildesystem)
         return if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
             ResponseEntity(WebUtil.initHttpHeadersWith(HttpHeaders.WARNING, "Ugyldig prefix på journalpostId"), HttpStatus.BAD_REQUEST)
-        } else journalpostService.behandleAvvik(enhet, kildesystemIdenfikator, avvikshendelse).responseEntity
+        } else {
+            journalpostService.behandleAvvik(enhet, kildesystemIdenfikator, avvikshendelse).responseEntity
+        }
     }
 
     @PatchMapping("/journal/{journalpostIdForKildesystem}")
@@ -184,7 +213,8 @@ class JournalpostController(private val journalpostService: JournalpostService) 
                 description = "Journalpost er endret (eller registrert/journalført når payload inkluderer \"skalJournalfores\":\"true\")"
             ),
             ApiResponse(
-                responseCode = "400", description = """
+                responseCode = "400",
+                description = """
           En av følgende:
           - prefiks på journalpostId er ugyldig
           - EndreJournalpostCommandDto.gjelder er ikke satt og det finnes dokumenter tilknyttet journalpost
@@ -213,7 +243,8 @@ class JournalpostController(private val journalpostService: JournalpostService) 
 
     @PostMapping("/journalpost/{arkivSystem}")
     @Operation(
-        security = [SecurityRequirement(name = "bearer-key")], description = """
+        security = [SecurityRequirement(name = "bearer-key")],
+        description = """
           Opprett notat eller utgående journalpost i midlertidlig brevlager.
           Opprett inngående, notat eller utgående journalpost i Joark
           """

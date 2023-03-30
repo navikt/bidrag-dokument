@@ -19,7 +19,6 @@ import org.junit.jupiter.api.function.Executable
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 
-
 @DisplayName("JournalpostService")
 @ExtendWith(MockKExtension::class)
 @ActiveProfiles("test")
@@ -39,7 +38,6 @@ internal class JournalpostServiceTest {
     fun init() {
         journalpostService = JournalpostService(bidragForsendelseConsumer, bidragArkivConsumer, bidragJournalpostConsumer)
     }
-
 
     @Test
     @DisplayName("skal ikke hente journalpost")

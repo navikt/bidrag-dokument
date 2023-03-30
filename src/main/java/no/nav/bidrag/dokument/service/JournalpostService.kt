@@ -5,7 +5,19 @@ import no.nav.bidrag.commons.util.KildesystemIdenfikator.Kildesystem
 import no.nav.bidrag.commons.web.HttpResponse
 import no.nav.bidrag.dokument.BidragDokumentConfig
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer
-import no.nav.bidrag.dokument.dto.*
+import no.nav.bidrag.dokument.dto.ArkivSystem
+import no.nav.bidrag.dokument.dto.AvvikType
+import no.nav.bidrag.dokument.dto.Avvikshendelse
+import no.nav.bidrag.dokument.dto.BehandleAvvikshendelseResponse
+import no.nav.bidrag.dokument.dto.DistribuerJournalpostRequest
+import no.nav.bidrag.dokument.dto.DistribuerJournalpostResponse
+import no.nav.bidrag.dokument.dto.DistribusjonInfoDto
+import no.nav.bidrag.dokument.dto.EndreJournalpostCommand
+import no.nav.bidrag.dokument.dto.JournalpostDto
+import no.nav.bidrag.dokument.dto.JournalpostId
+import no.nav.bidrag.dokument.dto.JournalpostResponse
+import no.nav.bidrag.dokument.dto.OpprettJournalpostRequest
+import no.nav.bidrag.dokument.dto.OpprettJournalpostResponse
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 
@@ -17,43 +29,57 @@ class JournalpostService(
 ) {
 
     fun hentJournalpost(saksnummer: String?, kildesystemIdenfikator: KildesystemIdenfikator): HttpResponse<JournalpostResponse> {
-        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.hentJournalpost(
-            saksnummer,
-            kildesystemIdenfikator.prefiksetJournalpostId
-        )
-        else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) bidragArkivConsumer.hentJournalpost(
-            saksnummer,
-            kildesystemIdenfikator.prefiksetJournalpostId
-        )
-        else bidragForsendelseConsumer.hentJournalpost(saksnummer, kildesystemIdenfikator.prefiksetJournalpostId)
+        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) {
+            bidragJournalpostConsumer.hentJournalpost(
+                saksnummer,
+                kildesystemIdenfikator.prefiksetJournalpostId
+            )
+        } else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) {
+            bidragArkivConsumer.hentJournalpost(
+                saksnummer,
+                kildesystemIdenfikator.prefiksetJournalpostId
+            )
+        } else {
+            bidragForsendelseConsumer.hentJournalpost(saksnummer, kildesystemIdenfikator.prefiksetJournalpostId)
+        }
     }
 
     fun finnAvvik(saksnummer: String?, kildesystemIdenfikator: KildesystemIdenfikator): HttpResponse<List<AvvikType>> {
-        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.finnAvvik(
-            saksnummer,
-            kildesystemIdenfikator.prefiksetJournalpostId
-        )
-        else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) bidragArkivConsumer.finnAvvik(
-            saksnummer,
-            kildesystemIdenfikator.prefiksetJournalpostId
-        )
-        else bidragForsendelseConsumer.finnAvvik(saksnummer, kildesystemIdenfikator.prefiksetJournalpostId)
+        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) {
+            bidragJournalpostConsumer.finnAvvik(
+                saksnummer,
+                kildesystemIdenfikator.prefiksetJournalpostId
+            )
+        } else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) {
+            bidragArkivConsumer.finnAvvik(
+                saksnummer,
+                kildesystemIdenfikator.prefiksetJournalpostId
+            )
+        } else {
+            bidragForsendelseConsumer.finnAvvik(saksnummer, kildesystemIdenfikator.prefiksetJournalpostId)
+        }
     }
 
     fun behandleAvvik(
-        enhet: String?, kildesystemIdenfikator: KildesystemIdenfikator, avvikshendelse: Avvikshendelse?
+        enhet: String?,
+        kildesystemIdenfikator: KildesystemIdenfikator,
+        avvikshendelse: Avvikshendelse?
     ): HttpResponse<BehandleAvvikshendelseResponse> {
-        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.behandleAvvik(
-            enhet,
-            kildesystemIdenfikator.prefiksetJournalpostId,
-            avvikshendelse
-        )
-        else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) bidragArkivConsumer.behandleAvvik(
-            enhet,
-            kildesystemIdenfikator.prefiksetJournalpostId,
-            avvikshendelse
-        )
-        else bidragForsendelseConsumer.behandleAvvik(enhet, kildesystemIdenfikator.prefiksetJournalpostId, avvikshendelse)
+        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) {
+            bidragJournalpostConsumer.behandleAvvik(
+                enhet,
+                kildesystemIdenfikator.prefiksetJournalpostId,
+                avvikshendelse
+            )
+        } else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) {
+            bidragArkivConsumer.behandleAvvik(
+                enhet,
+                kildesystemIdenfikator.prefiksetJournalpostId,
+                avvikshendelse
+            )
+        } else {
+            bidragForsendelseConsumer.behandleAvvik(enhet, kildesystemIdenfikator.prefiksetJournalpostId, avvikshendelse)
+        }
     }
 
     fun finnJournalposter(saksnummer: String, fagomrade: List<String> = emptyList()): List<JournalpostDto> {
@@ -64,14 +90,21 @@ class JournalpostService(
     }
 
     fun endre(enhet: String?, kildesystemIdenfikator: KildesystemIdenfikator, endreJournalpostCommand: EndreJournalpostCommand): HttpResponse<Void> {
-        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.endre(enhet, endreJournalpostCommand)
-        else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) bidragArkivConsumer.endre(enhet, endreJournalpostCommand)
-        else bidragForsendelseConsumer.endre(enhet, endreJournalpostCommand)
+        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) {
+            bidragJournalpostConsumer.endre(enhet, endreJournalpostCommand)
+        } else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) {
+            bidragArkivConsumer.endre(enhet, endreJournalpostCommand)
+        } else {
+            bidragForsendelseConsumer.endre(enhet, endreJournalpostCommand)
+        }
     }
 
     fun opprett(opprettJournalpostRequest: OpprettJournalpostRequest, arkivSystem: ArkivSystem): HttpResponse<OpprettJournalpostResponse> {
-        return if (ArkivSystem.BIDRAG == arkivSystem) bidragJournalpostConsumer.opprett(opprettJournalpostRequest)
-        else bidragArkivConsumer.opprett(opprettJournalpostRequest)
+        return if (ArkivSystem.BIDRAG == arkivSystem) {
+            bidragJournalpostConsumer.opprett(opprettJournalpostRequest)
+        } else {
+            bidragArkivConsumer.opprett(opprettJournalpostRequest)
+        }
     }
 
     fun distribuerJournalpost(
@@ -79,28 +112,40 @@ class JournalpostService(
         kildesystemIdenfikator: KildesystemIdenfikator,
         distribuerJournalpostRequest: DistribuerJournalpostRequest
     ): HttpResponse<DistribuerJournalpostResponse> {
-        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.distribuerJournalpost(
-            kildesystemIdenfikator.prefiksetJournalpostId,
-            batchId,
-            distribuerJournalpostRequest
-        )
-        else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) bidragArkivConsumer.distribuerJournalpost(
-            kildesystemIdenfikator.prefiksetJournalpostId,
-            batchId,
-            distribuerJournalpostRequest
-        )
-        else bidragForsendelseConsumer.distribuerJournalpost(kildesystemIdenfikator.prefiksetJournalpostId, batchId, distribuerJournalpostRequest)
+        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) {
+            bidragJournalpostConsumer.distribuerJournalpost(
+                kildesystemIdenfikator.prefiksetJournalpostId,
+                batchId,
+                distribuerJournalpostRequest
+            )
+        } else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) {
+            bidragArkivConsumer.distribuerJournalpost(
+                kildesystemIdenfikator.prefiksetJournalpostId,
+                batchId,
+                distribuerJournalpostRequest
+            )
+        } else {
+            bidragForsendelseConsumer.distribuerJournalpost(kildesystemIdenfikator.prefiksetJournalpostId, batchId, distribuerJournalpostRequest)
+        }
     }
 
     fun kanDistribuereJournalpost(kildesystemIdenfikator: KildesystemIdenfikator): HttpResponse<Void> {
-        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) bidragJournalpostConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.prefiksetJournalpostId)
-        else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) bidragArkivConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.prefiksetJournalpostId)
-        else bidragForsendelseConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.prefiksetJournalpostId)
+        return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) {
+            bidragJournalpostConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.prefiksetJournalpostId)
+        } else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) {
+            bidragArkivConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.prefiksetJournalpostId)
+        } else {
+            bidragForsendelseConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.prefiksetJournalpostId)
+        }
     }
 
     fun hentDistribusjonsInfo(journalpostId: JournalpostId): DistribusjonInfoDto? {
-        return if (journalpostId.erSystemBidrag) bidragJournalpostConsumer.hentDistribusjonsInfo(journalpostId.medSystemPrefiks!!)
-        else if (journalpostId.erSystemJoark) bidragArkivConsumer.hentDistribusjonsInfo(journalpostId.medSystemPrefiks!!)
-        else bidragForsendelseConsumer.hentDistribusjonsInfo(journalpostId.medSystemPrefiks!!)
+        return if (journalpostId.erSystemBidrag) {
+            bidragJournalpostConsumer.hentDistribusjonsInfo(journalpostId.medSystemPrefiks!!)
+        } else if (journalpostId.erSystemJoark) {
+            bidragArkivConsumer.hentDistribusjonsInfo(journalpostId.medSystemPrefiks!!)
+        } else {
+            bidragForsendelseConsumer.hentDistribusjonsInfo(journalpostId.medSystemPrefiks!!)
+        }
     }
 }

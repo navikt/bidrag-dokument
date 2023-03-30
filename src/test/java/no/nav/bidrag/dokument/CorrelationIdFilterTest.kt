@@ -17,9 +17,7 @@ import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.function.Executable
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,7 +27,6 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
-import java.util.function.Function
 
 @SpringBootTest(classes = [BidragDokumentTest::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(BidragDokumentTest.TEST_PROFILE, "mock-security")
@@ -47,6 +44,7 @@ internal class CorrelationIdFilterTest {
 
     @LocalServerPort
     private val port = 0
+
     @BeforeEach
     fun mockLogAppender() {
         val logger = LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME) as Logger
@@ -58,7 +56,7 @@ internal class CorrelationIdFilterTest {
     @Test
     @DisplayName("skal logge requests mot applikasjonen")
     fun skalLoggeRequestsMotApplikasjonen() {
-       every {journalpostServiceMock.hentJournalpost(any(), any<KildesystemIdenfikator>())  } returns HttpResponse.from(HttpStatus.I_AM_A_TEAPOT)
+        every { journalpostServiceMock.hentJournalpost(any(), any<KildesystemIdenfikator>()) } returns HttpResponse.from(HttpStatus.I_AM_A_TEAPOT)
         val response = securedTestRestTemplate!!.exchange(
             "http://localhost:$port/bidrag-dokument/journal/BID-123?saksnummer=777",
             HttpMethod.GET,
