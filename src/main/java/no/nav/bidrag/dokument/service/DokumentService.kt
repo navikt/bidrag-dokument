@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpStatusCodeException
 import java.io.File
 import java.io.IOException
-import java.util.UUID
+import java.util.*
 import java.util.stream.Collectors
 
 @Service
@@ -32,7 +32,10 @@ class DokumentService(
     @Qualifier(BidragDokumentConfig.MIDL_BREVLAGER_QUALIFIER) private val bidragJournalpostConsumer: BidragDokumentConsumer,
     @Qualifier(BidragDokumentConfig.FORSENDELSE_QUALIFIER) private val bidragForsendelseConsumer: BidragDokumentConsumer
 ) {
-    fun hentTilgangUrl(journalpostId: String?, dokumentreferanse: String?): DokumentTilgangResponse? {
+    fun hentTilgangUrl(
+        journalpostId: String?,
+        dokumentreferanse: String?
+    ): DokumentTilgangResponse? {
         return dokumentTilgangConsumer.hentTilgangUrl(journalpostId, dokumentreferanse)
     }
 
@@ -40,21 +43,27 @@ class DokumentService(
     fun hentDokumentMetadata(dokumentRef: DokumentRef): List<DokumentMetadata> {
         return if (dokumentRef.erForKilde(Kilde.MIDLERTIDLIG_BREVLAGER)) {
             bidragJournalpostConsumer.hentDokumentMetadata(
-            dokumentRef.journalpostId,
-            dokumentRef.dokumentId
-        )
+                dokumentRef.journalpostId,
+                dokumentRef.dokumentId
+            )
         } else if (dokumentRef.erForKilde(Kilde.FORSENDELSE)) {
             bidragForsendelseConsumer.hentDokumentMetadata(
-            dokumentRef.journalpostId,
-            dokumentRef.dokumentId
-        )
+                dokumentRef.journalpostId,
+                dokumentRef.dokumentId
+            )
         } else {
-            bidragArkivConsumer.hentDokumentMetadata(dokumentRef.journalpostId, dokumentRef.dokumentId)
+            bidragArkivConsumer.hentDokumentMetadata(
+                dokumentRef.journalpostId,
+                dokumentRef.dokumentId
+            )
         }
     }
 
     @Timed("hentDokument")
-    fun hentDokument(_dokumentRef: DokumentRef, documentProperties: DocumentProperties): ResponseEntity<ByteArray> {
+    fun hentDokument(
+        _dokumentRef: DokumentRef,
+        documentProperties: DocumentProperties
+    ): ResponseEntity<ByteArray> {
         val dokumentRef = hentDokumentRefMedRiktigKilde(_dokumentRef)
         if (!dokumentRef.hasDokumentId() && !dokumentRef.erForKilde(Kilde.MIDLERTIDLIG_BREVLAGER)) {
             val dokumentReferanser = hentAlleJournalpostDokumentReferanser(dokumentRef)
@@ -68,17 +77,17 @@ class DokumentService(
     }
 
     @Timed("hentDokumenter")
-    fun hentDokumenter(dokumenterString: List<String>, documentProperties: DocumentProperties): ResponseEntity<ByteArray> {
+    fun hentDokumenter(
+        dokumenterString: List<String>,
+        documentProperties: DocumentProperties
+    ): ResponseEntity<ByteArray> {
         val dokumenter = parseDokumentString(dokumenterString)
         return hentDokumenterData(dokumenter, documentProperties)
     }
 
     private fun hentDokumentData(dokument: DokumentRef): ResponseEntity<ByteArray> {
         return if (dokument.erForKilde(Kilde.MIDLERTIDLIG_BREVLAGER)) {
-            bidragJournalpostConsumer.hentDokument(
-            dokument.journalpostId,
-            dokument.dokumentId
-        )
+            bidragJournalpostConsumer.hentDokument(dokument.journalpostId, dokument.dokumentId)
         } else if (dokument.erForKilde(Kilde.FORSENDELSE)) {
             bidragForsendelseConsumer.hentDokument(dokument.journalpostId, dokument.dokumentId)
         } else {
@@ -96,12 +105,18 @@ class DokumentService(
         }
     }
 
-    private fun hentDokumenterData(dokumentRefList: List<DokumentRef>, documentProperties: DocumentProperties): ResponseEntity<ByteArray> {
+    private fun hentDokumenterData(
+        dokumentRefList: List<DokumentRef>,
+        documentProperties: DocumentProperties
+    ): ResponseEntity<ByteArray> {
         return try {
             val dokumentByte = hentOgMergeAlleDokumenter(dokumentRefList, documentProperties)
             ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=dokumenter_sammenslatt.pdf")
+                .header(
+                    HttpHeaders.CONTENT_DISPOSITION,
+                    "inline; filename=dokumenter_sammenslatt.pdf"
+                )
                 .body(dokumentByte)
         } catch (e: Exception) {
             LOGGER.error("Det skjedde en feil ved henting av dokumenter {}", dokumentRefList, e)
@@ -114,7 +129,10 @@ class DokumentService(
     }
 
     @Throws(IOException::class)
-    private fun hentOgMergeAlleDokumenter(dokumentList: List<DokumentRef>, documentProperties: DocumentProperties): ByteArray? {
+    private fun hentOgMergeAlleDokumenter(
+        dokumentList: List<DokumentRef>,
+        documentProperties: DocumentProperties
+    ): ByteArray? {
         documentProperties.numberOfDocuments = dokumentList.size
         if (dokumentList.size == 1) {
             return hentDokument(dokumentList[0], documentProperties).body
@@ -123,7 +141,10 @@ class DokumentService(
         val mergedDocument = PDFMergerUtility()
         mergedDocument.destinationFileName = mergedFileName
         for (dokument in dokumentList) {
-            val dokumentResponse = hentDokument(dokument, DocumentProperties(documentProperties, dokumentList.indexOf(dokument)))
+            val dokumentResponse = hentDokument(
+                dokument,
+                DocumentProperties(documentProperties, dokumentList.indexOf(dokument))
+            )
             val dokumentInputStream = ByteSource.wrap(dokumentResponse.body!!).openStream()
             mergedDocument.addSource(dokumentInputStream)
             dokumentInputStream.close()
@@ -161,7 +182,8 @@ class DokumentService(
     }
 
     private fun parseDokumentString(dokumenterString: List<String>): List<DokumentRef> {
-        return dokumenterString.stream().map { str: String? -> DokumentRef.parseFromString(str!!) }.collect(Collectors.toList())
+        return dokumenterString.stream().map { str: String? -> DokumentRef.parseFromString(str!!) }
+            .collect(Collectors.toList())
     }
 
     companion object {
