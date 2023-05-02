@@ -31,7 +31,7 @@ azure:
         cluster: dev-gcp
 ingresses:
   - https://bidrag-dokument-feature.dev.adeo.no/
-  - https://bidrag-dokument-feature.dev.intern.nav.no/
+  - https://bidrag-dokument-feature.intern.dev.nav.no/
   - https://bidrag-dokument-feature.dev-fss-pub.nais.io
 env:
   STS_ACCEPTED_AUDIENCE: srvbdarkivering,srvbisys

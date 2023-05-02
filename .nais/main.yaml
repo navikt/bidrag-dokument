@@ -32,7 +32,7 @@ azure:
 ingresses:
   - https://bidrag-dokument.nais.preprod.local/
   - https://bidrag-dokument.dev.adeo.no/
-  - https://bidrag-dokument.dev.intern.nav.no/
+  - https://bidrag-dokument.intern.dev.nav.no/
   - https://bidrag-dokument.dev-fss-pub.nais.io/
 env:
     STS_ACCEPTED_AUDIENCE: srvbdarkivering,srvbisys
