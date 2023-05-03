@@ -2,7 +2,7 @@ package no.nav.bidrag.dokument.controller
 
 import io.micrometer.core.annotation.Timed
 import io.swagger.v3.oas.annotations.Parameter
-import mu.KotlinLogging
+import mu.two.KotlinLogging
 import no.nav.bidrag.dokument.dto.DocumentProperties
 import no.nav.bidrag.dokument.dto.DokumentMetadata
 import no.nav.bidrag.dokument.dto.DokumentRef

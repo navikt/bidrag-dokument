@@ -9,7 +9,6 @@ import io.kotest.assertions.assertSoftly
 import io.mockk.every
 import no.nav.bidrag.commons.util.KildesystemIdenfikator
 import no.nav.bidrag.commons.web.HttpResponse
-import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate
 import no.nav.bidrag.dokument.dto.JournalpostResponse
 import no.nav.bidrag.dokument.service.JournalpostService
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
@@ -22,6 +21,7 @@ import org.mockito.Mockito
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -34,7 +34,7 @@ import org.springframework.test.context.ActiveProfiles
 @EnableMockOAuth2Server
 internal class CorrelationIdFilterTest {
     @Autowired
-    private val securedTestRestTemplate: HttpHeaderTestRestTemplate? = null
+    private val securedTestRestTemplate: TestRestTemplate? = null
 
     @MockkBean(relaxed = true)
     lateinit var appenderMock: Appender<ILoggingEvent>

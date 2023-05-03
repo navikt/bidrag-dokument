@@ -1,6 +1,6 @@
 package no.nav.bidrag.dokument.consumer
 
-import mu.KotlinLogging
+import mu.two.KotlinLogging
 import no.nav.bidrag.commons.web.EnhetFilter
 import no.nav.bidrag.commons.web.HttpResponse
 import no.nav.bidrag.dokument.dto.AvvikType
