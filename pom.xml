@@ -26,8 +26,8 @@
 
     <!-- dependent versions other than from spring-boot -->
     <bidrag-commons.version>20230427084654_4121ef0</bidrag-commons.version>
-    <bidrag-commons-test.version>1.20230217164307_1ec9d3f</bidrag-commons-test.version>
-    <bidrag-dokument-dto.version>1.6.31</bidrag-dokument-dto.version>
+    <bidrag-commons-test.version>1.20230504132526_a72fa41</bidrag-commons-test.version>
+    <bidrag-dokument-dto.version>1.6.32</bidrag-dokument-dto.version>
     <logback.encoder.version>7.3</logback.encoder.version>
     <springdoc-openapi-ui.version>2.1.0</springdoc-openapi-ui.version>
     <springframework-cloud.version>4.0.2</springframework-cloud.version>
@@ -35,7 +35,7 @@
     <squareup.version>4.11.0</squareup.version>
     <mockk.version>4.0.2</mockk.version>
     <kotest.version>5.6.1</kotest.version>
-    <kotlin-logging-jvm.version>4.0.0-beta-2</kotlin-logging-jvm.version>
+    <kotlin-logging-jvm.version>3.0.5</kotlin-logging-jvm.version>
 
     <!-- build -->
     <build-helper-maven.version>3.3.0</build-helper-maven.version>
@@ -45,6 +45,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
   </properties>
+
   <repositories>
     <repository>
       <id>github</id>
@@ -52,6 +53,17 @@
       <url>https://maven.pkg.github.com/navikt/maven-release/</url>
     </repository>
   </repositories>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.yaml</groupId>
+        <artifactId>snakeyaml</artifactId>
+        <version>2.0</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>io.github.microutils</groupId>
@@ -216,26 +228,19 @@
       <artifactId>spring-cloud-starter-contract-stub-runner</artifactId>
       <version>${springframework-cloud.version}</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>commons-collections</groupId>
+          <artifactId>commons-collections</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-devtools</artifactId>
-      <scope>runtime</scope>
-      <optional>true</optional>
-    </dependency>
   </dependencies>
-
-  <dependencyManagement>
-    <dependencies>
-      <!-- Ovverride vulnerable dependencies -->
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>1.13</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
 
   <distributionManagement>
     <repository>
@@ -283,6 +288,7 @@
           <args>
             <arg>-Xjsr305=strict</arg>
           </args>
+          <jvmTarget>17</jvmTarget>
           <compilerPlugins>
             <plugin>spring</plugin>
             <plugin>jpa</plugin>
@@ -336,54 +342,54 @@
           </execution>
         </executions>
       </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <id>ktlint</id>
-                        <phase>verify</phase>
-                        <configuration>
-                            <target name="ktlint">
-                                <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
-                                      classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
-                                    <arg value="src/**/*.kt"/>
-                                </java>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>ktlint-format</id>
-                        <phase>validate</phase>
-                        <configuration>
-                            <target name="ktlint">
-                                <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
-                                      classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
-                                    <jvmarg value="--add-opens"/>
-                                    <jvmarg value="java.base/java.lang=ALL-UNNAMED"/>
-                                    <arg value="-F"/>
-                                    <arg value="src/**/*.kt"/>
-                                </java>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.pinterest</groupId>
-                        <artifactId>ktlint</artifactId>
-                        <version>0.47.1</version>
-                    </dependency>
-                    <!-- additional 3rd party ruleset(s) can be specified here -->
-                </dependencies>
-            </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>ktlint</id>
+            <phase>verify</phase>
+            <configuration>
+              <target name="ktlint">
+                <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
+                  classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
+                  <arg value="src/**/*.kt"/>
+                </java>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>ktlint-format</id>
+            <phase>validate</phase>
+            <configuration>
+              <target name="ktlint">
+                <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
+                  classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
+                  <jvmarg value="--add-opens"/>
+                  <jvmarg value="java.base/java.lang=ALL-UNNAMED"/>
+                  <arg value="-F"/>
+                  <arg value="src/**/*.kt"/>
+                </java>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>com.pinterest</groupId>
+            <artifactId>ktlint</artifactId>
+            <version>0.47.1</version>
+          </dependency>
+          <!-- additional 3rd party ruleset(s) can be specified here -->
+        </dependencies>
+      </plugin>
     </plugins>
   </build>
 

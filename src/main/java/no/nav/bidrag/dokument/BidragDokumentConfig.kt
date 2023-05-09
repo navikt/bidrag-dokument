@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType
 import io.swagger.v3.oas.annotations.info.Info
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.security.SecurityScheme
-import mu.two.KotlinLogging
+import mu.KotlinLogging
 import no.nav.bidrag.commons.security.api.EnableSecurityConfiguration
 import no.nav.bidrag.commons.security.service.SecurityTokenService
 import no.nav.bidrag.commons.web.CorrelationIdFilter

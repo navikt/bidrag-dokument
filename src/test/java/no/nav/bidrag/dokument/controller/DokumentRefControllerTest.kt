@@ -1,81 +1,78 @@
-package no.nav.bidrag.dokument.controller;
+package no.nav.bidrag.dokument.controller
 
-import static no.nav.bidrag.dokument.BidragDokumentTest.TEST_PROFILE;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate
+import no.nav.bidrag.dokument.BidragDokumentTest
+import no.nav.bidrag.dokument.consumer.stub.RestConsumerStub
+import no.nav.bidrag.dokument.dto.DokumentTilgangResponse
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
+import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.test.context.ActiveProfiles
+import java.io.IOException
+import java.util.function.Consumer
 
-import java.io.IOException;
-import java.util.Optional;
-import no.nav.bidrag.commons.security.service.OidcTokenManager;
-import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
-import no.nav.bidrag.dokument.BidragDokumentTest;
-import no.nav.bidrag.dokument.consumer.stub.RestConsumerStub;
-import no.nav.bidrag.dokument.dto.DokumentTilgangResponse;
-import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ActiveProfiles;
-
-@ActiveProfiles(TEST_PROFILE)
+@ActiveProfiles(BidragDokumentTest.TEST_PROFILE)
 @DisplayName("DokumentController")
 @AutoConfigureWireMock(port = 0)
-@SpringBootTest(classes = BidragDokumentTest.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = [BidragDokumentTest::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @EnableMockOAuth2Server
-class DokumentRefControllerTest {
+internal class DokumentRefControllerTest {
+    @Autowired
+    private lateinit var securedTestRestTemplate: HttpHeaderTestRestTemplate
 
-  @Autowired
-  private HttpHeaderTestRestTemplate securedTestRestTemplate;
+    @LocalServerPort
+    private var port = 0
 
-  @LocalServerPort
-  private int port;
+    @Autowired
+    private lateinit var restConsumerStub: RestConsumerStub
 
-  @Autowired
-  private RestConsumerStub restConsumerStub;
+    @Test
+    @DisplayName("skal spørre brevserver om tilgang til dokument")
+    @Throws(IOException::class)
+    fun skalVideresendeRequestOmTilgangTilDokument() {
+        val journalpostId = "BID-12312312"
+        val dokumentReferanse = "1234"
+        val dokumentUrl = "https://dokument-url.no/"
+        val type = "BREVLAGER"
+        restConsumerStub
+            .runGiTilgangTilDokument(journalpostId, dokumentReferanse, dokumentUrl, type, HttpStatus.OK.value())
+        val dokumentUrlResponse =
+            securedTestRestTemplate
+                .getForEntity<DokumentTilgangResponse>(localhostUrl("/bidrag-dokument/tilgang/$journalpostId/$dokumentReferanse"))
 
-  @Test
-  @DisplayName("skal spørre brevserver om tilgang til dokument")
-  void skalVideresendeRequestOmTilgangTilDokument() throws IOException {
+        Assertions.assertThat(dokumentUrlResponse).satisfies(
+            Consumer { response: ResponseEntity<DokumentTilgangResponse> ->
+                org.junit.jupiter.api.Assertions.assertAll(
+                    { Assertions.assertThat(response.statusCode).`as`("status").isEqualTo(HttpStatus.OK) },
+                    {
+                        Assertions.assertThat(response).extracting { it.body }
+                            .`as`("url")
+                            .isEqualTo(DokumentTilgangResponse(dokumentUrl, type))
+                    }
+                )
+            }
+        )
+    }
 
-    var journalpostId = "BID-12312312";
-    var dokumentReferanse = "1234";
-    var dokumentUrl = "https://dokument-url.no/";
-    var type = "BREVLAGER";
+    @Test
+    @DisplayName("Skal git status 401 dersom token mangler")
+    fun skalGiStatus401DersomTokenMangler() {
+        val testRestTemplate = TestRestTemplate()
+        val responseEntity =
+            testRestTemplate.exchange(localhostUrl("/bidrag-dokument/tilgang/BID-123/dokref"), HttpMethod.GET, null, String::class.java)
+        org.junit.jupiter.api.Assertions.assertEquals(responseEntity.statusCode, HttpStatus.UNAUTHORIZED)
+    }
 
-    restConsumerStub
-        .runGiTilgangTilDokument(journalpostId, dokumentReferanse, dokumentUrl, type, HttpStatus.OK.value());
-
-    var dokumentUrlResponse = Optional.of(securedTestRestTemplate
-        .exchange(localhostUrl("/bidrag-dokument/tilgang/" + journalpostId + "/" + dokumentReferanse), HttpMethod.GET, null, DokumentTilgangResponse.class));
-
-    assertThat(dokumentUrlResponse).hasValueSatisfying(
-        response -> assertAll(() -> assertThat(response.getStatusCode()).as("status").isEqualTo(HttpStatus.OK),
-            () -> assertThat(response).extracting(ResponseEntity::getBody).as("url")
-                .isEqualTo(new DokumentTilgangResponse(dokumentUrl, type))));
-  }
-
-  @Test
-  @DisplayName("Skal git status 401 dersom token mangler")
-  void skalGiStatus401DersomTokenMangler() {
-
-    var testRestTemplate = new TestRestTemplate();
-
-    var responseEntity = testRestTemplate.exchange(localhostUrl("/bidrag-dokument/tilgang/BID-123/dokref"), HttpMethod.GET, null, String.class);
-
-    assertEquals(responseEntity.getStatusCode(), HttpStatus.UNAUTHORIZED);
-  }
-
-  private String localhostUrl(@SuppressWarnings("SameParameterValue") String url) {
-    return "http://localhost:" + port + url;
-  }
+    private fun localhostUrl(url: String): String {
+        return "http://localhost:$port$url"
+    }
 }

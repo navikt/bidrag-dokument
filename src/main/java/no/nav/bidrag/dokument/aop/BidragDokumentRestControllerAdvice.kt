@@ -1,7 +1,7 @@
 package no.nav.bidrag.dokument.aop
 
 import jakarta.servlet.http.HttpServletRequest
-import mu.two.KotlinLogging
+import mu.KotlinLogging
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus

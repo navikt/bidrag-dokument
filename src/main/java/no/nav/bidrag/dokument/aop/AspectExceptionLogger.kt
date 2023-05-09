@@ -1,6 +1,6 @@
 package no.nav.bidrag.dokument.aop
 
-import mu.two.KotlinLogging
+import mu.KotlinLogging
 import no.nav.bidrag.dokument.sikkerLogg
 import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.annotation.AfterThrowing

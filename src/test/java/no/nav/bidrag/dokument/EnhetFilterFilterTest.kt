@@ -1,129 +1,102 @@
-package no.nav.bidrag.dokument;
+package no.nav.bidrag.dokument
 
-import static no.nav.bidrag.dokument.BidragDokumentTest.TEST_PROFILE;
-import static no.nav.bidrag.dokument.consumer.BidragDokumentConsumer.createEnhetHeader;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.Appender
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
+import io.mockk.verify
+import no.nav.bidrag.commons.web.HttpResponse.Companion.from
+import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate
+import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer.Companion.createEnhetHeader
+import no.nav.bidrag.dokument.service.JournalpostService
+import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
+import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.Assertions.assertAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpStatus
+import org.springframework.test.context.ActiveProfiles
 
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
-import java.util.stream.Collectors;
-import no.nav.bidrag.commons.util.KildesystemIdenfikator;
-import no.nav.bidrag.commons.web.HttpResponse;
-import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate;
-import no.nav.bidrag.dokument.service.JournalpostService;
-import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ActiveProfiles;
-
-@SpringBootTest(classes = BidragDokumentTest.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles(TEST_PROFILE)
+@SpringBootTest(classes = [BidragDokumentTest::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles(BidragDokumentTest.TEST_PROFILE)
 @DisplayName("EnhetFilter")
 @EnableMockOAuth2Server
-class EnhetFilterFilterTest {
+internal class EnhetFilterFilterTest {
 
-  @Autowired
-  private HttpHeaderTestRestTemplate securedTestRestTemplate;
+    @Autowired
+    private lateinit var securedTestRestTemplate: HttpHeaderTestRestTemplate
 
-  @SuppressWarnings("rawtypes")
-  @MockBean
-  private Appender appenderMock;
-  @MockBean
-  private JournalpostService journalpostServiceMock;
+    @MockkBean(relaxed = true)
+    private lateinit var appenderMock: Appender<ILoggingEvent>
 
-  @LocalServerPort
-  private int port;
+    @MockkBean
+    private lateinit var journalpostServiceMock: JournalpostService
 
-  @BeforeEach
-  @SuppressWarnings("unchecked")
-  void mockLogAppender() {
-    ch.qos.logback.classic.Logger logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(
-        Logger.ROOT_LOGGER_NAME);
-    when(appenderMock.getName()).thenReturn("MOCK");
-    when(appenderMock.isStarted()).thenReturn(true);
-    logger.addAppender(appenderMock);
-  }
+    @LocalServerPort
+    private val port = 0
 
-  @Test
-  @SuppressWarnings("unchecked")
-  @DisplayName("skal logge requests mot applikasjonen som ikke inneholder enhetsinformasjon i header")
-  void skalLoggeRequestsMotApplikasjonenUtenHeaderInformasjon() {
-    when(journalpostServiceMock.hentJournalpost(anyString(), any(KildesystemIdenfikator.class)))
-        .thenReturn(HttpResponse.Companion.from(HttpStatus.I_AM_A_TEAPOT));
+    @BeforeEach
+    fun mockLogAppender() {
+        val logger = LoggerFactory.getLogger(
+            org.slf4j.Logger.ROOT_LOGGER_NAME
+        ) as Logger
+        every { appenderMock.name } returns "MOCK"
+        every { appenderMock.isStarted } returns true
+        logger.addAppender(appenderMock)
+    }
 
-    var response = securedTestRestTemplate.exchange(
-        "http://localhost:" + port + "/bidrag-dokument/journal/BID-123?saksnummer=777",
-        HttpMethod.GET,
-        null,
-        String.class
-    );
+    @Test
+    @DisplayName("skal logge requests mot applikasjonen som ikke inneholder enhetsinformasjon i header")
+    fun skalLoggeRequestsMotApplikasjonenUtenHeaderInformasjon() {
+        every {
+            journalpostServiceMock.hentJournalpost(
+                any(),
+                any()
+            )
+        } returns from(HttpStatus.I_AM_A_TEAPOT)
+        val response =
+            securedTestRestTemplate.getForEntity<String>("http://localhost:$port/bidrag-dokument/journal/BID-123?saksnummer=777")
+        assertAll(
+            { Assertions.assertThat(response).extracting { it.statusCode }.isEqualTo(HttpStatus.I_AM_A_TEAPOT) },
+            {
+                val loggingEventCaptor = mutableListOf<ILoggingEvent>()
+                verify { appenderMock.doAppend(capture(loggingEventCaptor)) }
+                val allMsgs = loggingEventCaptor.joinToString("\n") { it.formattedMessage }
+                Assertions.assertThat(allMsgs).contains(
+                    "Behandler request '/bidrag-dokument/journal/BID-123' uten informasjon om enhetsnummer."
+                )
+            }
+        )
+    }
 
-    assertAll(
-        () -> assertThat(response).extracting(ResponseEntity::getStatusCode)
-            .isEqualTo(HttpStatus.I_AM_A_TEAPOT),
-        () -> {
-          var loggingEventCaptor = ArgumentCaptor.forClass(ILoggingEvent.class);
-          verify(appenderMock, atLeastOnce()).doAppend(loggingEventCaptor.capture());
-
-          var loggingEvents = loggingEventCaptor.getAllValues();
-          var allMsgs = loggingEvents.stream().map(ILoggingEvent::getFormattedMessage)
-              .collect(Collectors.joining("\n"));
-
-          assertThat(allMsgs).contains(
-              "Behandler request '/bidrag-dokument/journal/BID-123' uten informasjon om enhetsnummer.");
-        }
-    );
-  }
-
-  @Test
-  @SuppressWarnings("unchecked")
-  @DisplayName("skal logge requests mot applikasjonen som ikke inneholder enhetsinformasjon i header")
-  void skalLoggeRequestsMotApplikasjonenMedHeaderInformasjon() {
-    when(journalpostServiceMock.hentJournalpost(anyString(), any(KildesystemIdenfikator.class)))
-        .thenReturn(HttpResponse.Companion.from(HttpStatus.I_AM_A_TEAPOT));
-
-    var enhet = "4802";
-    var htpEntity = new HttpEntity<Void>(null, createEnhetHeader(enhet));
-    var response = securedTestRestTemplate.exchange(
-        "http://localhost:" + port + "/bidrag-dokument/journal/BID-123?saksnummer=777",
-        HttpMethod.GET,
-        htpEntity,
-        String.class
-    );
-
-    assertAll(
-        () -> assertThat(response).extracting(ResponseEntity::getStatusCode)
-            .isEqualTo(HttpStatus.I_AM_A_TEAPOT),
-        () -> {
-          var loggingEventCaptor = ArgumentCaptor.forClass(ILoggingEvent.class);
-          verify(appenderMock, atLeastOnce()).doAppend(loggingEventCaptor.capture());
-
-          var loggingEvents = loggingEventCaptor.getAllValues();
-          var allMsgs = loggingEvents.stream().map(ILoggingEvent::getFormattedMessage)
-              .collect(Collectors.joining("\n"));
-
-          assertThat(allMsgs).containsIgnoringCase(
-              "Behandler request '/bidrag-dokument/journal/BID-123' for enhet med enhetsnummer "
-                  + enhet);
-        }
-    );
-  }
+    @Test
+    @DisplayName("skal logge requests mot applikasjonen som ikke inneholder enhetsinformasjon i header")
+    fun skalLoggeRequestsMotApplikasjonenMedHeaderInformasjon() {
+        every { journalpostServiceMock.hentJournalpost(any(), any()) } returns from(HttpStatus.I_AM_A_TEAPOT)
+        val enhet = "4802"
+        val htpEntity = HttpEntity<Void>(null, createEnhetHeader(enhet))
+        val response =
+            securedTestRestTemplate.getForEntity<String>("http://localhost:$port/bidrag-dokument/journal/BID-123?saksnummer=777", htpEntity)
+        assertAll(
+            {
+                Assertions.assertThat(response).extracting { it.statusCode }.isEqualTo(HttpStatus.I_AM_A_TEAPOT)
+            },
+            {
+                val loggingEventCaptor = mutableListOf<ILoggingEvent>()
+                verify { appenderMock.doAppend(capture(loggingEventCaptor)) }
+                val allMsgs = loggingEventCaptor.joinToString("\n") { it.formattedMessage }
+                Assertions.assertThat(allMsgs).containsIgnoringCase(
+                    "Behandler request '/bidrag-dokument/journal/BID-123' for enhet med enhetsnummer " +
+                        enhet
+                )
+            }
+        )
+    }
 }

@@ -1,6 +1,6 @@
 package no.nav.bidrag.dokument
 
-import mu.two.KotlinLogging
+import mu.KotlinLogging
 import no.nav.security.token.support.spring.api.EnableJwtTokenValidation
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration

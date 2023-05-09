@@ -31,6 +31,8 @@ public class HttpHeaderTestRestTemplateConfiguration {
   private String generateTestToken() {
     var iss = mockOAuth2Server.issuerUrl("aad");
     var newIssuer = iss.newBuilder().host("localhost").build();
+//    var token = mockOAuth2Server.issueToken("aad", "aud-localhost", "aud-localhost");
+
     var token = mockOAuth2Server.issueToken("aad", "aud-localhost", new DefaultOAuth2TokenCallback("aad", "aud-localhost", JOSEObjectType.JWT.getType(), List.of("aud-localhost"), Map.of("iss", newIssuer.toString()), 3600));
     return "Bearer " + token.serialize();
   }
