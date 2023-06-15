@@ -1,5 +1,6 @@
 package no.nav.bidrag.dokument.aop
 
+import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.security.token.support.spring.validation.interceptor.JwtTokenUnauthorizedException
 import org.springframework.http.HttpHeaders
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
-import javax.servlet.http.HttpServletRequest
 
 private val log = KotlinLogging.logger {}
 

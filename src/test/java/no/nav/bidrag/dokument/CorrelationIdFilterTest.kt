@@ -4,7 +4,6 @@ import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.Appender
 import com.ninjasquad.springmockk.MockkBean
-import io.kotest.assertions.any
 import io.kotest.assertions.assertSoftly
 import io.mockk.every
 import no.nav.bidrag.commons.util.KildesystemIdenfikator
@@ -22,10 +21,9 @@ import org.mockito.Mockito
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.web.client.getForEntity
 import org.springframework.boot.test.web.server.LocalServerPort
-import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest(classes = [BidragDokumentTest::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -34,7 +32,7 @@ import org.springframework.test.context.ActiveProfiles
 @EnableMockOAuth2Server
 internal class CorrelationIdFilterTest {
     @Autowired
-    private val securedTestRestTemplate: HttpHeaderTestRestTemplate? = null
+    private lateinit var securedTestRestTemplate: HttpHeaderTestRestTemplate
 
     @MockkBean(relaxed = true)
     lateinit var appenderMock: Appender<ILoggingEvent>
@@ -57,14 +55,11 @@ internal class CorrelationIdFilterTest {
     @DisplayName("skal logge requests mot applikasjonen")
     fun skalLoggeRequestsMotApplikasjonen() {
         every { journalpostServiceMock.hentJournalpost(any(), any<KildesystemIdenfikator>()) } returns HttpResponse.from(HttpStatus.I_AM_A_TEAPOT)
-        val response = securedTestRestTemplate!!.exchange(
-            "http://localhost:$port/bidrag-dokument/journal/BID-123?saksnummer=777",
-            HttpMethod.GET,
-            null,
-            JournalpostResponse::class.java
-        )
+        val response =
+            securedTestRestTemplate.getForEntity<JournalpostResponse>("http://localhost:$port/bidrag-dokument/journal/BID-123?saksnummer=777")
         assertSoftly {
-            Assertions.assertThat(response).extracting { obj: ResponseEntity<JournalpostResponse?> -> obj.statusCode }.isEqualTo(HttpStatus.I_AM_A_TEAPOT);
+            Assertions.assertThat(response).extracting { it.statusCode }
+                .isEqualTo(HttpStatus.I_AM_A_TEAPOT);
             {
                 val loggingEventCaptor = ArgumentCaptor.forClass(ILoggingEvent::class.java)
                 Mockito.verify(appenderMock, Mockito.atLeastOnce()).doAppend(loggingEventCaptor.capture())
