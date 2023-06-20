@@ -162,7 +162,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>31.1-jre</version>
+      <version>32.0.0-jre</version>
     </dependency>
 
     <!-- ws -->
@@ -356,8 +356,7 @@
             <phase>verify</phase>
             <configuration>
               <target name="ktlint">
-                <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
-                  classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
+                <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true" classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
                   <arg value="src/**/*.kt"/>
                 </java>
               </target>
@@ -371,8 +370,7 @@
             <phase>validate</phase>
             <configuration>
               <target name="ktlint">
-                <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
-                  classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
+                <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true" classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
                   <jvmarg value="--add-opens"/>
                   <jvmarg value="java.base/java.lang=ALL-UNNAMED"/>
                   <arg value="-F"/>
