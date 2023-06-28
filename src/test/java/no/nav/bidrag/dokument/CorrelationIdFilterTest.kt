@@ -9,8 +9,8 @@ import io.mockk.every
 import no.nav.bidrag.commons.util.KildesystemIdenfikator
 import no.nav.bidrag.commons.web.HttpResponse
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate
-import no.nav.bidrag.dokument.dto.JournalpostResponse
 import no.nav.bidrag.dokument.service.JournalpostService
+import no.nav.bidrag.transport.dokument.JournalpostResponse
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach

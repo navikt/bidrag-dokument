@@ -13,21 +13,21 @@ import no.nav.bidrag.commons.web.EnhetFilter
 import no.nav.bidrag.commons.web.WebUtil
 import no.nav.bidrag.dokument.BidragDokumentConfig
 import no.nav.bidrag.dokument.consumer.GlobalApiReponses
-import no.nav.bidrag.dokument.dto.ArkivSystem
-import no.nav.bidrag.dokument.dto.AvvikType
-import no.nav.bidrag.dokument.dto.Avvikshendelse
-import no.nav.bidrag.dokument.dto.BehandleAvvikshendelseResponse
-import no.nav.bidrag.dokument.dto.DistribuerJournalpostRequest
-import no.nav.bidrag.dokument.dto.DistribuerJournalpostResponse
-import no.nav.bidrag.dokument.dto.DistribusjonInfoDto
-import no.nav.bidrag.dokument.dto.EndreJournalpostCommand
-import no.nav.bidrag.dokument.dto.JournalpostDto
-import no.nav.bidrag.dokument.dto.JournalpostId
-import no.nav.bidrag.dokument.dto.JournalpostResponse
-import no.nav.bidrag.dokument.dto.OpprettJournalpostRequest
-import no.nav.bidrag.dokument.dto.OpprettJournalpostResponse
 import no.nav.bidrag.dokument.service.JournalpostService
 import no.nav.bidrag.dokument.sikkerLogg
+import no.nav.bidrag.transport.dokument.ArkivSystem
+import no.nav.bidrag.transport.dokument.AvvikType
+import no.nav.bidrag.transport.dokument.Avvikshendelse
+import no.nav.bidrag.transport.dokument.BehandleAvvikshendelseResponse
+import no.nav.bidrag.transport.dokument.DistribuerJournalpostRequest
+import no.nav.bidrag.transport.dokument.DistribuerJournalpostResponse
+import no.nav.bidrag.transport.dokument.DistribusjonInfoDto
+import no.nav.bidrag.transport.dokument.EndreJournalpostCommand
+import no.nav.bidrag.transport.dokument.JournalpostDto
+import no.nav.bidrag.transport.dokument.JournalpostId
+import no.nav.bidrag.transport.dokument.JournalpostResponse
+import no.nav.bidrag.transport.dokument.OpprettJournalpostRequest
+import no.nav.bidrag.transport.dokument.OpprettJournalpostResponse
 import no.nav.security.token.support.core.api.Protected
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -237,8 +237,8 @@ class JournalpostController(private val journalpostService: JournalpostService) 
         if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
             return ResponseEntity(WebUtil.initHttpHeadersWith(HttpHeaders.WARNING, "Ugyldig prefix på journalpostId"), HttpStatus.BAD_REQUEST)
         }
-        endreJournalpostCommand.journalpostId = journalpostIdForKildesystem
-        return journalpostService.endre(enhet, kildesystemIdenfikator, endreJournalpostCommand).responseEntity
+        val journalpostCommandMedKildesystem = endreJournalpostCommand.copy(journalpostId = journalpostIdForKildesystem)
+        return journalpostService.endre(enhet, kildesystemIdenfikator, journalpostCommandMedKildesystem).responseEntity
     }
 
     @PostMapping("/journalpost/{arkivSystem}")

@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import no.nav.bidrag.dokument.dto.AktorDto;
-import no.nav.bidrag.dokument.dto.AvvikType;
-import no.nav.bidrag.dokument.dto.Avvikshendelse;
+import no.nav.bidrag.transport.dokument.AktorDto;
+import no.nav.bidrag.transport.dokument.AvvikType;
+import no.nav.bidrag.transport.dokument.Avvikshendelse;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

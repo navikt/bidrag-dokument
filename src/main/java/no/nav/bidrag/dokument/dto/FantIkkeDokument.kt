@@ -1,4 +1,4 @@
-package no.nav.bidrag.dokument.dto
+package no.nav.bidrag.transport.dokument
 
 import org.springframework.http.HttpStatus
 import org.springframework.web.client.HttpClientErrorException

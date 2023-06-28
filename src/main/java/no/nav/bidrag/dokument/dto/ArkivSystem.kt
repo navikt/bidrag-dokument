@@ -1,4 +1,4 @@
-package no.nav.bidrag.dokument.dto
+package no.nav.bidrag.transport.dokument
 
 enum class ArkivSystem {
     JOARK,

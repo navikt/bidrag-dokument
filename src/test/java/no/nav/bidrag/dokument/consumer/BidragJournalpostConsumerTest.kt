@@ -4,7 +4,7 @@ import io.mockk.junit5.MockKExtension
 import no.nav.bidrag.dokument.BidragDokumentConfig
 import no.nav.bidrag.dokument.BidragDokumentTest
 import no.nav.bidrag.dokument.consumer.stub.RestConsumerStub
-import no.nav.bidrag.dokument.dto.EndreJournalpostCommand
+import no.nav.bidrag.transport.dokument.EndreJournalpostCommand
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.DisplayName
@@ -57,8 +57,6 @@ internal class BidragJournalpostConsumerTest {
     }
 
     private fun endreJournalpostCommandMedId101(): EndreJournalpostCommand {
-        val endreJournalpostCommand = EndreJournalpostCommand()
-        endreJournalpostCommand.journalpostId = "BID-101"
-        return endreJournalpostCommand
+        return EndreJournalpostCommand(journalpostId = "BID-101")
     }
 }

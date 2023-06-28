@@ -3,12 +3,12 @@ package no.nav.bidrag.dokument.controller
 import io.micrometer.core.annotation.Timed
 import io.swagger.v3.oas.annotations.Parameter
 import mu.KotlinLogging
-import no.nav.bidrag.dokument.dto.DocumentProperties
-import no.nav.bidrag.dokument.dto.DokumentMetadata
-import no.nav.bidrag.dokument.dto.DokumentRef
-import no.nav.bidrag.dokument.dto.DokumentTilgangResponse
 import no.nav.bidrag.dokument.service.DokumentService
 import no.nav.bidrag.dokument.service.PDFDokumentProcessor
+import no.nav.bidrag.transport.dokument.DocumentProperties
+import no.nav.bidrag.transport.dokument.DokumentMetadata
+import no.nav.bidrag.transport.dokument.DokumentRef
+import no.nav.bidrag.transport.dokument.DokumentTilgangResponse
 import no.nav.security.token.support.core.api.Protected
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
