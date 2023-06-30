@@ -8,6 +8,7 @@ import java.io.IOException;
 import no.nav.bidrag.transport.dokument.AktorDto;
 import no.nav.bidrag.transport.dokument.AvvikType;
 import no.nav.bidrag.transport.dokument.Avvikshendelse;
+import no.nav.bidrag.transport.dokument.IdentType;
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,14 +28,14 @@ class DtoMapperTest {
   @Test
   @DisplayName("skal mappe aktør til json og tilbake")
   void skalMappeAktorTilJson() throws IOException {
-    String json = objectMapper.writeValueAsString(new AktorDto("06127412345", "FNR"));
+    String json = objectMapper.writeValueAsString(new AktorDto("06127412345", IdentType.FNR));
 
     assertThat(json).contains("\"ident\":\"06127412345\"");
 
     System.out.println(json);
     AktorDto deserialisert = objectMapper.readValue(json, AktorDto.class);
 
-    assertThat(deserialisert).isEqualTo(new AktorDto("06127412345", "FNR"));
+    assertThat(deserialisert).isEqualTo(new AktorDto("06127412345", IdentType.FNR));
   }
 
   @Test

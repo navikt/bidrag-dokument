@@ -27,7 +27,7 @@
     <!-- dependent versions other than from spring-boot -->
     <bidrag-commons.version>20230427084654_4121ef0</bidrag-commons.version>
     <bidrag-commons-test.version>1.20230504132526_a72fa41</bidrag-commons-test.version>
-    <bidrag-transport.version>1.0-SNAPSHOT</bidrag-transport.version>
+    <bidrag-transport.version>20230629172756_50f76f5</bidrag-transport.version>
     <logback.encoder.version>7.3</logback.encoder.version>
     <springdoc-openapi-ui.version>2.1.0</springdoc-openapi-ui.version>
     <springframework-cloud.version>4.0.2</springframework-cloud.version>
