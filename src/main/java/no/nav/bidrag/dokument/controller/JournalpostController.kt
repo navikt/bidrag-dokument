@@ -46,7 +46,7 @@ import org.springframework.web.bind.annotation.RestController
 private val log = KotlinLogging.logger {}
 
 fun JournalpostDto.erFarskapUtelukketEllerBidragJournalpostMedTemaFar() =
-    this.erFarskapUtelukket() || JournalpostId(this.journalpostId).erSystemBidrag && fagomrade == "FAR"
+    this.erFarskapUtelukket() // || JournalpostId(this.journalpostId).erSystemBidrag && fagomrade == "FAR"
 
 @RestController
 @Protected
@@ -58,7 +58,10 @@ class JournalpostController(private val journalpostService: JournalpostService) 
         summary = "Finn saksjournal for et saksnummer, samt parameter 'fagomrade' (FAR - farskapsjournal) og (BID - bidragsjournal)"
     )
     @ApiResponses(
-        value = [ApiResponse(responseCode = "200", description = "Fant journalposter for saksnummer")]
+        value = [ApiResponse(
+            responseCode = "200",
+            description = "Fant journalposter for saksnummer"
+        )]
     )
     @GlobalApiReponses
     fun hentJournal(
@@ -69,7 +72,12 @@ class JournalpostController(private val journalpostService: JournalpostService) 
         log.info("Henter journal for sak $saksnummer og fagomrader ${fagomrade.joinToString(",")} bareFarskapUtelukket = $bareFarskapUtelukket")
         if (saksnummer.matches(NON_DIGITS.toRegex())) {
             log.warn("Ugyldig saksnummer: $saksnummer")
-            return ResponseEntity(WebUtil.initHttpHeadersWith(HttpHeaders.WARNING, "Ugyldig saksnummer"), HttpStatus.BAD_REQUEST)
+            return ResponseEntity(
+                WebUtil.initHttpHeadersWith(
+                    HttpHeaders.WARNING,
+                    "Ugyldig saksnummer"
+                ), HttpStatus.BAD_REQUEST
+            )
         }
         val journalposter = journalpostService.finnJournalposter(saksnummer, fagomrade)
             .filter { if (bareFarskapUtelukket) it.erFarskapUtelukketEllerBidragJournalpostMedTemaFar() else !it.erFarskapUtelukketEllerBidragJournalpostMedTemaFar() }
@@ -85,7 +93,10 @@ class JournalpostController(private val journalpostService: JournalpostService) 
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "Journalpost er hentet"),
-            ApiResponse(responseCode = "400", description = "Ukjent/ugyldig journalpostId som har/mangler prefix"),
+            ApiResponse(
+                responseCode = "400",
+                description = "Ukjent/ugyldig journalpostId som har/mangler prefix"
+            ),
             ApiResponse(
                 responseCode = "404",
                 description = "Journalposten som skal hentes eksisterer ikke eller det er feil prefix/id på journalposten"
@@ -100,13 +111,23 @@ class JournalpostController(private val journalpostService: JournalpostService) 
         saksnummer: String?
     ): ResponseEntity<JournalpostResponse?> {
         var journalpostId = journalpostIdForKildesystem
-        if (!Strings.isNullOrEmpty(journalpostIdForKildesystem) && journalpostIdForKildesystem.contains(":")) {
-            journalpostId = journalpostIdForKildesystem.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
+        if (!Strings.isNullOrEmpty(journalpostIdForKildesystem) && journalpostIdForKildesystem.contains(
+                ":"
+            )
+        ) {
+            journalpostId =
+                journalpostIdForKildesystem.split(":".toRegex()).dropLastWhile { it.isEmpty() }
+                    .toTypedArray()[0]
             log.warn("Mottok ugyldig journalpostId $journalpostIdForKildesystem, forsøket korreksjon til journalpostId $journalpostId")
         }
         val kildesystemIdenfikator = KildesystemIdenfikator(journalpostId)
         if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
-            return ResponseEntity(WebUtil.initHttpHeadersWith(HttpHeaders.WARNING, "Ugyldig prefix på journalpostId"), HttpStatus.BAD_REQUEST)
+            return ResponseEntity(
+                WebUtil.initHttpHeadersWith(
+                    HttpHeaders.WARNING,
+                    "Ugyldig prefix på journalpostId"
+                ), HttpStatus.BAD_REQUEST
+            )
         }
         log.info("Henter journalpost $journalpostId for saksnummer $saksnummer")
         val response = journalpostService.hentJournalpost(saksnummer, kildesystemIdenfikator)
@@ -117,7 +138,7 @@ class JournalpostController(private val journalpostService: JournalpostService) 
     @Operation(
         security = [SecurityRequirement(name = "bearer-key")],
         description = "Henter mulige avvik for en journalpost, id på formatet [" + BidragDokumentConfig.PREFIX_BIDRAG + '|' + BidragDokumentConfig.PREFIX_JOARK + ']' + BidragDokumentConfig.DELIMTER +
-            "<journalpostId>"
+                "<journalpostId>"
     )
     @ApiResponses(
         value = [
@@ -153,7 +174,10 @@ class JournalpostController(private val journalpostService: JournalpostService) 
         }
     }
 
-    @PostMapping(value = ["/journal/{journalpostIdForKildesystem}/avvik"], consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @PostMapping(
+        value = ["/journal/{journalpostIdForKildesystem}/avvik"],
+        consumes = [MediaType.APPLICATION_JSON_VALUE]
+    )
     @Operation(
         security = [SecurityRequirement(name = "bearer-key")],
         description = "Lagrer et avvik for en journalpost, id på formatet [" + BidragDokumentConfig.PREFIX_BIDRAG + '|' + BidragDokumentConfig.PREFIX_JOARK + ']' + BidragDokumentConfig.DELIMTER + "<journalpostId>"
@@ -175,7 +199,10 @@ class JournalpostController(private val journalpostService: JournalpostService) 
           
           """
             ),
-            ApiResponse(responseCode = "503", description = "Oppretting av oppgave for avviket feilet")
+            ApiResponse(
+                responseCode = "503",
+                description = "Oppretting av oppgave for avviket feilet"
+            )
         ]
     )
     @GlobalApiReponses
@@ -184,20 +211,36 @@ class JournalpostController(private val journalpostService: JournalpostService) 
         @PathVariable journalpostIdForKildesystem: String,
         @RequestBody avvikshendelse: Avvikshendelse
     ): ResponseEntity<BehandleAvvikshendelseResponse> {
-        log.info("Behandler avvik for journalpost $journalpostIdForKildesystem", journalpostIdForKildesystem)
+        log.info(
+            "Behandler avvik for journalpost $journalpostIdForKildesystem",
+            journalpostIdForKildesystem
+        )
         sikkerLogg.info("Behandler avvik for journalpost $journalpostIdForKildesystem med avvikshendelse $avvikshendelse")
         try {
             AvvikType.valueOf(avvikshendelse.avvikType)
         } catch (e: Exception) {
-            val message = "Ukjent avvikstype: ${avvikshendelse.avvikType}, exception: ${e.javaClass.simpleName}: ${e.message}"
+            val message =
+                "Ukjent avvikstype: ${avvikshendelse.avvikType}, exception: ${e.javaClass.simpleName}: ${e.message}"
             log.warn(message)
-            return ResponseEntity(WebUtil.initHttpHeadersWith(HttpHeaders.WARNING, message), HttpStatus.BAD_REQUEST)
+            return ResponseEntity(
+                WebUtil.initHttpHeadersWith(HttpHeaders.WARNING, message),
+                HttpStatus.BAD_REQUEST
+            )
         }
         val kildesystemIdenfikator = KildesystemIdenfikator(journalpostIdForKildesystem)
         return if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
-            ResponseEntity(WebUtil.initHttpHeadersWith(HttpHeaders.WARNING, "Ugyldig prefix på journalpostId"), HttpStatus.BAD_REQUEST)
+            ResponseEntity(
+                WebUtil.initHttpHeadersWith(
+                    HttpHeaders.WARNING,
+                    "Ugyldig prefix på journalpostId"
+                ), HttpStatus.BAD_REQUEST
+            )
         } else {
-            journalpostService.behandleAvvik(enhet, kildesystemIdenfikator, avvikshendelse).responseEntity
+            journalpostService.behandleAvvik(
+                enhet,
+                kildesystemIdenfikator,
+                avvikshendelse
+            ).responseEntity
         }
     }
 
@@ -235,10 +278,19 @@ class JournalpostController(private val journalpostService: JournalpostService) 
         sikkerLogg.info("Endrer journalpost $journalpostIdForKildesystem med endringer $endreJournalpostCommand")
         val kildesystemIdenfikator = KildesystemIdenfikator(journalpostIdForKildesystem)
         if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
-            return ResponseEntity(WebUtil.initHttpHeadersWith(HttpHeaders.WARNING, "Ugyldig prefix på journalpostId"), HttpStatus.BAD_REQUEST)
+            return ResponseEntity(
+                WebUtil.initHttpHeadersWith(
+                    HttpHeaders.WARNING,
+                    "Ugyldig prefix på journalpostId"
+                ), HttpStatus.BAD_REQUEST
+            )
         }
         endreJournalpostCommand.journalpostId = journalpostIdForKildesystem
-        return journalpostService.endre(enhet, kildesystemIdenfikator, endreJournalpostCommand).responseEntity
+        return journalpostService.endre(
+            enhet,
+            kildesystemIdenfikator,
+            endreJournalpostCommand
+        ).responseEntity
     }
 
     @PostMapping("/journalpost/{arkivSystem}")
@@ -268,9 +320,18 @@ class JournalpostController(private val journalpostService: JournalpostService) 
     @Operation(description = "Bestill distribusjon av journalpost")
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "Distribusjon av journalpost er bestilt"),
-            ApiResponse(responseCode = "400", description = "Journalpost mangler mottakerid eller adresse er ikke oppgitt i kallet"),
-            ApiResponse(responseCode = "404", description = "Fant ikke journalpost som skal distribueres")
+            ApiResponse(
+                responseCode = "200",
+                description = "Distribusjon av journalpost er bestilt"
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Journalpost mangler mottakerid eller adresse er ikke oppgitt i kallet"
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Fant ikke journalpost som skal distribueres"
+            )
         ]
     )
     @GlobalApiReponses
@@ -301,9 +362,18 @@ class JournalpostController(private val journalpostService: JournalpostService) 
     @Operation(description = "Sjekk om distribusjon av journalpost kan bestilles")
     @ApiResponses(
         value = [
-            ApiResponse(responseCode = "200", description = "Distribusjon av journalpost kan bestilles"),
-            ApiResponse(responseCode = "406", description = "Distribusjon av journalpost kan ikke bestilles"),
-            ApiResponse(responseCode = "404", description = "Fant ikke journalpost som skal distribueres")
+            ApiResponse(
+                responseCode = "200",
+                description = "Distribusjon av journalpost kan bestilles"
+            ),
+            ApiResponse(
+                responseCode = "406",
+                description = "Distribusjon av journalpost kan ikke bestilles"
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Fant ikke journalpost som skal distribueres"
+            )
         ]
     )
     @GlobalApiReponses
