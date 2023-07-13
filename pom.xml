@@ -28,7 +28,7 @@
     <bidrag-commons.version>20230427084654_4121ef0</bidrag-commons.version>
     <bidrag-commons-test.version>1.20230504132526_a72fa41</bidrag-commons-test.version>
     <bidrag-dokument-dto.version>1.6.33</bidrag-dokument-dto.version>
-    <logback.encoder.version>7.3</logback.encoder.version>
+    <logback.encoder.version>7.4</logback.encoder.version>
     <springdoc-openapi-ui.version>2.1.0</springdoc-openapi-ui.version>
     <springframework-cloud.version>4.0.2</springframework-cloud.version>
     <token-support.version>3.0.10</token-support.version>
@@ -356,8 +356,7 @@
             <phase>verify</phase>
             <configuration>
               <target name="ktlint">
-                <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
-                  classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
+                <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true" classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
                   <arg value="src/**/*.kt"/>
                 </java>
               </target>
@@ -371,8 +370,7 @@
             <phase>validate</phase>
             <configuration>
               <target name="ktlint">
-                <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true"
-                  classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
+                <java taskname="ktlint" dir="${basedir}" fork="true" failonerror="true" classpathref="maven.plugin.classpath" classname="com.pinterest.ktlint.Main">
                   <jvmarg value="--add-opens"/>
                   <jvmarg value="java.base/java.lang=ALL-UNNAMED"/>
                   <arg value="-F"/>
