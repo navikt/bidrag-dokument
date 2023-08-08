@@ -14,7 +14,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.0.6</version>
+    <version>3.1.2</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
@@ -22,7 +22,7 @@
 
     <!-- language -->
     <java.version>17</java.version>
-    <kotlin.version>1.8.10</kotlin.version>
+    <kotlin.version>1.9.0</kotlin.version>
 
     <!-- dependent versions other than from spring-boot -->
     <bidrag-commons.version>20230427084654_4121ef0</bidrag-commons.version>
@@ -65,6 +65,17 @@
   </dependencyManagement>
 
   <dependencies>
+    <dependency>
+      <groupId>org.jetbrains.kotlinx</groupId>
+      <artifactId>kotlinx-coroutines-core-jvm</artifactId>
+      <version>1.7.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains.kotlinx</groupId>
+      <artifactId>kotlinx-coroutines-reactor</artifactId>
+      <version>1.7.3</version>
+      <scope>runtime</scope>
+    </dependency>
     <dependency>
       <groupId>io.github.microutils</groupId>
       <artifactId>kotlin-logging-jvm</artifactId>

@@ -58,13 +58,15 @@ class JournalpostController(private val journalpostService: JournalpostService) 
         summary = "Finn saksjournal for et saksnummer, samt parameter 'fagomrade' (FAR - farskapsjournal) og (BID - bidragsjournal)"
     )
     @ApiResponses(
-        value = [ApiResponse(
-            responseCode = "200",
-            description = "Fant journalposter for saksnummer"
-        )]
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Fant journalposter for saksnummer"
+            )
+        ]
     )
     @GlobalApiReponses
-    fun hentJournal(
+    suspend fun hentJournal(
         @PathVariable saksnummer: String,
         @RequestParam fagomrade: List<String> = emptyList(),
         @RequestParam(required = false, defaultValue = "false") bareFarskapUtelukket: Boolean
@@ -76,7 +78,8 @@ class JournalpostController(private val journalpostService: JournalpostService) 
                 WebUtil.initHttpHeadersWith(
                     HttpHeaders.WARNING,
                     "Ugyldig saksnummer"
-                ), HttpStatus.BAD_REQUEST
+                ),
+                HttpStatus.BAD_REQUEST
             )
         }
         val journalposter = journalpostService.finnJournalposter(saksnummer, fagomrade)
@@ -126,7 +129,8 @@ class JournalpostController(private val journalpostService: JournalpostService) 
                 WebUtil.initHttpHeadersWith(
                     HttpHeaders.WARNING,
                     "Ugyldig prefix på journalpostId"
-                ), HttpStatus.BAD_REQUEST
+                ),
+                HttpStatus.BAD_REQUEST
             )
         }
         log.info("Henter journalpost $journalpostId for saksnummer $saksnummer")
@@ -233,7 +237,8 @@ class JournalpostController(private val journalpostService: JournalpostService) 
                 WebUtil.initHttpHeadersWith(
                     HttpHeaders.WARNING,
                     "Ugyldig prefix på journalpostId"
-                ), HttpStatus.BAD_REQUEST
+                ),
+                HttpStatus.BAD_REQUEST
             )
         } else {
             journalpostService.behandleAvvik(
@@ -282,7 +287,8 @@ class JournalpostController(private val journalpostService: JournalpostService) 
                 WebUtil.initHttpHeadersWith(
                     HttpHeaders.WARNING,
                     "Ugyldig prefix på journalpostId"
-                ), HttpStatus.BAD_REQUEST
+                ),
+                HttpStatus.BAD_REQUEST
             )
         }
         endreJournalpostCommand.journalpostId = journalpostIdForKildesystem

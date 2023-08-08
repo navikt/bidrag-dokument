@@ -1,5 +1,8 @@
 package no.nav.bidrag.dokument.service
 
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import no.nav.bidrag.commons.util.KildesystemIdenfikator
 import no.nav.bidrag.commons.util.KildesystemIdenfikator.Kildesystem
 import no.nav.bidrag.commons.web.HttpResponse
@@ -28,7 +31,10 @@ class JournalpostService(
     @Qualifier(BidragDokumentConfig.MIDL_BREVLAGER_QUALIFIER) private val bidragJournalpostConsumer: BidragDokumentConsumer
 ) {
 
-    fun hentJournalpost(saksnummer: String?, kildesystemIdenfikator: KildesystemIdenfikator): HttpResponse<JournalpostResponse> {
+    fun hentJournalpost(
+        saksnummer: String?,
+        kildesystemIdenfikator: KildesystemIdenfikator
+    ): HttpResponse<JournalpostResponse> {
         return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) {
             bidragJournalpostConsumer.hentJournalpost(
                 saksnummer,
@@ -40,11 +46,17 @@ class JournalpostService(
                 kildesystemIdenfikator.prefiksetJournalpostId
             )
         } else {
-            bidragForsendelseConsumer.hentJournalpost(saksnummer, kildesystemIdenfikator.prefiksetJournalpostId)
+            bidragForsendelseConsumer.hentJournalpost(
+                saksnummer,
+                kildesystemIdenfikator.prefiksetJournalpostId
+            )
         }
     }
 
-    fun finnAvvik(saksnummer: String?, kildesystemIdenfikator: KildesystemIdenfikator): HttpResponse<List<AvvikType>> {
+    fun finnAvvik(
+        saksnummer: String?,
+        kildesystemIdenfikator: KildesystemIdenfikator
+    ): HttpResponse<List<AvvikType>> {
         return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) {
             bidragJournalpostConsumer.finnAvvik(
                 saksnummer,
@@ -56,7 +68,10 @@ class JournalpostService(
                 kildesystemIdenfikator.prefiksetJournalpostId
             )
         } else {
-            bidragForsendelseConsumer.finnAvvik(saksnummer, kildesystemIdenfikator.prefiksetJournalpostId)
+            bidragForsendelseConsumer.finnAvvik(
+                saksnummer,
+                kildesystemIdenfikator.prefiksetJournalpostId
+            )
         }
     }
 
@@ -78,18 +93,44 @@ class JournalpostService(
                 avvikshendelse
             )
         } else {
-            bidragForsendelseConsumer.behandleAvvik(enhet, kildesystemIdenfikator.prefiksetJournalpostId, avvikshendelse)
+            bidragForsendelseConsumer.behandleAvvik(
+                enhet,
+                kildesystemIdenfikator.prefiksetJournalpostId,
+                avvikshendelse
+            )
         }
     }
 
-    fun finnJournalposter(saksnummer: String, fagomrade: List<String> = emptyList()): List<JournalpostDto> {
-        val sakjournal = ArrayList(bidragJournalpostConsumer.finnJournalposter(saksnummer, fagomrade))
-        sakjournal.addAll(bidragArkivConsumer.finnJournalposter(saksnummer, fagomrade))
-        sakjournal.addAll(bidragForsendelseConsumer.finnJournalposter(saksnummer, fagomrade))
-        return sakjournal
+    suspend fun finnJournalposter(
+        saksnummer: String,
+        fagomrade: List<String> = emptyList()
+    ): List<JournalpostDto> {
+        return coroutineScope {
+            awaitAll(
+                async {
+                    bidragJournalpostConsumer.finnJournalposter(
+                        saksnummer,
+                        fagomrade
+                    )
+                },
+                async {
+                    bidragArkivConsumer.finnJournalposter(saksnummer, fagomrade)
+                },
+                async {
+                    bidragForsendelseConsumer.finnJournalposter(
+                        saksnummer,
+                        fagomrade
+                    )
+                }
+            ).flatten()
+        }
     }
 
-    fun endre(enhet: String?, kildesystemIdenfikator: KildesystemIdenfikator, endreJournalpostCommand: EndreJournalpostCommand): HttpResponse<Void> {
+    fun endre(
+        enhet: String?,
+        kildesystemIdenfikator: KildesystemIdenfikator,
+        endreJournalpostCommand: EndreJournalpostCommand
+    ): HttpResponse<Void> {
         return if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) {
             bidragJournalpostConsumer.endre(enhet, endreJournalpostCommand)
         } else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) {
@@ -99,7 +140,10 @@ class JournalpostService(
         }
     }
 
-    fun opprett(opprettJournalpostRequest: OpprettJournalpostRequest, arkivSystem: ArkivSystem): HttpResponse<OpprettJournalpostResponse> {
+    fun opprett(
+        opprettJournalpostRequest: OpprettJournalpostRequest,
+        arkivSystem: ArkivSystem
+    ): HttpResponse<OpprettJournalpostResponse> {
         return if (ArkivSystem.BIDRAG == arkivSystem) {
             bidragJournalpostConsumer.opprett(opprettJournalpostRequest)
         } else {
@@ -125,7 +169,11 @@ class JournalpostService(
                 distribuerJournalpostRequest
             )
         } else {
-            bidragForsendelseConsumer.distribuerJournalpost(kildesystemIdenfikator.prefiksetJournalpostId, batchId, distribuerJournalpostRequest)
+            bidragForsendelseConsumer.distribuerJournalpost(
+                kildesystemIdenfikator.prefiksetJournalpostId,
+                batchId,
+                distribuerJournalpostRequest
+            )
         }
     }
 
