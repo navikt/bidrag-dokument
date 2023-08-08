@@ -30,40 +30,83 @@ import org.springframework.web.client.RestTemplate
 private val log = KotlinLogging.logger {}
 
 @Configuration
-@OpenAPIDefinition(info = Info(title = "bidrag-dokument", version = "v1"), security = [SecurityRequirement(name = "bearer-key")])
-@SecurityScheme(bearerFormat = "JWT", name = "bearer-key", scheme = "bearer", type = SecuritySchemeType.HTTP)
+@OpenAPIDefinition(
+    info = Info(title = "bidrag-dokument", version = "v1"),
+    security = [SecurityRequirement(name = "bearer-key")]
+)
+@SecurityScheme(
+    bearerFormat = "JWT",
+    name = "bearer-key",
+    scheme = "bearer",
+    type = SecuritySchemeType.HTTP
+)
 @EnableAspectJAutoProxy
 @EnableSecurityConfiguration
-@Import(EnhetFilter::class, DefaultCorsFilter::class, UserMdcFilter::class, CorrelationIdFilter::class)
+@Import(
+    EnhetFilter::class,
+    DefaultCorsFilter::class,
+    UserMdcFilter::class,
+    CorrelationIdFilter::class
+)
 class BidragDokumentConfig {
     @Bean
     @Qualifier(MIDL_BREVLAGER_QUALIFIER)
     fun bidragJournalpostConsumer(
         @Value("\${JOURNALPOST_URL}") journalpostBaseUrl: String,
-        securityTokenService: SecurityTokenService
+        securityTokenService: SecurityTokenService,
+        meterRegistry: MeterRegistry
     ): BidragDokumentConsumer {
-        val restTemplate = createRestTemplate(journalpostBaseUrl, securityTokenService, KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST)
-        return BidragDokumentConsumer(restTemplate, journalpostBaseUrl)
+        val restTemplate = createRestTemplate(
+            journalpostBaseUrl,
+            securityTokenService,
+            KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST
+        )
+        return BidragDokumentConsumer(
+            KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST,
+            restTemplate,
+            journalpostBaseUrl,
+            meterRegistry
+        )
     }
 
     @Bean
     @Qualifier(ARKIV_QUALIFIER)
     fun bidragArkivConsumer(
         @Value("\${BIDRAG_ARKIV_URL}") bidragArkivBaseUrl: String,
-        securityTokenService: SecurityTokenService
+        securityTokenService: SecurityTokenService,
+        meterRegistry: MeterRegistry
     ): BidragDokumentConsumer {
-        val restTemplate = createRestTemplate(bidragArkivBaseUrl, securityTokenService, KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV)
-        return BidragDokumentConsumer(restTemplate, bidragArkivBaseUrl)
+        val restTemplate = createRestTemplate(
+            bidragArkivBaseUrl,
+            securityTokenService,
+            KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV
+        )
+        return BidragDokumentConsumer(
+            KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV,
+            restTemplate,
+            bidragArkivBaseUrl,
+            meterRegistry
+        )
     }
 
     @Bean
     @Qualifier(FORSENDELSE_QUALIFIER)
     fun bidragForsendelseConsumer(
         @Value("\${BIDRAG_FORSENDELSE_URL}") bidragForsendelseUrl: String,
-        securityTokenService: SecurityTokenService
+        securityTokenService: SecurityTokenService,
+        meterRegistry: MeterRegistry
     ): BidragDokumentConsumer {
-        val restTemplate = createRestTemplate(bidragForsendelseUrl, securityTokenService, KLIENTNAVN_BIDRAG_DOKUMENT_FORSENDELSE)
-        return BidragDokumentConsumer(restTemplate, bidragForsendelseUrl)
+        val restTemplate = createRestTemplate(
+            bidragForsendelseUrl,
+            securityTokenService,
+            KLIENTNAVN_BIDRAG_DOKUMENT_FORSENDELSE
+        )
+        return BidragDokumentConsumer(
+            KLIENTNAVN_BIDRAG_DOKUMENT_FORSENDELSE,
+            restTemplate,
+            bidragForsendelseUrl,
+            meterRegistry
+        )
     }
 
     @Bean
@@ -71,11 +114,19 @@ class BidragDokumentConfig {
         @Value("\${JOURNALPOST_URL}") journalpostBaseUrl: String,
         securityTokenService: SecurityTokenService
     ): DokumentTilgangConsumer {
-        val restTemplate = createRestTemplate(journalpostBaseUrl, securityTokenService, KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST)
+        val restTemplate = createRestTemplate(
+            journalpostBaseUrl,
+            securityTokenService,
+            KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST
+        )
         return DokumentTilgangConsumer(restTemplate)
     }
 
-    private fun createRestTemplate(baseUrl: String, securityTokenService: SecurityTokenService, clientId: String): RestTemplate {
+    private fun createRestTemplate(
+        baseUrl: String,
+        securityTokenService: SecurityTokenService,
+        clientId: String
+    ): RestTemplate {
         val requestFactory = HttpComponentsClientHttpRequestFactory()
         val httpHeaderRestTemplate = HttpHeaderRestTemplate()
         httpHeaderRestTemplate.interceptors.add(securityTokenService.authTokenInterceptor(clientId))

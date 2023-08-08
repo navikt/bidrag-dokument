@@ -13,3 +13,5 @@ AZURE_APP_CLIENT_SECRET: <changme>
 AZURE_APP_CLIENT_ID: 87121e6c-b300-4703-9e2d-a24f23caa72c
 AZURE_APP_TENANT_ID: 966ac572-f5b7-4bbe-aa88-c76419c0f851
 server.port: 8099
+
+BIDRAG_FORSENDELSE_URL: http://localhost:8999/api/forsendelse
