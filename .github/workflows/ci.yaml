@@ -46,7 +46,7 @@ jobs:
         with:
           path: deploy
       - name: Deploy main branch to dev-fss
-        if: github.ref == 'refs/heads/main'
+        if: github.ref != 'refs/heads/release'
         uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
