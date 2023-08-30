@@ -6,7 +6,7 @@ metadata:
   labels:
     team: bidrag
   annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: "512m"
+    nginx.ingress.kubernetes.io/proxy-body-size: "1024m"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
 spec:
   azure:
@@ -38,6 +38,9 @@ spec:
     path: /bidrag-dokument/actuator/health
     initialDelay: 20
     timeout: 1
+  replicas:
+    max: 1
+    min: 1
   prometheus:
     enabled: true
     path: /bidrag-dokument/actuator/prometheus
