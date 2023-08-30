@@ -116,6 +116,7 @@ class BidragDokumentConfig {
         httpHeaderRestTemplate.withDefaultHeaders()
         httpHeaderRestTemplate.requestFactory = requestFactory
         httpHeaderRestTemplate.uriTemplateHandler = RootUriTemplateHandler(baseUrl)
+        return httpHeaderRestTemplate
     }
 
     @Bean
