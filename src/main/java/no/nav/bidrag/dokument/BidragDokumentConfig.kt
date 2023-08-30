@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.EnableAspectJAutoProxy
 import org.springframework.context.annotation.Import
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
+import org.springframework.http.client.SimpleClientHttpRequestFactory
 import org.springframework.web.client.RestTemplate
 
 private val log = KotlinLogging.logger {}
@@ -109,7 +109,7 @@ class BidragDokumentConfig {
         securityTokenService: SecurityTokenService,
         clientId: String
     ): RestTemplate {
-        val requestFactory = HttpComponentsClientHttpRequestFactory()
+        val requestFactory = SimpleClientHttpRequestFactory()
         requestFactory.setBufferRequestBody(false)
         val httpHeaderRestTemplate = HttpHeaderRestTemplate()
         httpHeaderRestTemplate.interceptors.add(securityTokenService.authTokenInterceptor(clientId))
