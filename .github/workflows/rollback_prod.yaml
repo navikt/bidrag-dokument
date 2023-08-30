@@ -1,0 +1,60 @@
+name: Rollback prod to previous version
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_tag:
+        description: 'Deploy tag. Default the previous tag will be deployed'
+        required: false
+
+env:
+  GITHUB_USERNAME: x-access-token
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  prepare_deploy:
+    permissions:
+      contents: "read"
+      id-token: "write"
+    runs-on: ubuntu-latest
+    name: Find tag to deploy
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: NAIS login
+        uses: nais/login@v0
+        id: login
+        with:
+          team: bidrag
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+      - id: deploy_version
+        name: Find deploy version
+        run: |
+          git fetch --all --tags
+          echo ${GITHUB_EVENT_NAME}
+          REPO_NAME=${GITHUB_REPOSITORY/$GITHUB_REPOSITORY_OWNER\//}
+          DEPLOY_TAG=${{ github.event.inputs.deploy_tag }}
+          if [ -z "$INPUT_TAG" ]; then 
+           echo "NULL";
+           DEPLOY_TAG=$(git tag -l | sort -V | tail -2 | head -1)
+          fi
+          echo "IMAGE=${{ steps.login.outputs.registry }}/$REPO_NAME:$DEPLOY_TAG" >> $GITHUB_OUTPUT
+          echo "DEPLOY_TAG=$DEPLOY_TAG" >> $GITHUB_OUTPUT
+    outputs:
+      image: ${{ steps.deploy_version.outputs.IMAGE }}
+      version: ${{ steps.deploy_version.outputs.DEPLOY_TAG }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy docker image to prod
+    needs: prepare_deploy
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: nais/deploy/actions/deploy@v1
+        env:
+          APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
+          CLUSTER: prod-fss
+          RESOURCE: deploy/.nais/nais.yaml
+          VARS: deploy/.nais/prod.yaml
+          IMAGE: ${{ needs.prepare_deploy.outputs.image }}

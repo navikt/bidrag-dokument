@@ -1,9 +1,8 @@
-name: release bidrag-dokument
+name: Deploy to prod
 on:
   push:
     branches:
-      - release
-
+      - 'main'
 env:
   GITHUB_USERNAME: x-access-token
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -13,7 +12,7 @@ jobs:
     permissions:
       contents: "read"
       id-token: "write"
-    name: Build release with maven and docker
+    name: Build with maven and docker
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -23,11 +22,11 @@ jobs:
           distribution: 'temurin'
       - uses: actions/cache@v3
         with:
-          path: ~/.m2
+          path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-      - run: mvn -B -e --settings .m2/maven-settings.xml clean install -DskipTests
+      - run: mvn -Dmaven.test.skip=true -B -e --settings .m2/maven-settings.xml clean install
       - uses: nais/docker-build-push@v0
         id: docker-push
         with:
@@ -36,10 +35,11 @@ jobs:
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
     outputs:
       image: ${{ steps.docker-push.outputs.image }}
+      tag: ${{ steps.docker-push.outputs.tag }}
 
   deploy:
     runs-on: ubuntu-latest
-    name: Deploy docker image to prod
+    name: Deploy to prod
     needs: build
 
     steps:
@@ -53,3 +53,27 @@ jobs:
           RESOURCE: deploy/.nais/nais.yaml
           VARS: deploy/.nais/prod.yaml
           IMAGE: ${{ needs.build.outputs.image }}
+    outputs:
+      image: ${{ needs.build.outputs.image }}
+      tag: ${{ needs.build.outputs.tag }}
+
+  tag:
+    runs-on: ubuntu-latest
+    name: Tag release
+    permissions:
+      contents: write
+    needs: deploy
+    steps:
+      - uses: actions/checkout@v3
+      - name: Push latest image tag as github tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          custom_tag: ${{ needs.deploy.outputs.tag }}
+      - name: Create a GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.tag_version.outputs.changelog }}
