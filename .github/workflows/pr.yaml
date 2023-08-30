@@ -78,7 +78,7 @@ jobs:
   run_cucumber:
     runs-on: self-hosted
     name: Run cucumber tests
-    needs: deploy
+    needs: deploy-main
 
     env:
       INGRESS_ARKIV: https://bidrag-dokument-arkiv.dev.intern.nav.no
