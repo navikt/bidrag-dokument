@@ -120,7 +120,7 @@ Deretter kjør følgende kommando for å importere secrets. Viktig at filen som 
 committes til git
 
 ```bash
-kubectl exec --tty deployment/bidrag-dokument-feature printenv | grep -E 'AZURE_|TOKEN_X|_URL|SCOPE|CLIENT_ID' > src/test/resources/application-lokal-nais-secrets.properties
+kubectl exec --tty deployment/bidrag-dokument printenv | grep -E 'AZURE_|TOKEN_X|_URL|SCOPE|CLIENT_ID' | grep -v -e 'BIDRAG_FORSENDELSE_URL'> src/test/resources/application-lokal-nais-secrets.properties
 ```
 
 Deretter kan tokenet brukes til å logge inn på
