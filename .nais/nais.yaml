@@ -6,7 +6,7 @@ metadata:
   labels:
     team: bidrag
   annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: "1024m"
+    nginx.ingress.kubernetes.io/proxy-body-size: "512m"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
 spec:
   azure:
@@ -46,8 +46,7 @@ spec:
     path: /bidrag-dokument/actuator/prometheus
   resources:
     requests:
-      cpu: 1500m
-      memory: 2048Mi
+      memory: 1028Mi
     limits:
       memory: 4096Mi
   ingresses:
