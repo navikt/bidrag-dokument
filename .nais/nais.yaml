@@ -38,17 +38,16 @@ spec:
     path: /bidrag-dokument/actuator/health
     initialDelay: 20
     timeout: 1
-  replicas:
-    max: 1
-    min: 1
   prometheus:
     enabled: true
     path: /bidrag-dokument/actuator/prometheus
   resources:
-    requests:
-      memory: 1028Mi
     limits:
-      memory: 4096Mi
+      cpu: 2000m
+      memory: 3000Mi
+    requests:
+      cpu: 500m
+      memory: 1500Mi
   ingresses:
   {{#each ingresses as |url|}}
     - {{url}}
