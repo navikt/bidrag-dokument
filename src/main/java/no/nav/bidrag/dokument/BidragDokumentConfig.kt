@@ -17,6 +17,10 @@ import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import no.nav.bidrag.commons.web.UserMdcFilter
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer
 import no.nav.bidrag.dokument.consumer.DokumentTilgangConsumer
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder
+import org.apache.hc.core5.http.io.SocketConfig
+import org.apache.hc.core5.util.Timeout
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RootUriTemplateHandler
@@ -109,8 +113,12 @@ class BidragDokumentConfig {
         securityTokenService: SecurityTokenService,
         clientId: String
     ): RestTemplate {
-        val requestFactory = HttpComponentsClientHttpRequestFactory()
         val httpHeaderRestTemplate = HttpHeaderRestTemplate()
+        val sc = SocketConfig.custom().setSoTimeout(Timeout.ofMinutes(5)).build()
+        val pb =
+            PoolingHttpClientConnectionManagerBuilder.create().setDefaultSocketConfig(sc).build()
+        val connectionManager = HttpClientBuilder.create().setConnectionManager(pb).build()
+        val requestFactory = HttpComponentsClientHttpRequestFactory(connectionManager)
         httpHeaderRestTemplate.interceptors.add(securityTokenService.authTokenInterceptor(clientId))
         httpHeaderRestTemplate.withDefaultHeaders()
         httpHeaderRestTemplate.requestFactory = requestFactory
