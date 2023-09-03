@@ -89,9 +89,9 @@ class BidragDokumentConsumer(
         } catch (e: HttpStatusCodeException) {
             log.error(e) {
                 "Det skjedde en feil ved henting av journal for sak $saksnummer og fagområder ${
-                fagomrade.joinToString(
-                    ","
-                )
+                    fagomrade.joinToString(
+                        ","
+                    )
                 } fra url $rootUri/$uri"
             }
             if (e.statusCode == HttpStatus.NOT_FOUND) {

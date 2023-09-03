@@ -57,42 +57,60 @@ class BidragDokumentConfig {
     @Qualifier(MIDL_BREVLAGER_QUALIFIER)
     fun bidragJournalpostConsumer(
         @Value("\${JOURNALPOST_URL}") journalpostBaseUrl: String,
-        securityTokenService: SecurityTokenService
+        securityTokenService: SecurityTokenService,
+        meterRegistry: MeterRegistry
     ): BidragDokumentConsumer {
         val restTemplate = createRestTemplate(
             journalpostBaseUrl,
             securityTokenService,
             KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST
         )
-        return BidragDokumentConsumer(restTemplate, journalpostBaseUrl)
+        return BidragDokumentConsumer(
+            KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST,
+            restTemplate,
+            journalpostBaseUrl,
+            meterRegistry
+        )
     }
 
     @Bean
     @Qualifier(ARKIV_QUALIFIER)
     fun bidragArkivConsumer(
         @Value("\${BIDRAG_ARKIV_URL}") bidragArkivBaseUrl: String,
-        securityTokenService: SecurityTokenService
+        securityTokenService: SecurityTokenService,
+        meterRegistry: MeterRegistry
     ): BidragDokumentConsumer {
         val restTemplate = createRestTemplate(
             bidragArkivBaseUrl,
             securityTokenService,
             KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV
         )
-        return BidragDokumentConsumer(restTemplate, bidragArkivBaseUrl)
+        return BidragDokumentConsumer(
+            KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV,
+            restTemplate,
+            bidragArkivBaseUrl,
+            meterRegistry
+        )
     }
 
     @Bean
     @Qualifier(FORSENDELSE_QUALIFIER)
     fun bidragForsendelseConsumer(
         @Value("\${BIDRAG_FORSENDELSE_URL}") bidragForsendelseUrl: String,
-        securityTokenService: SecurityTokenService
+        securityTokenService: SecurityTokenService,
+        meterRegistry: MeterRegistry
     ): BidragDokumentConsumer {
         val restTemplate = createRestTemplate(
             bidragForsendelseUrl,
             securityTokenService,
             KLIENTNAVN_BIDRAG_DOKUMENT_FORSENDELSE
         )
-        return BidragDokumentConsumer(restTemplate, bidragForsendelseUrl)
+        return BidragDokumentConsumer(
+            KLIENTNAVN_BIDRAG_DOKUMENT_FORSENDELSE,
+            restTemplate,
+            bidragForsendelseUrl,
+            meterRegistry
+        )
     }
 
     @Bean

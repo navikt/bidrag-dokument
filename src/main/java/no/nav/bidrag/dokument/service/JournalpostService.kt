@@ -1,8 +1,10 @@
 package no.nav.bidrag.dokument.service
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.runBlocking
 import no.nav.bidrag.commons.util.KildesystemIdenfikator
 import no.nav.bidrag.commons.util.KildesystemIdenfikator.Kildesystem
 import no.nav.bidrag.commons.web.HttpResponse
@@ -105,18 +107,20 @@ class JournalpostService(
         saksnummer: String,
         fagomrade: List<String> = emptyList()
     ): List<JournalpostDto> {
-        return coroutineScope {
+        val cs =
+            CoroutineScope(Dispatchers.IO + SecurityCoroutineContext() + RequestContextAsyncContext())
+        return runBlocking {
             awaitAll(
-                async {
+                cs.async {
                     bidragJournalpostConsumer.finnJournalposter(
                         saksnummer,
                         fagomrade
                     )
                 },
-                async {
+                cs.async {
                     bidragArkivConsumer.finnJournalposter(saksnummer, fagomrade)
                 },
-                async {
+                cs.async {
                     bidragForsendelseConsumer.finnJournalposter(
                         saksnummer,
                         fagomrade
@@ -124,6 +128,7 @@ class JournalpostService(
                 }
             ).flatten()
         }
+
     }
 
     fun endre(
