@@ -17,6 +17,10 @@ import no.nav.bidrag.commons.web.HttpHeaderRestTemplate
 import no.nav.bidrag.commons.web.UserMdcFilter
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer
 import no.nav.bidrag.dokument.consumer.DokumentTilgangConsumer
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder
+import org.apache.hc.core5.http.io.SocketConfig
+import org.apache.hc.core5.util.Timeout
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.web.client.RootUriTemplateHandler
@@ -53,60 +57,42 @@ class BidragDokumentConfig {
     @Qualifier(MIDL_BREVLAGER_QUALIFIER)
     fun bidragJournalpostConsumer(
         @Value("\${JOURNALPOST_URL}") journalpostBaseUrl: String,
-        securityTokenService: SecurityTokenService,
-        meterRegistry: MeterRegistry
+        securityTokenService: SecurityTokenService
     ): BidragDokumentConsumer {
         val restTemplate = createRestTemplate(
             journalpostBaseUrl,
             securityTokenService,
             KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST
         )
-        return BidragDokumentConsumer(
-            KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST,
-            restTemplate,
-            journalpostBaseUrl,
-            meterRegistry
-        )
+        return BidragDokumentConsumer(restTemplate, journalpostBaseUrl)
     }
 
     @Bean
     @Qualifier(ARKIV_QUALIFIER)
     fun bidragArkivConsumer(
         @Value("\${BIDRAG_ARKIV_URL}") bidragArkivBaseUrl: String,
-        securityTokenService: SecurityTokenService,
-        meterRegistry: MeterRegistry
+        securityTokenService: SecurityTokenService
     ): BidragDokumentConsumer {
         val restTemplate = createRestTemplate(
             bidragArkivBaseUrl,
             securityTokenService,
             KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV
         )
-        return BidragDokumentConsumer(
-            KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV,
-            restTemplate,
-            bidragArkivBaseUrl,
-            meterRegistry
-        )
+        return BidragDokumentConsumer(restTemplate, bidragArkivBaseUrl)
     }
 
     @Bean
     @Qualifier(FORSENDELSE_QUALIFIER)
     fun bidragForsendelseConsumer(
         @Value("\${BIDRAG_FORSENDELSE_URL}") bidragForsendelseUrl: String,
-        securityTokenService: SecurityTokenService,
-        meterRegistry: MeterRegistry
+        securityTokenService: SecurityTokenService
     ): BidragDokumentConsumer {
         val restTemplate = createRestTemplate(
             bidragForsendelseUrl,
             securityTokenService,
             KLIENTNAVN_BIDRAG_DOKUMENT_FORSENDELSE
         )
-        return BidragDokumentConsumer(
-            KLIENTNAVN_BIDRAG_DOKUMENT_FORSENDELSE,
-            restTemplate,
-            bidragForsendelseUrl,
-            meterRegistry
-        )
+        return BidragDokumentConsumer(restTemplate, bidragForsendelseUrl)
     }
 
     @Bean
@@ -127,8 +113,12 @@ class BidragDokumentConfig {
         securityTokenService: SecurityTokenService,
         clientId: String
     ): RestTemplate {
-        val requestFactory = HttpComponentsClientHttpRequestFactory()
         val httpHeaderRestTemplate = HttpHeaderRestTemplate()
+        val sc = SocketConfig.custom().setSoTimeout(Timeout.ofMinutes(5)).build()
+        val pb =
+            PoolingHttpClientConnectionManagerBuilder.create().setDefaultSocketConfig(sc).build()
+        val connectionManager = HttpClientBuilder.create().setConnectionManager(pb).build()
+        val requestFactory = HttpComponentsClientHttpRequestFactory(connectionManager)
         httpHeaderRestTemplate.interceptors.add(securityTokenService.authTokenInterceptor(clientId))
         httpHeaderRestTemplate.withDefaultHeaders()
         httpHeaderRestTemplate.requestFactory = requestFactory
