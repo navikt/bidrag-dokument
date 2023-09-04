@@ -107,20 +107,20 @@ class JournalpostService(
         saksnummer: String,
         fagomrade: List<String> = emptyList()
     ): List<JournalpostDto> {
-        val cs =
+        val scope =
             CoroutineScope(Dispatchers.IO + SecurityCoroutineContext() + RequestContextAsyncContext())
         return runBlocking {
             awaitAll(
-                cs.async {
+                scope.async {
                     bidragJournalpostConsumer.finnJournalposter(
                         saksnummer,
                         fagomrade
                     )
                 },
-                cs.async {
+                scope.async {
                     bidragArkivConsumer.finnJournalposter(saksnummer, fagomrade)
                 },
-                cs.async {
+                scope.async {
                     bidragForsendelseConsumer.finnJournalposter(
                         saksnummer,
                         fagomrade
@@ -128,7 +128,6 @@ class JournalpostService(
                 }
             ).flatten()
         }
-
     }
 
     fun endre(

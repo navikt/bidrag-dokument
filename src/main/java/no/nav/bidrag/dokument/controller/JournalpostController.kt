@@ -142,7 +142,7 @@ class JournalpostController(private val journalpostService: JournalpostService) 
     @Operation(
         security = [SecurityRequirement(name = "bearer-key")],
         description = "Henter mulige avvik for en journalpost, id på formatet [" + BidragDokumentConfig.PREFIX_BIDRAG + '|' + BidragDokumentConfig.PREFIX_JOARK + ']' + BidragDokumentConfig.DELIMTER +
-                "<journalpostId>"
+            "<journalpostId>"
     )
     @ApiResponses(
         value = [

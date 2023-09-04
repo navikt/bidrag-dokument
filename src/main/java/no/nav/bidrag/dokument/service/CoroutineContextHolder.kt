@@ -47,11 +47,10 @@ private fun getServletRequestAttributes(): ServletRequestAttributes? =
 
 class RequestContextAsyncContext(
     private val contextMap: Map<String, String> = MDC.getCopyOfContextMap() ?: emptyMap(),
-    private val servletRequestAttributes: ServletRequestAttributes? = getServletRequestAttributes(),
+    private val servletRequestAttributes: ServletRequestAttributes? = getServletRequestAttributes()
 ) : ThreadContextElement<Map<String, String>>, AbstractCoroutineContextElement(Key) {
 
     companion object Key : CoroutineContext.Key<RequestContextAsyncContext>
-
 
     override fun updateThreadContext(context: CoroutineContext): Map<String, String> {
         val oldState = MDC.getCopyOfContextMap() ?: emptyMap()
