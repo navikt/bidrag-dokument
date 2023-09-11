@@ -1,6 +1,5 @@
 package no.nav.bidrag.dokument.service
 
-import com.google.common.io.ByteSource
 import io.micrometer.core.annotation.Timed
 import no.nav.bidrag.dokument.BidragDokumentConfig
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer
@@ -12,7 +11,6 @@ import no.nav.bidrag.dokument.dto.DokumentRef
 import no.nav.bidrag.dokument.dto.DokumentTilgangResponse
 import no.nav.bidrag.dokument.dto.Kilde
 import org.apache.pdfbox.io.MemoryUsageSetting
-import org.apache.pdfbox.io.RandomAccessReadBuffer
 import org.apache.pdfbox.multipdf.PDFMergerUtility
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
@@ -138,20 +136,27 @@ class DokumentService(
         if (dokumentList.size == 1) {
             return hentDokument(dokumentList[0], documentProperties).body
         }
-        val mergedFileName = "/tmp/" + UUID.randomUUID()
-        val mergedDocument = PDFMergerUtility()
-        mergedDocument.destinationFileName = mergedFileName
-        for (dokument in dokumentList) {
-            val dokumentResponse = hentDokument(
-                dokument,
-                DocumentProperties(documentProperties, dokumentList.indexOf(dokument)),
-            )
-            val dokumentInputStream = ByteSource.wrap(dokumentResponse.body!!).openStream()
-            mergedDocument.addSource(RandomAccessReadBuffer(dokumentInputStream))
-            dokumentInputStream.close()
+        val tempfiles = mutableListOf<File>()
+        try {
+            val mergedFileName = "/tmp/" + UUID.randomUUID()
+            val mergedDocument = PDFMergerUtility()
+            mergedDocument.destinationFileName = mergedFileName
+            for (dokument in dokumentList) {
+                val dokumentResponse = hentDokument(
+                    dokument,
+                    DocumentProperties(documentProperties, dokumentList.indexOf(dokument)),
+                )
+                val tempFile = File.createTempFile("/tmp/" + UUID.randomUUID(), null)
+                tempFile.appendBytes(dokumentResponse.body!!)
+                tempfiles.add(tempFile)
+                mergedDocument.addSource(tempFile)
+            }
+            mergedDocument.mergeDocuments(MemoryUsageSetting.setupTempFileOnly().streamCache)
+            return getByteDataAndDeleteFile(mergedFileName)
+        } finally {
+            tempfiles.forEach { it.delete() }
         }
-        mergedDocument.mergeDocuments(MemoryUsageSetting.setupTempFileOnly().streamCache)
-        return getByteDataAndDeleteFile(mergedFileName)
+
     }
 
     @Throws(IOException::class)
