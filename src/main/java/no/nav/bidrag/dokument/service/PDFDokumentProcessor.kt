@@ -3,6 +3,7 @@ package no.nav.bidrag.dokument.service
 import no.nav.bidrag.dokument.dto.DocumentProperties
 import org.apache.pdfbox.Loader
 import org.apache.pdfbox.io.IOUtils
+import org.apache.pdfbox.io.MemoryUsageSetting
 import org.apache.pdfbox.io.RandomAccessReadBuffer
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.PDPage
@@ -30,7 +31,10 @@ class PDFDokumentProcessor {
         this.documentProperties = documentProperties
         val documentByteStream = ByteArrayOutputStream()
         try {
-            Loader.loadPDF(RandomAccessReadBuffer(dokumentFil)).use { document ->
+            Loader.loadPDF(
+                RandomAccessReadBuffer(dokumentFil),
+                MemoryUsageSetting.setupMixed(50000000L).streamCache
+            ).use { document ->
                 this.document = document
                 if (documentProperties.resizeToA4()) {
                     konverterAlleSiderTilA4()
