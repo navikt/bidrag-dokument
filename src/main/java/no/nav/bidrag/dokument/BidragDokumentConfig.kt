@@ -36,13 +36,13 @@ private val log = KotlinLogging.logger {}
 @Configuration
 @OpenAPIDefinition(
     info = Info(title = "bidrag-dokument", version = "v1"),
-    security = [SecurityRequirement(name = "bearer-key")]
+    security = [SecurityRequirement(name = "bearer-key")],
 )
 @SecurityScheme(
     bearerFormat = "JWT",
     name = "bearer-key",
     scheme = "bearer",
-    type = SecuritySchemeType.HTTP
+    type = SecuritySchemeType.HTTP,
 )
 @EnableAspectJAutoProxy
 @EnableSecurityConfiguration
@@ -50,60 +50,78 @@ private val log = KotlinLogging.logger {}
     EnhetFilter::class,
     DefaultCorsFilter::class,
     UserMdcFilter::class,
-    CorrelationIdFilter::class
+    CorrelationIdFilter::class,
 )
 class BidragDokumentConfig {
     @Bean
     @Qualifier(MIDL_BREVLAGER_QUALIFIER)
     fun bidragJournalpostConsumer(
         @Value("\${JOURNALPOST_URL}") journalpostBaseUrl: String,
-        securityTokenService: SecurityTokenService
+        securityTokenService: SecurityTokenService,
+        meterRegistry: MeterRegistry,
     ): BidragDokumentConsumer {
         val restTemplate = createRestTemplate(
             journalpostBaseUrl,
             securityTokenService,
-            KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST
+            KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST,
         )
-        return BidragDokumentConsumer(restTemplate, journalpostBaseUrl)
+        return BidragDokumentConsumer(
+            KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST,
+            restTemplate,
+            journalpostBaseUrl,
+            meterRegistry,
+        )
     }
 
     @Bean
     @Qualifier(ARKIV_QUALIFIER)
     fun bidragArkivConsumer(
         @Value("\${BIDRAG_ARKIV_URL}") bidragArkivBaseUrl: String,
-        securityTokenService: SecurityTokenService
+        securityTokenService: SecurityTokenService,
+        meterRegistry: MeterRegistry,
     ): BidragDokumentConsumer {
         val restTemplate = createRestTemplate(
             bidragArkivBaseUrl,
             securityTokenService,
-            KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV
+            KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV,
         )
-        return BidragDokumentConsumer(restTemplate, bidragArkivBaseUrl)
+        return BidragDokumentConsumer(
+            KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV,
+            restTemplate,
+            bidragArkivBaseUrl,
+            meterRegistry,
+        )
     }
 
     @Bean
     @Qualifier(FORSENDELSE_QUALIFIER)
     fun bidragForsendelseConsumer(
         @Value("\${BIDRAG_FORSENDELSE_URL}") bidragForsendelseUrl: String,
-        securityTokenService: SecurityTokenService
+        securityTokenService: SecurityTokenService,
+        meterRegistry: MeterRegistry,
     ): BidragDokumentConsumer {
         val restTemplate = createRestTemplate(
             bidragForsendelseUrl,
             securityTokenService,
-            KLIENTNAVN_BIDRAG_DOKUMENT_FORSENDELSE
+            KLIENTNAVN_BIDRAG_DOKUMENT_FORSENDELSE,
         )
-        return BidragDokumentConsumer(restTemplate, bidragForsendelseUrl)
+        return BidragDokumentConsumer(
+            KLIENTNAVN_BIDRAG_DOKUMENT_FORSENDELSE,
+            restTemplate,
+            bidragForsendelseUrl,
+            meterRegistry,
+        )
     }
 
     @Bean
     fun dokumentConsumer(
         @Value("\${JOURNALPOST_URL}") journalpostBaseUrl: String,
-        securityTokenService: SecurityTokenService
+        securityTokenService: SecurityTokenService,
     ): DokumentTilgangConsumer {
         val restTemplate = createRestTemplate(
             journalpostBaseUrl,
             securityTokenService,
-            KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST
+            KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST,
         )
         return DokumentTilgangConsumer(restTemplate)
     }
@@ -111,7 +129,7 @@ class BidragDokumentConfig {
     private fun createRestTemplate(
         baseUrl: String,
         securityTokenService: SecurityTokenService,
-        clientId: String
+        clientId: String,
     ): RestTemplate {
         val httpHeaderRestTemplate = HttpHeaderRestTemplate()
         val sc = SocketConfig.custom().setSoTimeout(Timeout.ofMinutes(5)).build()

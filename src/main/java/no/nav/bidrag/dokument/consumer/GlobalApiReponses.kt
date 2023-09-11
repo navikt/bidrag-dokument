@@ -10,11 +10,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
     value = [
         ApiResponse(
             responseCode = "401",
-            description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig"
+            description = "Sikkerhetstoken mangler, er utløpt, eller av andre årsaker ugyldig",
         ), ApiResponse(
             responseCode = "403",
-            description = "Saksbehandler har ikke tilgang til aktuell journalpost"
-        )
-    ]
+            description = "Saksbehandler har ikke tilgang til aktuell journalpost",
+        ),
+    ],
 )
 annotation class GlobalApiReponses

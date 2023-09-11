@@ -45,7 +45,7 @@ internal class EnhetFilterFilterTest {
     @BeforeEach
     fun mockLogAppender() {
         val logger = LoggerFactory.getLogger(
-            org.slf4j.Logger.ROOT_LOGGER_NAME
+            org.slf4j.Logger.ROOT_LOGGER_NAME,
         ) as Logger
         every { appenderMock.name } returns "MOCK"
         every { appenderMock.isStarted } returns true
@@ -58,7 +58,7 @@ internal class EnhetFilterFilterTest {
         every {
             journalpostServiceMock.hentJournalpost(
                 any(),
-                any()
+                any(),
             )
         } returns from(HttpStatus.I_AM_A_TEAPOT)
         val response =
@@ -70,9 +70,9 @@ internal class EnhetFilterFilterTest {
                 verify { appenderMock.doAppend(capture(loggingEventCaptor)) }
                 val allMsgs = loggingEventCaptor.joinToString("\n") { it.formattedMessage }
                 Assertions.assertThat(allMsgs).contains(
-                    "Behandler request '/bidrag-dokument/journal/BID-123' uten informasjon om enhetsnummer."
+                    "Behandler request '/bidrag-dokument/journal/BID-123' uten informasjon om enhetsnummer.",
                 )
-            }
+            },
         )
     }
 
@@ -94,9 +94,9 @@ internal class EnhetFilterFilterTest {
                 val allMsgs = loggingEventCaptor.joinToString("\n") { it.formattedMessage }
                 Assertions.assertThat(allMsgs).containsIgnoringCase(
                     "Behandler request '/bidrag-dokument/journal/BID-123' for enhet med enhetsnummer " +
-                        enhet
+                        enhet,
                 )
-            }
+            },
         )
     }
 }

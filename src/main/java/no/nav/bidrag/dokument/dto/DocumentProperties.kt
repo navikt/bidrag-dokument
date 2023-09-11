@@ -4,7 +4,7 @@ data class DocumentProperties(
     val resizeToA4: Boolean? = false,
     val optimizeForPrint: Boolean? = false,
     var numberOfDocuments: Int? = 1,
-    var currentDocumentIndex: Int? = 0
+    var currentDocumentIndex: Int? = 0,
 ) {
     constructor(resizeToA4: Boolean) : this(resizeToA4, false)
     constructor(resizeToA4: Boolean, printable: Boolean) : this(resizeToA4, printable, 1)

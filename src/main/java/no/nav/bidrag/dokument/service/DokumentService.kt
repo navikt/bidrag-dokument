@@ -1,6 +1,5 @@
 package no.nav.bidrag.dokument.service
 
-import com.google.common.io.ByteSource
 import io.micrometer.core.annotation.Timed
 import no.nav.bidrag.dokument.BidragDokumentConfig
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer
@@ -30,11 +29,11 @@ class DokumentService(
     private val dokumentTilgangConsumer: DokumentTilgangConsumer,
     @Qualifier(BidragDokumentConfig.ARKIV_QUALIFIER) private val bidragArkivConsumer: BidragDokumentConsumer,
     @Qualifier(BidragDokumentConfig.MIDL_BREVLAGER_QUALIFIER) private val bidragJournalpostConsumer: BidragDokumentConsumer,
-    @Qualifier(BidragDokumentConfig.FORSENDELSE_QUALIFIER) private val bidragForsendelseConsumer: BidragDokumentConsumer
+    @Qualifier(BidragDokumentConfig.FORSENDELSE_QUALIFIER) private val bidragForsendelseConsumer: BidragDokumentConsumer,
 ) {
     fun hentTilgangUrl(
         journalpostId: String?,
-        dokumentreferanse: String?
+        dokumentreferanse: String?,
     ): DokumentTilgangResponse? {
         return dokumentTilgangConsumer.hentTilgangUrl(journalpostId, dokumentreferanse)
     }
@@ -44,17 +43,17 @@ class DokumentService(
         return if (dokumentRef.erForKilde(Kilde.MIDLERTIDLIG_BREVLAGER)) {
             bidragJournalpostConsumer.hentDokumentMetadata(
                 dokumentRef.journalpostId,
-                dokumentRef.dokumentId
+                dokumentRef.dokumentId,
             )
         } else if (dokumentRef.erForKilde(Kilde.FORSENDELSE)) {
             bidragForsendelseConsumer.hentDokumentMetadata(
                 dokumentRef.journalpostId,
-                dokumentRef.dokumentId
+                dokumentRef.dokumentId,
             )
         } else {
             bidragArkivConsumer.hentDokumentMetadata(
                 dokumentRef.journalpostId,
-                dokumentRef.dokumentId
+                dokumentRef.dokumentId,
             )
         }
     }
@@ -62,7 +61,7 @@ class DokumentService(
     @Timed("hentDokument")
     fun hentDokument(
         _dokumentRef: DokumentRef,
-        documentProperties: DocumentProperties
+        documentProperties: DocumentProperties,
     ): ResponseEntity<ByteArray> {
         val dokumentRef = hentDokumentRefMedRiktigKilde(_dokumentRef)
         if (!dokumentRef.hasDokumentId() && !dokumentRef.erForKilde(Kilde.MIDLERTIDLIG_BREVLAGER)) {
@@ -73,13 +72,13 @@ class DokumentService(
         return ResponseEntity.ok()
             .contentType(MediaType.APPLICATION_PDF)
             .header(HttpHeaders.CONTENT_DISPOSITION, response.headers.contentDisposition.toString())
-            .body(PDFDokumentProcessor().process(response.body, documentProperties))
+            .body(response.body?.let { PDFDokumentProcessor().process(it, documentProperties) })
     }
 
     @Timed("hentDokumenter")
     fun hentDokumenter(
         dokumenterString: List<String>,
-        documentProperties: DocumentProperties
+        documentProperties: DocumentProperties,
     ): ResponseEntity<ByteArray> {
         val dokumenter = parseDokumentString(dokumenterString)
         return hentDokumenterData(dokumenter, documentProperties)
@@ -107,7 +106,7 @@ class DokumentService(
 
     private fun hentDokumenterData(
         dokumentRefList: List<DokumentRef>,
-        documentProperties: DocumentProperties
+        documentProperties: DocumentProperties,
     ): ResponseEntity<ByteArray> {
         return try {
             val dokumentByte = hentOgMergeAlleDokumenter(dokumentRefList, documentProperties)
@@ -115,7 +114,7 @@ class DokumentService(
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(
                     HttpHeaders.CONTENT_DISPOSITION,
-                    "inline; filename=dokumenter_sammenslatt.pdf"
+                    "inline; filename=dokumenter_sammenslatt.pdf",
                 )
                 .body(dokumentByte)
         } catch (e: Exception) {
@@ -131,26 +130,33 @@ class DokumentService(
     @Throws(IOException::class)
     private fun hentOgMergeAlleDokumenter(
         dokumentList: List<DokumentRef>,
-        documentProperties: DocumentProperties
+        documentProperties: DocumentProperties,
     ): ByteArray? {
         documentProperties.numberOfDocuments = dokumentList.size
         if (dokumentList.size == 1) {
             return hentDokument(dokumentList[0], documentProperties).body
         }
-        val mergedFileName = "/tmp/" + UUID.randomUUID()
-        val mergedDocument = PDFMergerUtility()
-        mergedDocument.destinationFileName = mergedFileName
-        for (dokument in dokumentList) {
-            val dokumentResponse = hentDokument(
-                dokument,
-                DocumentProperties(documentProperties, dokumentList.indexOf(dokument))
-            )
-            val dokumentInputStream = ByteSource.wrap(dokumentResponse.body!!).openStream()
-            mergedDocument.addSource(dokumentInputStream)
-            dokumentInputStream.close()
+        val tempfiles = mutableListOf<File>()
+        try {
+            val mergedFileName = "/tmp/" + UUID.randomUUID()
+            val mergedDocument = PDFMergerUtility()
+            mergedDocument.destinationFileName = mergedFileName
+            for (dokument in dokumentList) {
+                val dokumentResponse = hentDokument(
+                    dokument,
+                    DocumentProperties(documentProperties, dokumentList.indexOf(dokument)),
+                )
+                val tempFile = File.createTempFile("/tmp/" + UUID.randomUUID(), null)
+                tempFile.appendBytes(dokumentResponse.body!!)
+                tempfiles.add(tempFile)
+                mergedDocument.addSource(tempFile)
+            }
+            mergedDocument.mergeDocuments(MemoryUsageSetting.setupTempFileOnly().streamCache)
+            return getByteDataAndDeleteFile(mergedFileName)
+        } finally {
+            tempfiles.forEach { it.delete() }
         }
-        mergedDocument.mergeDocuments(MemoryUsageSetting.setupTempFileOnly())
-        return getByteDataAndDeleteFile(mergedFileName)
+
     }
 
     @Throws(IOException::class)
@@ -177,7 +183,7 @@ class DokumentService(
                 DokumentArkivSystemDto.JOARK -> Kilde.JOARK
                 DokumentArkivSystemDto.BIDRAG -> Kilde.FORSENDELSE
                 else -> null
-            }
+            },
         )
     }
 
