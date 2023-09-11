@@ -47,5 +47,5 @@ env:
   BIDRAG_DOKUMENT_ARKIV_CLIENT_ID: dev-fss.bidrag.bidrag-dokument-arkiv-feature
   BIDRAG_DOKUMENT_FORSENDELSE_CLIENT_ID: dev-gcp.bidrag.bidrag-dokument-forsendelse-feature
   STS_ISSUER_URL: https://security-token-service.dev.adeo.no
-  JAVA_OPTS: -Xmx1500m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxRAMPercentage=80.0 -XX:+UseContainerSupport
+  JAVA_OPTS: -Xms1500m -Xmx1500m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxRAMPercentage=80.0 -XX:+UseContainerSupport
 path: dev
