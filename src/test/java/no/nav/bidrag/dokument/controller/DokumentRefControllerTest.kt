@@ -57,9 +57,9 @@ internal class DokumentRefControllerTest {
                         Assertions.assertThat(response).extracting { it.body }
                             .`as`("url")
                             .isEqualTo(DokumentTilgangResponse(dokumentUrl, type))
-                    }
+                    },
                 )
-            }
+            },
         )
     }
 

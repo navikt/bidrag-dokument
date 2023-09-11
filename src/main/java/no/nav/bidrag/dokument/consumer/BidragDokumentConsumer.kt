@@ -32,7 +32,7 @@ class BidragDokumentConsumer(
     private val name: String,
     private val restTemplate: RestTemplate,
     private val rootUri: String,
-    private val metricsRegistry: MeterRegistry
+    private val metricsRegistry: MeterRegistry,
 ) {
     fun finnAvvik(saksnummer: String?, journalpostId: String?): HttpResponse<List<AvvikType>> {
         val path: String = if (saksnummer != null) {
@@ -48,7 +48,7 @@ class BidragDokumentConsumer(
     fun behandleAvvik(
         enhetsnummer: String?,
         journalpostId: String?,
-        avvikshendelse: Avvikshendelse?
+        avvikshendelse: Avvikshendelse?,
     ): HttpResponse<BehandleAvvikshendelseResponse> {
         val path = String.format("$PATH_JOURNALPOST_UTEN_SAK/avvik", journalpostId)
         val avviksResponse = restTemplate
@@ -56,7 +56,7 @@ class BidragDokumentConsumer(
                 path,
                 HttpMethod.POST,
                 HttpEntity(avvikshendelse, createEnhetHeader(enhetsnummer)),
-                BehandleAvvikshendelseResponse::class.java
+                BehandleAvvikshendelseResponse::class.java,
             )
         return HttpResponse(avviksResponse)
     }
@@ -74,7 +74,7 @@ class BidragDokumentConsumer(
 
     fun finnJournalposter(
         saksnummer: String?,
-        fagomrade: List<String> = emptyList()
+        fagomrade: List<String> = emptyList(),
     ): List<JournalpostDto> {
         val uriBuilder = UriComponentsBuilder.fromPath(String.format(PATH_JOURNAL, saksnummer))
         fagomrade.forEach { uriBuilder.queryParam(PARAM_FAGOMRADE, it) }
@@ -89,9 +89,9 @@ class BidragDokumentConsumer(
         } catch (e: HttpStatusCodeException) {
             log.error(e) {
                 "Det skjedde en feil ved henting av journal for sak $saksnummer og fagområder ${
-                fagomrade.joinToString(
-                    ","
-                )
+                    fagomrade.joinToString(
+                        ",",
+                    )
                 } fra url $rootUri/$uri"
             }
             if (e.statusCode == HttpStatus.NOT_FOUND) {
@@ -104,7 +104,7 @@ class BidragDokumentConsumer(
 
     fun endre(
         enhet: String?,
-        endreJournalpostCommand: EndreJournalpostCommand
+        endreJournalpostCommand: EndreJournalpostCommand,
     ): HttpResponse<Void> {
         val path = String.format(PATH_JOURNALPOST_UTEN_SAK, endreJournalpostCommand.journalpostId)
         val endretJournalpostResponse = restTemplate
@@ -112,7 +112,7 @@ class BidragDokumentConsumer(
                 path,
                 HttpMethod.PATCH,
                 HttpEntity(endreJournalpostCommand, createEnhetHeader(enhet)),
-                Void::class.java
+                Void::class.java,
             )
         return HttpResponse(endretJournalpostResponse)
     }
@@ -123,7 +123,7 @@ class BidragDokumentConsumer(
                 PATH_OPPRETT_JOURNALPOST,
                 HttpMethod.POST,
                 HttpEntity(opprettJournalpostRequest),
-                OpprettJournalpostResponse::class.java
+                OpprettJournalpostResponse::class.java,
             )
         return HttpResponse(endretJournalpostResponse)
     }
@@ -131,7 +131,7 @@ class BidragDokumentConsumer(
     fun distribuerJournalpost(
         journalpostId: String?,
         batchId: String?,
-        distribuerJournalpostRequest: DistribuerJournalpostRequest
+        distribuerJournalpostRequest: DistribuerJournalpostRequest,
     ): HttpResponse<DistribuerJournalpostResponse> {
         var uriBuilder =
             UriComponentsBuilder.fromPath(String.format(PATH_DISTRIBUER, journalpostId))
@@ -144,7 +144,7 @@ class BidragDokumentConsumer(
                 uri,
                 HttpMethod.POST,
                 HttpEntity(distribuerJournalpostRequest),
-                DistribuerJournalpostResponse::class.java
+                DistribuerJournalpostResponse::class.java,
             )
         return HttpResponse(distribuerJournalpostResponse)
     }
@@ -162,13 +162,13 @@ class BidragDokumentConsumer(
             path,
             HttpMethod.GET,
             null,
-            DistribusjonInfoDto::class.java
+            DistribusjonInfoDto::class.java,
         ).body
     }
 
     fun hentDokument(
         journalpostId: String?,
-        dokumentreferanse: String?
+        dokumentreferanse: String?,
     ): ResponseEntity<ByteArray> {
         if (journalpostId.isNullOrEmpty()) return hentDokument(dokumentreferanse)
         val dokumentReferanseUrl =
@@ -178,13 +178,13 @@ class BidragDokumentConsumer(
             dokumentUrl,
             HttpMethod.GET,
             HttpEntity.EMPTY,
-            ByteArray::class.java
+            ByteArray::class.java,
         )
     }
 
     fun hentDokumentMetadata(
         journalpostId: String?,
-        dokumentreferanse: String?
+        dokumentreferanse: String?,
     ): List<DokumentMetadata> {
         if (journalpostId.isNullOrEmpty()) {
             return hentDokumentMetadata(dokumentreferanse)
@@ -197,7 +197,7 @@ class BidragDokumentConsumer(
             dokumentUrl,
             HttpMethod.OPTIONS,
             HttpEntity.EMPTY,
-            object : ParameterizedTypeReference<List<DokumentMetadata>>() {}
+            object : ParameterizedTypeReference<List<DokumentMetadata>>() {},
         ).body
             ?: emptyList()
     }
@@ -208,7 +208,7 @@ class BidragDokumentConsumer(
             dokumentUrl,
             HttpMethod.OPTIONS,
             HttpEntity.EMPTY,
-            object : ParameterizedTypeReference<List<DokumentMetadata>>() {}
+            object : ParameterizedTypeReference<List<DokumentMetadata>>() {},
         ).body
     }
 
@@ -218,7 +218,7 @@ class BidragDokumentConsumer(
             dokumentUrl,
             HttpMethod.GET,
             HttpEntity.EMPTY,
-            ByteArray::class.java
+            ByteArray::class.java,
         )
     }
 

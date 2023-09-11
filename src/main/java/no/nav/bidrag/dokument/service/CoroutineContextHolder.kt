@@ -12,7 +12,7 @@ import kotlin.coroutines.CoroutineContext
 
 class SecurityCoroutineContext(
     private val securityContext: SecurityContext = SecurityContextHolder.getContext(),
-    private val requestContext: RequestAttributes? = RequestContextHolder.getRequestAttributes()
+    private val requestContext: RequestAttributes? = RequestContextHolder.getRequestAttributes(),
 ) : ThreadContextElement<SecurityContext?> {
 
     companion object Key : CoroutineContext.Key<SecurityCoroutineContext>
@@ -47,7 +47,7 @@ private fun getServletRequestAttributes(): ServletRequestAttributes? =
 
 class RequestContextAsyncContext(
     private val contextMap: Map<String, String> = MDC.getCopyOfContextMap() ?: emptyMap(),
-    private val servletRequestAttributes: ServletRequestAttributes? = getServletRequestAttributes()
+    private val servletRequestAttributes: ServletRequestAttributes? = getServletRequestAttributes(),
 ) : ThreadContextElement<Map<String, String>>, AbstractCoroutineContextElement(Key) {
 
     companion object Key : CoroutineContext.Key<RequestContextAsyncContext>

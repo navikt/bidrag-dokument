@@ -39,7 +39,7 @@ import java.util.*
 
 @SpringBootTest(
     classes = [BidragDokumentTest::class],
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 )
 @AutoConfigureWireMock(port = 0)
 @ActiveProfiles(BidragDokumentTest.TEST_PROFILE)
@@ -97,14 +97,14 @@ internal class JournalpostControllerTest {
                     initEndpointUrl(
                         String.format(
                             BidragDokumentConsumer.PATH_JOURNALPOST_UTEN_SAK,
-                            jpId
-                        ) + "?saksnummer=" + saksnr
-                    )
+                            jpId,
+                        ) + "?saksnummer=" + saksnr,
+                    ),
                 )
             Assertions.assertThat(Optional.of(journalpostResponseEntity)).hasValueSatisfying {
                 assertAll(
                     { Assertions.assertThat(it.body).isNull() },
-                    { Assertions.assertThat(it.statusCode).isEqualTo(HttpStatus.NO_CONTENT) }
+                    { Assertions.assertThat(it.statusCode).isEqualTo(HttpStatus.NO_CONTENT) },
                 )
             }
         }
@@ -122,7 +122,7 @@ internal class JournalpostControllerTest {
                 jpId,
                 queryParams,
                 HttpStatus.OK,
-                RestConsumerStub.lesResponsfilSomStreng(responsfilnavn)
+                RestConsumerStub.lesResponsfilSomStreng(responsfilnavn),
             )
             val url = initEndpointUrl("/journal/joark-2?saksnummer=007")
             val responseEntity =
@@ -136,7 +136,7 @@ internal class JournalpostControllerTest {
                                 .extracting<JournalpostDto> { it.journalpost }
                                 .extracting<String> { it.innhold }
                                 .isEqualTo("MIDLERTIDIG")
-                        }
+                        },
                     )
                 })
         }
@@ -149,7 +149,7 @@ internal class JournalpostControllerTest {
             val responseEntity = testRestTemplate.getForEntity(url, String::class.java)
             org.junit.jupiter.api.Assertions.assertEquals(
                 HttpStatus.valueOf(responseEntity.statusCode.value()),
-                HttpStatus.UNAUTHORIZED
+                HttpStatus.UNAUTHORIZED,
             )
         }
 
@@ -166,7 +166,7 @@ internal class JournalpostControllerTest {
                 jpId,
                 queryParams,
                 HttpStatus.OK,
-                RestConsumerStub.generereJournalpostrespons(journalpostelementer)
+                RestConsumerStub.generereJournalpostrespons(journalpostelementer),
             )
             val url = initEndpointUrl("/journal/$jpId?saksnummer=$saksnr")
             val responseEntity =
@@ -185,9 +185,9 @@ internal class JournalpostControllerTest {
                                     .extracting<JournalpostDto> { it.journalpost }
                                     .extracting<String> { it.avsenderNavn }
                                     .isEqualTo("Grev Still E. Ben")
-                            }
+                            },
                         )
-                    }
+                    },
                 )
         }
     }
@@ -204,10 +204,10 @@ internal class JournalpostControllerTest {
             val badRequestResponse =
                 httpHeaderTestRestTemplate.patchForEntity<Unit>(
                     lagreJournalpostUrl,
-                    entityMedEnhetsheader
+                    entityMedEnhetsheader,
                 )
             Assertions.assertThat(badRequestResponse).extracting { it.statusCode }.isEqualTo(
-                HttpStatus.BAD_REQUEST
+                HttpStatus.BAD_REQUEST,
             )
         }
 
@@ -219,7 +219,7 @@ internal class JournalpostControllerTest {
                 httpHeaderTestRestTemplate.getForEntity<JournalpostResponse>(lagreJournalpostUrl)
             Assertions.assertThat(badRequestResponse)
                 .extracting { it.statusCode }.isEqualTo(
-                    HttpStatus.BAD_REQUEST
+                    HttpStatus.BAD_REQUEST,
                 )
         }
 
@@ -230,7 +230,7 @@ internal class JournalpostControllerTest {
             val badRequestResponse = httpHeaderTestRestTemplate
                 .patchForEntity<JournalpostResponse>(
                     lagreJournalpostUrl,
-                    HttpEntity(EndreJournalpostCommand(), createEnhetHeader("4802"))
+                    HttpEntity(EndreJournalpostCommand(), createEnhetHeader("4802")),
                 )
             Assertions.assertThat(badRequestResponse)
                 .extracting { it.statusCode }.isEqualTo(HttpStatus.BAD_REQUEST)
@@ -240,7 +240,7 @@ internal class JournalpostControllerTest {
         @Test
         @DisplayName("skal endre journalpost")
         @Throws(
-            IOException::class
+            IOException::class,
         )
         fun skalEndreJournalpost() {
             val jpId = "BID-1"
@@ -249,7 +249,7 @@ internal class JournalpostControllerTest {
             val endretJournalpostResponse = httpHeaderTestRestTemplate
                 .patchForEntity<Unit>(
                     lagreJournalpostUrl,
-                    HttpEntity(EndreJournalpostCommand(), createEnhetHeader("4802"))
+                    HttpEntity(EndreJournalpostCommand(), createEnhetHeader("4802")),
                 )
             Assertions.assertThat(endretJournalpostResponse)
                 .satisfies({ Assertions.assertThat(it.statusCode).isEqualTo(HttpStatus.ACCEPTED) })
@@ -264,13 +264,13 @@ internal class JournalpostControllerTest {
                 jpId,
                 HttpHeader.httpHeader(HttpHeaders.WARNING, "rofl"),
                 HttpStatus.OK,
-                ""
+                "",
             )
             val lagreJournalpostUrl = initEndpointUrl("/journal/BID-1")
             val endretJournalpostResponse = httpHeaderTestRestTemplate
                 .patchForEntity<Unit>(
                     lagreJournalpostUrl,
-                    HttpEntity(EndreJournalpostCommand(), createEnhetHeader("4802"))
+                    HttpEntity(EndreJournalpostCommand(), createEnhetHeader("4802")),
                 )
             Assertions.assertThat(endretJournalpostResponse)
                 .satisfies({
@@ -283,7 +283,7 @@ internal class JournalpostControllerTest {
                             val headers = it.headers
                             Assertions.assertThat(headers.getFirst(HttpHeaders.WARNING))
                                 .`as`("warning header").isEqualTo("rofl")
-                        }
+                        },
                     )
                 })
         }
@@ -325,7 +325,7 @@ internal class JournalpostControllerTest {
                 {
                     Assertions.assertThat(responseEntity.body).`as`("avvik")
                         .contains(AvvikType.BESTILL_ORIGINAL)
-                }
+                },
             )
         }
 
@@ -353,7 +353,7 @@ internal class JournalpostControllerTest {
                 {
                     Assertions.assertThat(responseEntity.body).`as`("avvik")
                         .contains(AvvikType.BESTILL_ORIGINAL)
-                }
+                },
             )
         }
 
@@ -371,7 +371,7 @@ internal class JournalpostControllerTest {
                 " {",
                 "\"avvikType\":",
                 "\"" + avvikshendelse.avvikType + "\"",
-                "}"
+                "}",
             )
             restConsumerStub.runPost(path, HttpStatus.CREATED, respons)
             val bestillOriginalEntity =
@@ -382,7 +382,7 @@ internal class JournalpostControllerTest {
             val responseEntity =
                 httpHeaderTestRestTemplate.postForEntity<BehandleAvvikshendelseResponse>(
                     url,
-                    bestillOriginalEntity
+                    bestillOriginalEntity,
                 )
 
             // then
@@ -394,7 +394,7 @@ internal class JournalpostControllerTest {
                 {
                     Assertions.assertThat(responseEntity.body).`as`("body")
                         .isEqualTo(BehandleAvvikshendelseResponse(AvvikType.BESTILL_ORIGINAL))
-                }
+                },
             )
         }
 
@@ -411,7 +411,7 @@ internal class JournalpostControllerTest {
                 " {",
                 "\"avvikType\":",
                 "\"" + avvikshendelse.avvikType + "\"",
-                "}"
+                "}",
             )
             restConsumerStub.runPostArkiv(path, HttpStatus.CREATED, respons)
             val bestillOriginalEntity =
@@ -422,7 +422,7 @@ internal class JournalpostControllerTest {
             val responseEntity =
                 httpHeaderTestRestTemplate.postForEntity<BehandleAvvikshendelseResponse>(
                     url,
-                    bestillOriginalEntity
+                    bestillOriginalEntity,
                 )
 
             // then
@@ -434,7 +434,7 @@ internal class JournalpostControllerTest {
                 {
                     Assertions.assertThat(responseEntity.body).`as`("body")
                         .isEqualTo(BehandleAvvikshendelseResponse(AvvikType.BESTILL_ORIGINAL))
-                }
+                },
             )
         }
 
@@ -460,7 +460,7 @@ internal class JournalpostControllerTest {
             val responseEntity =
                 httpHeaderTestRestTemplate.postForEntity<BehandleAvvikshendelseResponse>(
                     url,
-                    ukjentAvvikEntity
+                    ukjentAvvikEntity,
                 )
             Assertions.assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
         }
@@ -489,12 +489,12 @@ internal class JournalpostControllerTest {
                 .runGet(
                     String.format(Companion.PATH_JOURNALPOST_UTEN_SAK + "%s", jpId),
                     HttpStatus.OK,
-                    RestConsumerStub.generereJournalpostrespons(journalpostelementer)
+                    RestConsumerStub.generereJournalpostrespons(journalpostelementer),
                 )
 
             // when
             val respons = httpHeaderTestRestTemplate.getForEntity<JournalpostResponse>(
-                PATH_JOURNALPOST_UTEN_SAK + jpId
+                PATH_JOURNALPOST_UTEN_SAK + jpId,
             )
 
             // then
@@ -522,7 +522,7 @@ internal class JournalpostControllerTest {
                 .runGet(
                     String.format(BidragDokumentConsumer.PATH_AVVIK_PA_JOURNALPOST, jpId),
                     HttpStatus.OK,
-                    java.lang.String.join("\n", " [", " \"ARKIVERE_JOURNALPOST\"]")
+                    java.lang.String.join("\n", " [", " \"ARKIVERE_JOURNALPOST\"]"),
                 )
 
             // when
@@ -553,7 +553,7 @@ internal class JournalpostControllerTest {
             val responseEntity =
                 httpHeaderTestRestTemplate.postForEntity<BehandleAvvikshendelseResponse>(
                     url,
-                    bestillOriginalEntity
+                    bestillOriginalEntity,
                 )
 
             // then
@@ -565,7 +565,7 @@ internal class JournalpostControllerTest {
                 {
                     Assertions.assertThat(responseEntity.body).`as`("body")
                         .isEqualTo(BehandleAvvikshendelseResponse(AvvikType.ENDRE_FAGOMRADE))
-                }
+                },
             )
         }
     }
@@ -587,17 +587,17 @@ internal class JournalpostControllerTest {
             restConsumerStub.runGetArkiv(
                 path,
                 HttpStatus.OK,
-                RestConsumerStub.lesResponsfilSomStreng(navnResponsfil)
+                RestConsumerStub.lesResponsfilSomStreng(navnResponsfil),
             )
             restConsumerStub.runGet(
                 path,
                 HttpStatus.OK,
-                RestConsumerStub.lesResponsfilSomStreng(navnResponsfil)
+                RestConsumerStub.lesResponsfilSomStreng(navnResponsfil),
             )
             restConsumerStub.runGetForsendelse(
                 path,
                 HttpStatus.OK,
-                RestConsumerStub.lesResponsfilSomStreng(navnResponsfil)
+                RestConsumerStub.lesResponsfilSomStreng(navnResponsfil),
             )
 
             // when
@@ -614,9 +614,9 @@ internal class JournalpostControllerTest {
                                     .isEqualTo(HttpStatus.OK)
                             },
                             // henter to journalposter fra journalpost og to fra arkiv (samme respons)
-                            { Assertions.assertThat(it.body).`as`("body").hasSize(6) }
+                            { Assertions.assertThat(it.body).`as`("body").hasSize(6) },
                         )
-                    }
+                    },
                 )
         }
 
@@ -634,17 +634,17 @@ internal class JournalpostControllerTest {
             restConsumerStub.runGetArkiv(
                 path,
                 HttpStatus.OK,
-                RestConsumerStub.lesResponsfilSomStreng(navnResponsfil)
+                RestConsumerStub.lesResponsfilSomStreng(navnResponsfil),
             )
             restConsumerStub.runGet(
                 path,
                 HttpStatus.OK,
-                RestConsumerStub.lesResponsfilSomStreng(navnResponsfilFarskapUtelukket)
+                RestConsumerStub.lesResponsfilSomStreng(navnResponsfilFarskapUtelukket),
             )
             restConsumerStub.runGetForsendelse(
                 path,
                 HttpStatus.OK,
-                RestConsumerStub.lesResponsfilSomStreng(navnResponsfil)
+                RestConsumerStub.lesResponsfilSomStreng(navnResponsfil),
             )
 
             // when
@@ -661,9 +661,9 @@ internal class JournalpostControllerTest {
                                     .isEqualTo(HttpStatus.OK)
                             },
                             // henter to journalposter fra journalpost og to fra arkiv (samme respons)
-                            { Assertions.assertThat(it.body).`as`("body").hasSize(2) }
+                            { Assertions.assertThat(it.body).`as`("body").hasSize(2) },
                         )
-                    }
+                    },
                 )
         }
 
@@ -681,17 +681,17 @@ internal class JournalpostControllerTest {
             restConsumerStub.runGetArkiv(
                 path,
                 HttpStatus.OK,
-                RestConsumerStub.lesResponsfilSomStreng(navnResponsfil)
+                RestConsumerStub.lesResponsfilSomStreng(navnResponsfil),
             )
             restConsumerStub.runGet(
                 path,
                 HttpStatus.OK,
-                RestConsumerStub.lesResponsfilSomStreng(navnResponsfilFarskapUtelukket)
+                RestConsumerStub.lesResponsfilSomStreng(navnResponsfilFarskapUtelukket),
             )
             restConsumerStub.runGetForsendelse(
                 path,
                 HttpStatus.OK,
-                RestConsumerStub.lesResponsfilSomStreng(navnResponsfil)
+                RestConsumerStub.lesResponsfilSomStreng(navnResponsfil),
             )
 
             // when
@@ -708,9 +708,9 @@ internal class JournalpostControllerTest {
                                     .isEqualTo(HttpStatus.OK)
                             },
                             // henter to journalposter fra journalpost og to fra arkiv (samme respons)
-                            { Assertions.assertThat(it.body).`as`("body").hasSize(7) }
+                            { Assertions.assertThat(it.body).`as`("body").hasSize(7) },
                         )
-                    }
+                    },
                 )
         }
 
@@ -723,16 +723,16 @@ internal class JournalpostControllerTest {
                 {
                     assertAll(
                         { Assertions.assertThat(it.statusCode).isEqualTo(HttpStatus.BAD_REQUEST) },
-                        { Assertions.assertThat(it.body).isNull() }
+                        { Assertions.assertThat(it.body).isNull() },
                     )
-                }
+                },
             )
         }
 
         @Test
         @DisplayName("skal hente sakjournal fra bidrag-dokument-arkiv såfremt bidrag-dokument-journalpost")
         @Throws(
-            IOException::class
+            IOException::class,
         )
         fun skalHenteSakJournalFraBidragDokumentArkiv() {
             // given
@@ -745,21 +745,21 @@ internal class JournalpostControllerTest {
             restConsumerStub.runGetArkiv(
                 path,
                 HttpStatus.OK,
-                RestConsumerStub.lesResponsfilSomStreng(navnResponsfil)
+                RestConsumerStub.lesResponsfilSomStreng(navnResponsfil),
             )
             restConsumerStub.runGet(
                 path,
                 HttpStatus.OK,
-                RestConsumerStub.lesResponsfilSomStreng(navnResponsfil)
+                RestConsumerStub.lesResponsfilSomStreng(navnResponsfil),
             )
             restConsumerStub.runGetForsendelse(
                 path,
                 HttpStatus.OK,
-                RestConsumerStub.lesResponsfilSomStreng(navnResponsfil)
+                RestConsumerStub.lesResponsfilSomStreng(navnResponsfil),
             )
             val listeMedJournalposterResponse =
                 httpHeaderTestRestTemplate.getForEntity<List<JournalpostDto>>(
-                    lagUrlForFagomradeBid(path)
+                    lagUrlForFagomradeBid(path),
                 )
             Assertions.assertThat(listeMedJournalposterResponse.body)
                 .hasSize(6) //  skal kalle også kalle bidrag-dokument-arkiv

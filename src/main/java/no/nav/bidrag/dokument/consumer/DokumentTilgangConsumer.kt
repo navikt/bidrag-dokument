@@ -12,7 +12,7 @@ class DokumentTilgangConsumer(private val restTemplate: RestTemplate) {
                     String.format(PATH_DOKUMENT_TILGANG_DOKREF, dokumentreferanse),
                     HttpMethod.GET,
                     null,
-                    DokumentTilgangResponse::class.java
+                    DokumentTilgangResponse::class.java,
                 ).body
         }
         return restTemplate
@@ -20,7 +20,7 @@ class DokumentTilgangConsumer(private val restTemplate: RestTemplate) {
                 String.format(PATH_DOKUMENT_TILGANG, journalpostId, dokumentreferanse),
                 HttpMethod.GET,
                 null,
-                DokumentTilgangResponse::class.java
+                DokumentTilgangResponse::class.java,
             ).body
     }
 

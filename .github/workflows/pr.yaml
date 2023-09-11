@@ -2,9 +2,6 @@ name: Deploy to dev
 on:
   pull_request:
     types: [ ready_for_review, opened, synchronize ]
-  push:
-    branches:
-      - 'main'
 
 env:
   GITHUB_USERNAME: x-access-token

@@ -39,7 +39,7 @@ internal class JournalpostServiceTest {
         journalpostService = JournalpostService(
             bidragForsendelseConsumer,
             bidragArkivConsumer,
-            bidragJournalpostConsumer
+            bidragJournalpostConsumer,
         )
     }
 
@@ -47,7 +47,7 @@ internal class JournalpostServiceTest {
     @DisplayName("skal ikke hente journalpost")
     fun skalIkkeHenteJournalpostGittId() {
         every { bidragArkivConsumer.hentJournalpost(any(), any()) } returns HttpResponse.from(
-            HttpStatus.NO_CONTENT
+            HttpStatus.NO_CONTENT,
         )
         val httpStatusResponse =
             journalpostService.hentJournalpost("69", KildesystemIdenfikator("joark-2"))
@@ -59,7 +59,7 @@ internal class JournalpostServiceTest {
     fun skalHenteJournalpostGittId() {
         every { bidragArkivConsumer.hentJournalpost(any(), any()) } returns HttpResponse.from(
             HttpStatus.OK,
-            JournalpostResponse()
+            JournalpostResponse(),
         )
         val httpStatusResponse =
             journalpostService.hentJournalpost("69", KildesystemIdenfikator("joark-3"))
@@ -70,13 +70,13 @@ internal class JournalpostServiceTest {
     @DisplayName("skal kombinere resultat fra BidragDokumentJournalpostConsumer samt BidragDokumentArkivConsumer")
     suspend fun skalKombinereResultaterFraJournalpostOgArkiv() {
         every { bidragArkivConsumer.finnJournalposter("1", listOf("FAG")) } returns listOf(
-            JournalpostDto()
+            JournalpostDto(),
         )
         every { bidragForsendelseConsumer.finnJournalposter("1", listOf("FAG")) } returns listOf(
-            JournalpostDto()
+            JournalpostDto(),
         )
         every { bidragJournalpostConsumer.finnJournalposter("1", listOf("FAG")) } returns listOf(
-            JournalpostDto()
+            JournalpostDto(),
         )
 
         val journalposter = journalpostService.finnJournalposter("1", listOf("FAG"))
@@ -86,10 +86,10 @@ internal class JournalpostServiceTest {
                 verify {
                     bidragJournalpostConsumer.finnJournalposter(
                         "1",
-                        listOf("FAG")
+                        listOf("FAG"),
                     )
                 }
-            }
+            },
         )
     }
 }

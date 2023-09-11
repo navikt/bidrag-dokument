@@ -27,7 +27,7 @@ class DokumentController(private val dokumentService: DokumentService) {
     @GetMapping("/tilgang/{journalpostId}/{dokumentreferanse}", "/tilgang/dokumentreferanse/{dokumentreferanse}")
     fun giTilgangTilDokument(
         @PathVariable(required = false) journalpostId: String?,
-        @PathVariable dokumentreferanse: String?
+        @PathVariable dokumentreferanse: String?,
     ): DokumentTilgangResponse? {
         val dokumentUrlResponse = dokumentService.hentTilgangUrl(journalpostId, dokumentreferanse)
         log.info("Gitt tilgang til dokument $dokumentreferanse")
@@ -37,7 +37,7 @@ class DokumentController(private val dokumentService: DokumentService) {
     @RequestMapping(*["/dokument/{journalpostId}/{dokumentreferanse}", "/dokument/{journalpostId}"], method = [RequestMethod.OPTIONS])
     fun hentDokumentMetadata(
         @PathVariable journalpostId: String,
-        @PathVariable(required = false) dokumentreferanse: String?
+        @PathVariable(required = false) dokumentreferanse: String?,
     ): List<DokumentMetadata> {
         log.info("Henter dokument metadata med journalpostId=$journalpostId og dokumentreferanse=$dokumentreferanse")
         val dokument = DokumentRef(journalpostId, dokumentreferanse, null)
@@ -49,7 +49,7 @@ class DokumentController(private val dokumentService: DokumentService) {
         @PathVariable journalpostId: String?,
         @PathVariable(required = false) dokumentreferanse: String?,
         @RequestParam(required = false) resizeToA4: Boolean,
-        @RequestParam(required = false, defaultValue = "true") optimizeForPrint: Boolean
+        @RequestParam(required = false, defaultValue = "true") optimizeForPrint: Boolean,
     ): ResponseEntity<ByteArray> {
         log.info("Henter dokument med journalpostId=$journalpostId og dokumentreferanse=$dokumentreferanse, resizeToA4=$resizeToA4")
         val dokument = DokumentRef(journalpostId, dokumentreferanse, null)
@@ -69,7 +69,7 @@ class DokumentController(private val dokumentService: DokumentService) {
         @RequestParam(name = "dokument")
         dokumentreferanseList: List<String>,
         @RequestParam(required = false, defaultValue = "true") optimizeForPrint: Boolean,
-        @RequestParam(required = false) resizeToA4: Boolean
+        @RequestParam(required = false) resizeToA4: Boolean,
     ): ResponseEntity<ByteArray> {
         log.info("Henter dokumenter $dokumentreferanseList med resizeToA4=$resizeToA4, optimizeForPrint=$optimizeForPrint")
         val response = dokumentService.hentDokumenter(dokumentreferanseList, DocumentProperties(resizeToA4, optimizeForPrint))

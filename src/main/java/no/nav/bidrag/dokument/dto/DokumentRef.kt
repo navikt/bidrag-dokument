@@ -3,7 +3,7 @@ package no.nav.bidrag.dokument.dto
 data class DokumentRef(
     val journalpostId: String?,
     val dokumentId: String?,
-    val kilde: Kilde? = null
+    val kilde: Kilde? = null,
 ) {
     fun erForKilde(kilde: Kilde): Boolean {
         return if (this.kilde != null) {
@@ -29,5 +29,5 @@ data class DokumentRef(
 enum class Kilde(var prefix: String) {
     JOARK("JOARK"),
     MIDLERTIDLIG_BREVLAGER("BID"),
-    FORSENDELSE("BIF")
+    FORSENDELSE("BIF"),
 }
