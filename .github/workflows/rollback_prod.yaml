@@ -19,7 +19,7 @@ jobs:
     name: Find tag to deploy
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: NAIS login
         uses: nais/login@v0
         id: login
@@ -50,7 +50,7 @@ jobs:
     needs: prepare_deploy
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: nais/deploy/actions/deploy@v1
         env:
           APIKEY: ${{ secrets.NAIS_DEPLOY_APIKEY }}
