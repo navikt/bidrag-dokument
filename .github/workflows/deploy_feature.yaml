@@ -17,7 +17,7 @@ jobs:
     name: Build with maven and docker
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-java@v3
         with:
           java-version: '17'
@@ -44,7 +44,7 @@ jobs:
     name: Run tests
     needs: build
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-java@v3
         with:
           java-version: '17'
@@ -63,7 +63,7 @@ jobs:
     needs: build
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           path: deploy
       - name: Deploy to dev-fss for feature.yaml
