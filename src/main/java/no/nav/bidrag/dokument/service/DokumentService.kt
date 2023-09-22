@@ -75,6 +75,14 @@ class DokumentService(
             .body(response.body?.let { PDFDokumentProcessor().process(it, documentProperties) })
     }
 
+    @Timed("erFerdigstilt")
+    fun erFerdigstilt(
+        dokumentreferanse: String
+    ): ResponseEntity<Boolean> {
+        return bidragJournalpostConsumer.erFerdigstilt(dokumentreferanse)
+    }
+
+
     @Timed("hentDokumenter")
     fun hentDokumenter(
         dokumenterString: List<String>,
