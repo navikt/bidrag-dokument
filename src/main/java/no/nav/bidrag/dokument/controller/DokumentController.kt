@@ -24,7 +24,10 @@ private val log = KotlinLogging.logger {}
 @Protected
 @Timed
 class DokumentController(private val dokumentService: DokumentService) {
-    @GetMapping("/tilgang/{journalpostId}/{dokumentreferanse}", "/tilgang/dokumentreferanse/{dokumentreferanse}")
+    @GetMapping(
+        "/tilgang/{journalpostId}/{dokumentreferanse}",
+        "/tilgang/dokumentreferanse/{dokumentreferanse}"
+    )
     fun giTilgangTilDokument(
         @PathVariable(required = false) journalpostId: String?,
         @PathVariable dokumentreferanse: String?,
@@ -34,7 +37,10 @@ class DokumentController(private val dokumentService: DokumentService) {
         return dokumentUrlResponse
     }
 
-    @RequestMapping(*["/dokument/{journalpostId}/{dokumentreferanse}", "/dokument/{journalpostId}"], method = [RequestMethod.OPTIONS])
+    @RequestMapping(
+        *["/dokument/{journalpostId}/{dokumentreferanse}", "/dokument/{journalpostId}"],
+        method = [RequestMethod.OPTIONS]
+    )
     fun hentDokumentMetadata(
         @PathVariable journalpostId: String,
         @PathVariable(required = false) dokumentreferanse: String?,
@@ -53,28 +59,57 @@ class DokumentController(private val dokumentService: DokumentService) {
     ): ResponseEntity<ByteArray> {
         log.info("Henter dokument med journalpostId=$journalpostId og dokumentreferanse=$dokumentreferanse, resizeToA4=$resizeToA4")
         val dokument = DokumentRef(journalpostId, dokumentreferanse, null)
-        val response = dokumentService.hentDokument(dokument, DocumentProperties(resizeToA4, optimizeForPrint))
+        val response =
+            dokumentService.hentDokument(dokument, DocumentProperties(resizeToA4, optimizeForPrint))
 
         response.body
             ?.also {
-                log.info("Hentet dokument med journalpostId=$journalpostId og dokumentreferanse=$dokumentreferanse med total størrelse ${PDFDokumentProcessor.bytesIntoHumanReadable(it.size.toLong())}")
+                log.info(
+                    "Hentet dokument med journalpostId=$journalpostId og dokumentreferanse=$dokumentreferanse med total størrelse ${
+                        PDFDokumentProcessor.bytesIntoHumanReadable(
+                            it.size.toLong()
+                        )
+                    }"
+                )
             }
 
         return response
     }
 
+    @GetMapping("/dokumentreferanse/{dokumentreferanse}/erFerdigstilt")
+    fun erFerdigstilt(
+        @PathVariable dokumentreferanse: String,
+    ): ResponseEntity<Boolean> {
+        log.info("Sjekker om dokument $dokumentreferanse er ferdigstilt")
+        return dokumentService.erFerdigstilt(dokumentreferanse)
+    }
+
     @GetMapping(*["/dokument"])
     fun hentDokumenter(
-        @Parameter(name = "dokument", description = "Liste med dokumenter formatert <Kilde>-<journalpostId>:<dokumentReferanse>")
+        @Parameter(
+            name = "dokument",
+            description = "Liste med dokumenter formatert <Kilde>-<journalpostId>:<dokumentReferanse>"
+        )
         @RequestParam(name = "dokument")
         dokumentreferanseList: List<String>,
         @RequestParam(required = false, defaultValue = "true") optimizeForPrint: Boolean,
         @RequestParam(required = false) resizeToA4: Boolean,
     ): ResponseEntity<ByteArray> {
         log.info("Henter dokumenter $dokumentreferanseList med resizeToA4=$resizeToA4, optimizeForPrint=$optimizeForPrint")
-        val response = dokumentService.hentDokumenter(dokumentreferanseList, DocumentProperties(resizeToA4, optimizeForPrint))
+        val response = dokumentService.hentDokumenter(
+            dokumentreferanseList,
+            DocumentProperties(resizeToA4, optimizeForPrint)
+        )
 
-        response.body?.also { log.info("Hentet dokumenter $dokumentreferanseList med total størrelse ${PDFDokumentProcessor.bytesIntoHumanReadable(it.size.toLong())}") }
+        response.body?.also {
+            log.info(
+                "Hentet dokumenter $dokumentreferanseList med total størrelse ${
+                    PDFDokumentProcessor.bytesIntoHumanReadable(
+                        it.size.toLong()
+                    )
+                }"
+            )
+        }
         return response
     }
 }

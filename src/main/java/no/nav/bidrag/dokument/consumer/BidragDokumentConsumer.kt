@@ -222,6 +222,16 @@ class BidragDokumentConsumer(
         )
     }
 
+    fun erFerdigstilt(dokumentreferanse: String): ResponseEntity<Boolean> {
+        val dokumentUrl = String.format(PATH_HENT_DOKUMENT_ER_FERDIGSTILT, dokumentreferanse)
+        return restTemplate.exchange(
+            dokumentUrl,
+            HttpMethod.GET,
+            HttpEntity.EMPTY,
+            Boolean::class.java,
+        )
+    }
+
     private fun typereferansenErListeMedAvvikstyper(): ParameterizedTypeReference<List<AvvikType>> {
         return object : ParameterizedTypeReference<List<AvvikType>>() {}
     }
@@ -244,6 +254,7 @@ class BidragDokumentConsumer(
         const val PATH_AVVIK_PA_JOURNALPOST = "/journal/%s/avvik"
         const val PATH_HENT_DOKUMENT = "/dokument/%s"
         const val PATH_HENT_DOKUMENT_REFERANSE = "/dokumentreferanse/%s"
+        const val PATH_HENT_DOKUMENT_ER_FERDIGSTILT = "/dokumentreferanse/%s/erFerdigstilt"
         private fun typereferansenErListeMedJournalposter(): ParameterizedTypeReference<List<JournalpostDto>> {
             return object : ParameterizedTypeReference<List<JournalpostDto>>() {}
         }
