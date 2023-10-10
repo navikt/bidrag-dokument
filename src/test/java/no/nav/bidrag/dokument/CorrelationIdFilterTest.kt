@@ -9,8 +9,8 @@ import io.mockk.every
 import no.nav.bidrag.commons.util.KildesystemIdenfikator
 import no.nav.bidrag.commons.web.HttpResponse
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate
-import no.nav.bidrag.dokument.dto.JournalpostResponse
 import no.nav.bidrag.dokument.service.JournalpostService
+import no.nav.bidrag.transport.dokument.JournalpostResponse
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
@@ -21,12 +21,14 @@ import org.mockito.Mockito
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.getForEntity
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 
-@SpringBootTest(classes = [BidragDokumentTest::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    classes = [BidragDokumentTest::class],
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+)
 @ActiveProfiles(BidragDokumentTest.TEST_PROFILE, "mock-security")
 @DisplayName("CorrelationIdFilter")
 @EnableMockOAuth2Server
@@ -54,7 +56,12 @@ internal class CorrelationIdFilterTest {
     @Test
     @DisplayName("skal logge requests mot applikasjonen")
     fun skalLoggeRequestsMotApplikasjonen() {
-        every { journalpostServiceMock.hentJournalpost(any(), any<KildesystemIdenfikator>()) } returns HttpResponse.from(HttpStatus.I_AM_A_TEAPOT)
+        every {
+            journalpostServiceMock.hentJournalpost(
+                any(),
+                any<KildesystemIdenfikator>()
+            )
+        } returns HttpResponse.from(HttpStatus.I_AM_A_TEAPOT)
         val response =
             securedTestRestTemplate.getForEntity<JournalpostResponse>("http://localhost:$port/bidrag-dokument/journal/BID-123?saksnummer=777")
         assertSoftly {
@@ -62,7 +69,8 @@ internal class CorrelationIdFilterTest {
                 .isEqualTo(HttpStatus.I_AM_A_TEAPOT);
             {
                 val loggingEventCaptor = ArgumentCaptor.forClass(ILoggingEvent::class.java)
-                Mockito.verify(appenderMock, Mockito.atLeastOnce()).doAppend(loggingEventCaptor.capture())
+                Mockito.verify(appenderMock, Mockito.atLeastOnce())
+                    .doAppend(loggingEventCaptor.capture())
             }
         }
     }

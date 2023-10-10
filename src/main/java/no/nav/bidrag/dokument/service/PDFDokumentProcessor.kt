@@ -1,6 +1,6 @@
 package no.nav.bidrag.dokument.service
 
-import no.nav.bidrag.dokument.dto.DocumentProperties
+import no.nav.bidrag.transport.dokument.DocumentProperties
 import org.apache.pdfbox.Loader
 import org.apache.pdfbox.io.IOUtils
 import org.apache.pdfbox.io.MemoryUsageSetting

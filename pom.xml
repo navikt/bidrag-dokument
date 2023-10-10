@@ -14,7 +14,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.1.3</version>
+    <version>3.1.4</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
@@ -25,9 +25,8 @@
     <kotlin.version>1.9.10</kotlin.version>
 
     <!-- dependent versions other than from spring-boot -->
-    <bidrag-commons.version>20230427084654_4121ef0</bidrag-commons.version>
+    <bidrag-commons.version>20231002151454_eab4a7b</bidrag-commons.version>
     <bidrag-commons-test.version>1.20230504132526_a72fa41</bidrag-commons-test.version>
-    <bidrag-dokument-dto.version>1.6.41</bidrag-dokument-dto.version>
     <logback.encoder.version>7.3</logback.encoder.version>
     <springdoc-openapi-ui.version>2.1.0</springdoc-openapi-ui.version>
     <springframework-cloud.version>4.0.2</springframework-cloud.version>
@@ -36,6 +35,7 @@
     <mockk.version>4.0.2</mockk.version>
     <kotest.version>5.7.0</kotest.version>
     <kotlin-logging-jvm.version>3.0.5</kotlin-logging-jvm.version>
+    <bidrag-transport.version>20231010134706_52d8d27</bidrag-transport.version>
 
     <!-- build -->
     <build-helper-maven.version>3.3.0</build-helper-maven.version>
@@ -103,17 +103,15 @@
     </dependency>
 
     <dependency>
-      <groupId>no.nav.bidrag.dokument</groupId>
-      <artifactId>bidrag-dokument-dto</artifactId>
-      <version>${bidrag-dokument-dto.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>no.nav.bidrag</groupId>
       <artifactId>bidrag-commons</artifactId>
       <version>${bidrag-commons.version}</version>
     </dependency>
-
+    <dependency>
+      <groupId>no.nav.bidrag</groupId>
+      <artifactId>bidrag-transport</artifactId>
+      <version>${bidrag-transport.version}</version>
+    </dependency>
     <dependency>
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-core</artifactId>
