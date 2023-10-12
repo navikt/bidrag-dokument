@@ -100,6 +100,7 @@ og skal heller ikke være tilgjengelig i prod.
 
 ### Lokal kjøring mot nais
 
+
 For å kunne kjøre lokalt mot sky må du gjøre følgende
 
 Åpne terminal på root mappen til `bidrag-dokument`
