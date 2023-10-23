@@ -1,4 +1,4 @@
-FROM ghcr.io/navikt/baseimages/temurin:17
+FROM ghcr.io/navikt/baseimages/temurin:21
 LABEL maintainer="Team Bidrag" \
       email="nav.ikt.prosjekt.og.forvaltning.bidrag@nav.no"
 
