@@ -77,11 +77,10 @@ class DokumentService(
 
     @Timed("erFerdigstilt")
     fun erFerdigstilt(
-        dokumentreferanse: String
+        dokumentreferanse: String,
     ): ResponseEntity<Boolean> {
         return bidragJournalpostConsumer.erFerdigstilt(dokumentreferanse)
     }
-
 
     @Timed("hentDokumenter")
     fun hentDokumenter(
@@ -164,7 +163,6 @@ class DokumentService(
         } finally {
             tempfiles.forEach { it.delete() }
         }
-
     }
 
     @Throws(IOException::class)

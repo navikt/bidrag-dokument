@@ -142,7 +142,7 @@ class JournalpostController(private val journalpostService: JournalpostService) 
     @Operation(
         security = [SecurityRequirement(name = "bearer-key")],
         description = "Henter mulige avvik for en journalpost, id på formatet [" + BidragDokumentConfig.PREFIX_BIDRAG + '|' + BidragDokumentConfig.PREFIX_JOARK + ']' + BidragDokumentConfig.DELIMTER +
-                "<journalpostId>",
+            "<journalpostId>",
     )
     @ApiResponses(
         value = [
@@ -272,7 +272,7 @@ class JournalpostController(private val journalpostService: JournalpostService) 
             ),
             ApiResponse(
                 responseCode = "404",
-                description = "Fant ikke journalpost som skal endres"
+                description = "Fant ikke journalpost som skal endres",
             ),
         ],
     )
@@ -298,7 +298,7 @@ class JournalpostController(private val journalpostService: JournalpostService) 
             enhet,
             kildesystemIdenfikator,
             endreJournalpostCommand.copy(
-                journalpostId = journalpostIdForKildesystem
+                journalpostId = journalpostIdForKildesystem,
             ),
         ).responseEntity
     }

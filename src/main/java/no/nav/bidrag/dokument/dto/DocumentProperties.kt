@@ -12,7 +12,7 @@ data class DocumentProperties(
         documentProperties.resizeToA4,
         documentProperties.optimizeForPrint,
         documentProperties.numberOfDocuments,
-        currentDocumentIndex
+        currentDocumentIndex,
     )
 
     fun hasMoreThanOneDocument(): Boolean = numberOfDocuments != null && numberOfDocuments!! > 1

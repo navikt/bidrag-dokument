@@ -7,7 +7,7 @@ import org.springframework.web.client.RestTemplate
 class DokumentTilgangConsumer(private val restTemplate: RestTemplate) {
     fun hentTilgangUrl(
         journalpostId: String?,
-        dokumentreferanse: String?
+        dokumentreferanse: String?,
     ): DokumentTilgangResponse? {
         if (journalpostId.isNullOrEmpty()) {
             return restTemplate

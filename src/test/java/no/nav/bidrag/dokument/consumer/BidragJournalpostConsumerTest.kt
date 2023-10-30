@@ -20,7 +20,7 @@ import java.io.IOException
 
 @SpringBootTest(
     classes = [BidragDokumentTest::class],
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 )
 @ActiveProfiles(value = [BidragDokumentTest.TEST_PROFILE, "mock-security"])
 @DisplayName("BidragJournalpostConsumer")
@@ -62,7 +62,7 @@ internal class BidragJournalpostConsumerTest {
     private fun endreJournalpostCommandMedId101(): EndreJournalpostCommand {
         val endreJournalpostCommand = EndreJournalpostCommand()
         return endreJournalpostCommand.copy(
-            journalpostId = "BID-101"
+            journalpostId = "BID-101",
         )
     }
 }
