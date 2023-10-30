@@ -27,7 +27,7 @@ import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest(
     classes = [BidragDokumentTest::class],
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 )
 @ActiveProfiles(BidragDokumentTest.TEST_PROFILE, "mock-security")
 @DisplayName("CorrelationIdFilter")
@@ -59,7 +59,7 @@ internal class CorrelationIdFilterTest {
         every {
             journalpostServiceMock.hentJournalpost(
                 any(),
-                any<KildesystemIdenfikator>()
+                any<KildesystemIdenfikator>(),
             )
         } returns HttpResponse.from(HttpStatus.I_AM_A_TEAPOT)
         val response =

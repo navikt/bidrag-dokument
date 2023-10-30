@@ -33,7 +33,7 @@ class PDFDokumentProcessor {
         try {
             Loader.loadPDF(
                 RandomAccessReadBuffer(dokumentFil),
-                MemoryUsageSetting.setupTempFileOnly().streamCache
+                MemoryUsageSetting.setupTempFileOnly().streamCache,
             ).use { document ->
                 this.document = document
                 if (documentProperties.resizeToA4()) {

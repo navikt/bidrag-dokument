@@ -537,7 +537,7 @@ internal class JournalpostControllerTest {
         @DisplayName("skal opprette avvik")
         @Disabled
         fun // feilet når RequestFactory fra apache ble lagt til i RestTemplate grunnet endring av PUT -> PATCH... ???
-                skalOppretteAvvik() {
+        skalOppretteAvvik() {
             // given
             val jpId = "BID-666"
             val enhetsnummer = "4806"

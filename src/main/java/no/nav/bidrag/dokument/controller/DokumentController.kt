@@ -26,7 +26,7 @@ private val log = KotlinLogging.logger {}
 class DokumentController(private val dokumentService: DokumentService) {
     @GetMapping(
         "/tilgang/{journalpostId}/{dokumentreferanse}",
-        "/tilgang/dokumentreferanse/{dokumentreferanse}"
+        "/tilgang/dokumentreferanse/{dokumentreferanse}",
     )
     fun giTilgangTilDokument(
         @PathVariable(required = false) journalpostId: String?,
@@ -39,7 +39,7 @@ class DokumentController(private val dokumentService: DokumentService) {
 
     @RequestMapping(
         *["/dokument/{journalpostId}/{dokumentreferanse}", "/dokument/{journalpostId}"],
-        method = [RequestMethod.OPTIONS]
+        method = [RequestMethod.OPTIONS],
     )
     fun hentDokumentMetadata(
         @PathVariable journalpostId: String,
@@ -67,9 +67,9 @@ class DokumentController(private val dokumentService: DokumentService) {
                 log.info(
                     "Hentet dokument med journalpostId=$journalpostId og dokumentreferanse=$dokumentreferanse med total størrelse ${
                         PDFDokumentProcessor.bytesIntoHumanReadable(
-                            it.size.toLong()
+                            it.size.toLong(),
                         )
-                    }"
+                    }",
                 )
             }
 
@@ -88,7 +88,7 @@ class DokumentController(private val dokumentService: DokumentService) {
     fun hentDokumenter(
         @Parameter(
             name = "dokument",
-            description = "Liste med dokumenter formatert <Kilde>-<journalpostId>:<dokumentReferanse>"
+            description = "Liste med dokumenter formatert <Kilde>-<journalpostId>:<dokumentReferanse>",
         )
         @RequestParam(name = "dokument")
         dokumentreferanseList: List<String>,
@@ -98,16 +98,16 @@ class DokumentController(private val dokumentService: DokumentService) {
         log.info("Henter dokumenter $dokumentreferanseList med resizeToA4=$resizeToA4, optimizeForPrint=$optimizeForPrint")
         val response = dokumentService.hentDokumenter(
             dokumentreferanseList,
-            DocumentProperties(resizeToA4, optimizeForPrint)
+            DocumentProperties(resizeToA4, optimizeForPrint),
         )
 
         response.body?.also {
             log.info(
                 "Hentet dokumenter $dokumentreferanseList med total størrelse ${
                     PDFDokumentProcessor.bytesIntoHumanReadable(
-                        it.size.toLong()
+                        it.size.toLong(),
                     )
-                }"
+                }",
             )
         }
         return response

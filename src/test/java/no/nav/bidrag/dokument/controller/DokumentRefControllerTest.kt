@@ -25,7 +25,7 @@ import java.util.function.Consumer
 @AutoConfigureWireMock(port = 0)
 @SpringBootTest(
     classes = [BidragDokumentTest::class],
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 )
 @EnableMockOAuth2Server
 internal class DokumentRefControllerTest {
@@ -52,7 +52,7 @@ internal class DokumentRefControllerTest {
                 dokumentReferanse,
                 dokumentUrl,
                 type,
-                HttpStatus.OK.value()
+                HttpStatus.OK.value(),
             )
         val dokumentUrlResponse =
             securedTestRestTemplate
@@ -84,11 +84,11 @@ internal class DokumentRefControllerTest {
                 localhostUrl("/bidrag-dokument/tilgang/BID-123/dokref"),
                 HttpMethod.GET,
                 null,
-                String::class.java
+                String::class.java,
             )
         org.junit.jupiter.api.Assertions.assertEquals(
             responseEntity.statusCode,
-            HttpStatus.UNAUTHORIZED
+            HttpStatus.UNAUTHORIZED,
         )
     }
 
