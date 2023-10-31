@@ -16,4 +16,4 @@ jobs:
     uses: navikt/bidrag-workflow/.github/workflows/deploy_prod.yaml@main
     secrets: inherit
     with:
-      cluster: fss
+      nais_cluster: fss

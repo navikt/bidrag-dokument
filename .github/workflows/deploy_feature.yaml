@@ -17,8 +17,8 @@ jobs:
     uses: navikt/bidrag-workflow/.github/workflows/deploy.yaml@main
     secrets: inherit
     with:
-      nais_vars_file_name: feature
-      cluster: fss
+      nais_variabler_filnavn: feature.yaml
+      nais_cluster: fss
 
   run_cucumber:
     runs-on: self-hosted
