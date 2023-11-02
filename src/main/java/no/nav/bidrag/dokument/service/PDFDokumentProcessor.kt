@@ -205,45 +205,22 @@ class PDFDokumentMerger {
                     tempfiles.add(tempFile)
                     mergedDocument.addSource(tempFile)
                 }
-                mergedDocument.mergeDocuments(MemoryUsageSetting.setupTempFileOnly().streamCache)
+                executeMerge(mergedDocument)
                 return getByteDataAndDeleteFile(mergedFileName)
-            } catch (e: Exception) {
-                log.error(e) { "Det skjedde en feil ved merging av dokumenter" }
-                return mergeLegacy(dokumentBytes, documentProperties)
             } finally {
                 tempfiles.forEach { it.delete() }
             }
         }
 
-        private fun mergeLegacy(
-            dokumentBytes: List<ByteArray>,
-            documentProperties: DocumentProperties,
-        ): ByteArray {
-            documentProperties.numberOfDocuments = dokumentBytes.size
-            if (dokumentBytes.size == 1) {
-                return dokumentBytes[0]
-            }
-            val tempfiles = mutableListOf<File>()
+        private fun executeMerge(mergedDocument: PDFMergerUtility) {
             try {
-                val mergedFileName = "/tmp/" + UUID.randomUUID()
-                val mergedDocument = PDFMergerUtility()
-                mergedDocument.destinationFileName = mergedFileName
-                for (dokument in dokumentBytes) {
-                    val tempFile = File.createTempFile("/tmp/" + UUID.randomUUID(), null)
-                    tempFile.appendBytes(dokument)
-                    tempfiles.add(tempFile)
-                    mergedDocument.addSource(tempFile)
-                }
+                mergedDocument.mergeDocuments(MemoryUsageSetting.setupTempFileOnly().streamCache)
+            } catch (e: Exception) {
+                log.error(e) { "Det skjedde en feil ved merging av dokumenter. Forsøker å merge dokumenter uten komprimering" }
                 mergedDocument.mergeDocuments(
                     MemoryUsageSetting.setupTempFileOnly().streamCache,
                     CompressParameters.NO_COMPRESSION
                 )
-                return getByteDataAndDeleteFile(mergedFileName)
-            } catch (e: Exception) {
-                log.error(e) { "Det skjedde en feil ved merging av dokumenter" }
-                throw e
-            } finally {
-                tempfiles.forEach { it.delete() }
             }
         }
 
