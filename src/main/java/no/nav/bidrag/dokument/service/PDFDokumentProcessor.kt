@@ -1,10 +1,13 @@
 package no.nav.bidrag.dokument.service
 
+import mu.KotlinLogging
 import no.nav.bidrag.transport.dokument.DocumentProperties
 import org.apache.pdfbox.Loader
 import org.apache.pdfbox.io.IOUtils
 import org.apache.pdfbox.io.MemoryUsageSetting
 import org.apache.pdfbox.io.RandomAccessReadBuffer
+import org.apache.pdfbox.multipdf.PDFMergerUtility
+import org.apache.pdfbox.pdfwriter.compress.CompressParameters
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.PDPage
 import org.apache.pdfbox.pdmodel.PDPageContentStream
@@ -18,6 +21,8 @@ import java.io.FileInputStream
 import java.io.IOException
 import java.util.*
 import kotlin.math.abs
+
+private val log = KotlinLogging.logger {}
 
 class PDFDokumentProcessor {
     private var document: PDDocument? = null
@@ -42,6 +47,7 @@ class PDFDokumentProcessor {
                 if (documentProperties.optimizeForPrint()) {
                     optimaliserForDobbelsidigPrinting()
                 }
+                this.document?.isAllSecurityToBeRemoved = true
                 this.document?.save(documentByteStream)
                 this.document?.close()
                 return documentByteStream.toByteArray()
@@ -177,3 +183,56 @@ class PDFDokumentProcessor {
         }
     }
 }
+
+class PDFDokumentMerger {
+    companion object {
+        fun merge(
+            dokumentBytes: List<ByteArray>,
+            documentProperties: DocumentProperties,
+        ): ByteArray {
+            documentProperties.numberOfDocuments = dokumentBytes.size
+            if (dokumentBytes.size == 1) {
+                return dokumentBytes[0]
+            }
+            val tempfiles = mutableListOf<File>()
+            try {
+                val mergedFileName = "/tmp/" + UUID.randomUUID()
+                val mergedDocument = PDFMergerUtility()
+                mergedDocument.destinationFileName = mergedFileName
+                for (dokument in dokumentBytes) {
+                    val tempFile = File.createTempFile("/tmp/" + UUID.randomUUID(), null)
+                    tempFile.appendBytes(dokument)
+                    tempfiles.add(tempFile)
+                    mergedDocument.addSource(tempFile)
+                }
+                executeMerge(mergedDocument)
+                return getByteDataAndDeleteFile(mergedFileName)
+            } finally {
+                tempfiles.forEach { it.delete() }
+            }
+        }
+
+        private fun executeMerge(mergedDocument: PDFMergerUtility) {
+            try {
+                mergedDocument.mergeDocuments(MemoryUsageSetting.setupTempFileOnly().streamCache)
+            } catch (e: Exception) {
+                log.error(e) { "Det skjedde en feil ved merging av dokumenter. Forsøker å merge dokumenter uten komprimering" }
+                mergedDocument.mergeDocuments(
+                    MemoryUsageSetting.setupTempFileOnly().streamCache,
+                    CompressParameters.NO_COMPRESSION
+                )
+            }
+        }
+
+        private fun getByteDataAndDeleteFile(filename: String): ByteArray {
+            val file = File(filename)
+            return try {
+                PDFDokumentProcessor.fileToByte(File(filename))
+            } finally {
+                file.delete()
+            }
+        }
+    }
+
+}
+

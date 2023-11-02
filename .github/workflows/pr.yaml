@@ -22,6 +22,7 @@ jobs:
     runs-on: self-hosted
     name: Run cucumber tests
     needs: build_and_deploy
+    if: ${{ always() && needs.build_and_deploy.outputs.deploy_suksess == 'true' }}
 
     env:
       INGRESS_ARKIV: https://bidrag-dokument-arkiv.dev.intern.nav.no
