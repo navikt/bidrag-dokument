@@ -3,7 +3,7 @@ package no.nav.bidrag.dokument.controller
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate
 import no.nav.bidrag.dokument.BidragDokumentTest
 import no.nav.bidrag.dokument.consumer.stub.RestConsumerStub
-import no.nav.bidrag.dokument.dto.DokumentTilgangResponse
+import no.nav.bidrag.transport.dokument.DokumentTilgangResponse
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.DisplayName
@@ -23,7 +23,10 @@ import java.util.function.Consumer
 @ActiveProfiles(BidragDokumentTest.TEST_PROFILE)
 @DisplayName("DokumentController")
 @AutoConfigureWireMock(port = 0)
-@SpringBootTest(classes = [BidragDokumentTest::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    classes = [BidragDokumentTest::class],
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+)
 @EnableMockOAuth2Server
 internal class DokumentRefControllerTest {
     @Autowired
@@ -44,7 +47,13 @@ internal class DokumentRefControllerTest {
         val dokumentUrl = "https://dokument-url.no/"
         val type = "BREVLAGER"
         restConsumerStub
-            .runGiTilgangTilDokument(journalpostId, dokumentReferanse, dokumentUrl, type, HttpStatus.OK.value())
+            .runGiTilgangTilDokument(
+                journalpostId,
+                dokumentReferanse,
+                dokumentUrl,
+                type,
+                HttpStatus.OK.value(),
+            )
         val dokumentUrlResponse =
             securedTestRestTemplate
                 .getForEntity<DokumentTilgangResponse>(localhostUrl("/bidrag-dokument/tilgang/$journalpostId/$dokumentReferanse"))
@@ -52,7 +61,10 @@ internal class DokumentRefControllerTest {
         Assertions.assertThat(dokumentUrlResponse).satisfies(
             Consumer { response: ResponseEntity<DokumentTilgangResponse> ->
                 org.junit.jupiter.api.Assertions.assertAll(
-                    { Assertions.assertThat(response.statusCode).`as`("status").isEqualTo(HttpStatus.OK) },
+                    {
+                        Assertions.assertThat(response.statusCode).`as`("status")
+                            .isEqualTo(HttpStatus.OK)
+                    },
                     {
                         Assertions.assertThat(response).extracting { it.body }
                             .`as`("url")
@@ -68,8 +80,16 @@ internal class DokumentRefControllerTest {
     fun skalGiStatus401DersomTokenMangler() {
         val testRestTemplate = TestRestTemplate()
         val responseEntity =
-            testRestTemplate.exchange(localhostUrl("/bidrag-dokument/tilgang/BID-123/dokref"), HttpMethod.GET, null, String::class.java)
-        org.junit.jupiter.api.Assertions.assertEquals(responseEntity.statusCode, HttpStatus.UNAUTHORIZED)
+            testRestTemplate.exchange(
+                localhostUrl("/bidrag-dokument/tilgang/BID-123/dokref"),
+                HttpMethod.GET,
+                null,
+                String::class.java,
+            )
+        org.junit.jupiter.api.Assertions.assertEquals(
+            responseEntity.statusCode,
+            HttpStatus.UNAUTHORIZED,
+        )
     }
 
     private fun localhostUrl(url: String): String {
