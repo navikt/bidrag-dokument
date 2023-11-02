@@ -10,9 +10,6 @@ import no.nav.bidrag.transport.dokument.DokumentMetadata
 import no.nav.bidrag.transport.dokument.DokumentRef
 import no.nav.bidrag.transport.dokument.DokumentTilgangResponse
 import no.nav.bidrag.transport.dokument.Kilde
-import org.apache.pdfbox.io.MemoryUsageSetting
-import org.apache.pdfbox.multipdf.PDFMergerUtility
-import org.apache.pdfbox.pdfwriter.compress.CompressParameters
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpHeaders
@@ -147,40 +144,6 @@ class DokumentService(
             ).body!!
         }
         return PDFDokumentMerger.merge(dokumentBytes, documentProperties)
-    }
-
-    @Throws(IOException::class)
-    private fun hentOgMergeAlleDokumenterAlternative(
-        dokumentList: List<DokumentRef>,
-        documentProperties: DocumentProperties,
-    ): ByteArray? {
-        documentProperties.numberOfDocuments = dokumentList.size
-        if (dokumentList.size == 1) {
-            return hentDokument(dokumentList[0], documentProperties).body
-        }
-        val tempfiles = mutableListOf<File>()
-        try {
-            val mergedFileName = "/tmp/" + UUID.randomUUID()
-            val mergedDocument = PDFMergerUtility()
-            mergedDocument.destinationFileName = mergedFileName
-            for (dokument in dokumentList) {
-                val dokumentResponse = hentDokument(
-                    dokument,
-                    DocumentProperties(documentProperties, dokumentList.indexOf(dokument)),
-                )
-                val tempFile = File.createTempFile("/tmp/" + UUID.randomUUID(), null)
-                tempFile.appendBytes(dokumentResponse.body!!)
-                tempfiles.add(tempFile)
-                mergedDocument.addSource(tempFile)
-            }
-            mergedDocument.mergeDocuments(
-                MemoryUsageSetting.setupTempFileOnly().streamCache,
-                CompressParameters.NO_COMPRESSION
-            )
-            return getByteDataAndDeleteFile(mergedFileName)
-        } finally {
-            tempfiles.forEach { it.delete() }
-        }
     }
 
     @Throws(IOException::class)
