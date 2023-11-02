@@ -17,7 +17,6 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpStatusCodeException
-import java.io.File
 import java.io.IOException
 import java.util.*
 import java.util.stream.Collectors
@@ -144,16 +143,6 @@ class DokumentService(
             ).body!!
         }
         return PDFDokumentMerger.merge(dokumentBytes, documentProperties)
-    }
-
-    @Throws(IOException::class)
-    private fun getByteDataAndDeleteFile(filename: String): ByteArray {
-        val file = File(filename)
-        return try {
-            PDFDokumentProcessor.fileToByte(File(filename))
-        } finally {
-            file.delete()
-        }
     }
 
     private fun hentAlleJournalpostDokumentReferanser(dokumentRef: DokumentRef): List<DokumentRef> {
