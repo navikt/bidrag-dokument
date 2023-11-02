@@ -1,4 +1,4 @@
-package no.nav.bidrag.dokument.dto
+package no.nav.bidrag.transport.dokument
 
 data class DokumentRef(
     val journalpostId: String?,
@@ -18,6 +18,7 @@ data class DokumentRef(
     }
 
     fun hasDokumentId(): Boolean = dokumentId?.isNotEmpty() == true
+
     companion object {
         fun parseFromString(str: String): DokumentRef {
             val segments = str.split(":")
