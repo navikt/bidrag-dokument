@@ -136,6 +136,7 @@ class DokumentService(
         dokumentList: List<DokumentRef>,
         documentProperties: DocumentProperties,
     ): ByteArray {
+        documentProperties.numberOfDocuments = dokumentList.size
         val dokumentBytes = dokumentList.map {
             hentDokument(
                 it,
