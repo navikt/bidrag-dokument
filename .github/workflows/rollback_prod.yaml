@@ -6,10 +6,6 @@ on:
         description: 'Deploy tag. Default the previous tag will be deployed'
         required: false
 
-env:
-  GITHUB_USERNAME: x-access-token
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 jobs:
   build-deploy:
     name: "Rollback and deploy previous version to prod"
@@ -20,3 +16,4 @@ jobs:
     secrets: inherit
     with:
       cluster: fss
+      deploy_tag: ${{inputs.deploy_tag}}

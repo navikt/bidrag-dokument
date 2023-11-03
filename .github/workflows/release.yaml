@@ -3,13 +3,10 @@ on:
   push:
     branches:
       - 'main'
-env:
-  GITHUB_USERNAME: x-access-token
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   build_and_deploy:
-    name: "Build and deploy to feature"
+    name: "Build and deploy to prod"
     permissions:
       contents: "write"
       id-token: "write"

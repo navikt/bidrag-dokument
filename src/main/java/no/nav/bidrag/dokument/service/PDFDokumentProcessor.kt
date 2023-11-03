@@ -14,7 +14,6 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream
 import org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode
 import org.apache.pdfbox.pdmodel.common.PDRectangle
 import org.apache.pdfbox.util.Matrix
-import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
@@ -48,21 +47,34 @@ class PDFDokumentProcessor {
                     optimaliserForDobbelsidigPrinting()
                 }
                 this.document?.isAllSecurityToBeRemoved = true
-                this.document?.save(documentByteStream)
-                this.document?.close()
+                lagreDokument(documentByteStream)
                 return documentByteStream.toByteArray()
             }
         } catch (e: Exception) {
-            LOGGER.error("Det skjedde en feil ved prossesering av PDF dokument", e)
+            log.error(e) { "Det skjedde en feil ved prossesering av PDF dokument" }
+            return dokumentFil
+        } catch (e: StackOverflowError) {
+            log.error(e) { "Det skjedde en feil ved prossesering av PDF dokument" }
             return dokumentFil
         } finally {
             IOUtils.closeQuietly(documentByteStream)
         }
     }
 
+    private fun lagreDokument(documentByteStream: ByteArrayOutputStream) {
+        try {
+            this.document?.save(documentByteStream)
+        } catch (error: StackOverflowError) {
+            log.error(error) { "Det skjedde en feil ved lagring av dokument med kompresjon. Forsøker å merge dokumenter uten kompresjon" }
+            this.document?.save(documentByteStream, CompressParameters.NO_COMPRESSION)
+        } finally {
+            this.document?.close()
+        }
+    }
+
     fun optimaliserForDobbelsidigPrinting() {
         if (documentHasOddNumberOfPages() && documentProperties!!.hasMoreThanOneDocument() && !documentProperties!!.isLastDocument()) {
-            LOGGER.debug("Dokumentet har oddetall antall sider. Legger til en blank side på slutten av dokumentet.")
+            log.debug("Dokumentet har oddetall antall sider. Legger til en blank side på slutten av dokumentet.")
             document?.addPage(PDPage(PDRectangle.A4))
         }
     }
@@ -91,7 +103,7 @@ class PDFDokumentProcessor {
 
     @Throws(IOException::class)
     private fun konverterAlleSiderTilA4() {
-        LOGGER.debug(
+        log.debug(
             "Konverterer {} sider til A4 størrelse. Filstørrelse {}",
             document!!.numberOfPages,
             bytesIntoHumanReadable(
@@ -149,9 +161,6 @@ class PDFDokumentProcessor {
     }
 
     companion object {
-        private val LOGGER = LoggerFactory.getLogger(
-            PDFDokumentProcessor::class.java,
-        )
 
         @Throws(IOException::class)
         fun fileToByte(file: File): ByteArray {
@@ -215,8 +224,14 @@ class PDFDokumentMerger {
         private fun executeMerge(mergedDocument: PDFMergerUtility) {
             try {
                 mergedDocument.mergeDocuments(MemoryUsageSetting.setupTempFileOnly().streamCache)
+            } catch (e: StackOverflowError) {
+                log.error(e) { "Det skjedde en feil ved merging av dokumenter. Forsøker å merge dokumenter uten kompresjon" }
+                mergedDocument.mergeDocuments(
+                    MemoryUsageSetting.setupTempFileOnly().streamCache,
+                    CompressParameters.NO_COMPRESSION
+                )
             } catch (e: Exception) {
-                log.error(e) { "Det skjedde en feil ved merging av dokumenter. Forsøker å merge dokumenter uten komprimering" }
+                log.error(e) { "Det skjedde en feil ved merging av dokumenter. Forsøker å merge dokumenter uten kompresjon" }
                 mergedDocument.mergeDocuments(
                     MemoryUsageSetting.setupTempFileOnly().streamCache,
                     CompressParameters.NO_COMPRESSION
