@@ -17,21 +17,14 @@ import no.nav.bidrag.transport.dokument.JournalpostResponse
 import no.nav.bidrag.transport.dokument.OpprettJournalpostRequest
 import no.nav.bidrag.transport.dokument.OpprettJournalpostResponse
 import org.springframework.core.ParameterizedTypeReference
-import org.springframework.core.io.ClassPathResource
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.util.FileCopyUtils
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.OutputStream
-import java.nio.file.Files
 
 private val log = KotlinLogging.logger {}
 
@@ -181,28 +174,12 @@ class BidragDokumentConsumer(
         val dokumentReferanseUrl =
             if (!dokumentreferanse.isNullOrEmpty()) "/$dokumentreferanse" else ""
         val dokumentUrl = String.format(PATH_HENT_DOKUMENT, journalpostId) + dokumentReferanseUrl
-//        return ResponseEntity.ok()
-//            .contentType(MediaType.APPLICATION_PDF)
-//            .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=dokumenter_sammenslatt.pdf")
-//            .body<ByteArray>(getPdfDokument())
         return restTemplate.exchange(
             dokumentUrl,
             HttpMethod.GET,
             HttpEntity.EMPTY,
             ByteArray::class.java,
         )
-    }
-
-    fun getPdfDokument(): ByteArray {
-        return try {
-            val inputstream = ClassPathResource("testdata/broken_pdf_2.pdf").inputStream
-            val targetFile = File.createTempFile("pdfdoc", "pdf")
-            val outStream: OutputStream = FileOutputStream(targetFile)
-            FileCopyUtils.copy(inputstream, outStream)
-            Files.readAllBytes(targetFile.toPath())
-        } catch (e: IOException) {
-            throw RuntimeException("Kunne ikke laste fil")
-        }
     }
 
     fun hentDokumentMetadata(
