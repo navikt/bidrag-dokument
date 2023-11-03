@@ -27,7 +27,11 @@ class PDFDokumentProcessor {
     private var document: PDDocument? = null
     private lateinit var originalDocument: ByteArray
     private var documentProperties: DocumentProperties? = null
-    fun process(dokumentFil: ByteArray, documentProperties: DocumentProperties): ByteArray {
+    fun process(
+        dokumentFil: ByteArray,
+        documentProperties: DocumentProperties,
+        withCompression: Boolean = true
+    ): ByteArray {
         if (!documentProperties.shouldProcess()) {
             return dokumentFil
         }
@@ -46,29 +50,23 @@ class PDFDokumentProcessor {
                 if (documentProperties.optimizeForPrint()) {
                     optimaliserForDobbelsidigPrinting()
                 }
+                val compression =
+                    if (withCompression) CompressParameters.DEFAULT_COMPRESSION else CompressParameters.NO_COMPRESSION
                 this.document?.isAllSecurityToBeRemoved = true
-                lagreDokument(documentByteStream)
+                log.info { "Lagrer dokument med kompresjon ${compression.isCompress}" }
+                this.document?.save(documentByteStream, compression)
+                this.document?.close()
                 return documentByteStream.toByteArray()
             }
         } catch (e: Exception) {
             log.error(e) { "Det skjedde en feil ved prossesering av PDF dokument" }
             return dokumentFil
         } catch (e: StackOverflowError) {
-            log.error(e) { "Det skjedde en feil ved prossesering av PDF dokument" }
-            return dokumentFil
+            log.error(e) { "Det skjedde en feil ved lagring av dokument med kompresjon. Forsøker å lagree dokument uten kompresjon" }
+            return if (withCompression) process(dokumentFil, documentProperties, false)
+            else dokumentFil
         } finally {
             IOUtils.closeQuietly(documentByteStream)
-        }
-    }
-
-    private fun lagreDokument(documentByteStream: ByteArrayOutputStream) {
-        try {
-            this.document?.save(documentByteStream)
-        } catch (error: StackOverflowError) {
-            log.error(error) { "Det skjedde en feil ved lagring av dokument med kompresjon. Forsøker å merge dokumenter uten kompresjon" }
-            this.document?.save(documentByteStream, CompressParameters.NO_COMPRESSION)
-        } finally {
-            this.document?.close()
         }
     }
 
@@ -198,6 +196,7 @@ class PDFDokumentMerger {
         fun merge(
             dokumentBytes: List<ByteArray>,
             documentProperties: DocumentProperties,
+            withCompression: Boolean = true
         ): ByteArray {
             documentProperties.numberOfDocuments = dokumentBytes.size
             if (dokumentBytes.size == 1) {
@@ -214,28 +213,20 @@ class PDFDokumentMerger {
                     tempfiles.add(tempFile)
                     mergedDocument.addSource(tempFile)
                 }
-                executeMerge(mergedDocument)
+                val compression = if (withCompression) CompressParameters.DEFAULT_COMPRESSION
+                else CompressParameters.NO_COMPRESSION
+                log.info { "Lagrer merget dokumenter med kompresjon ${compression.isCompress}" }
+                mergedDocument.mergeDocuments(
+                    MemoryUsageSetting.setupTempFileOnly().streamCache,
+                    compression
+                )
                 return getByteDataAndDeleteFile(mergedFileName)
-            } finally {
-                tempfiles.forEach { it.delete() }
-            }
-        }
-
-        private fun executeMerge(mergedDocument: PDFMergerUtility) {
-            try {
-                mergedDocument.mergeDocuments(MemoryUsageSetting.setupTempFileOnly().streamCache)
             } catch (e: StackOverflowError) {
                 log.error(e) { "Det skjedde en feil ved merging av dokumenter. Forsøker å merge dokumenter uten kompresjon" }
-                mergedDocument.mergeDocuments(
-                    MemoryUsageSetting.setupTempFileOnly().streamCache,
-                    CompressParameters.NO_COMPRESSION
-                )
-            } catch (e: Exception) {
-                log.error(e) { "Det skjedde en feil ved merging av dokumenter. Forsøker å merge dokumenter uten kompresjon" }
-                mergedDocument.mergeDocuments(
-                    MemoryUsageSetting.setupTempFileOnly().streamCache,
-                    CompressParameters.NO_COMPRESSION
-                )
+                if (withCompression) return merge(dokumentBytes, documentProperties, false)
+                else throw e
+            } finally {
+                tempfiles.forEach { it.delete() }
             }
         }
 
