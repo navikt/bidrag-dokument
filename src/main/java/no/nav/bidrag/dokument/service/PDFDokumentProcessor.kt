@@ -222,12 +222,45 @@ class PDFDokumentMerger {
                 )
                 return getByteDataAndDeleteFile(mergedFileName)
             } catch (e: StackOverflowError) {
-                log.error(e) { "Det skjedde en feil ved merging av dokumenter. Forsøker å merge dokumenter uten kompresjon" }
-                if (withCompression) return merge(dokumentBytes, documentProperties, false)
-                else throw e
+                log.error(e) { "Det skjedde en feil ved merging av dokumenter. Forsøker å merge dokumenter uten kompresjon i legacy modus" }
+                return mergeLegacy(dokumentBytes)
             } finally {
                 tempfiles.forEach { it.delete() }
             }
+        }
+
+        private fun mergeLegacy(dokumentBytes: List<ByteArray>): ByteArray {
+            if (dokumentBytes.size == 1) {
+                return dokumentBytes[0]
+            }
+            val mergedDocument = PDDocument()
+            val mergerUtility = PDFMergerUtility()
+            val documentByteStream = ByteArrayOutputStream()
+            log.info { "Merger ${dokumentBytes.size} dokumenter via legacy modus" }
+
+            try {
+                dokumentBytes.forEach {
+                    Loader.loadPDF(
+                        RandomAccessReadBuffer(it),
+                        MemoryUsageSetting.setupTempFileOnly().streamCache,
+                    ).use { document ->
+                        mergerUtility.appendDocument(mergedDocument, document)
+                        document.close()
+                    }
+                }
+
+                mergedDocument.save(documentByteStream, CompressParameters.NO_COMPRESSION)
+                return documentByteStream.toByteArray()
+            } catch (e: StackOverflowError) {
+                log.error(e) { "Det skjedde en feil ved merging av dokumenter i legacy modus." }
+                throw e
+            } catch (e: Exception) {
+                log.error(e) { "Det skjedde en feil ved merging av dokumenter i legacy modus." }
+                throw e
+            } finally {
+                IOUtils.closeQuietly(documentByteStream)
+            }
+
         }
 
         private fun getByteDataAndDeleteFile(filename: String): ByteArray {
