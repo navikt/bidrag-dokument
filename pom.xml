@@ -30,7 +30,7 @@
     <bidrag-transport.version>20231010134706_52d8d27</bidrag-transport.version>
     <logback.encoder.version>7.3</logback.encoder.version>
     <springdoc-openapi-ui.version>2.1.0</springdoc-openapi-ui.version>
-    <springframework-cloud.version>4.0.2</springframework-cloud.version>
+    <springframework-cloud.version>4.1.0</springframework-cloud.version>
     <token-support.version>3.0.10</token-support.version>
     <squareup.version>4.11.0</squareup.version>
     <mockk.version>4.0.2</mockk.version>
