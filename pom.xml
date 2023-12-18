@@ -112,6 +112,18 @@
       <artifactId>bidrag-transport</artifactId>
       <version>${bidrag-transport.version}</version>
     </dependency>
+    <!--Sikkerhet-->
+    <dependency>
+      <groupId>no.nav.security</groupId>
+      <artifactId>token-validation-spring</artifactId>
+      <version>${token-support.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>no.nav.security</groupId>
+      <artifactId>token-client-spring</artifactId>
+      <version>${token-support.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-core</artifactId>
