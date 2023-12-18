@@ -27,6 +27,18 @@ class BidragDokumentRestControllerAdvice : ResponseEntityExceptionHandler() {
 
     @ResponseBody
     @ExceptionHandler
+    fun handleOtherErrors(error: Error): ResponseEntity<*> {
+        log.error(error) { "Det skjedde en ukjent feil: " + error.message }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .header(
+                HttpHeaders.WARNING,
+                "Det skjedde en ukjent feil: " + error.javaClass.simpleName,
+            )
+            .build<Any>()
+    }
+
+    @ResponseBody
+    @ExceptionHandler
     fun handleHttClientErrorException(httpClientErrorException: HttpStatusCodeException): ResponseEntity<*> {
         log.warn(httpClientErrorException) { getWarningHeader(httpClientErrorException) }
         return ResponseEntity.status(httpClientErrorException.statusCode)
@@ -35,7 +47,10 @@ class BidragDokumentRestControllerAdvice : ResponseEntityExceptionHandler() {
     }
 
     @ExceptionHandler(value = [JwtTokenUnauthorizedException::class])
-    protected fun handeUnauthorized(ex: JwtTokenUnauthorizedException?, req: HttpServletRequest?): ResponseEntity<*> {
+    protected fun handeUnauthorized(
+        ex: JwtTokenUnauthorizedException?,
+        req: HttpServletRequest?,
+    ): ResponseEntity<*> {
         log.warn(ex) { "Ugyldig sikkerhetstoken for url=${req?.requestURL}" }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
             .header(HttpHeaders.WARNING, "Ugyldig sikkerhetstoken")

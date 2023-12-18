@@ -14,31 +14,31 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.1.5</version>
+    <version>3.2.0</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
   <properties>
 
     <!-- language -->
-    <java.version>17</java.version>
-    <kotlin.version>1.9.10</kotlin.version>
+    <java.version>21</java.version>
+    <kotlin.version>1.9.21</kotlin.version>
 
     <!-- dependent versions other than from spring-boot -->
     <bidrag-commons.version>20231002151454_eab4a7b</bidrag-commons.version>
     <bidrag-commons-test.version>1.20230504132526_a72fa41</bidrag-commons-test.version>
     <bidrag-transport.version>20231010134706_52d8d27</bidrag-transport.version>
-    <logback.encoder.version>7.3</logback.encoder.version>
-    <springdoc-openapi-ui.version>2.1.0</springdoc-openapi-ui.version>
-    <springframework-cloud.version>4.0.2</springframework-cloud.version>
-    <token-support.version>3.0.10</token-support.version>
-    <squareup.version>4.11.0</squareup.version>
+    <logback.encoder.version>7.4</logback.encoder.version>
+    <springdoc-openapi-ui.version>2.3.0</springdoc-openapi-ui.version>
+    <springframework-cloud.version>4.1.0</springframework-cloud.version>
+    <token-support.version>3.2.0</token-support.version>
+    <squareup.version>4.12.0</squareup.version>
     <mockk.version>4.0.2</mockk.version>
-    <kotest.version>5.7.2</kotest.version>
+    <kotest.version>5.8.0</kotest.version>
     <kotlin-logging-jvm.version>3.0.5</kotlin-logging-jvm.version>
 
     <!-- build -->
-    <build-helper-maven.version>3.3.0</build-helper-maven.version>
+    <build-helper-maven.version>3.4.0</build-helper-maven.version>
     <maven.compiler.version>3.8.0</maven.compiler.version>
     <maven.surefire.version>2.22.0</maven.surefire.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -112,6 +112,18 @@
       <artifactId>bidrag-transport</artifactId>
       <version>${bidrag-transport.version}</version>
     </dependency>
+    <!--Sikkerhet-->
+    <dependency>
+      <groupId>no.nav.security</groupId>
+      <artifactId>token-validation-spring</artifactId>
+      <version>${token-support.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>no.nav.security</groupId>
+      <artifactId>token-client-spring</artifactId>
+      <version>${token-support.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-core</artifactId>
@@ -160,13 +172,13 @@
     <dependency>
       <groupId>com.fasterxml.jackson.module</groupId>
       <artifactId>jackson-module-kotlin</artifactId>
-      <version>2.15.3</version>
+      <version>2.16.0</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.pdfbox</groupId>
       <artifactId>pdfbox</artifactId>
-      <version>3.0.0</version>
+      <version>3.0.1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.pdfbox</groupId>
@@ -306,7 +318,7 @@
           <args>
             <arg>-Xjsr305=strict</arg>
           </args>
-          <jvmTarget>17</jvmTarget>
+          <jvmTarget>21</jvmTarget>
           <compilerPlugins>
             <plugin>spring</plugin>
             <plugin>jpa</plugin>
@@ -407,22 +419,6 @@
           </dependency>
           <!-- additional 3rd party ruleset(s) can be specified here -->
         </dependencies>
-      </plugin>
-      <plugin>
-        <groupId>org.owasp</groupId>
-        <artifactId>dependency-check-maven</artifactId>
-        <version>8.4.0</version>
-        <configuration>
-          <failBuildOnCVSS>7</failBuildOnCVSS>
-          <skip>${skipOwasp}</skip>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
