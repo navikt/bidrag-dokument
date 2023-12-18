@@ -30,7 +30,7 @@ class PDFDokumentProcessor {
     fun process(
         dokumentFil: ByteArray,
         documentProperties: DocumentProperties,
-        withCompression: Boolean = true
+        withCompression: Boolean = true,
     ): ByteArray {
         if (!documentProperties.shouldProcess()) {
             return dokumentFil
@@ -63,8 +63,11 @@ class PDFDokumentProcessor {
             return dokumentFil
         } catch (e: StackOverflowError) {
             log.error(e) { "Det skjedde en feil ved lagring av dokument med kompresjon. Forsøker å lagree dokument uten kompresjon" }
-            return if (withCompression) process(dokumentFil, documentProperties, false)
-            else dokumentFil
+            return if (withCompression) {
+                process(dokumentFil, documentProperties, false)
+            } else {
+                dokumentFil
+            }
         } finally {
             IOUtils.closeQuietly(documentByteStream)
         }
@@ -196,7 +199,7 @@ class PDFDokumentMerger {
         fun merge(
             dokumentBytes: List<ByteArray>,
             documentProperties: DocumentProperties,
-            withCompression: Boolean = true
+            withCompression: Boolean = true,
         ): ByteArray {
             documentProperties.numberOfDocuments = dokumentBytes.size
             if (dokumentBytes.size == 1) {
@@ -213,12 +216,15 @@ class PDFDokumentMerger {
                     tempfiles.add(tempFile)
                     mergedDocument.addSource(tempFile)
                 }
-                val compression = if (withCompression) CompressParameters.DEFAULT_COMPRESSION
-                else CompressParameters.NO_COMPRESSION
+                val compression = if (withCompression) {
+                    CompressParameters.DEFAULT_COMPRESSION
+                } else {
+                    CompressParameters.NO_COMPRESSION
+                }
                 log.info { "Lagrer merget dokumenter med kompresjon ${compression.isCompress}" }
                 mergedDocument.mergeDocuments(
                     MemoryUsageSetting.setupTempFileOnly().streamCache,
-                    compression
+                    compression,
                 )
                 return getByteDataAndDeleteFile(mergedFileName)
             } catch (e: StackOverflowError) {
@@ -260,7 +266,6 @@ class PDFDokumentMerger {
             } finally {
                 IOUtils.closeQuietly(documentByteStream)
             }
-
         }
 
         private fun getByteDataAndDeleteFile(filename: String): ByteArray {
@@ -272,6 +277,4 @@ class PDFDokumentMerger {
             }
         }
     }
-
 }
-
