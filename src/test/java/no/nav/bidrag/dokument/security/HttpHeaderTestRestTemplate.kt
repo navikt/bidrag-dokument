@@ -11,7 +11,6 @@ import java.net.URI
 import java.util.Stack
 import kotlin.collections.HashMap
 
-
 class HttpHeaderTestRestTemplate(val testRestTemplate: TestRestTemplate) {
 
     private val headersForSingleCallbacks = Stack<Pair<String, String>>()
@@ -24,7 +23,7 @@ class HttpHeaderTestRestTemplate(val testRestTemplate: TestRestTemplate) {
         url: String?,
         httpMethod: HttpMethod?,
         httpEntity: HttpEntity<*>?,
-        typeReference: ParameterizedTypeReference<T>?
+        typeReference: ParameterizedTypeReference<T>?,
     ): ResponseEntity<T> {
         return testRestTemplate.exchange(url, httpMethod, newEntityWithAddedHeaders(httpEntity), typeReference)
     }
