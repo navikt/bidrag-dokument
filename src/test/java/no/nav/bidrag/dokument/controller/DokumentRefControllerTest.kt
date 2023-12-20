@@ -1,8 +1,8 @@
 package no.nav.bidrag.dokument.controller
 
-import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate
 import no.nav.bidrag.dokument.BidragDokumentTest
 import no.nav.bidrag.dokument.consumer.stub.RestConsumerStub
+import no.nav.bidrag.dokument.security.HttpHeaderTestRestTemplate
 import no.nav.bidrag.transport.dokument.DokumentTilgangResponse
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.assertj.core.api.Assertions

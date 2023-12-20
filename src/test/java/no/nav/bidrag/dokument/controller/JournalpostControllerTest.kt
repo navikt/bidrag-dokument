@@ -4,11 +4,11 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.matching.StringValuePattern
 import no.nav.bidrag.commons.web.EnhetFilter
-import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate
 import no.nav.bidrag.dokument.BidragDokumentTest
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer.Companion.createEnhetHeader
 import no.nav.bidrag.dokument.consumer.stub.RestConsumerStub
+import no.nav.bidrag.dokument.security.HttpHeaderTestRestTemplate
 import no.nav.bidrag.transport.dokument.AvvikType
 import no.nav.bidrag.transport.dokument.Avvikshendelse
 import no.nav.bidrag.transport.dokument.BehandleAvvikshendelseResponse

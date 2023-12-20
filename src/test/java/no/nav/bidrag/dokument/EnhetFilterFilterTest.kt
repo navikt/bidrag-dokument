@@ -7,8 +7,8 @@ import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
 import no.nav.bidrag.commons.web.HttpResponse.Companion.from
-import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer.Companion.createEnhetHeader
+import no.nav.bidrag.dokument.security.HttpHeaderTestRestTemplate
 import no.nav.bidrag.dokument.service.JournalpostService
 import no.nav.security.token.support.spring.test.EnableMockOAuth2Server
 import org.assertj.core.api.Assertions
