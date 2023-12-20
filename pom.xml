@@ -26,7 +26,6 @@
 
     <!-- dependent versions other than from spring-boot -->
     <bidrag-commons.version>20231002151454_eab4a7b</bidrag-commons.version>
-    <bidrag-commons-test.version>1.20230504132526_a72fa41</bidrag-commons-test.version>
     <bidrag-transport.version>20231010134706_52d8d27</bidrag-transport.version>
     <logback.encoder.version>7.4</logback.encoder.version>
     <springdoc-openapi-ui.version>2.3.0</springdoc-openapi-ui.version>
@@ -226,12 +225,6 @@
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>okhttp</artifactId>
       <version>${squareup.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>no.nav.bidrag</groupId>
-      <artifactId>bidrag-commons-test</artifactId>
-      <version>${bidrag-commons-test.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
