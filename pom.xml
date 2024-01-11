@@ -38,7 +38,7 @@
     <kotlin-logging-jvm.version>3.0.5</kotlin-logging-jvm.version>
 
     <!-- build -->
-    <build-helper-maven.version>3.4.0</build-helper-maven.version>
+    <build-helper-maven.version>3.5.0</build-helper-maven.version>
     <maven.compiler.version>3.8.0</maven.compiler.version>
     <maven.surefire.version>2.22.0</maven.surefire.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
