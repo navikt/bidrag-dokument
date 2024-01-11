@@ -25,7 +25,7 @@
     <kotlin.version>1.9.22</kotlin.version>
 
     <!-- dependent versions other than from spring-boot -->
-    <bidrag-commons.version>20231002151454_eab4a7b</bidrag-commons.version>
+    <bidrag-commons.version>0.7.51</bidrag-commons.version>
     <bidrag-commons-test.version>1.20230504132526_a72fa41</bidrag-commons-test.version>
     <bidrag-transport.version>20231010134706_52d8d27</bidrag-transport.version>
     <logback.encoder.version>7.4</logback.encoder.version>
