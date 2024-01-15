@@ -18,7 +18,8 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
-import java.util.*
+import java.util.Optional
+import java.util.UUID
 import kotlin.math.abs
 
 private val log = KotlinLogging.logger {}
@@ -27,6 +28,7 @@ class PDFDokumentProcessor {
     private var document: PDDocument? = null
     private lateinit var originalDocument: ByteArray
     private var documentProperties: DocumentProperties? = null
+
     fun process(
         dokumentFil: ByteArray,
         documentProperties: DocumentProperties,
@@ -88,17 +90,19 @@ class PDFDokumentProcessor {
         val a4PageMediaBox = PDRectangle.A4
         val pageMediaBox = pdPage.mediaBox
         val hasSameHeightAndWidth =
-            isSameWithMargin(pageMediaBox.height, a4PageMediaBox.height, 1f) && isSameWithMargin(
-                pageMediaBox.width,
-                a4PageMediaBox.width,
-                1f,
-            )
+            isSameWithMargin(pageMediaBox.height, a4PageMediaBox.height, 1f) &&
+                isSameWithMargin(
+                    pageMediaBox.width,
+                    a4PageMediaBox.width,
+                    1f,
+                )
         val hasSameHeightAndWidthRotated =
-            isSameWithMargin(pageMediaBox.width, a4PageMediaBox.height, 1f) && isSameWithMargin(
-                pageMediaBox.height,
-                a4PageMediaBox.width,
-                1f,
-            )
+            isSameWithMargin(pageMediaBox.width, a4PageMediaBox.height, 1f) &&
+                isSameWithMargin(
+                    pageMediaBox.height,
+                    a4PageMediaBox.width,
+                    1f,
+                )
         return hasSameHeightAndWidth || hasSameHeightAndWidthRotated
     }
 
@@ -157,12 +161,15 @@ class PDFDokumentProcessor {
         page.cropBox = PDRectangle.A4
     }
 
-    private fun isSameWithMargin(val1: Float, val2: Float, margin: Float): Boolean {
+    private fun isSameWithMargin(
+        val1: Float,
+        val2: Float,
+        margin: Float,
+    ): Boolean {
         return abs(val1 - val2) < margin
     }
 
     companion object {
-
         @Throws(IOException::class)
         fun fileToByte(file: File): ByteArray {
             val inputStream = FileInputStream(file)
@@ -216,11 +223,12 @@ class PDFDokumentMerger {
                     tempfiles.add(tempFile)
                     mergedDocument.addSource(tempFile)
                 }
-                val compression = if (withCompression) {
-                    CompressParameters.DEFAULT_COMPRESSION
-                } else {
-                    CompressParameters.NO_COMPRESSION
-                }
+                val compression =
+                    if (withCompression) {
+                        CompressParameters.DEFAULT_COMPRESSION
+                    } else {
+                        CompressParameters.NO_COMPRESSION
+                    }
                 log.info { "Lagrer merget dokumenter med kompresjon ${compression.isCompress}" }
                 mergedDocument.mergeDocuments(
                     MemoryUsageSetting.setupTempFileOnly().streamCache,

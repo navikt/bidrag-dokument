@@ -36,19 +36,21 @@ internal class JournalpostServiceTest {
 
     @BeforeEach
     fun init() {
-        journalpostService = JournalpostService(
-            bidragForsendelseConsumer,
-            bidragArkivConsumer,
-            bidragJournalpostConsumer,
-        )
+        journalpostService =
+            JournalpostService(
+                bidragForsendelseConsumer,
+                bidragArkivConsumer,
+                bidragJournalpostConsumer,
+            )
     }
 
     @Test
     @DisplayName("skal ikke hente journalpost")
     fun skalIkkeHenteJournalpostGittId() {
-        every { bidragArkivConsumer.hentJournalpost(any(), any()) } returns HttpResponse.from(
-            HttpStatus.NO_CONTENT,
-        )
+        every { bidragArkivConsumer.hentJournalpost(any(), any()) } returns
+            HttpResponse.from(
+                HttpStatus.NO_CONTENT,
+            )
         val httpStatusResponse =
             journalpostService.hentJournalpost("69", KildesystemIdenfikator("joark-2"))
         Assertions.assertThat(httpStatusResponse.fetchBody()).isNotPresent
@@ -57,10 +59,11 @@ internal class JournalpostServiceTest {
     @Test
     @DisplayName("skal hente journalpost gitt id")
     fun skalHenteJournalpostGittId() {
-        every { bidragArkivConsumer.hentJournalpost(any(), any()) } returns HttpResponse.from(
-            HttpStatus.OK,
-            JournalpostResponse(),
-        )
+        every { bidragArkivConsumer.hentJournalpost(any(), any()) } returns
+            HttpResponse.from(
+                HttpStatus.OK,
+                JournalpostResponse(),
+            )
         val httpStatusResponse =
             journalpostService.hentJournalpost("69", KildesystemIdenfikator("joark-3"))
         Assertions.assertThat(httpStatusResponse.fetchBody()).isPresent
@@ -69,15 +72,18 @@ internal class JournalpostServiceTest {
     @Test
     @DisplayName("skal kombinere resultat fra BidragDokumentJournalpostConsumer samt BidragDokumentArkivConsumer")
     suspend fun skalKombinereResultaterFraJournalpostOgArkiv() {
-        every { bidragArkivConsumer.finnJournalposter("1", listOf("FAG")) } returns listOf(
-            JournalpostDto(),
-        )
-        every { bidragForsendelseConsumer.finnJournalposter("1", listOf("FAG")) } returns listOf(
-            JournalpostDto(),
-        )
-        every { bidragJournalpostConsumer.finnJournalposter("1", listOf("FAG")) } returns listOf(
-            JournalpostDto(),
-        )
+        every { bidragArkivConsumer.finnJournalposter("1", listOf("FAG")) } returns
+            listOf(
+                JournalpostDto(),
+            )
+        every { bidragForsendelseConsumer.finnJournalposter("1", listOf("FAG")) } returns
+            listOf(
+                JournalpostDto(),
+            )
+        every { bidragJournalpostConsumer.finnJournalposter("1", listOf("FAG")) } returns
+            listOf(
+                JournalpostDto(),
+            )
 
         val journalposter = journalpostService.finnJournalposter("1", listOf("FAG"))
         org.junit.jupiter.api.Assertions.assertAll(

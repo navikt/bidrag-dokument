@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpStatusCodeException
 import java.io.IOException
-import java.util.*
 import java.util.stream.Collectors
 
 @Service
@@ -73,9 +72,7 @@ class DokumentService(
     }
 
     @Timed("erFerdigstilt")
-    fun erFerdigstilt(
-        dokumentreferanse: String,
-    ): ResponseEntity<Boolean> {
+    fun erFerdigstilt(dokumentreferanse: String): ResponseEntity<Boolean> {
         return bidragJournalpostConsumer.erFerdigstilt(dokumentreferanse)
     }
 
@@ -137,12 +134,13 @@ class DokumentService(
         documentProperties: DocumentProperties,
     ): ByteArray {
         documentProperties.numberOfDocuments = dokumentList.size
-        val dokumentBytes = dokumentList.map {
-            hentDokument(
-                it,
-                DocumentProperties(documentProperties, dokumentList.indexOf(it)),
-            ).body!!
-        }
+        val dokumentBytes =
+            dokumentList.map {
+                hentDokument(
+                    it,
+                    DocumentProperties(documentProperties, dokumentList.indexOf(it)),
+                ).body!!
+            }
         return PDFDokumentMerger.merge(dokumentBytes, documentProperties)
     }
 
@@ -155,12 +153,13 @@ class DokumentService(
         return DokumentRef(
             journalpostId = dokument.journalpostId,
             dokumentId = dokument.dokumentreferanse,
-            kilde = when (dokument.arkivsystem) {
-                DokumentArkivSystemDto.MIDLERTIDLIG_BREVLAGER -> Kilde.MIDLERTIDLIG_BREVLAGER
-                DokumentArkivSystemDto.JOARK -> Kilde.JOARK
-                DokumentArkivSystemDto.BIDRAG -> Kilde.FORSENDELSE
-                else -> null
-            },
+            kilde =
+                when (dokument.arkivsystem) {
+                    DokumentArkivSystemDto.MIDLERTIDLIG_BREVLAGER -> Kilde.MIDLERTIDLIG_BREVLAGER
+                    DokumentArkivSystemDto.JOARK -> Kilde.JOARK
+                    DokumentArkivSystemDto.BIDRAG -> Kilde.FORSENDELSE
+                    else -> null
+                },
         )
     }
 

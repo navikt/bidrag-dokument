@@ -29,7 +29,6 @@ import org.springframework.test.context.ActiveProfiles
 @DisplayName("EnhetFilter")
 @EnableMockOAuth2Server
 internal class EnhetFilterFilterTest {
-
     @Autowired
     private lateinit var securedTestRestTemplate: HttpHeaderTestRestTemplate
 
@@ -44,9 +43,10 @@ internal class EnhetFilterFilterTest {
 
     @BeforeEach
     fun mockLogAppender() {
-        val logger = LoggerFactory.getLogger(
-            org.slf4j.Logger.ROOT_LOGGER_NAME,
-        ) as Logger
+        val logger =
+            LoggerFactory.getLogger(
+                org.slf4j.Logger.ROOT_LOGGER_NAME,
+            ) as Logger
         every { appenderMock.name } returns "MOCK"
         every { appenderMock.isStarted } returns true
         logger.addAppender(appenderMock)
