@@ -32,7 +32,6 @@ class JournalpostService(
     @Qualifier(BidragDokumentConfig.ARKIV_QUALIFIER) private val bidragArkivConsumer: BidragDokumentConsumer,
     @Qualifier(BidragDokumentConfig.MIDL_BREVLAGER_QUALIFIER) private val bidragJournalpostConsumer: BidragDokumentConsumer,
 ) {
-
     fun hentJournalpost(
         saksnummer: String?,
         kildesystemIdenfikator: KildesystemIdenfikator,

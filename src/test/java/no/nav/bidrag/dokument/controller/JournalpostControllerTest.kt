@@ -35,7 +35,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.web.util.UriComponentsBuilder
 import java.io.IOException
-import java.util.*
+import java.util.Optional
 
 @SpringBootTest(
     classes = [BidragDokumentTest::class],
@@ -46,7 +46,6 @@ import java.util.*
 @DisplayName("JournalpostController")
 @EnableMockOAuth2Server
 internal class JournalpostControllerTest {
-
     @LocalServerPort
     private var localServerPort = 0
 
@@ -58,12 +57,17 @@ internal class JournalpostControllerTest {
 
     @Autowired
     private lateinit var restConsumerStub: RestConsumerStub
-    private fun <T> initHttpEntity(body: T, vararg customHeaders: CustomHeader): HttpEntity<T> {
-        val httpHeaders = HttpHeaders().apply {
-            for ((name, value) in customHeaders) {
-                add(name, value)
+
+    private fun <T> initHttpEntity(
+        body: T,
+        vararg customHeaders: CustomHeader,
+    ): HttpEntity<T> {
+        val httpHeaders =
+            HttpHeaders().apply {
+                for ((name, value) in customHeaders) {
+                    add(name, value)
+                }
             }
-        }
         return HttpEntity(body, httpHeaders)
     }
 
@@ -92,15 +96,16 @@ internal class JournalpostControllerTest {
             val queryParams = HashMap<String, StringValuePattern>()
             queryParams["saksnummer"] = WireMock.equalTo(saksnr)
             restConsumerStub.runHenteJournalpostArkiv(jpId, queryParams, HttpStatus.NO_CONTENT, "")
-            val journalpostResponseEntity = httpHeaderTestRestTemplate
-                .getForEntity<JournalpostResponse>(
-                    initEndpointUrl(
-                        String.format(
-                            BidragDokumentConsumer.PATH_JOURNALPOST_UTEN_SAK,
-                            jpId,
-                        ) + "?saksnummer=" + saksnr,
-                    ),
-                )
+            val journalpostResponseEntity =
+                httpHeaderTestRestTemplate
+                    .getForEntity<JournalpostResponse>(
+                        initEndpointUrl(
+                            String.format(
+                                BidragDokumentConsumer.PATH_JOURNALPOST_UTEN_SAK,
+                                jpId,
+                            ) + "?saksnummer=" + saksnr,
+                        ),
+                    )
             Assertions.assertThat(Optional.of(journalpostResponseEntity)).hasValueSatisfying {
                 assertAll(
                     { Assertions.assertThat(it.body).isNull() },
@@ -227,11 +232,12 @@ internal class JournalpostControllerTest {
         @DisplayName("skal få BAD_REQUEST når prefix er ukjent ved endring av journalpost")
         fun skalFaBadRequestMedUkjentPrefixVedEndringAvJournalpost() {
             val lagreJournalpostUrl = initEndpointUrl("/journal/svada-1")
-            val badRequestResponse = httpHeaderTestRestTemplate
-                .patchForEntity<JournalpostResponse>(
-                    lagreJournalpostUrl,
-                    HttpEntity(EndreJournalpostCommand(), createEnhetHeader("4802")),
-                )
+            val badRequestResponse =
+                httpHeaderTestRestTemplate
+                    .patchForEntity<JournalpostResponse>(
+                        lagreJournalpostUrl,
+                        HttpEntity(EndreJournalpostCommand(), createEnhetHeader("4802")),
+                    )
             Assertions.assertThat(badRequestResponse)
                 .extracting { it.statusCode }.isEqualTo(HttpStatus.BAD_REQUEST)
         }
@@ -246,11 +252,12 @@ internal class JournalpostControllerTest {
             val jpId = "BID-1"
             restConsumerStub.runEndreJournalpost(jpId, HttpStatus.ACCEPTED)
             val lagreJournalpostUrl = initEndpointUrl("/journal/BID-1")
-            val endretJournalpostResponse = httpHeaderTestRestTemplate
-                .patchForEntity<Unit>(
-                    lagreJournalpostUrl,
-                    HttpEntity(EndreJournalpostCommand(), createEnhetHeader("4802")),
-                )
+            val endretJournalpostResponse =
+                httpHeaderTestRestTemplate
+                    .patchForEntity<Unit>(
+                        lagreJournalpostUrl,
+                        HttpEntity(EndreJournalpostCommand(), createEnhetHeader("4802")),
+                    )
             Assertions.assertThat(endretJournalpostResponse)
                 .satisfies({ Assertions.assertThat(it.statusCode).isEqualTo(HttpStatus.ACCEPTED) })
         }
@@ -267,11 +274,12 @@ internal class JournalpostControllerTest {
                 "",
             )
             val lagreJournalpostUrl = initEndpointUrl("/journal/BID-1")
-            val endretJournalpostResponse = httpHeaderTestRestTemplate
-                .patchForEntity<Unit>(
-                    lagreJournalpostUrl,
-                    HttpEntity(EndreJournalpostCommand(), createEnhetHeader("4802")),
-                )
+            val endretJournalpostResponse =
+                httpHeaderTestRestTemplate
+                    .patchForEntity<Unit>(
+                        lagreJournalpostUrl,
+                        HttpEntity(EndreJournalpostCommand(), createEnhetHeader("4802")),
+                    )
             Assertions.assertThat(endretJournalpostResponse)
                 .satisfies({
                     assertAll(
@@ -366,13 +374,14 @@ internal class JournalpostControllerTest {
             val enhetsnummer = "4806"
             val avvikshendelse = Avvikshendelse(AvvikType.BESTILL_ORIGINAL.name, enhetsnummer)
             val path = String.format(BidragDokumentConsumer.PATH_AVVIK_PA_JOURNALPOST, jpId)
-            val respons = java.lang.String.join(
-                "\n",
-                " {",
-                "\"avvikType\":",
-                "\"" + avvikshendelse.avvikType + "\"",
-                "}",
-            )
+            val respons =
+                java.lang.String.join(
+                    "\n",
+                    " {",
+                    "\"avvikType\":",
+                    "\"" + avvikshendelse.avvikType + "\"",
+                    "}",
+                )
             restConsumerStub.runPost(path, HttpStatus.CREATED, respons)
             val bestillOriginalEntity =
                 initHttpEntity(avvikshendelse, CustomHeader(EnhetFilter.X_ENHET_HEADER, "1234"))
@@ -406,13 +415,14 @@ internal class JournalpostControllerTest {
             val enhetsnummer = "4806"
             val avvikshendelse = Avvikshendelse(AvvikType.BESTILL_ORIGINAL.name, enhetsnummer)
             val path = String.format(BidragDokumentConsumer.PATH_AVVIK_PA_JOURNALPOST, jpId)
-            val respons = java.lang.String.join(
-                "\n",
-                " {",
-                "\"avvikType\":",
-                "\"" + avvikshendelse.avvikType + "\"",
-                "}",
-            )
+            val respons =
+                java.lang.String.join(
+                    "\n",
+                    " {",
+                    "\"avvikType\":",
+                    "\"" + avvikshendelse.avvikType + "\"",
+                    "}",
+                )
             restConsumerStub.runPostArkiv(path, HttpStatus.CREATED, respons)
             val bestillOriginalEntity =
                 initHttpEntity(avvikshendelse, CustomHeader(EnhetFilter.X_ENHET_HEADER, "1234"))
@@ -472,8 +482,9 @@ internal class JournalpostControllerTest {
         @Test
         @DisplayName("skal få httpstatus 400 (BAD_REQUEST) når man henter journalpost uten gyldig prefix på journalpost id")
         fun skalFaBadRequestVedFeilPrefixPaId() {
-            val journalpostResponseEntity = httpHeaderTestRestTemplate
-                .getForEntity<JournalpostResponse>(PATH_JOURNALPOST_UTEN_SAK + "ugyldig-id")
+            val journalpostResponseEntity =
+                httpHeaderTestRestTemplate
+                    .getForEntity<JournalpostResponse>(PATH_JOURNALPOST_UTEN_SAK + "ugyldig-id")
             Assertions.assertThat(journalpostResponseEntity.statusCode)
                 .isEqualTo(HttpStatus.BAD_REQUEST)
         }
@@ -493,9 +504,10 @@ internal class JournalpostControllerTest {
                 )
 
             // when
-            val respons = httpHeaderTestRestTemplate.getForEntity<JournalpostResponse>(
-                PATH_JOURNALPOST_UTEN_SAK + jpId,
-            )
+            val respons =
+                httpHeaderTestRestTemplate.getForEntity<JournalpostResponse>(
+                    PATH_JOURNALPOST_UTEN_SAK + jpId,
+                )
 
             // then
             org.junit.jupiter.api.Assertions.assertTrue(respons.statusCode.is2xxSuccessful)
@@ -526,8 +538,9 @@ internal class JournalpostControllerTest {
                 )
 
             // when
-            val respons = httpHeaderTestRestTemplate
-                .getForEntity<List<AvvikType>>(Companion.PATH_JOURNALPOST_UTEN_SAK + "BID-1/avvik")
+            val respons =
+                httpHeaderTestRestTemplate
+                    .getForEntity<List<AvvikType>>(Companion.PATH_JOURNALPOST_UTEN_SAK + "BID-1/avvik")
 
             // then
             org.junit.jupiter.api.Assertions.assertTrue(respons.statusCode.is2xxSuccessful)
@@ -601,8 +614,9 @@ internal class JournalpostControllerTest {
             )
 
             // when
-            val listeMedJournalposterResponse = httpHeaderTestRestTemplate
-                .getForEntity<List<JournalpostDto>>(lagUrlForFagomradeBid(path))
+            val listeMedJournalposterResponse =
+                httpHeaderTestRestTemplate
+                    .getForEntity<List<JournalpostDto>>(lagUrlForFagomradeBid(path))
 
             // then
             Assertions.assertThat(listeMedJournalposterResponse)
@@ -648,8 +662,9 @@ internal class JournalpostControllerTest {
             )
 
             // when
-            val listeMedJournalposterResponse = httpHeaderTestRestTemplate
-                .getForEntity<List<JournalpostDto>>(lagUrlForFagomradeBid(path, true))
+            val listeMedJournalposterResponse =
+                httpHeaderTestRestTemplate
+                    .getForEntity<List<JournalpostDto>>(lagUrlForFagomradeBid(path, true))
 
             // then
             Assertions.assertThat(listeMedJournalposterResponse)
@@ -695,8 +710,9 @@ internal class JournalpostControllerTest {
             )
 
             // when
-            val listeMedJournalposterResponse = httpHeaderTestRestTemplate
-                .getForEntity<List<JournalpostDto>>(lagUrlForFagomradeBid(path, false))
+            val listeMedJournalposterResponse =
+                httpHeaderTestRestTemplate
+                    .getForEntity<List<JournalpostDto>>(lagUrlForFagomradeBid(path, false))
 
             // then
             Assertions.assertThat(listeMedJournalposterResponse)
@@ -717,8 +733,9 @@ internal class JournalpostControllerTest {
         @Test
         @DisplayName("skal få BAD_REQUEST(400) som statuskode når saksnummer ikke er et heltall")
         fun skalFaBadRequestNarSaksnummerIkkeErHeltall() {
-            val journalposterResponse = httpHeaderTestRestTemplate
-                .getForEntity<List<JournalpostDto>>(lagUrlForFagomradeBid("/sak/xyz/journal"))
+            val journalposterResponse =
+                httpHeaderTestRestTemplate
+                    .getForEntity<List<JournalpostDto>>(lagUrlForFagomradeBid("/sak/xyz/journal"))
             Assertions.assertThat(journalposterResponse).satisfies(
                 {
                     assertAll(
@@ -765,7 +782,10 @@ internal class JournalpostControllerTest {
                 .hasSize(6) //  skal kalle også kalle bidrag-dokument-arkiv
         }
 
-        private fun lagUrlForFagomradeBid(path: String, farskapUtelukket: Boolean = false): String {
+        private fun lagUrlForFagomradeBid(
+            path: String,
+            farskapUtelukket: Boolean = false,
+        ): String {
             return UriComponentsBuilder.fromHttpUrl("http://localhost:$localServerPort/bidrag-dokument$path")
                 .queryParam("fagomrade", "BID")
                 .queryParam("bareFarskapUtelukket", if (farskapUtelukket) "true" else "false")

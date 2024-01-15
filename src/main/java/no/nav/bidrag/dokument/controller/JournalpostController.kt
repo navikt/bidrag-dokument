@@ -71,7 +71,9 @@ class JournalpostController(private val journalpostService: JournalpostService) 
         @RequestParam fagomrade: List<String> = emptyList(),
         @RequestParam(required = false, defaultValue = "false") bareFarskapUtelukket: Boolean,
     ): ResponseEntity<List<JournalpostDto>> {
-        log.info("Henter journal for sak $saksnummer og fagomrader ${fagomrade.joinToString(",")} bareFarskapUtelukket = $bareFarskapUtelukket")
+        log.info(
+            "Henter journal for sak $saksnummer og fagomrader ${fagomrade.joinToString(",")} bareFarskapUtelukket = $bareFarskapUtelukket",
+        )
         if (saksnummer.matches(NON_DIGITS.toRegex())) {
             log.warn("Ugyldig saksnummer: $saksnummer")
             return ResponseEntity(
@@ -82,8 +84,15 @@ class JournalpostController(private val journalpostService: JournalpostService) 
                 HttpStatus.BAD_REQUEST,
             )
         }
-        val journalposter = journalpostService.finnJournalposter(saksnummer, fagomrade)
-            .filter { if (bareFarskapUtelukket) it.erFarskapUtelukketEllerBidragJournalpostMedTemaFar() else !it.erFarskapUtelukketEllerBidragJournalpostMedTemaFar() }
+        val journalposter =
+            journalpostService.finnJournalposter(saksnummer, fagomrade)
+                .filter {
+                    if (bareFarskapUtelukket) {
+                        it.erFarskapUtelukketEllerBidragJournalpostMedTemaFar()
+                    } else {
+                        !it.erFarskapUtelukketEllerBidragJournalpostMedTemaFar()
+                    }
+                }
 
         return ResponseEntity(journalposter, HttpStatus.OK)
     }
@@ -91,7 +100,10 @@ class JournalpostController(private val journalpostService: JournalpostService) 
     @GetMapping("/journal/{journalpostIdForKildesystem}")
     @Operation(
         security = [SecurityRequirement(name = "bearer-key")],
-        description = "Hent en journalpost for en id på formatet [" + BidragDokumentConfig.PREFIX_BIDRAG + '|' + BidragDokumentConfig.PREFIX_JOARK + ']' + BidragDokumentConfig.DELIMTER + "<journalpostId>",
+        description =
+            "Hent en journalpost for en id på formatet " +
+                "[" + BidragDokumentConfig.PREFIX_BIDRAG + '|' + BidragDokumentConfig.PREFIX_JOARK + ']' +
+                BidragDokumentConfig.DELIMTER + "<journalpostId>",
     )
     @ApiResponses(
         value = [
@@ -114,7 +126,8 @@ class JournalpostController(private val journalpostService: JournalpostService) 
         saksnummer: String?,
     ): ResponseEntity<JournalpostResponse?> {
         var journalpostId = journalpostIdForKildesystem
-        if (!Strings.isNullOrEmpty(journalpostIdForKildesystem) && journalpostIdForKildesystem.contains(
+        if (!Strings.isNullOrEmpty(journalpostIdForKildesystem) &&
+            journalpostIdForKildesystem.contains(
                 ":",
             )
         ) {
@@ -141,8 +154,10 @@ class JournalpostController(private val journalpostService: JournalpostService) 
     @GetMapping("/journal/{journalpostIdForKildesystem}/avvik")
     @Operation(
         security = [SecurityRequirement(name = "bearer-key")],
-        description = "Henter mulige avvik for en journalpost, id på formatet [" + BidragDokumentConfig.PREFIX_BIDRAG + '|' + BidragDokumentConfig.PREFIX_JOARK + ']' + BidragDokumentConfig.DELIMTER +
-            "<journalpostId>",
+        description =
+            "Henter mulige avvik for en journalpost, id på formatet " +
+                "[" + BidragDokumentConfig.PREFIX_BIDRAG + '|' + BidragDokumentConfig.PREFIX_JOARK + ']' + BidragDokumentConfig.DELIMTER +
+                "<journalpostId>",
     )
     @ApiResponses(
         value = [
@@ -184,7 +199,10 @@ class JournalpostController(private val journalpostService: JournalpostService) 
     )
     @Operation(
         security = [SecurityRequirement(name = "bearer-key")],
-        description = "Lagrer et avvik for en journalpost, id på formatet [" + BidragDokumentConfig.PREFIX_BIDRAG + '|' + BidragDokumentConfig.PREFIX_JOARK + ']' + BidragDokumentConfig.DELIMTER + "<journalpostId>",
+        description =
+            "Lagrer et avvik for en journalpost, id på formatet " +
+                "[" + BidragDokumentConfig.PREFIX_BIDRAG + '|' + BidragDokumentConfig.PREFIX_JOARK + ']' +
+                BidragDokumentConfig.DELIMTER + "<journalpostId>",
     )
     @ApiResponses(
         value = [
@@ -252,7 +270,10 @@ class JournalpostController(private val journalpostService: JournalpostService) 
     @PatchMapping("/journal/{journalpostIdForKildesystem}")
     @Operation(
         security = [SecurityRequirement(name = "bearer-key")],
-        summary = "Endre eksisterende journalpost, id på formatet [" + BidragDokumentConfig.PREFIX_BIDRAG + '|' + BidragDokumentConfig.PREFIX_JOARK + ']' + BidragDokumentConfig.DELIMTER + "<journalpostId>",
+        summary =
+            "Endre eksisterende journalpost, id på formatet " +
+                "[" + BidragDokumentConfig.PREFIX_BIDRAG + '|' + BidragDokumentConfig.PREFIX_JOARK + ']' +
+                BidragDokumentConfig.DELIMTER + "<journalpostId>",
     )
     @ApiResponses(
         value = [
@@ -388,7 +409,9 @@ class JournalpostController(private val journalpostService: JournalpostService) 
     )
     @GlobalApiReponses
     @ResponseBody
-    fun kanDistribuerJournalpost(@PathVariable journalpostId: String): ResponseEntity<Void> {
+    fun kanDistribuerJournalpost(
+        @PathVariable journalpostId: String,
+    ): ResponseEntity<Void> {
         log.info("Sjekker om journalpost $journalpostId kan distribueres")
         val kildesystemIdenfikator = KildesystemIdenfikator(journalpostId)
         if (kildesystemIdenfikator.erUkjentPrefixEllerHarIkkeTallEtterPrefix()) {
@@ -405,7 +428,9 @@ class JournalpostController(private val journalpostService: JournalpostService) 
     @GetMapping("/journal/distribuer/info/{journalpostId}")
     @Operation(description = "Hent informasjon om distribusjon av journalpost")
     @ResponseBody
-    fun hentDistribusjonsInfo(@PathVariable journalpostId: String): ResponseEntity<DistribusjonInfoDto> {
+    fun hentDistribusjonsInfo(
+        @PathVariable journalpostId: String,
+    ): ResponseEntity<DistribusjonInfoDto> {
         log.info("Henter distribusjonsinfo for journalpost {}", journalpostId)
         val kildesystemIdenfikator = JournalpostId(journalpostId)
         if (!kildesystemIdenfikator.erSystemJoark) {

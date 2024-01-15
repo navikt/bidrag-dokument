@@ -96,10 +96,11 @@ class DokumentController(private val dokumentService: DokumentService) {
         @RequestParam(required = false) resizeToA4: Boolean,
     ): ResponseEntity<ByteArray> {
         log.info("Henter dokumenter $dokumentreferanseList med resizeToA4=$resizeToA4, optimizeForPrint=$optimizeForPrint")
-        val response = dokumentService.hentDokumenter(
-            dokumentreferanseList,
-            DocumentProperties(resizeToA4, optimizeForPrint),
-        )
+        val response =
+            dokumentService.hentDokumenter(
+                dokumentreferanseList,
+                DocumentProperties(resizeToA4, optimizeForPrint),
+            )
 
         response.body?.also {
             log.info(
