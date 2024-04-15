@@ -7,6 +7,8 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import no.nav.bidrag.commons.util.KildesystemIdenfikator
 import no.nav.bidrag.commons.util.KildesystemIdenfikator.Kildesystem
+import no.nav.bidrag.commons.util.RequestContextAsyncContext
+import no.nav.bidrag.commons.util.SecurityCoroutineContext
 import no.nav.bidrag.commons.web.HttpResponse
 import no.nav.bidrag.dokument.BidragDokumentConfig
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer
@@ -32,7 +34,6 @@ class JournalpostService(
     @Qualifier(BidragDokumentConfig.ARKIV_QUALIFIER) private val bidragArkivConsumer: BidragDokumentConsumer,
     @Qualifier(BidragDokumentConfig.MIDL_BREVLAGER_QUALIFIER) private val bidragJournalpostConsumer: BidragDokumentConsumer,
 ) {
-
     fun hentJournalpost(
         saksnummer: String?,
         kildesystemIdenfikator: KildesystemIdenfikator,

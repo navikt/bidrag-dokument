@@ -25,9 +25,7 @@
     <kotlin.version>1.9.22</kotlin.version>
 
     <!-- dependent versions other than from spring-boot -->
-    <bidrag-commons.version>20231002151454_eab4a7b</bidrag-commons.version>
-    <bidrag-commons-test.version>1.20230504132526_a72fa41</bidrag-commons-test.version>
-    <bidrag-transport.version>20231010134706_52d8d27</bidrag-transport.version>
+    <bidrag-felles.version>2024.04.15.133925</bidrag-felles.version>
     <logback.encoder.version>7.4</logback.encoder.version>
     <springdoc-openapi-ui.version>2.3.0</springdoc-openapi-ui.version>
     <springframework-cloud.version>4.1.0</springframework-cloud.version>
@@ -104,13 +102,13 @@
 
     <dependency>
       <groupId>no.nav.bidrag</groupId>
-      <artifactId>bidrag-commons</artifactId>
-      <version>${bidrag-commons.version}</version>
+      <artifactId>bidrag-commons-felles</artifactId>
+      <version>${bidrag-felles.version}</version>
     </dependency>
     <dependency>
       <groupId>no.nav.bidrag</groupId>
-      <artifactId>bidrag-transport</artifactId>
-      <version>${bidrag-transport.version}</version>
+      <artifactId>bidrag-transport-felles</artifactId>
+      <version>${bidrag-felles.version}</version>
     </dependency>
     <!--Sikkerhet-->
     <dependency>
@@ -232,8 +230,8 @@
     </dependency>
     <dependency>
       <groupId>no.nav.bidrag</groupId>
-      <artifactId>bidrag-commons-test</artifactId>
-      <version>${bidrag-commons-test.version}</version>
+      <artifactId>bidrag-commons-test-felles</artifactId>
+      <version>${bidrag-felles.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
