@@ -14,7 +14,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.2.0</version>
+    <version>3.3.1</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
@@ -22,10 +22,10 @@
 
     <!-- language -->
     <java.version>21</java.version>
-    <kotlin.version>1.9.22</kotlin.version>
+    <kotlin.version>2.0.0</kotlin.version>
 
     <!-- dependent versions other than from spring-boot -->
-    <bidrag-felles.version>2024.04.15.133925</bidrag-felles.version>
+    <bidrag-felles.version>2024.07.10.131205</bidrag-felles.version>
     <logback.encoder.version>7.4</logback.encoder.version>
     <springdoc-openapi-ui.version>2.3.0</springdoc-openapi-ui.version>
     <springframework-cloud.version>4.1.0</springframework-cloud.version>
@@ -36,7 +36,7 @@
     <kotlin-logging-jvm.version>3.0.5</kotlin-logging-jvm.version>
 
     <!-- build -->
-    <build-helper-maven.version>3.4.0</build-helper-maven.version>
+    <build-helper-maven.version>3.5.0</build-helper-maven.version>
     <maven.compiler.version>3.8.0</maven.compiler.version>
     <maven.surefire.version>2.22.0</maven.surefire.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -50,6 +50,11 @@
       <id>github</id>
       <name>GitHub felles Apache Maven Packages for navikt</name>
       <url>https://maven.pkg.github.com/navikt/maven-release/</url>
+    </repository>
+    <repository>
+      <id>maven_central</id>
+      <name>Maven Central</name>
+      <url>https://repo.maven.apache.org/maven2/</url>
     </repository>
   </repositories>
 
@@ -143,13 +148,13 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-core</artifactId>
-      <version>1.4.14</version>
+      <version>1.5.6</version>
     </dependency>
 
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.4.14</version>
+      <version>1.5.6</version>
     </dependency>
 
     <dependency>
@@ -269,6 +274,17 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-stdlib-jdk8</artifactId>
+      <version>${kotlin.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-test</artifactId>
+      <version>${kotlin.version}</version>
+      <scope>test</scope>
+    </dependency>
 
   </dependencies>
 
@@ -289,14 +305,14 @@
         <executions>
           <execution>
             <id>compile</id>
-            <phase>process-sources</phase>
+            <phase>compile</phase>
             <goals>
               <goal>compile</goal>
             </goals>
             <configuration>
               <sourceDirs>
                 <source>src/main/java</source>
-                <source>src/main/kotlin</source>
+                <source>target/generated-sources/annotations</source>
               </sourceDirs>
             </configuration>
           </execution>
@@ -309,7 +325,7 @@
             <configuration>
               <sourceDirs>
                 <source>src/test/java</source>
-                <source>src/test/kotlin</source>
+                <source>target/generated-test-sources/test-annotations</source>
               </sourceDirs>
             </configuration>
           </execution>
@@ -419,6 +435,34 @@
           </dependency>
           <!-- additional 3rd party ruleset(s) can be specified here -->
         </dependencies>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default-compile</id>
+            <phase>none</phase>
+          </execution>
+          <execution>
+            <id>default-testCompile</id>
+            <phase>none</phase>
+          </execution>
+          <execution>
+            <id>compile</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>testCompile</id>
+            <phase>test-compile</phase>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

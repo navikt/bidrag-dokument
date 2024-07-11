@@ -50,6 +50,25 @@ class DokumentController(private val dokumentService: DokumentService) {
         return dokumentService.hentDokumentMetadata(dokument)
     }
 
+    @GetMapping(
+        *[
+            "/dokument/rtf/{journalpostId}/{dokumentreferanse}", "/dokument/rtf/{journalpostId}",
+            "/dokumentreferanse/rtf/{dokumentreferanse}",
+        ],
+    )
+    fun hentDokumentRTF(
+        @PathVariable journalpostId: String?,
+        @PathVariable(required = false) dokumentreferanse: String?,
+        @RequestParam(required = false) resizeToA4: Boolean,
+        @RequestParam(required = false, defaultValue = "true") optimizeForPrint: Boolean,
+    ): ResponseEntity<ByteArray> {
+        log.info("Henter RTF dokument med journalpostId=$journalpostId og dokumentreferanse=$dokumentreferanse, resizeToA4=$resizeToA4")
+        val dokument = DokumentRef(journalpostId, dokumentreferanse, null)
+        val response =
+            dokumentService.hentDokumentRTF(dokument)
+        return response
+    }
+
     @GetMapping(*["/dokument/{journalpostId}/{dokumentreferanse}", "/dokument/{journalpostId}", "/dokumentreferanse/{dokumentreferanse}"])
     fun hentDokument(
         @PathVariable journalpostId: String?,
@@ -96,10 +115,11 @@ class DokumentController(private val dokumentService: DokumentService) {
         @RequestParam(required = false) resizeToA4: Boolean,
     ): ResponseEntity<ByteArray> {
         log.info("Henter dokumenter $dokumentreferanseList med resizeToA4=$resizeToA4, optimizeForPrint=$optimizeForPrint")
-        val response = dokumentService.hentDokumenter(
-            dokumentreferanseList,
-            DocumentProperties(resizeToA4, optimizeForPrint),
-        )
+        val response =
+            dokumentService.hentDokumenter(
+                dokumentreferanseList,
+                DocumentProperties(resizeToA4, optimizeForPrint),
+            )
 
         response.body?.also {
             log.info(

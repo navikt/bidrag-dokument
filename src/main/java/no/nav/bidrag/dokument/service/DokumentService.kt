@@ -72,10 +72,17 @@ class DokumentService(
             .body(response.body?.let { PDFDokumentProcessor().process(it, documentProperties) })
     }
 
+    @Timed("hentDokument")
+    fun hentDokumentRTF(_dokumentRef: DokumentRef): ResponseEntity<ByteArray> {
+        val response = bidragJournalpostConsumer.hentDokument(_dokumentRef.journalpostId, _dokumentRef.dokumentId, true)
+        return ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .header(HttpHeaders.CONTENT_DISPOSITION, response.headers.contentDisposition.toString())
+            .body(response.body)
+    }
+
     @Timed("erFerdigstilt")
-    fun erFerdigstilt(
-        dokumentreferanse: String,
-    ): ResponseEntity<Boolean> {
+    fun erFerdigstilt(dokumentreferanse: String): ResponseEntity<Boolean> {
         return bidragJournalpostConsumer.erFerdigstilt(dokumentreferanse)
     }
 
@@ -88,9 +95,12 @@ class DokumentService(
         return hentDokumenterData(dokumenter, documentProperties)
     }
 
-    private fun hentDokumentData(dokument: DokumentRef): ResponseEntity<ByteArray> {
+    private fun hentDokumentData(
+        dokument: DokumentRef,
+        rtf: Boolean = false,
+    ): ResponseEntity<ByteArray> {
         return if (dokument.erForKilde(Kilde.MIDLERTIDLIG_BREVLAGER)) {
-            bidragJournalpostConsumer.hentDokument(dokument.journalpostId, dokument.dokumentId)
+            bidragJournalpostConsumer.hentDokument(dokument.journalpostId, dokument.dokumentId, rtf)
         } else if (dokument.erForKilde(Kilde.FORSENDELSE)) {
             bidragForsendelseConsumer.hentDokument(dokument.journalpostId, dokument.dokumentId)
         } else {
@@ -137,12 +147,13 @@ class DokumentService(
         documentProperties: DocumentProperties,
     ): ByteArray {
         documentProperties.numberOfDocuments = dokumentList.size
-        val dokumentBytes = dokumentList.map {
-            hentDokument(
-                it,
-                DocumentProperties(documentProperties, dokumentList.indexOf(it)),
-            ).body!!
-        }
+        val dokumentBytes =
+            dokumentList.map {
+                hentDokument(
+                    it,
+                    DocumentProperties(documentProperties, dokumentList.indexOf(it)),
+                ).body!!
+            }
         return PDFDokumentMerger.merge(dokumentBytes, documentProperties)
     }
 
@@ -155,12 +166,13 @@ class DokumentService(
         return DokumentRef(
             journalpostId = dokument.journalpostId,
             dokumentId = dokument.dokumentreferanse,
-            kilde = when (dokument.arkivsystem) {
-                DokumentArkivSystemDto.MIDLERTIDLIG_BREVLAGER -> Kilde.MIDLERTIDLIG_BREVLAGER
-                DokumentArkivSystemDto.JOARK -> Kilde.JOARK
-                DokumentArkivSystemDto.BIDRAG -> Kilde.FORSENDELSE
-                else -> null
-            },
+            kilde =
+                when (dokument.arkivsystem) {
+                    DokumentArkivSystemDto.MIDLERTIDLIG_BREVLAGER -> Kilde.MIDLERTIDLIG_BREVLAGER
+                    DokumentArkivSystemDto.JOARK -> Kilde.JOARK
+                    DokumentArkivSystemDto.BIDRAG -> Kilde.FORSENDELSE
+                    else -> null
+                },
         )
     }
 

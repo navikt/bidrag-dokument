@@ -63,13 +63,17 @@ internal class CorrelationIdFilterTest {
             )
         } returns HttpResponse.from(HttpStatus.I_AM_A_TEAPOT)
         val response =
-            securedTestRestTemplate.getForEntity<JournalpostResponse>("http://localhost:$port/bidrag-dokument/journal/BID-123?saksnummer=777")
+            securedTestRestTemplate
+                .getForEntity<JournalpostResponse>("http://localhost:$port/bidrag-dokument/journal/BID-123?saksnummer=777")
         assertSoftly {
-            Assertions.assertThat(response).extracting { it.statusCode }
+            Assertions
+                .assertThat(response)
+                .extracting { it.statusCode }
                 .isEqualTo(HttpStatus.I_AM_A_TEAPOT);
             {
                 val loggingEventCaptor = ArgumentCaptor.forClass(ILoggingEvent::class.java)
-                Mockito.verify(appenderMock, Mockito.atLeastOnce())
+                Mockito
+                    .verify(appenderMock, Mockito.atLeastOnce())
                     .doAppend(loggingEventCaptor.capture())
             }
         }
