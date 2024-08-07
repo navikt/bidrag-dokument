@@ -75,11 +75,12 @@ class DokumentController(private val dokumentService: DokumentService) {
         @PathVariable(required = false) dokumentreferanse: String?,
         @RequestParam(required = false) resizeToA4: Boolean,
         @RequestParam(required = false, defaultValue = "true") optimizeForPrint: Boolean,
-    ): ResponseEntity<ByteArray> {
-        log.info("Henter dokument med journalpostId=$journalpostId og dokumentreferanse=$dokumentreferanse, resizeToA4=$resizeToA4")
+        @RequestParam("rtf", required = false) rtfFile: Boolean = false,
+        ): ResponseEntity<ByteArray> {
+        log.info("Henter dokument med journalpostId=$journalpostId og dokumentreferanse=$dokumentreferanse, resizeToA4=$resizeToA4, rtfFile=$rtfFile")
         val dokument = DokumentRef(journalpostId, dokumentreferanse, null)
         val response =
-            dokumentService.hentDokument(dokument, DocumentProperties(resizeToA4, optimizeForPrint))
+            if (rtfFile) dokumentService.hentDokumentRTF(dokument) else dokumentService.hentDokument(dokument, DocumentProperties(resizeToA4, optimizeForPrint))
 
         response.body
             ?.also {
