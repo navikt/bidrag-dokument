@@ -183,11 +183,13 @@ class BidragDokumentConsumer(
     fun hentDokument(
         journalpostId: String?,
         dokumentreferanse: String?,
+        rtf: Boolean = false,
     ): ResponseEntity<ByteArray> {
-        if (journalpostId.isNullOrEmpty()) return hentDokument(dokumentreferanse)
+        if (journalpostId.isNullOrEmpty()) return hentDokument(dokumentreferanse, rtf)
         val dokumentReferanseUrl =
             if (!dokumentreferanse.isNullOrEmpty()) "/$dokumentreferanse" else ""
-        val dokumentUrl = String.format(PATH_HENT_DOKUMENT, journalpostId) + dokumentReferanseUrl
+        val rtfQuery = if (rtf) "?rtf=true" else ""
+        val dokumentUrl = String.format(PATH_HENT_DOKUMENT, journalpostId) + dokumentReferanseUrl + rtfQuery
         return restTemplate.exchange(
             dokumentUrl,
             HttpMethod.GET,
@@ -226,8 +228,12 @@ class BidragDokumentConsumer(
         ).body
     }
 
-    fun hentDokument(dokumentreferanse: String?): ResponseEntity<ByteArray> {
-        val dokumentUrl = String.format(PATH_HENT_DOKUMENT_REFERANSE, dokumentreferanse)
+    fun hentDokument(
+        dokumentreferanse: String?,
+        rtf: Boolean = false,
+    ): ResponseEntity<ByteArray> {
+        val rtfQuery = if (rtf) "?rtf=true" else ""
+        val dokumentUrl = String.format(PATH_HENT_DOKUMENT_REFERANSE, dokumentreferanse) + rtfQuery
         return restTemplate.exchange(
             dokumentUrl,
             HttpMethod.GET,
