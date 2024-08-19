@@ -135,7 +135,8 @@ class JournalpostController(private val journalpostService: JournalpostService) 
         }
         log.info("Henter journalpost $journalpostId for saksnummer $saksnummer")
         val response = journalpostService.hentJournalpost(saksnummer, kildesystemIdenfikator)
-        return response.clearContentHeaders().responseEntity
+//        return response.clearContentHeaders().responseEntity
+        return ResponseEntity.ok(response.fetchBody().get())
     }
 
     @GetMapping("/journal/{journalpostIdForKildesystem}/avvik")
