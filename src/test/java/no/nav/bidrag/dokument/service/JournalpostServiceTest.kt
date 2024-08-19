@@ -63,7 +63,7 @@ internal class JournalpostServiceTest {
         )
         val httpStatusResponse =
             journalpostService.hentJournalpost("69", KildesystemIdenfikator("joark-3"))
-        Assertions.assertThat(httpStatusResponse.body).isNull()
+        Assertions.assertThat(httpStatusResponse.body).isNotNull()
     }
 
     @Test
