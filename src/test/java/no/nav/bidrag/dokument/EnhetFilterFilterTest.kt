@@ -6,7 +6,6 @@ import ch.qos.logback.core.Appender
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
 import io.mockk.verify
-import no.nav.bidrag.commons.web.HttpResponse.Companion.from
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate
 import no.nav.bidrag.dokument.consumer.BidragDokumentConsumer.Companion.createEnhetHeader
 import no.nav.bidrag.dokument.service.JournalpostService
@@ -22,6 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest(classes = [BidragDokumentTest::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -60,7 +60,7 @@ internal class EnhetFilterFilterTest {
                 any(),
                 any(),
             )
-        } returns from(HttpStatus.I_AM_A_TEAPOT)
+        } returns ResponseEntity(HttpStatus.I_AM_A_TEAPOT)
         val response =
             securedTestRestTemplate.getForEntity<String>("http://localhost:$port/bidrag-dokument/journal/BID-123?saksnummer=777")
         assertAll(
@@ -79,7 +79,7 @@ internal class EnhetFilterFilterTest {
     @Test
     @DisplayName("skal logge requests mot applikasjonen som ikke inneholder enhetsinformasjon i header")
     fun skalLoggeRequestsMotApplikasjonenMedHeaderInformasjon() {
-        every { journalpostServiceMock.hentJournalpost(any(), any()) } returns from(HttpStatus.I_AM_A_TEAPOT)
+        every { journalpostServiceMock.hentJournalpost(any(), any()) } returns ResponseEntity(HttpStatus.I_AM_A_TEAPOT)
         val enhet = "4802"
         val htpEntity = HttpEntity<Void>(null, createEnhetHeader(enhet))
         val response =
