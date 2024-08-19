@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest(
@@ -33,7 +34,6 @@ import org.springframework.test.context.ActiveProfiles
 @ActiveProfiles(BidragDokumentTest.TEST_PROFILE, "mock-security")
 @DisplayName("CorrelationIdFilter")
 @EnableMockOAuth2Server
-@Disabled("")
 internal class CorrelationIdFilterTest {
     @Autowired
     private lateinit var securedTestRestTemplate: HttpHeaderTestRestTemplate
@@ -63,7 +63,7 @@ internal class CorrelationIdFilterTest {
                 any(),
                 any<KildesystemIdenfikator>(),
             )
-        } returns HttpResponse.from(HttpStatus.I_AM_A_TEAPOT)
+        } returns ResponseEntity(HttpStatus.I_AM_A_TEAPOT)
         val response =
             securedTestRestTemplate.getForEntity<JournalpostResponse>("http://localhost:$port/bidrag-dokument/journal/BID-123?saksnummer=777")
         assertSoftly {

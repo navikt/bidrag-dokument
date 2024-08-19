@@ -112,7 +112,7 @@ class JournalpostController(private val journalpostService: JournalpostService) 
         @Parameter(name = "saksnummer", description = "journalposten tilhører sak")
         @RequestParam(required = false)
         saksnummer: String?,
-    ): ResponseEntity<JournalpostResponse?> {
+    ): ResponseEntity<JournalpostResponse> {
         var journalpostId = journalpostIdForKildesystem
         if (!Strings.isNullOrEmpty(journalpostIdForKildesystem) && journalpostIdForKildesystem.contains(
                 ":",
@@ -134,8 +134,7 @@ class JournalpostController(private val journalpostService: JournalpostService) 
             )
         }
         log.info("Henter journalpost $journalpostId for saksnummer $saksnummer")
-        val response = journalpostService.hentJournalpost(saksnummer, kildesystemIdenfikator)
-        return ResponseEntity.ok(response.fetchBody().get())
+        return journalpostService.hentJournalpost(saksnummer, kildesystemIdenfikator)
     }
 
     @GetMapping("/journal/{journalpostIdForKildesystem}/avvik")
@@ -174,7 +173,7 @@ class JournalpostController(private val journalpostService: JournalpostService) 
                 HttpStatus.BAD_REQUEST,
             )
         } else {
-            journalpostService.finnAvvik(saksnummer, kildesystemIdenfikator).responseEntity
+            journalpostService.finnAvvik(saksnummer, kildesystemIdenfikator)
         }
     }
 
@@ -245,7 +244,7 @@ class JournalpostController(private val journalpostService: JournalpostService) 
                 enhet,
                 kildesystemIdenfikator,
                 avvikshendelse,
-            ).responseEntity
+            )
         }
     }
 
@@ -300,7 +299,7 @@ class JournalpostController(private val journalpostService: JournalpostService) 
             endreJournalpostCommand.copy(
                 journalpostId = journalpostIdForKildesystem,
             ),
-        ).responseEntity
+        )
     }
 
     @PostMapping("/journalpost/{arkivSystem}")
@@ -323,7 +322,7 @@ class JournalpostController(private val journalpostService: JournalpostService) 
         @PathVariable arkivSystem: ArkivSystem,
     ): ResponseEntity<OpprettJournalpostResponse> {
         sikkerLogg.info("Oppretter journalpost $opprettJournalpostRequest for arkivsystem $arkivSystem")
-        return journalpostService.opprett(opprettJournalpostRequest, arkivSystem).responseEntity
+        return journalpostService.opprett(opprettJournalpostRequest, arkivSystem)
     }
 
     @PostMapping("/journal/distribuer/{joarkJournalpostId}")
@@ -365,7 +364,7 @@ class JournalpostController(private val journalpostService: JournalpostService) 
             batchId,
             kildesystemIdenfikator,
             distribuerJournalpostRequest ?: DistribuerJournalpostRequest(),
-        ).responseEntity
+        )
     }
 
     @GetMapping("/journal/distribuer/{journalpostId}/enabled")
@@ -399,7 +398,7 @@ class JournalpostController(private val journalpostService: JournalpostService) 
                 .header(HttpHeaders.WARNING, msgBadRequest)
                 .build()
         }
-        return journalpostService.kanDistribuereJournalpost(kildesystemIdenfikator).responseEntity
+        return journalpostService.kanDistribuereJournalpost(kildesystemIdenfikator)
     }
 
     @GetMapping("/journal/distribuer/info/{journalpostId}")
