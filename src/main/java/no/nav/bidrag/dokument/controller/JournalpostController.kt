@@ -85,7 +85,7 @@ class JournalpostController(private val journalpostService: JournalpostService) 
         val journalposter = journalpostService.finnJournalposter(saksnummer, fagomrade)
             .filter { if (bareFarskapUtelukket) it.erFarskapUtelukketEllerBidragJournalpostMedTemaFar() else !it.erFarskapUtelukketEllerBidragJournalpostMedTemaFar() }
 
-        return ResponseEntity(journalposter, HttpStatus.OK)
+        return ResponseEntity.ok(journalposter)
     }
 
     @GetMapping("/journal/{journalpostIdForKildesystem}")
@@ -135,7 +135,6 @@ class JournalpostController(private val journalpostService: JournalpostService) 
         }
         log.info("Henter journalpost $journalpostId for saksnummer $saksnummer")
         val response = journalpostService.hentJournalpost(saksnummer, kildesystemIdenfikator)
-//        return response.clearContentHeaders().responseEntity
         return ResponseEntity.ok(response.fetchBody().get())
     }
 
