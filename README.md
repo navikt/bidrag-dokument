@@ -125,3 +125,4 @@ kubectl exec --tty deployment/bidrag-dokument printenv | grep -E 'AZURE_|TOKEN_X
 
 Deretter kan tokenet brukes til å logge inn på
 swagger-ui http://localhost:8080/bidrag-dokument/swagger-ui/index.html og teste ut ulike api kall
+2
