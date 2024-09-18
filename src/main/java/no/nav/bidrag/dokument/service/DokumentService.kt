@@ -76,7 +76,18 @@ class DokumentService(
     fun erFerdigstilt(
         dokumentreferanse: String,
     ): ResponseEntity<Boolean> {
-        return bidragJournalpostConsumer.erFerdigstilt(dokumentreferanse)
+        return bidragJournalpostConsumer.erFerdigstilt(dokumentreferanse).toResponseEntity()
+    }
+
+    protected fun <T> ResponseEntity<T>.toResponseEntity(): ResponseEntity<T> {
+        val response = ResponseEntity.status(statusCode)
+        headers.filter { forwardHeaders.contains(it.key) }
+            .forEach { (key, value) ->
+                value.firstOrNull()?.let {
+                    response.header(key, value.firstOrNull())
+                }
+            }
+        return response.body(body)
     }
 
     @Timed("hentDokumenter")

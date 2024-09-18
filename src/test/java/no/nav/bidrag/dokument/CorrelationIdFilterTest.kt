@@ -7,7 +7,6 @@ import com.ninjasquad.springmockk.MockkBean
 import io.kotest.assertions.assertSoftly
 import io.mockk.every
 import no.nav.bidrag.commons.util.KildesystemIdenfikator
-import no.nav.bidrag.commons.web.HttpResponse
 import no.nav.bidrag.commons.web.test.HttpHeaderTestRestTemplate
 import no.nav.bidrag.dokument.service.JournalpostService
 import no.nav.bidrag.transport.dokument.JournalpostResponse
@@ -23,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest(
@@ -61,7 +61,7 @@ internal class CorrelationIdFilterTest {
                 any(),
                 any<KildesystemIdenfikator>(),
             )
-        } returns HttpResponse.from(HttpStatus.I_AM_A_TEAPOT)
+        } returns ResponseEntity(HttpStatus.I_AM_A_TEAPOT)
         val response =
             securedTestRestTemplate.getForEntity<JournalpostResponse>("http://localhost:$port/bidrag-dokument/journal/BID-123?saksnummer=777")
         assertSoftly {
