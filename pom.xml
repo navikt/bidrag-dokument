@@ -25,7 +25,7 @@
     <kotlin.version>1.9.22</kotlin.version>
 
     <!-- dependent versions other than from spring-boot -->
-    <bidrag-felles.version>2024.08.19.124814</bidrag-felles.version>
+    <bidrag-felles.version>2024.0116.140525</bidrag-felles.version>
     <logback.encoder.version>7.4</logback.encoder.version>
     <springdoc-openapi-ui.version>2.3.0</springdoc-openapi-ui.version>
     <springframework-cloud.version>4.1.0</springframework-cloud.version>
