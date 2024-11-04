@@ -35,6 +35,9 @@ azure:
       - application: bidrag-behandling
         namespace: bidrag
         cluster: dev-gcp
+      - application: bidrag-behandling-q2
+        namespace: bidrag
+        cluster: dev-gcp
 ingresses:
   - https://bidrag-dokument.nais.preprod.local/
   - https://bidrag-dokument.dev.adeo.no/
