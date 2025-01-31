@@ -172,12 +172,13 @@ class BidragDokumentConsumer(
 
     fun hentDistribusjonsInfo(journalpostId: String): DistribusjonInfoDto? {
         val path = String.format(PATH_HENT_DIST_INFO, journalpostId)
-        return restTemplate.exchange(
-            path,
-            HttpMethod.GET,
-            null,
-            DistribusjonInfoDto::class.java,
-        ).body
+        return restTemplate
+            .exchange(
+                path,
+                HttpMethod.GET,
+                null,
+                DistribusjonInfoDto::class.java,
+            ).body
     }
 
     fun hentDokument(
@@ -207,23 +208,25 @@ class BidragDokumentConsumer(
         val dokumentReferanseUrl =
             if (!dokumentreferanse.isNullOrEmpty()) "/$dokumentreferanse" else ""
         val dokumentUrl = String.format(PATH_HENT_DOKUMENT, journalpostId) + dokumentReferanseUrl
-        return restTemplate.exchange(
-            dokumentUrl,
-            HttpMethod.OPTIONS,
-            HttpEntity.EMPTY,
-            object : ParameterizedTypeReference<List<DokumentMetadata>>() {},
-        ).body
+        return restTemplate
+            .exchange(
+                dokumentUrl,
+                HttpMethod.OPTIONS,
+                HttpEntity.EMPTY,
+                object : ParameterizedTypeReference<List<DokumentMetadata>>() {},
+            ).body
             ?: emptyList()
     }
 
     fun hentDokumentMetadata(dokumentreferanse: String?): List<DokumentMetadata>? {
         val dokumentUrl = String.format(PATH_HENT_DOKUMENT_REFERANSE, dokumentreferanse)
-        return restTemplate.exchange(
-            dokumentUrl,
-            HttpMethod.OPTIONS,
-            HttpEntity.EMPTY,
-            object : ParameterizedTypeReference<List<DokumentMetadata>>() {},
-        ).body
+        return restTemplate
+            .exchange(
+                dokumentUrl,
+                HttpMethod.OPTIONS,
+                HttpEntity.EMPTY,
+                object : ParameterizedTypeReference<List<DokumentMetadata>>() {},
+            ).body
     }
 
     fun hentDokument(dokumentreferanse: String?): ResponseEntity<ByteArray> {
@@ -246,9 +249,8 @@ class BidragDokumentConsumer(
         )
     }
 
-    private fun typereferansenErListeMedAvvikstyper(): ParameterizedTypeReference<List<AvvikType>> {
-        return object : ParameterizedTypeReference<List<AvvikType>>() {}
-    }
+    private fun typereferansenErListeMedAvvikstyper(): ParameterizedTypeReference<List<AvvikType>> =
+        object : ParameterizedTypeReference<List<AvvikType>>() {}
 
     companion object {
         private const val PATH_JOURNAL = "/sak/%s/journal"
@@ -270,9 +272,8 @@ class BidragDokumentConsumer(
         const val PATH_HENT_DOKUMENT_REFERANSE = "/dokumentreferanse/%s"
         const val PATH_HENT_DOKUMENT_ER_FERDIGSTILT = "/dokumentreferanse/%s/erFerdigstilt"
 
-        private fun typereferansenErListeMedJournalposter(): ParameterizedTypeReference<List<JournalpostDto>> {
-            return object : ParameterizedTypeReference<List<JournalpostDto>>() {}
-        }
+        private fun typereferansenErListeMedJournalposter(): ParameterizedTypeReference<List<JournalpostDto>> =
+            object : ParameterizedTypeReference<List<JournalpostDto>>() {}
 
         @JvmStatic
         fun createEnhetHeader(enhet: String?): HttpHeaders {

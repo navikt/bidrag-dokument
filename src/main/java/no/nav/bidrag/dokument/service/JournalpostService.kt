@@ -10,6 +10,7 @@ import no.nav.bidrag.commons.util.KildesystemIdenfikator
 import no.nav.bidrag.commons.util.KildesystemIdenfikator.Kildesystem
 import no.nav.bidrag.commons.util.RequestContextAsyncContext
 import no.nav.bidrag.commons.util.SecurityCoroutineContext
+import no.nav.bidrag.commons.util.secureLogger
 import no.nav.bidrag.commons.web.BidragHttpHeaders.NAV_CALL_ID
 import no.nav.bidrag.commons.web.BidragHttpHeaders.NAV_CONSUMER_ID
 import no.nav.bidrag.commons.web.BidragHttpHeaders.X_ENHET
@@ -46,7 +47,9 @@ class JournalpostService(
     protected fun <T> HttpResponse<T>.toResponseEntity(): ResponseEntity<T> {
         val response = ResponseEntity.status(responseEntity.statusCode)
         val headers = fetchHeaders()
-        headers.filter { forwardHeaders.contains(it.key) }
+        secureLogger.info { "Fikk headere fra respons: ${headers.map { "${it.key}: ${it.value.firstOrNull()}" }.joinToString(", ")}" }
+        headers
+            .filter { forwardHeaders.contains(it.key) }
             .forEach { (key, value) ->
                 value.firstOrNull()?.let {
                     response.header(key, value.firstOrNull())
@@ -55,11 +58,12 @@ class JournalpostService(
         return response
             .body(fetchBody().getOrNull())
     }
+
     fun hentJournalpost(
         saksnummer: String?,
         kildesystemIdenfikator: KildesystemIdenfikator,
-    ): ResponseEntity<JournalpostResponse> {
-        return (
+    ): ResponseEntity<JournalpostResponse> =
+        (
             if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) {
                 bidragJournalpostConsumer.hentJournalpost(
                     saksnummer,
@@ -76,14 +80,13 @@ class JournalpostService(
                     kildesystemIdenfikator.prefiksetJournalpostId,
                 )
             }
-            ).toResponseEntity()
-    }
+        ).toResponseEntity()
 
     fun finnAvvik(
         saksnummer: String?,
         kildesystemIdenfikator: KildesystemIdenfikator,
-    ): ResponseEntity<List<AvvikType>> {
-        return (
+    ): ResponseEntity<List<AvvikType>> =
+        (
             if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) {
                 bidragJournalpostConsumer.finnAvvik(
                     saksnummer,
@@ -100,15 +103,14 @@ class JournalpostService(
                     kildesystemIdenfikator.prefiksetJournalpostId,
                 )
             }
-            ).toResponseEntity()
-    }
+        ).toResponseEntity()
 
     fun behandleAvvik(
         enhet: String?,
         kildesystemIdenfikator: KildesystemIdenfikator,
         avvikshendelse: Avvikshendelse?,
-    ): ResponseEntity<BehandleAvvikshendelseResponse> {
-        return (
+    ): ResponseEntity<BehandleAvvikshendelseResponse> =
+        (
             if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) {
                 bidragJournalpostConsumer.behandleAvvik(
                     enhet,
@@ -128,8 +130,7 @@ class JournalpostService(
                     avvikshendelse,
                 )
             }
-            ).toResponseEntity()
-    }
+        ).toResponseEntity()
 
     suspend fun finnJournalposter(
         saksnummer: String,
@@ -139,12 +140,12 @@ class JournalpostService(
             CoroutineScope(Dispatchers.IO + SecurityCoroutineContext() + RequestContextAsyncContext())
         return runBlocking {
             awaitAll(
-                scope.async {
-                    bidragJournalpostConsumer.finnJournalposter(
-                        saksnummer,
-                        fagomrade,
-                    )
-                },
+//                scope.async {
+//                    bidragJournalpostConsumer.finnJournalposter(
+//                        saksnummer,
+//                        fagomrade,
+//                    )
+//                },
                 scope.async {
                     bidragArkivConsumer.finnJournalposter(saksnummer, fagomrade)
                 },
@@ -162,8 +163,8 @@ class JournalpostService(
         enhet: String?,
         kildesystemIdenfikator: KildesystemIdenfikator,
         endreJournalpostCommand: EndreJournalpostCommand,
-    ): ResponseEntity<Void> {
-        return (
+    ): ResponseEntity<Void> =
+        (
             if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) {
                 bidragJournalpostConsumer.endre(enhet, endreJournalpostCommand)
             } else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) {
@@ -171,28 +172,26 @@ class JournalpostService(
             } else {
                 bidragForsendelseConsumer.endre(enhet, endreJournalpostCommand)
             }
-            ).toResponseEntity()
-    }
+        ).toResponseEntity()
 
     fun opprett(
         opprettJournalpostRequest: OpprettJournalpostRequest,
         arkivSystem: ArkivSystem,
-    ): ResponseEntity<OpprettJournalpostResponse> {
-        return (
+    ): ResponseEntity<OpprettJournalpostResponse> =
+        (
             if (ArkivSystem.BIDRAG == arkivSystem) {
                 bidragJournalpostConsumer.opprett(opprettJournalpostRequest)
             } else {
                 bidragArkivConsumer.opprett(opprettJournalpostRequest)
             }
-            ).toResponseEntity()
-    }
+        ).toResponseEntity()
 
     fun distribuerJournalpost(
         batchId: String?,
         kildesystemIdenfikator: KildesystemIdenfikator,
         distribuerJournalpostRequest: DistribuerJournalpostRequest,
-    ): ResponseEntity<DistribuerJournalpostResponse> {
-        return (
+    ): ResponseEntity<DistribuerJournalpostResponse> =
+        (
             if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) {
                 bidragJournalpostConsumer.distribuerJournalpost(
                     kildesystemIdenfikator.prefiksetJournalpostId,
@@ -212,11 +211,10 @@ class JournalpostService(
                     distribuerJournalpostRequest,
                 )
             }
-            ).toResponseEntity()
-    }
+        ).toResponseEntity()
 
-    fun kanDistribuereJournalpost(kildesystemIdenfikator: KildesystemIdenfikator): ResponseEntity<Void> {
-        return (
+    fun kanDistribuereJournalpost(kildesystemIdenfikator: KildesystemIdenfikator): ResponseEntity<Void> =
+        (
             if (kildesystemIdenfikator.erFor(Kildesystem.BIDRAG)) {
                 bidragJournalpostConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.prefiksetJournalpostId)
             } else if (kildesystemIdenfikator.erFor(Kildesystem.JOARK)) {
@@ -224,16 +222,14 @@ class JournalpostService(
             } else {
                 bidragForsendelseConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.prefiksetJournalpostId)
             }
-            ).toResponseEntity()
-    }
+        ).toResponseEntity()
 
-    fun hentDistribusjonsInfo(journalpostId: JournalpostId): DistribusjonInfoDto? {
-        return if (journalpostId.erSystemBidrag) {
+    fun hentDistribusjonsInfo(journalpostId: JournalpostId): DistribusjonInfoDto? =
+        if (journalpostId.erSystemBidrag) {
             bidragJournalpostConsumer.hentDistribusjonsInfo(journalpostId.medSystemPrefiks!!)
         } else if (journalpostId.erSystemJoark) {
             bidragArkivConsumer.hentDistribusjonsInfo(journalpostId.medSystemPrefiks!!)
         } else {
             bidragForsendelseConsumer.hentDistribusjonsInfo(journalpostId.medSystemPrefiks!!)
         }
-    }
 }

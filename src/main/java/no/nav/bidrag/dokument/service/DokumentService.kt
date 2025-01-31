@@ -31,13 +31,11 @@ class DokumentService(
     fun hentTilgangUrl(
         journalpostId: String?,
         dokumentreferanse: String?,
-    ): DokumentTilgangResponse? {
-        return dokumentTilgangConsumer.hentTilgangUrl(journalpostId, dokumentreferanse)
-    }
+    ): DokumentTilgangResponse? = dokumentTilgangConsumer.hentTilgangUrl(journalpostId, dokumentreferanse)
 
     @Timed("hentDokumentMetadata")
-    fun hentDokumentMetadata(dokumentRef: DokumentRef): List<DokumentMetadata> {
-        return if (dokumentRef.erForKilde(Kilde.MIDLERTIDLIG_BREVLAGER)) {
+    fun hentDokumentMetadata(dokumentRef: DokumentRef): List<DokumentMetadata> =
+        if (dokumentRef.erForKilde(Kilde.MIDLERTIDLIG_BREVLAGER)) {
             bidragJournalpostConsumer.hentDokumentMetadata(
                 dokumentRef.journalpostId,
                 dokumentRef.dokumentId,
@@ -53,7 +51,6 @@ class DokumentService(
                 dokumentRef.dokumentId,
             )
         }
-    }
 
     @Timed("hentDokument")
     fun hentDokument(
@@ -66,22 +63,21 @@ class DokumentService(
             return hentDokumenterData(dokumentReferanser, documentProperties)
         }
         val response = hentDokumentData(dokumentRef)
-        return ResponseEntity.ok()
+        return ResponseEntity
+            .ok()
             .contentType(MediaType.APPLICATION_PDF)
             .header(HttpHeaders.CONTENT_DISPOSITION, response.headers.contentDisposition.toString())
             .body(response.body?.let { PDFDokumentProcessor().process(it, documentProperties) })
     }
 
     @Timed("erFerdigstilt")
-    fun erFerdigstilt(
-        dokumentreferanse: String,
-    ): ResponseEntity<Boolean> {
-        return bidragJournalpostConsumer.erFerdigstilt(dokumentreferanse).toResponseEntity()
-    }
+    fun erFerdigstilt(dokumentreferanse: String): ResponseEntity<Boolean> =
+        bidragJournalpostConsumer.erFerdigstilt(dokumentreferanse).toResponseEntity()
 
     protected fun <T> ResponseEntity<T>.toResponseEntity(): ResponseEntity<T> {
         val response = ResponseEntity.status(statusCode)
-        headers.filter { forwardHeaders.contains(it.key) }
+        headers
+            .filter { forwardHeaders.contains(it.key) }
             .forEach { (key, value) ->
                 value.firstOrNull()?.let {
                     response.header(key, value.firstOrNull())
@@ -99,39 +95,37 @@ class DokumentService(
         return hentDokumenterData(dokumenter, documentProperties)
     }
 
-    private fun hentDokumentData(dokument: DokumentRef): ResponseEntity<ByteArray> {
-        return if (dokument.erForKilde(Kilde.MIDLERTIDLIG_BREVLAGER)) {
+    private fun hentDokumentData(dokument: DokumentRef): ResponseEntity<ByteArray> =
+        if (dokument.erForKilde(Kilde.MIDLERTIDLIG_BREVLAGER)) {
             bidragJournalpostConsumer.hentDokument(dokument.journalpostId, dokument.dokumentId)
         } else if (dokument.erForKilde(Kilde.FORSENDELSE)) {
             bidragForsendelseConsumer.hentDokument(dokument.journalpostId, dokument.dokumentId)
         } else {
             bidragArkivConsumer.hentDokument(dokument.journalpostId, dokument.dokumentId)
         }
-    }
 
-    private fun hentDokumentRefMedRiktigKilde(dokumentRef: DokumentRef): DokumentRef {
-        return if (dokumentRef.erForKilde(Kilde.FORSENDELSE) && dokumentRef.hasDokumentId()) {
+    private fun hentDokumentRefMedRiktigKilde(dokumentRef: DokumentRef): DokumentRef =
+        if (dokumentRef.erForKilde(Kilde.FORSENDELSE) && dokumentRef.hasDokumentId()) {
             hentDokumentMetadata(dokumentRef)
                 .firstOrNull()
                 ?.let { mapDokumentTilDokumentRef(it) } ?: dokumentRef
         } else {
             dokumentRef
         }
-    }
 
     private fun hentDokumenterData(
         dokumentRefList: List<DokumentRef>,
         documentProperties: DocumentProperties,
-    ): ResponseEntity<ByteArray> {
-        return try {
+    ): ResponseEntity<ByteArray> =
+        try {
             val dokumentByte = hentOgMergeAlleDokumenter(dokumentRefList, documentProperties)
-            ResponseEntity.ok()
+            ResponseEntity
+                .ok()
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(
                     HttpHeaders.CONTENT_DISPOSITION,
                     "inline; filename=dokumenter_sammenslatt.pdf",
-                )
-                .body(dokumentByte)
+                ).body(dokumentByte)
         } catch (e: Exception) {
             LOGGER.error("Det skjedde en feil ved henting av dokumenter {}", dokumentRefList, e)
             if (e is HttpStatusCodeException) {
@@ -140,7 +134,6 @@ class DokumentService(
                 ResponseEntity.internalServerError().build()
             }
         }
-    }
 
     @Throws(IOException::class)
     private fun hentOgMergeAlleDokumenter(
@@ -148,12 +141,13 @@ class DokumentService(
         documentProperties: DocumentProperties,
     ): ByteArray {
         documentProperties.numberOfDocuments = dokumentList.size
-        val dokumentBytes = dokumentList.map {
-            hentDokument(
-                it,
-                DocumentProperties(documentProperties, dokumentList.indexOf(it)),
-            ).body!!
-        }
+        val dokumentBytes =
+            dokumentList.map {
+                hentDokument(
+                    it,
+                    DocumentProperties(documentProperties, dokumentList.indexOf(it)),
+                ).body!!
+            }
         return PDFDokumentMerger.merge(dokumentBytes, documentProperties)
     }
 
@@ -162,23 +156,24 @@ class DokumentService(
         return metadataList.map { dokumentMetadata -> mapDokumentTilDokumentRef(dokumentMetadata) }
     }
 
-    private fun mapDokumentTilDokumentRef(dokument: DokumentMetadata): DokumentRef {
-        return DokumentRef(
+    private fun mapDokumentTilDokumentRef(dokument: DokumentMetadata): DokumentRef =
+        DokumentRef(
             journalpostId = dokument.journalpostId,
             dokumentId = dokument.dokumentreferanse,
-            kilde = when (dokument.arkivsystem) {
-                DokumentArkivSystemDto.MIDLERTIDLIG_BREVLAGER -> Kilde.MIDLERTIDLIG_BREVLAGER
-                DokumentArkivSystemDto.JOARK -> Kilde.JOARK
-                DokumentArkivSystemDto.BIDRAG -> Kilde.FORSENDELSE
-                else -> null
-            },
+            kilde =
+                when (dokument.arkivsystem) {
+                    DokumentArkivSystemDto.MIDLERTIDLIG_BREVLAGER -> Kilde.MIDLERTIDLIG_BREVLAGER
+                    DokumentArkivSystemDto.JOARK -> Kilde.JOARK
+                    DokumentArkivSystemDto.BIDRAG -> Kilde.FORSENDELSE
+                    else -> null
+                },
         )
-    }
 
-    private fun parseDokumentString(dokumenterString: List<String>): List<DokumentRef> {
-        return dokumenterString.stream().map { str: String? -> DokumentRef.parseFromString(str!!) }
+    private fun parseDokumentString(dokumenterString: List<String>): List<DokumentRef> =
+        dokumenterString
+            .stream()
+            .map { str: String? -> DokumentRef.parseFromString(str!!) }
             .collect(Collectors.toList())
-    }
 
     companion object {
         private val LOGGER = LoggerFactory.getLogger(DokumentService::class.java)
