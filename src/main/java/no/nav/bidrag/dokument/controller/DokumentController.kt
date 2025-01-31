@@ -23,7 +23,9 @@ private val log = KotlinLogging.logger {}
 @RestController
 @Protected
 @Timed
-class DokumentController(private val dokumentService: DokumentService) {
+class DokumentController(
+    private val dokumentService: DokumentService,
+) {
     @GetMapping(
         "/tilgang/{journalpostId}/{dokumentreferanse}",
         "/tilgang/dokumentreferanse/{dokumentreferanse}",
@@ -79,9 +81,11 @@ class DokumentController(private val dokumentService: DokumentService) {
     @GetMapping("/dokumentreferanse/{dokumentreferanse}/erFerdigstilt")
     fun erFerdigstilt(
         @PathVariable dokumentreferanse: String,
-    ): ResponseEntity<Boolean> {
+    ): Boolean {
         log.info("Sjekker om dokument $dokumentreferanse er ferdigstilt")
-        return dokumentService.erFerdigstilt(dokumentreferanse)
+        return dokumentService
+            .erFerdigstilt(dokumentreferanse)
+            .body ?: false
     }
 
     @GetMapping(*["/dokument"])
@@ -96,10 +100,11 @@ class DokumentController(private val dokumentService: DokumentService) {
         @RequestParam(required = false) resizeToA4: Boolean,
     ): ResponseEntity<ByteArray> {
         log.info("Henter dokumenter $dokumentreferanseList med resizeToA4=$resizeToA4, optimizeForPrint=$optimizeForPrint")
-        val response = dokumentService.hentDokumenter(
-            dokumentreferanseList,
-            DocumentProperties(resizeToA4, optimizeForPrint),
-        )
+        val response =
+            dokumentService.hentDokumenter(
+                dokumentreferanseList,
+                DocumentProperties(resizeToA4, optimizeForPrint),
+            )
 
         response.body?.also {
             log.info(
