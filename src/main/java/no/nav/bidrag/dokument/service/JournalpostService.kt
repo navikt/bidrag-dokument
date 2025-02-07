@@ -80,7 +80,7 @@ class JournalpostService(
                     kildesystemIdenfikator.prefiksetJournalpostId,
                 )
             }
-        ).toResponseEntity()
+            ).toResponseEntity()
 
     fun finnAvvik(
         saksnummer: String?,
@@ -103,7 +103,7 @@ class JournalpostService(
                     kildesystemIdenfikator.prefiksetJournalpostId,
                 )
             }
-        ).toResponseEntity()
+            ).toResponseEntity()
 
     fun behandleAvvik(
         enhet: String?,
@@ -130,7 +130,7 @@ class JournalpostService(
                     avvikshendelse,
                 )
             }
-        ).toResponseEntity()
+            ).toResponseEntity()
 
     suspend fun finnJournalposter(
         saksnummer: String,
@@ -172,7 +172,7 @@ class JournalpostService(
             } else {
                 bidragForsendelseConsumer.endre(enhet, endreJournalpostCommand)
             }
-        ).toResponseEntity()
+            ).toResponseEntity()
 
     fun opprett(
         opprettJournalpostRequest: OpprettJournalpostRequest,
@@ -184,7 +184,7 @@ class JournalpostService(
             } else {
                 bidragArkivConsumer.opprett(opprettJournalpostRequest)
             }
-        ).toResponseEntity()
+            ).toResponseEntity()
 
     fun distribuerJournalpost(
         batchId: String?,
@@ -211,7 +211,7 @@ class JournalpostService(
                     distribuerJournalpostRequest,
                 )
             }
-        ).toResponseEntity()
+            ).toResponseEntity()
 
     fun kanDistribuereJournalpost(kildesystemIdenfikator: KildesystemIdenfikator): ResponseEntity<Void> =
         (
@@ -222,7 +222,7 @@ class JournalpostService(
             } else {
                 bidragForsendelseConsumer.kanDistribuereJournalpost(kildesystemIdenfikator.prefiksetJournalpostId)
             }
-        ).toResponseEntity()
+            ).toResponseEntity()
 
     fun hentDistribusjonsInfo(journalpostId: JournalpostId): DistribusjonInfoDto? =
         if (journalpostId.erSystemBidrag) {

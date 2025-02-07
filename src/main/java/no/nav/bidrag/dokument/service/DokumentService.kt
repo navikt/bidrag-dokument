@@ -161,12 +161,12 @@ class DokumentService(
             journalpostId = dokument.journalpostId,
             dokumentId = dokument.dokumentreferanse,
             kilde =
-                when (dokument.arkivsystem) {
-                    DokumentArkivSystemDto.MIDLERTIDLIG_BREVLAGER -> Kilde.MIDLERTIDLIG_BREVLAGER
-                    DokumentArkivSystemDto.JOARK -> Kilde.JOARK
-                    DokumentArkivSystemDto.BIDRAG -> Kilde.FORSENDELSE
-                    else -> null
-                },
+            when (dokument.arkivsystem) {
+                DokumentArkivSystemDto.MIDLERTIDLIG_BREVLAGER -> Kilde.MIDLERTIDLIG_BREVLAGER
+                DokumentArkivSystemDto.JOARK -> Kilde.JOARK
+                DokumentArkivSystemDto.BIDRAG -> Kilde.FORSENDELSE
+                else -> null
+            },
         )
 
     private fun parseDokumentString(dokumenterString: List<String>): List<DokumentRef> =
