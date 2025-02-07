@@ -173,6 +173,7 @@ class PDFDokumentProcessor {
             return byteArray
         }
 
+        @OptIn(ExperimentalStdlibApi::class)
         fun bytesIntoHumanReadable(bytes: Long): String {
             val kilobyte: Long = 1024
             val megabyte = kilobyte * 1024
