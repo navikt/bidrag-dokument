@@ -140,12 +140,12 @@ class JournalpostService(
             CoroutineScope(Dispatchers.IO + SecurityCoroutineContext() + RequestContextAsyncContext())
         return runBlocking {
             awaitAll(
-//                scope.async {
-//                    bidragJournalpostConsumer.finnJournalposter(
-//                        saksnummer,
-//                        fagomrade,
-//                    )
-//                },
+                scope.async {
+                    bidragJournalpostConsumer.finnJournalposter(
+                        saksnummer,
+                        fagomrade,
+                    )
+                },
                 scope.async {
                     bidragArkivConsumer.finnJournalposter(saksnummer, fagomrade)
                 },
