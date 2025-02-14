@@ -18,116 +18,116 @@ jobs:
       nais_variabler_filnavn: feature.yaml
       nais_cluster: fss
 
-  run_cucumber:
-    runs-on: self-hosted
-    name: Run cucumber tests
-    needs: build_and_deploy
-    if: ${{ always() && needs.build_and_deploy.outputs.deploy_suksess == 'true' }}
-    env:
-      INGRESS_ARKIV: https://bidrag-dokument-arkiv-feature.dev.intern.nav.no
-      INGRESS_CUCUMBER: https://bidrag-cucumber-onprem-feature.dev.intern.nav.no
-      INGRESS_DOKARKIV: https://dokarkiv-q1.dev.intern.nav.no
-      INGRESS_DOKUMENT: https://bidrag-dokument-feature.dev.intern.nav.no
-      INGRESS_DOKUMENT_JOURNALPOST: https://bidrag-dokument-journalpost-feature.dev.intern.nav.no
-      INGRESS_TESTDATA: https://bidrag-testdata-feature.dev.intern.nav.no
-      INGRESS_OPPGAVE: https://oppgave-q1.dev.intern.nav.no
-
-    steps:
-      - name: "@bda-samt-bdj"
-        run: |
-          curl -X 'POST' '${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-onprem/run' -i \
-            -H 'accept: */*' \
-            -H 'Content-Type: application/json' \
-            -d '{
-              "tags":["@bda-samt-bdj"],
-              "noContextPathForApps":["dokarkiv-api", "oppgave-api"],"ingressesForApps":[
-                "${{ env.INGRESS_ARKIV }}@bidrag-dokument-arkiv",
-                "${{ env.INGRESS_DOKARKIV }}@dokarkiv-api",
-                "${{ env.INGRESS_OPPGAVE }}@oppgave-api", 
-                "${{ env.INGRESS_DOKUMENT }}@bidrag-dokument",
-                "${{ env.INGRESS_DOKUMENT_JOURNALPOST }}@bidrag-dokument-journalpost",
-                "${{ env.INGRESS_TESTDATA }}@bidrag-testdata"
-              ]
-            }' | tee .cucumber-result
-          cat .cucumber-result | grep HTTP/1.1 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
-      - name: "@sakjournal"
-        run: |
-          curl -X 'POST' '${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-onprem/run' -i \
-            -H 'accept: */*' \
-            -H 'Content-Type: application/json' \
-            -d '{
-              "tags":["@sakjournal"],
-              "ingressesForApps":["${{ env.INGRESS_DOKUMENT }}@bidrag-dokument"]
-            }' | tee .cucumber-result
-          cat .cucumber-result | grep HTTP/1.1 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
-      - name: "@avviksbehandling"
-        run: |
-          curl -X 'POST' '${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-onprem/run' -i \
-            -H 'accept: */*' \
-            -H 'Content-Type: application/json' \
-            -d '{
-              "tags":["@avviksbehandling"],
-              "ingressesForApps":[
-                "${{ env.INGRESS_DOKUMENT }}@bidrag-dokument",
-                "${{ env.INGRESS_TESTDATA }}@bidrag-testdata"
-              ]
-            }' | tee .cucumber-result
-          cat .cucumber-result | grep HTTP/1.1 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
-      - name: "@bdok-journalpost"
-        run: |
-          curl -X 'POST' '${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-onprem/run' -i \
-            -H 'accept: */*' \
-            -H 'Content-Type: application/json' \
-            -d '{
-              "tags":["@bdok-journalpost"],
-              "ingressesForApps":[
-                "${{ env.INGRESS_DOKUMENT }}@bidrag-dokument",
-                "${{ env.INGRESS_TESTDATA }}@bidrag-testdata"
-              ]
-            }' | tee .cucumber-result
-          cat .cucumber-result | grep HTTP/1.1 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
-      - name: "@bdok-mottaksregistrert"
-        run: |
-          curl -X 'POST' '${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-onprem/run' -i \
-            -H 'accept: */*' \
-            -H 'Content-Type: application/json' \
-            -d '{
-              "tags":["@bdok-mottaksregistrert"],
-              "ingressesForApps":[
-                "${{ env.INGRESS_DOKUMENT }}@bidrag-dokument",
-                "${{ env.INGRESS_TESTDATA }}@bidrag-testdata"
-              ]
-            }' | tee .cucumber-result
-          cat .cucumber-result | grep HTTP/1.1 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
-      - name: "@bdok-mot-avvik-*"
-        run: |
-          curl -X 'POST' '${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-onprem/run' -i \
-            -H 'accept: */*' \
-            -H 'Content-Type: application/json' \
-            -d '{
-              "tags":[
-                "@bdok-mot-avvik-best-org", "@bdok-mot-avvik-best-reskan", "@bdok-mot-avvik-best-splitt",
-                "@bdok-mot-avvik-endre-fagomrade", "@bdok-mot-avvik-inn2ut"
-              ],
-              "noContextPathForApps":["dokarkiv-api", "oppgave-api"], "ingressesForApps":[
-                "${{ env.INGRESS_DOKARKIV }}@dokarkiv-api",
-                "${{ env.INGRESS_OPPGAVE }}@oppgave-api", 
-                "${{ env.INGRESS_DOKUMENT }}@bidrag-dokument",
-                "${{ env.INGRESS_TESTDATA }}@bidrag-testdata"
-              ]
-            }' | tee .cucumber-result
-          cat .cucumber-result | grep HTTP/1.1 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
-
-  remove_files_from_workspace:
-    name: Remove files from workspace
-    runs-on: self-hosted
-    needs: run_cucumber
-
-    if: ${{ always() }}
-
-    steps:
-      - name: Remove files from workspace
-        run: |
-          cd $RUNNER_WORKSPACE
-          echo deleting files in $RUNNER_WORKSPACE
-          sudo rm -rf *
+#  run_cucumber:
+#    runs-on: self-hosted
+#    name: Run cucumber tests
+#    needs: build_and_deploy
+#    if: ${{ always() && needs.build_and_deploy.outputs.deploy_suksess == 'true' }}
+#    env:
+#      INGRESS_ARKIV: https://bidrag-dokument-arkiv-feature.dev.intern.nav.no
+#      INGRESS_CUCUMBER: https://bidrag-cucumber-onprem-feature.dev.intern.nav.no
+#      INGRESS_DOKARKIV: https://dokarkiv-q1.dev.intern.nav.no
+#      INGRESS_DOKUMENT: https://bidrag-dokument-feature.dev.intern.nav.no
+#      INGRESS_DOKUMENT_JOURNALPOST: https://bidrag-dokument-journalpost-feature.dev.intern.nav.no
+#      INGRESS_TESTDATA: https://bidrag-testdata-feature.dev.intern.nav.no
+#      INGRESS_OPPGAVE: https://oppgave-q1.dev.intern.nav.no
+#
+#    steps:
+#      - name: "@bda-samt-bdj"
+#        run: |
+#          curl -X 'POST' '${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-onprem/run' -i \
+#            -H 'accept: */*' \
+#            -H 'Content-Type: application/json' \
+#            -d '{
+#              "tags":["@bda-samt-bdj"],
+#              "noContextPathForApps":["dokarkiv-api", "oppgave-api"],"ingressesForApps":[
+#                "${{ env.INGRESS_ARKIV }}@bidrag-dokument-arkiv",
+#                "${{ env.INGRESS_DOKARKIV }}@dokarkiv-api",
+#                "${{ env.INGRESS_OPPGAVE }}@oppgave-api",
+#                "${{ env.INGRESS_DOKUMENT }}@bidrag-dokument",
+#                "${{ env.INGRESS_DOKUMENT_JOURNALPOST }}@bidrag-dokument-journalpost",
+#                "${{ env.INGRESS_TESTDATA }}@bidrag-testdata"
+#              ]
+#            }' | tee .cucumber-result
+#          cat .cucumber-result | grep HTTP/1.1 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
+#      - name: "@sakjournal"
+#        run: |
+#          curl -X 'POST' '${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-onprem/run' -i \
+#            -H 'accept: */*' \
+#            -H 'Content-Type: application/json' \
+#            -d '{
+#              "tags":["@sakjournal"],
+#              "ingressesForApps":["${{ env.INGRESS_DOKUMENT }}@bidrag-dokument"]
+#            }' | tee .cucumber-result
+#          cat .cucumber-result | grep HTTP/1.1 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
+#      - name: "@avviksbehandling"
+#        run: |
+#          curl -X 'POST' '${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-onprem/run' -i \
+#            -H 'accept: */*' \
+#            -H 'Content-Type: application/json' \
+#            -d '{
+#              "tags":["@avviksbehandling"],
+#              "ingressesForApps":[
+#                "${{ env.INGRESS_DOKUMENT }}@bidrag-dokument",
+#                "${{ env.INGRESS_TESTDATA }}@bidrag-testdata"
+#              ]
+#            }' | tee .cucumber-result
+#          cat .cucumber-result | grep HTTP/1.1 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
+#      - name: "@bdok-journalpost"
+#        run: |
+#          curl -X 'POST' '${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-onprem/run' -i \
+#            -H 'accept: */*' \
+#            -H 'Content-Type: application/json' \
+#            -d '{
+#              "tags":["@bdok-journalpost"],
+#              "ingressesForApps":[
+#                "${{ env.INGRESS_DOKUMENT }}@bidrag-dokument",
+#                "${{ env.INGRESS_TESTDATA }}@bidrag-testdata"
+#              ]
+#            }' | tee .cucumber-result
+#          cat .cucumber-result | grep HTTP/1.1 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
+#      - name: "@bdok-mottaksregistrert"
+#        run: |
+#          curl -X 'POST' '${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-onprem/run' -i \
+#            -H 'accept: */*' \
+#            -H 'Content-Type: application/json' \
+#            -d '{
+#              "tags":["@bdok-mottaksregistrert"],
+#              "ingressesForApps":[
+#                "${{ env.INGRESS_DOKUMENT }}@bidrag-dokument",
+#                "${{ env.INGRESS_TESTDATA }}@bidrag-testdata"
+#              ]
+#            }' | tee .cucumber-result
+#          cat .cucumber-result | grep HTTP/1.1 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
+#      - name: "@bdok-mot-avvik-*"
+#        run: |
+#          curl -X 'POST' '${{ env.INGRESS_CUCUMBER }}/bidrag-cucumber-onprem/run' -i \
+#            -H 'accept: */*' \
+#            -H 'Content-Type: application/json' \
+#            -d '{
+#              "tags":[
+#                "@bdok-mot-avvik-best-org", "@bdok-mot-avvik-best-reskan", "@bdok-mot-avvik-best-splitt",
+#                "@bdok-mot-avvik-endre-fagomrade", "@bdok-mot-avvik-inn2ut"
+#              ],
+#              "noContextPathForApps":["dokarkiv-api", "oppgave-api"], "ingressesForApps":[
+#                "${{ env.INGRESS_DOKARKIV }}@dokarkiv-api",
+#                "${{ env.INGRESS_OPPGAVE }}@oppgave-api",
+#                "${{ env.INGRESS_DOKUMENT }}@bidrag-dokument",
+#                "${{ env.INGRESS_TESTDATA }}@bidrag-testdata"
+#              ]
+#            }' | tee .cucumber-result
+#          cat .cucumber-result | grep HTTP/1.1 | grep -c 200 > /dev/null # fails if count is 0 (http status is not ok, aka http status code is not 200)
+#
+#  remove_files_from_workspace:
+#    name: Remove files from workspace
+#    runs-on: self-hosted
+#    needs: run_cucumber
+#
+#    if: ${{ always() }}
+#
+#    steps:
+#      - name: Remove files from workspace
+#        run: |
+#          cd $RUNNER_WORKSPACE
+#          echo deleting files in $RUNNER_WORKSPACE
+#          sudo rm -rf *

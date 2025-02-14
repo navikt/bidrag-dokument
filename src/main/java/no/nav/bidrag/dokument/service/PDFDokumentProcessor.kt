@@ -27,6 +27,7 @@ class PDFDokumentProcessor {
     private var document: PDDocument? = null
     private lateinit var originalDocument: ByteArray
     private var documentProperties: DocumentProperties? = null
+
     fun process(
         dokumentFil: ByteArray,
         documentProperties: DocumentProperties,
@@ -39,25 +40,26 @@ class PDFDokumentProcessor {
         this.documentProperties = documentProperties
         val documentByteStream = ByteArrayOutputStream()
         try {
-            Loader.loadPDF(
-                RandomAccessReadBuffer(dokumentFil),
-                MemoryUsageSetting.setupTempFileOnly().streamCache,
-            ).use { document ->
-                this.document = document
-                if (documentProperties.resizeToA4()) {
-                    konverterAlleSiderTilA4()
+            Loader
+                .loadPDF(
+                    RandomAccessReadBuffer(dokumentFil),
+                    MemoryUsageSetting.setupTempFileOnly().streamCache,
+                ).use { document ->
+                    this.document = document
+                    if (documentProperties.resizeToA4()) {
+                        konverterAlleSiderTilA4()
+                    }
+                    if (documentProperties.optimizeForPrint()) {
+                        optimaliserForDobbelsidigPrinting()
+                    }
+                    val compression =
+                        if (withCompression) CompressParameters.DEFAULT_COMPRESSION else CompressParameters.NO_COMPRESSION
+                    this.document?.isAllSecurityToBeRemoved = true
+                    log.info { "Lagrer dokument med kompresjon ${compression.isCompress}" }
+                    this.document?.save(documentByteStream, compression)
+                    this.document?.close()
+                    return documentByteStream.toByteArray()
                 }
-                if (documentProperties.optimizeForPrint()) {
-                    optimaliserForDobbelsidigPrinting()
-                }
-                val compression =
-                    if (withCompression) CompressParameters.DEFAULT_COMPRESSION else CompressParameters.NO_COMPRESSION
-                this.document?.isAllSecurityToBeRemoved = true
-                log.info { "Lagrer dokument med kompresjon ${compression.isCompress}" }
-                this.document?.save(documentByteStream, compression)
-                this.document?.close()
-                return documentByteStream.toByteArray()
-            }
         } catch (e: Exception) {
             log.error(e) { "Det skjedde en feil ved prossesering av PDF dokument" }
             return dokumentFil
@@ -80,25 +82,25 @@ class PDFDokumentProcessor {
         }
     }
 
-    private fun documentHasOddNumberOfPages(): Boolean {
-        return document != null && document!!.numberOfPages % 2 != 0
-    }
+    private fun documentHasOddNumberOfPages(): Boolean = document != null && document!!.numberOfPages % 2 != 0
 
     private fun isPageSizeA4(pdPage: PDPage): Boolean {
         val a4PageMediaBox = PDRectangle.A4
         val pageMediaBox = pdPage.mediaBox
         val hasSameHeightAndWidth =
-            isSameWithMargin(pageMediaBox.height, a4PageMediaBox.height, 1f) && isSameWithMargin(
-                pageMediaBox.width,
-                a4PageMediaBox.width,
-                1f,
-            )
+            isSameWithMargin(pageMediaBox.height, a4PageMediaBox.height, 1f) &&
+                isSameWithMargin(
+                    pageMediaBox.width,
+                    a4PageMediaBox.width,
+                    1f,
+                )
         val hasSameHeightAndWidthRotated =
-            isSameWithMargin(pageMediaBox.width, a4PageMediaBox.height, 1f) && isSameWithMargin(
-                pageMediaBox.height,
-                a4PageMediaBox.width,
-                1f,
-            )
+            isSameWithMargin(pageMediaBox.width, a4PageMediaBox.height, 1f) &&
+                isSameWithMargin(
+                    pageMediaBox.height,
+                    a4PageMediaBox.width,
+                    1f,
+                )
         return hasSameHeightAndWidth || hasSameHeightAndWidthRotated
     }
 
@@ -128,18 +130,16 @@ class PDFDokumentProcessor {
         }
     }
 
-    private fun isHorizontal(page: PDPage): Boolean {
-        return !isVertical(page)
-    }
+    private fun isHorizontal(page: PDPage): Boolean = !isVertical(page)
 
     /*
      En side skal roteres til å være vertikalt kun hvis siden er dimensjonert slik at høyden > bredden. Ellers skal det ignoreres
      */
-    private fun isVertical(page: PDPage): Boolean {
-        return Optional.ofNullable(page.mediaBox)
+    private fun isVertical(page: PDPage): Boolean =
+        Optional
+            .ofNullable(page.mediaBox)
             .map { mediaBox: PDRectangle -> mediaBox.height > mediaBox.width }
             .orElse(false)
-    }
 
     @Throws(IOException::class)
     private fun convertPageToA4(page: PDPage) {
@@ -157,12 +157,13 @@ class PDFDokumentProcessor {
         page.cropBox = PDRectangle.A4
     }
 
-    private fun isSameWithMargin(val1: Float, val2: Float, margin: Float): Boolean {
-        return abs(val1 - val2) < margin
-    }
+    private fun isSameWithMargin(
+        val1: Float,
+        val2: Float,
+        margin: Float,
+    ): Boolean = abs(val1 - val2) < margin
 
     companion object {
-
         @Throws(IOException::class)
         fun fileToByte(file: File): ByteArray {
             val inputStream = FileInputStream(file)
@@ -172,6 +173,7 @@ class PDFDokumentProcessor {
             return byteArray
         }
 
+        @OptIn(ExperimentalStdlibApi::class)
         fun bytesIntoHumanReadable(bytes: Long): String {
             val kilobyte: Long = 1024
             val megabyte = kilobyte * 1024
@@ -216,11 +218,12 @@ class PDFDokumentMerger {
                     tempfiles.add(tempFile)
                     mergedDocument.addSource(tempFile)
                 }
-                val compression = if (withCompression) {
-                    CompressParameters.DEFAULT_COMPRESSION
-                } else {
-                    CompressParameters.NO_COMPRESSION
-                }
+                val compression =
+                    if (withCompression) {
+                        CompressParameters.DEFAULT_COMPRESSION
+                    } else {
+                        CompressParameters.NO_COMPRESSION
+                    }
                 log.info { "Lagrer merget dokumenter med kompresjon ${compression.isCompress}" }
                 mergedDocument.mergeDocuments(
                     MemoryUsageSetting.setupTempFileOnly().streamCache,
@@ -246,13 +249,14 @@ class PDFDokumentMerger {
 
             try {
                 dokumentBytes.forEach {
-                    Loader.loadPDF(
-                        RandomAccessReadBuffer(it),
-                        MemoryUsageSetting.setupTempFileOnly().streamCache,
-                    ).use { document ->
-                        mergerUtility.appendDocument(mergedDocument, document)
-                        document.close()
-                    }
+                    Loader
+                        .loadPDF(
+                            RandomAccessReadBuffer(it),
+                            MemoryUsageSetting.setupTempFileOnly().streamCache,
+                        ).use { document ->
+                            mergerUtility.appendDocument(mergedDocument, document)
+                            document.close()
+                        }
                 }
 
                 mergedDocument.save(documentByteStream, CompressParameters.NO_COMPRESSION)
