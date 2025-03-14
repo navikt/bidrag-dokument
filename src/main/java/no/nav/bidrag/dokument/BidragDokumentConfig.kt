@@ -23,13 +23,13 @@ import org.apache.hc.core5.http.io.SocketConfig
 import org.apache.hc.core5.util.Timeout
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.web.client.RootUriTemplateHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.EnableAspectJAutoProxy
 import org.springframework.context.annotation.Import
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.util.DefaultUriBuilderFactory
 
 private val log = KotlinLogging.logger {}
 
@@ -60,11 +60,12 @@ class BidragDokumentConfig {
         securityTokenService: SecurityTokenService,
         meterRegistry: MeterRegistry,
     ): BidragDokumentConsumer {
-        val restTemplate = createRestTemplate(
-            journalpostBaseUrl,
-            securityTokenService,
-            KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST,
-        )
+        val restTemplate =
+            createRestTemplate(
+                journalpostBaseUrl,
+                securityTokenService,
+                KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST,
+            )
         return BidragDokumentConsumer(
             KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST,
             restTemplate,
@@ -80,11 +81,12 @@ class BidragDokumentConfig {
         securityTokenService: SecurityTokenService,
         meterRegistry: MeterRegistry,
     ): BidragDokumentConsumer {
-        val restTemplate = createRestTemplate(
-            bidragArkivBaseUrl,
-            securityTokenService,
-            KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV,
-        )
+        val restTemplate =
+            createRestTemplate(
+                bidragArkivBaseUrl,
+                securityTokenService,
+                KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV,
+            )
         return BidragDokumentConsumer(
             KLIENTNAVN_BIDRAG_DOKUMENT_ARKIV,
             restTemplate,
@@ -100,11 +102,12 @@ class BidragDokumentConfig {
         securityTokenService: SecurityTokenService,
         meterRegistry: MeterRegistry,
     ): BidragDokumentConsumer {
-        val restTemplate = createRestTemplate(
-            bidragForsendelseUrl,
-            securityTokenService,
-            KLIENTNAVN_BIDRAG_DOKUMENT_FORSENDELSE,
-        )
+        val restTemplate =
+            createRestTemplate(
+                bidragForsendelseUrl,
+                securityTokenService,
+                KLIENTNAVN_BIDRAG_DOKUMENT_FORSENDELSE,
+            )
         return BidragDokumentConsumer(
             KLIENTNAVN_BIDRAG_DOKUMENT_FORSENDELSE,
             restTemplate,
@@ -118,11 +121,12 @@ class BidragDokumentConfig {
         @Value("\${JOURNALPOST_URL}") journalpostBaseUrl: String,
         securityTokenService: SecurityTokenService,
     ): DokumentTilgangConsumer {
-        val restTemplate = createRestTemplate(
-            journalpostBaseUrl,
-            securityTokenService,
-            KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST,
-        )
+        val restTemplate =
+            createRestTemplate(
+                journalpostBaseUrl,
+                securityTokenService,
+                KLIENTNAVN_BIDRAG_DOKUMENT_JOURNALPOST,
+            )
         return DokumentTilgangConsumer(restTemplate)
     }
 
@@ -140,14 +144,12 @@ class BidragDokumentConfig {
         httpHeaderRestTemplate.interceptors.add(securityTokenService.authTokenInterceptor(clientId))
         httpHeaderRestTemplate.withDefaultHeaders()
         httpHeaderRestTemplate.requestFactory = requestFactory
-        httpHeaderRestTemplate.uriTemplateHandler = RootUriTemplateHandler(baseUrl)
+        httpHeaderRestTemplate.uriTemplateHandler = DefaultUriBuilderFactory(baseUrl)
         return httpHeaderRestTemplate
     }
 
     @Bean
-    fun timedAspect(registry: MeterRegistry): TimedAspect {
-        return TimedAspect(registry)
-    }
+    fun timedAspect(registry: MeterRegistry): TimedAspect = TimedAspect(registry)
 
     companion object {
         const val DELIMTER = "-"
