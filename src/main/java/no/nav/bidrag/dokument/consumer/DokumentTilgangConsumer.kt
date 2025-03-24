@@ -4,7 +4,9 @@ import no.nav.bidrag.transport.dokument.DokumentTilgangResponse
 import org.springframework.http.HttpMethod
 import org.springframework.web.client.RestTemplate
 
-class DokumentTilgangConsumer(private val restTemplate: RestTemplate) {
+class DokumentTilgangConsumer(
+    private val restTemplate: RestTemplate,
+) {
     fun hentTilgangUrl(
         journalpostId: String?,
         dokumentreferanse: String?,

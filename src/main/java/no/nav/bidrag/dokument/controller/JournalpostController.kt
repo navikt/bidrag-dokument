@@ -105,10 +105,10 @@ class JournalpostController(
     @Operation(
         security = [SecurityRequirement(name = "bearer-key")],
         description =
-        "Hent en journalpost for en id på formatet [" + BidragDokumentConfig.PREFIX_BIDRAG + '|' + BidragDokumentConfig.PREFIX_JOARK +
-            ']' +
-            BidragDokumentConfig.DELIMTER +
-            "<journalpostId>",
+            "Hent en journalpost for en id på formatet [" + BidragDokumentConfig.PREFIX_BIDRAG + '|' + BidragDokumentConfig.PREFIX_JOARK +
+                ']' +
+                BidragDokumentConfig.DELIMTER +
+                "<journalpostId>",
     )
     @ApiResponses(
         value = [
@@ -161,11 +161,11 @@ class JournalpostController(
     @Operation(
         security = [SecurityRequirement(name = "bearer-key")],
         description =
-        "Henter mulige avvik for en journalpost, id på formatet [" + BidragDokumentConfig.PREFIX_BIDRAG + '|' +
-            BidragDokumentConfig.PREFIX_JOARK +
-            ']' +
-            BidragDokumentConfig.DELIMTER +
-            "<journalpostId>",
+            "Henter mulige avvik for en journalpost, id på formatet [" + BidragDokumentConfig.PREFIX_BIDRAG + '|' +
+                BidragDokumentConfig.PREFIX_JOARK +
+                ']' +
+                BidragDokumentConfig.DELIMTER +
+                "<journalpostId>",
     )
     @ApiResponses(
         value = [
@@ -208,11 +208,11 @@ class JournalpostController(
     @Operation(
         security = [SecurityRequirement(name = "bearer-key")],
         description =
-        "Lagrer et avvik for en journalpost, id på formatet [" + BidragDokumentConfig.PREFIX_BIDRAG + '|' +
-            BidragDokumentConfig.PREFIX_JOARK +
-            ']' +
-            BidragDokumentConfig.DELIMTER +
-            "<journalpostId>",
+            "Lagrer et avvik for en journalpost, id på formatet [" + BidragDokumentConfig.PREFIX_BIDRAG + '|' +
+                BidragDokumentConfig.PREFIX_JOARK +
+                ']' +
+                BidragDokumentConfig.DELIMTER +
+                "<journalpostId>",
     )
     @ApiResponses(
         value = [
@@ -281,11 +281,11 @@ class JournalpostController(
     @Operation(
         security = [SecurityRequirement(name = "bearer-key")],
         summary =
-        "Endre eksisterende journalpost, id på formatet [" + BidragDokumentConfig.PREFIX_BIDRAG + '|' +
-            BidragDokumentConfig.PREFIX_JOARK +
-            ']' +
-            BidragDokumentConfig.DELIMTER +
-            "<journalpostId>",
+            "Endre eksisterende journalpost, id på formatet [" + BidragDokumentConfig.PREFIX_BIDRAG + '|' +
+                BidragDokumentConfig.PREFIX_JOARK +
+                ']' +
+                BidragDokumentConfig.DELIMTER +
+                "<journalpostId>",
     )
     @ApiResponses(
         value = [

@@ -62,11 +62,15 @@ internal class DokumentRefControllerTest {
             Consumer { response: ResponseEntity<DokumentTilgangResponse> ->
                 org.junit.jupiter.api.Assertions.assertAll(
                     {
-                        Assertions.assertThat(response.statusCode).`as`("status")
+                        Assertions
+                            .assertThat(response.statusCode)
+                            .`as`("status")
                             .isEqualTo(HttpStatus.OK)
                     },
                     {
-                        Assertions.assertThat(response).extracting { it.body }
+                        Assertions
+                            .assertThat(response)
+                            .extracting { it.body }
                             .`as`("url")
                             .isEqualTo(DokumentTilgangResponse(dokumentUrl, type))
                     },
@@ -92,7 +96,5 @@ internal class DokumentRefControllerTest {
         )
     }
 
-    private fun localhostUrl(url: String): String {
-        return "http://localhost:$port$url"
-    }
+    private fun localhostUrl(url: String): String = "http://localhost:$port$url"
 }
