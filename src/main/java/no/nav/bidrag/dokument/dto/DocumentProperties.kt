@@ -16,10 +16,15 @@ data class DocumentProperties(
     )
 
     fun hasMoreThanOneDocument(): Boolean = numberOfDocuments != null && numberOfDocuments!! > 1
+
     fun isLastDocument(): Boolean =
-        numberOfDocuments != null && currentDocumentIndex != null && numberOfDocuments!! > 1 && numberOfDocuments == (currentDocumentIndex!! + 1)
+        numberOfDocuments != null &&
+            currentDocumentIndex != null &&
+            numberOfDocuments!! > 1 &&
+            numberOfDocuments == (currentDocumentIndex!! + 1)
 
     fun resizeToA4(): Boolean = resizeToA4 == true
+
     fun optimizeForPrint(): Boolean = optimizeForPrint == true
 
     fun shouldProcess(): Boolean = resizeToA4() || optimizeForPrint()

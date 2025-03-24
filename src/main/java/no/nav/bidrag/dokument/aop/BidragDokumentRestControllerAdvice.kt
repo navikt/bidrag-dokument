@@ -20,7 +20,8 @@ class BidragDokumentRestControllerAdvice : ResponseEntityExceptionHandler() {
     @ExceptionHandler
     fun handleOtherExceptions(exception: Exception): ResponseEntity<*> {
         log.error(exception) { "Det skjedde en ukjent feil: " + exception.message }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        return ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .header(HttpHeaders.WARNING, "Det skjedde en ukjent feil: " + exception.message)
             .build<Any>()
     }
@@ -29,19 +30,20 @@ class BidragDokumentRestControllerAdvice : ResponseEntityExceptionHandler() {
     @ExceptionHandler
     fun handleOtherErrors(error: Error): ResponseEntity<*> {
         log.error(error) { "Det skjedde en ukjent feil: " + error.message }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        return ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .header(
                 HttpHeaders.WARNING,
                 "Det skjedde en ukjent feil: " + error.javaClass.simpleName,
-            )
-            .build<Any>()
+            ).build<Any>()
     }
 
     @ResponseBody
     @ExceptionHandler
     fun handleHttClientErrorException(httpClientErrorException: HttpStatusCodeException): ResponseEntity<*> {
         log.warn(httpClientErrorException) { getWarningHeader(httpClientErrorException) }
-        return ResponseEntity.status(httpClientErrorException.statusCode)
+        return ResponseEntity
+            .status(httpClientErrorException.statusCode)
             .header(HttpHeaders.WARNING, getWarningHeader(httpClientErrorException))
             .build<Any>()
     }
@@ -52,7 +54,8 @@ class BidragDokumentRestControllerAdvice : ResponseEntityExceptionHandler() {
         req: HttpServletRequest?,
     ): ResponseEntity<*> {
         log.warn(ex) { "Ugyldig sikkerhetstoken for url=${req?.requestURL}" }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
             .header(HttpHeaders.WARNING, "Ugyldig sikkerhetstoken")
             .build<Any>()
     }

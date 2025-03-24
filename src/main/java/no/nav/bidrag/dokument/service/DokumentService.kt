@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpStatusCodeException
 import java.io.IOException
-import java.util.*
 import java.util.stream.Collectors
 
 @Service
@@ -161,12 +160,12 @@ class DokumentService(
             journalpostId = dokument.journalpostId,
             dokumentId = dokument.dokumentreferanse,
             kilde =
-            when (dokument.arkivsystem) {
-                DokumentArkivSystemDto.MIDLERTIDLIG_BREVLAGER -> Kilde.MIDLERTIDLIG_BREVLAGER
-                DokumentArkivSystemDto.JOARK -> Kilde.JOARK
-                DokumentArkivSystemDto.BIDRAG -> Kilde.FORSENDELSE
-                else -> null
-            },
+                when (dokument.arkivsystem) {
+                    DokumentArkivSystemDto.MIDLERTIDLIG_BREVLAGER -> Kilde.MIDLERTIDLIG_BREVLAGER
+                    DokumentArkivSystemDto.JOARK -> Kilde.JOARK
+                    DokumentArkivSystemDto.BIDRAG -> Kilde.FORSENDELSE
+                    else -> null
+                },
         )
 
     private fun parseDokumentString(dokumenterString: List<String>): List<DokumentRef> =

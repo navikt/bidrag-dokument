@@ -5,8 +5,8 @@ data class DokumentRef(
     val dokumentId: String?,
     val kilde: Kilde? = null,
 ) {
-    fun erForKilde(kilde: Kilde): Boolean {
-        return if (this.kilde != null) {
+    fun erForKilde(kilde: Kilde): Boolean =
+        if (this.kilde != null) {
             this.kilde == kilde
         } else {
             when (kilde) {
@@ -15,7 +15,6 @@ data class DokumentRef(
                 Kilde.FORSENDELSE -> journalpostId.isNullOrEmpty() || journalpostId.startsWith(Kilde.FORSENDELSE.prefix)
             }
         }
-    }
 
     fun hasDokumentId(): Boolean = dokumentId?.isNotEmpty() == true
 
@@ -27,7 +26,9 @@ data class DokumentRef(
     }
 }
 
-enum class Kilde(var prefix: String) {
+enum class Kilde(
+    var prefix: String,
+) {
     JOARK("JOARK"),
     MIDLERTIDLIG_BREVLAGER("BID"),
     FORSENDELSE("BIF"),
