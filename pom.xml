@@ -36,9 +36,6 @@
     <kotlin-logging-jvm.version>3.0.5</kotlin-logging-jvm.version>
 
     <!-- build -->
-    <build-helper-maven.version>3.4.0</build-helper-maven.version>
-    <maven.compiler.version>3.8.0</maven.compiler.version>
-    <maven.surefire.version>2.22.0</maven.surefire.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <skipOwasp>false</skipOwasp>
@@ -349,30 +346,12 @@
               <goal>repackage</goal>
             </goals>
             <configuration>
-              <finalName>app</finalName>
               <classifier>exec</classifier>
             </configuration>
           </execution>
         </executions>
       </plugin>
 
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>${build-helper-maven.version}</version>
-        <executions>
-          <execution>
-            <id>remove-old-artifacts</id>
-            <phase>package</phase>
-            <goals>
-              <goal>remove-project-artifact</goal>
-            </goals>
-            <configuration>
-              <removeAll>true</removeAll>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
