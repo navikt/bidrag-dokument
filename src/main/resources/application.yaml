@@ -15,7 +15,8 @@ management:
 
 springdoc:
   packages-to-scan: no.nav.bidrag.dokument.controller
-
+management.metrics.distribution.percentiles-histogram.http.server.requests: true
+management.metrics.distribution.percentiles-histogram.http.client.requests: true
 ---
 
 ####################################################################
