@@ -38,6 +38,12 @@ azure:
       - application: bidrag-behandling-q1
         namespace: bidrag
         cluster: dev-gcp
+      - application: bidrag-automatisk-jobb-q1
+        namespace: bidrag
+        cluster: dev-gcp
+      - application: bidrag-automatisk-jobb-q4
+        namespace: bidrag
+        cluster: dev-gcp
 ingresses:
   - https://bidrag-dokument-feature.dev.adeo.no/
   - https://bidrag-dokument-feature.dev.intern.nav.no/
