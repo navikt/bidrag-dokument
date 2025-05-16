@@ -14,6 +14,11 @@ spec:
     autoInstrumentation:
       enabled: true
       runtime: java
+    logging:
+      destinations:
+        - id: loki
+        - id: elastic
+        - id: secure_logs
   azure:
     application:
       allowAllUsers: true
@@ -24,6 +29,10 @@ spec:
   secureLogs:
     enabled: true
   accessPolicy:
+    outbound:
+        rules:
+         - application: logging
+           namespace: nais-system
     inbound:
       rules:
       {{#each azure.inbound.rules}}
