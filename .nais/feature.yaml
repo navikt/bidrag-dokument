@@ -55,3 +55,9 @@ env:
   STS_ISSUER_URL: https://security-token-service.dev.adeo.no
   JAVA_OPTS: -Xms1500m -Xmx1500m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxRAMPercentage=80.0 -XX:+UseContainerSupport -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
 path: dev
+cpu:
+  limits: 1000m
+  requests: 50m
+memory:
+  limits: 2Gi
+  requests: 1Gi

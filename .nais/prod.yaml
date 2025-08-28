@@ -44,5 +44,11 @@ env:
     BIDRAG_DOKUMENT_ARKIV_CLIENT_ID: prod-fss.bidrag.bidrag-dokument-arkiv
     BIDRAG_DOKUMENT_FORSENDELSE_CLIENT_ID: prod-gcp.bidrag.bidrag-dokument-forsendelse
     STS_ISSUER_URL: https://security-token-service.nais.adeo.no
-    JAVA_OPTS: -Xms1500m -Xmx1500m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp -XX:MaxRAMPercentage=80.0
+    JAVA_OPTS: -XX:MaxRAMPercentage=75
 path: prod
+cpu:
+  limits: 1000m
+  requests: 200m
+memory:
+  limits: 6500Mi
+  requests: 4400Mi
