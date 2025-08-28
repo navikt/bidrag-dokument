@@ -61,4 +61,4 @@ cpu:
   requests: 50m
 memory:
   limits: 2Gi
-  requests: 1Gi
+  requests: 1000m
