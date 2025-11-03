@@ -22,7 +22,7 @@
 
     <!-- language -->
     <java.version>21</java.version>
-    <kotlin.version>2.1.0</kotlin.version>
+    <kotlin.version>2.1.20</kotlin.version>
 
     <!-- dependent versions other than from spring-boot -->
     <bidrag-felles.version>2025.03.14.124512</bidrag-felles.version>
